@@ -124,10 +124,10 @@ namespace weapon_data
         /// </summary>
         internal static void Print(object str = null)
         {
-#if DEBUG
             if (str == null)
                 str = string.Empty;
 
+#if DEBUG
             // Debug Output
             if (!Console.IsOutputRedirected)
             {
@@ -135,9 +135,9 @@ namespace weapon_data
             }
             else
                 Debug.WriteLine(str ?? "null");
+#endif
 
             Venat?.Invoke(Main.outputMammet, new object[] { str.ToString() });
-#endif
         }
         #endregion
     }

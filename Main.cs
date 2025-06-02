@@ -401,6 +401,8 @@ namespace weapon_data
             
                 var activeLabel = binName + "; Reading Script...";
                 CTUpdateLabel(activeLabel);
+                InitializeDcStructListsByScriptName(binName);
+
                 echo ($"Reading the whatever it's called. (length: {tableLength})");
                 if (abort) {
                     goto yeet;
@@ -448,14 +450,13 @@ namespace weapon_data
                             
                             for (int arrayIndex = 0; arrayIndex < mapLength && !abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
                             {
-                                Venat?.Invoke(Main.outputMammetSameLine, new object[] { $"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}" });
+                                Venat?.Invoke(outputMammetSameLine, new object[] { $"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}" });
                                 var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
                                 var structType = DecodeSIDHash(sidbase, GetSubArray(binFile, structAddr - 8));
 
                                 switch (structType)
                                 {
                                     case "weapon-gameplay-def":
-                                        //Print($"   {structType} @:0x{structAddr.ToString("X").PadLeft(6, '0')}");
                                         weaponDefinitions.Add(new WeaponGameplayDef(DecodeSIDHash(sidbase, GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
                                         break;
 
@@ -473,7 +474,7 @@ namespace weapon_data
                             break;
 
                         case "symbol-array":
-                            break;
+                            //break;
                             var sArrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
                             var sArrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
 
@@ -485,7 +486,7 @@ namespace weapon_data
                             Print("");
                             break;
                         case "ammo-to-weapon-array":
-                            break;
+                            //break;
                             var atwArrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
                             var atwArrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
 
@@ -508,6 +509,8 @@ namespace weapon_data
                 yeet:
                 CTUpdateLabel(binName + " Finished Loading dc File");
                 Venat.Invoke(buttonMammet, new object[] { false });
+
+                abort = false;
             }
             catch(ThreadAbortException){}
         }
