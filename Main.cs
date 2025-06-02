@@ -98,6 +98,7 @@ namespace weapon_data
         private static binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
         private static binThreadFormWand buttonMammet = new binThreadFormWand((obj) => { abortBtn.Visible = (bool)obj; });
         public static binThreadFormWand outputMammet = new binThreadFormWand((obj) => { _OutputWindow.AppendLine(obj.ToString()); });
+        public static binThreadFormWand outputMammetSameLine = new binThreadFormWand((obj) => { uPrint(obj.ToString()); });
         #endregion
 
 
@@ -239,7 +240,7 @@ namespace weapon_data
         /// <param name="index"> The start index in <paramref name="array"/> from which the copying starts. </param>
         /// <param name="len"> The length of the sub-array to be returned. Defaults to 8 bytes. </param>
         /// <returns> A byte array of 8 bytes (or an optional different length) copied from the specified <paramref name="index"/> in <paramref name="array"/>. </returns>
-        private static byte[] GetSubArray(byte[] array, int index, int len = 8)
+        public static byte[] GetSubArray(byte[] array, int index, int len = 8)
         {
             var ret = new byte[8];
             Buffer.BlockCopy(array, index, ret, 0, len);
@@ -417,6 +418,7 @@ namespace weapon_data
                 if (abort) {
                     goto yeet;
                 }
+                Print($"Parsing Initial DC Array (Length: {tableLength.ToString().PadLeft(2, '0')})");
                 for (int tableIndex = 0; tableIndex < tableLength && !abort; tableIndex++)
                 {
                     CTUpdateLabel(activeLabel + $" ({tableIndex} / {tableLength})");
@@ -441,20 +443,31 @@ namespace weapon_data
                             var mapSymbolArray = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
                             long mapStructArray = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 16), 0);
 
+
                             Print($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]");
+                            
                             for (int arrayIndex = 0; arrayIndex < mapLength && !abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
                             {
+                                Venat?.Invoke(Main.outputMammetSameLine, new object[] { $"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}" });
                                 var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
+                                var structType = DecodeSIDHash(sidbase, GetSubArray(binFile, structAddr - 8));
 
-                                if (DecodeSIDHash(sidbase, GetSubArray(binFile, structAddr - 8)) == "weapon-gameplay-def")
+                                switch (structType)
                                 {
-                                    var weaponDefenitionAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)BitConverter.ToInt64(GetSubArray(binFile, (int)structAddr + 0x10), 0) + 0x98), 0);
+                                    case "weapon-gameplay-def":
+                                        //Print($"   {structType} @:0x{structAddr.ToString("X").PadLeft(6, '0')}");
+                                        weaponDefinitions.Add(new WeaponGameplayDef(DecodeSIDHash(sidbase, GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
+                                        break;
 
-                                    Print($"   Weapon Gameplay Definition #{arrayIndex.ToString().PadLeft(2, '0')}: Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')} {DecodeSIDHash(sidbase, GetSubArray(binFile, (int)mapSymbolArray))} Ammo Count: {weaponDefenitionAddr}");
+                                    default:
+                                        Print($"   {structType} #{arrayIndex.ToString().PadLeft(2, '0')}: Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')} {DecodeSIDHash(sidbase, GetSubArray(binFile, (int)mapSymbolArray))}");
+                                        break;
                                 }
-
-                                else 
-                                    Print($"   {DecodeSIDHash(sidbase, GetSubArray(binFile, structAddr - 8))} #{arrayIndex.ToString().PadLeft(2, '0')}: Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')} {DecodeSIDHash(sidbase, GetSubArray(binFile, (int)mapSymbolArray))}");
+                            }
+                            if (weaponDefinitions.Count > 0)
+                            {
+                                foreach(var newDef in weaponDefinitions)
+                                    Print($"{newDef.Name} Ammo Count: {newDef.AmmoCount}");
                             }
                             Print("");
                             break;

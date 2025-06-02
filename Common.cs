@@ -113,6 +113,12 @@ namespace weapon_data
         //## Logging function
         //#
 
+        internal static void uPrint(string str)
+        {
+            _OutputWindow.Text = _OutputWindow.Text.Remove(_OutputWindow.Text.LastIndexOf("\n")) + '\n' + str;
+            _OutputWindow.Update();
+        }
+
         /// <summary>
         /// Output Misc. Messages to the Main Output Window (the big-ass richtext box).
         /// </summary>
