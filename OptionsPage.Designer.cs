@@ -83,7 +83,7 @@ namespace weapon_data
             this.SidbasePathBrowseBtn.TabIndex = 8;
             this.SidbasePathBrowseBtn.Text = "Browse...";
             this.SidbasePathBrowseBtn.UseVisualStyleBackColor = false;
-            this.SidbasePathBrowseBtn.Click += new System.EventHandler(this.GP4OutputDirectoryBrowseBtn_Click);
+            this.SidbasePathBrowseBtn.Click += new System.EventHandler(this.UNUSEDBrowseBtn_Click);
             // 
             // UnusedBrowseBtn
             // 
@@ -246,6 +246,7 @@ namespace weapon_data
         }
         #endregion
 
+
         
         //================================\\
         //--|   Control Declarations   |--\\
@@ -262,11 +263,11 @@ namespace weapon_data
         private Button DownloadSourceBtn;
         private Label Title2;
         private Label CreditsLabel;
-        private Button dummy; // I forget why this is here
-        #endregion
-
         private TextBox sidbasePathTextBox;
         private TextBox UnusedPathTextBox;
         public CheckBox DebugOutputCheckBox;
+
+        private Button dummy;
+        #endregion
     }
 }

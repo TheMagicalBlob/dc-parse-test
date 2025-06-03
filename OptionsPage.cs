@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.IO;
 using System.Drawing;
 using System.Net.Http;
 using System.Windows.Forms;
@@ -17,6 +18,15 @@ namespace weapon_data
             
             Paint += PaintBorder;
             TinyVersionLabel.Text = Version; // Set Version Label
+
+            
+            sidbasePathTextBox.TextChanged += (sender, _) =>
+            {
+                if (File.Exists(((TextBox)sender).Text))
+                {
+                    sidbase = File.ReadAllBytes(((TextBox)sender).Text);
+                }
+            };
         }
 
         
@@ -93,12 +103,12 @@ namespace weapon_data
                         HttpResponseMessage reply;
                         client.DefaultRequestHeaders.Add("User-Agent", "Other"); // Set request headers to avoid error 403
                    
-                        if ((reply = await client.GetAsync("https://api.github.com/repos/TheMagicalBlob/OrbisGP4/tags")).IsSuccessStatusCode)
+                        if ((reply = await client.GetAsync("https://api.github.com/repos/TheMagicalBlob/weapon-data/tags")).IsSuccessStatusCode)
                         {
                             var message = reply.Content.ReadAsStringAsync().Result;
                             var tag = message.Remove(message.IndexOf(',') - 1).Substring(message.IndexOf(':') + 2);
     #if DEBUG
-                            Print($"Newest Tag: [{tag}]");
+                            PrintNL($"Newest Tag: [{tag}]");
     #endif
 
                             if (tag != Version) {
@@ -110,10 +120,10 @@ namespace weapon_data
                                 if (checkedVersion.Length != currentVersion.Length)
                                 {
                                     if (checkedVersion.Length < currentVersion.Length) {
-                                        Print("Application Up-to-Date");
+                                        PrintNL("Application Up-to-Date");
                                     }
                                     else
-                                        Print($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/OrbisGP4/releases");
+                                        PrintNL($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/weapon-data/releases");
                                     return;
                                 }
 
@@ -123,21 +133,21 @@ namespace weapon_data
                                     var newnum = checkedVersion[i];
 
                                     if (int.Parse(currnum) < int.Parse(newnum)) {
-                                        Print($"New Version Available. (//! print link or prompt to open in browser)");
+                                        PrintNL($"New Version Available. (//! print link or prompt to open in browser)");
                                         return;
                                     }
                                 }
                             
-                                Print("Application Up-to-Date");
+                                PrintNL("Application Up-to-Date");
                             }
                         }
                         else
-                            Print($"Error checking for newest tag (Status: {reply.StatusCode})");
+                            PrintNL($"Error checking for newest tag (Status: {reply.StatusCode})");
                     }
                 }
             }
             catch (Exception dang) {
-                Print($"Unable to connect to api.github");
+                PrintNL($"Unable to connect to api.github");
             }
         }
 
@@ -145,10 +155,7 @@ namespace weapon_data
         // Prompt user to open their default browser and download the latest source code
         private void DownloadSourceBtn_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("update source code link in your copy-pasted code you lazy fuck", "hey, at least it's my own code I'm stealin'.");
-            return;
-
-            Print("Download Latest Source: https://github.com/TheMagicalBlob/OrbisGP4/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
+            PrintNL("Download Latest Source: https://github.com/TheMagicalBlob/weapon-data/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
             
             if (MessageBox.Show(
                     "Download the latest source code through this system's default browser?\n\n(Download Will Start Automatically)",
@@ -158,14 +165,14 @@ namespace weapon_data
                 ) 
                 == DialogResult.Yes)
             {
-                System.Diagnostics.Process.Start("https://github.com/TheMagicalBlob/OrbisGP4/archive/refs/heads/master.zip");
+                System.Diagnostics.Process.Start("https://github.com/TheMagicalBlob/weapon-data/archive/refs/heads/master.zip");
             }
             else Azem.BringToFront();
         }
 
 
         // Choose a .gp4 Output Path Through Either a FolderBrowserDialogue, or OpenFileDialogue Instance (W/ the hackey Dummy File Method.
-        private void GP4OutputDirectoryBrowseBtn_Click(object sender, EventArgs e)
+        private void UNUSEDBrowseBtn_Click(object sender, EventArgs e)
         {
             // Use the ghastly Directory Tree Dialogue to Choose A Folder
             if (LegacyFolderSelectionDialogue)
@@ -185,7 +192,7 @@ namespace weapon_data
                     ValidateNames = false,
                     CheckPathExists = false,
                     CheckFileExists = false,
-                    Title = "",
+                    Title = "Do not highlight any files, press open once inside.",
                     FileName = "Press 'Open' Once Inside The Desired Folder.",
                     Filter = "Folder Selection|*."
                 };

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Security.Policy;
+using static weapon_data.Common;
 
 
 namespace weapon_data
@@ -41,6 +42,12 @@ namespace weapon_data
     }
 
 
+
+    //==========================\\
+    //--|   MAP STRUCTURES   |--\\
+    //==========================\\
+    #region [MAP STRUCTURES]
+
     public struct WeaponGameplayDef
     {
         public WeaponGameplayDef(string name, byte[] binFile, long address)
@@ -56,11 +63,23 @@ namespace weapon_data
 
             Address = (int)address;
             Name = name;
+
+            var GameplayDefinitionAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)address + 0x10), 0);
+            GameplayDefinitionType = "none";
+
+            if (GameplayDefinitionAddress != 0)
+            {
+                echo($"Def Address: {GameplayDefinitionAddress:X}");
+                GameplayDefinitionType = DecodeSIDHash(GetSubArray(binFile, GameplayDefinitionAddress - 8));
+            }
+            
             AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)BitConverter.ToInt64(GetSubArray(binFile, (int)address + 0x10), 0) + 0x98), 0);
         }
 
         public int Address;
         public string Name;
+
+        public string GameplayDefinitionType;
 
         public int AmmoCount;
     }
@@ -80,4 +99,5 @@ namespace weapon_data
 
         }
     }
+    #endregion
 }

@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System;
+using System.Windows.Forms;
 
 namespace weapon_data
 {
@@ -36,16 +38,16 @@ namespace weapon_data
             this.ActiveScriptLabel = new System.Windows.Forms.Label();
             this.ExitBtn = new System.Windows.Forms.Button();
             this.MinimizeBtn = new System.Windows.Forms.Button();
-            this.sidbasePathTextBox = new weapon_data.TextBox();
             this.richTextBox1 = new weapon_data.RichTextBox();
             this.binPathTextBox = new weapon_data.TextBox();
             this.AbortBtn = new System.Windows.Forms.Button();
+            this.ReloadScriptBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BrowseBtn
             // 
             this.BrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.BrowseBtn.Location = new System.Drawing.Point(473, 35);
+            this.BrowseBtn.Location = new System.Drawing.Point(475, 35);
             this.BrowseBtn.Name = "BrowseBtn";
             this.BrowseBtn.Size = new System.Drawing.Size(75, 23);
             this.BrowseBtn.TabIndex = 1;
@@ -56,7 +58,7 @@ namespace weapon_data
             // optionsMenuDropdownBtn
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(552, 35);
+            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(555, 35);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(75, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
@@ -112,18 +114,6 @@ namespace weapon_data
             this.MinimizeBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.MinimizeBtn.UseVisualStyleBackColor = false;
             // 
-            // sidbasePathTextBox
-            // 
-            this.sidbasePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.sidbasePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
-            this.sidbasePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.sidbasePathTextBox.Location = new System.Drawing.Point(8, 64);
-            this.sidbasePathTextBox.Name = "sidbasePathTextBox";
-            this.sidbasePathTextBox.Size = new System.Drawing.Size(189, 24);
-            this.sidbasePathTextBox.TabIndex = 6;
-            this.sidbasePathTextBox.Text = "No valid sidbase.bin found or provided";
-            this.sidbasePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
             // richTextBox1
             // 
             this.richTextBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -148,14 +138,24 @@ namespace weapon_data
             // AbortBtn
             // 
             this.AbortBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.AbortBtn.Location = new System.Drawing.Point(562, 64);
+            this.AbortBtn.Location = new System.Drawing.Point(567, 64);
             this.AbortBtn.Name = "AbortBtn";
-            this.AbortBtn.Size = new System.Drawing.Size(55, 23);
+            this.AbortBtn.Size = new System.Drawing.Size(50, 23);
             this.AbortBtn.TabIndex = 9;
             this.AbortBtn.Text = "Abort";
             this.AbortBtn.UseVisualStyleBackColor = false;
             this.AbortBtn.Visible = false;
             this.AbortBtn.Click += new System.EventHandler(this.abortBtn_Click);
+            // 
+            // ReloadScriptBtn
+            // 
+            this.ReloadScriptBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.ReloadScriptBtn.Location = new System.Drawing.Point(487, 64);
+            this.ReloadScriptBtn.Name = "ReloadScriptBtn";
+            this.ReloadScriptBtn.Size = new System.Drawing.Size(50, 23);
+            this.ReloadScriptBtn.TabIndex = 10;
+            this.ReloadScriptBtn.Text = "Reload";
+            this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             // 
             // Main
             // 
@@ -163,10 +163,10 @@ namespace weapon_data
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(639, 505);
+            this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.AbortBtn);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.MinimizeBtn);
-            this.Controls.Add(this.sidbasePathTextBox);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.ActiveScriptLabel);
             this.Controls.Add(this.optionsMenuDropdownBtn);
@@ -179,6 +179,126 @@ namespace weapon_data
             this.ResumeLayout(false);
             this.PerformLayout();
 
+        }
+
+
+        /// <summary>
+        /// Post-InitializeComponent Configuration. <br/><br/>
+        /// Create Assign Anonomous Event Handlers to Parent and Children.
+        /// </summary>
+        public void InitializeAdditionalEventHandlers()
+        {
+            MinimizeBtn.Click      += new EventHandler((sender, e) => ActiveForm.WindowState      = FormWindowState.Minimized     );
+            MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
+            MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
+            ExitBtn.Click          += new EventHandler((sender, e) => Environment.Exit(                            0             ));
+            ExitBtn.MouseEnter     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(230, 100, 100 ));
+            ExitBtn.MouseLeave     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0  , 0  , 0   ));
+
+
+            // Set Event Handlers for Form Dragging
+            MouseDown += new MouseEventHandler((sender, e) =>
+            {
+                Common.MouseDif = new Point(MousePosition.X - Location.X, MousePosition.Y - Location.Y);
+
+                Common.MouseIsDown = true;
+                DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
+            });
+
+            MouseUp   += new MouseEventHandler((sender, e) =>
+            {
+                Common.MouseIsDown = false;
+
+                if (Common.OptionsPageIsOpen)
+                    Common.Azem?.BringToFront();
+            });
+
+            MouseMove += new MouseEventHandler((sender, e) => Common.MoveForm());
+
+
+            // Set appropriate event handlers for the controls on the form as well
+            foreach (Control Item in Controls)
+            {
+                if (Item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
+                    continue;
+                
+                Item.MouseDown += new MouseEventHandler((sender, e) => {
+                    Common.MouseDif = new Point(MousePosition.X - Common.Venat.Location.X, MousePosition.Y - Common.Venat.Location.Y);
+                    Common.MouseIsDown = true;
+                    DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
+                });
+                Item.MouseUp   += new MouseEventHandler((sender, e) => { Common.MouseIsDown = false; if (Common.OptionsPageIsOpen) Common.Azem?.BringToFront(); });
+                
+                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
+                if (Item.GetType() != typeof(TextBox) && Item.GetType() != typeof(RichTextBox))
+                    Item.MouseMove += new MouseEventHandler((sender, e) => Common.MoveForm());
+            }
+
+            Paint += Common.PaintBorder;
+        }
+
+        /// <summary>
+        /// Initialize Dropdown Menu Used for Toggling of Folder Browser Method
+        /// </summary>
+        private void CreateBrowseModeDropdownMenu()
+        {
+            var extalignment = BrowseBtn.Size.Height;
+            var alignment = BrowseBtn.Location;
+
+            var ButtonSize = new Size(BrowseBtn.Size.Width + optionsMenuDropdownBtn.Size.Width, 25);
+
+            DropdownMenu[0] = new Button() {
+                Font = new Font("Gadugi", 7.25f, FontStyle.Bold),
+                Text = "Directory Tree*",
+                BackColor = Common.AppColour,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(alignment.X, alignment.Y + extalignment),
+                Size = ButtonSize
+            };
+            DropdownMenu[1] = new Button() {
+                Font = new Font("Gadugi", 7.25F, FontStyle.Bold),
+                Text = "File Browser",
+                BackColor = Common.AppColour,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(alignment.X, alignment.Y + extalignment + DropdownMenu[0].Size.Height),
+                Size = ButtonSize
+            };
+
+
+
+            // Create and Assign Event Handlers
+            DropdownMenu[0].Click += (why, does) =>
+            {
+                if (!Common.LegacyFolderSelectionDialogue) {
+                    DropdownMenu[0].Text += '*';
+                    DropdownMenu[1].Text = DropdownMenu[1].Text.Remove(DropdownMenu[1].Text.Length-1);
+
+                    Common.LegacyFolderSelectionDialogue ^= true;
+                }
+            };
+            DropdownMenu[1].Click += (my, back) =>
+            {
+                if (Common.LegacyFolderSelectionDialogue) {
+                    DropdownMenu[1].Text += '*';
+                    DropdownMenu[0].Text = DropdownMenu[0].Text.Remove(DropdownMenu[0].Text.Length-1);
+
+                    Common.LegacyFolderSelectionDialogue ^= true;
+                }
+            };
+            // hurt. there was a third event at first.
+
+
+            // Add Controls to MainForm Control Collection
+            Controls.Add(DropdownMenu[0]);
+            Controls.Add(DropdownMenu[1]);
+
+            // Ensure Controls Display Correctly
+            DropdownMenu[0].Hide();
+            DropdownMenu[1].Hide();
+            DropdownMenu[0].BringToFront();
+            DropdownMenu[1].BringToFront();
         }
         #endregion
         
@@ -196,13 +316,13 @@ namespace weapon_data
         private Button optionsMenuDropdownBtn;
         private Button button3;
         private Label ActiveScriptLabel;
-        private TextBox sidbasePathTextBox;
 
         private Button ExitBtn;
         private Button MinimizeBtn;
         #endregion
 
         private Button AbortBtn;
+        private Button ReloadScriptBtn;
     }
 }
 

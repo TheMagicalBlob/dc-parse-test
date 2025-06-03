@@ -1,22 +1,69 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace weapon_data
 {
     public static class Common
     {
-        
+
         //=================================\\
         //--|   Variable Declarations   |--\\
         //=================================\\
         #region [Variable Declarations]
-        
-        //#
-        //## Form Functionality Variables
-        //#
 
+        //#
+        //## Script Parsing Globals
+        //#
+        public static byte[] sidbase
+        {
+            get => _sidbase;
+
+            set {
+                _sidbase = value;
+
+                if (value.Length > 8)
+                {
+                    sidLength = BitConverter.ToInt64(sidbase, 0) * 16;
+                }
+            }
+        }
+        private static byte[] _sidbase;
+        public static long sidLength;
+
+        public static int  unkInteger0;
+        public static long unkInteger1;
+        public static long endPointer;
+        public static int  tableLength;
+
+        public static List<object[]> DecodedIDS = new List<object[]>(1000);
+
+
+
+        //#
+        //## Form Functionality Globals
+        //#
+        public static bool abort = false;
+        public static Label activeScriptLabel;
+        public static Button abortBtn;
+
+
+        public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
+
+        public static binThreadFormWand labelMammet =          new binThreadFormWand(UpdateLabel);
+        public static binThreadFormWand buttonMammet =         new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
+        public static  binThreadFormWand outputMammet =          new binThreadFormWand((obj) => _OutputWindow.AppendLine(obj.ToString()));
+        public static  binThreadFormWand outputMammetSameLine =  new binThreadFormWand((obj) => { 
+            _OutputWindow.Text = _OutputWindow.Text.Remove(_OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
+            _OutputWindow.Update();
+        });
+
+
+        
         /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
         public static bool LegacyFolderSelectionDialogue = true;
 
@@ -110,19 +157,51 @@ namespace weapon_data
 
 
         //#
-        //## Logging function
+        //## Logging functionaliy
         //#
 
-        internal static void uPrint(string str)
+        public static void echo(object str = null)
         {
-            _OutputWindow.Text = _OutputWindow.Text.Remove(_OutputWindow.Text.LastIndexOf("\n")) + '\n' + str;
-            _OutputWindow.Update();
+            Console.WriteLine(str);
+
+            if (Azem.DebugOutputCheckBox.Checked)
+            {
+                PrintNL(str);
+            }
+        }
+
+
+        public static void CTUpdateLabel(object str)
+        {
+            Venat?.Invoke(labelMammet, new object[] { str });
+        }
+
+        
+        public static void UpdateLabel(object str)
+        {
+            activeScriptLabel.Text = "Selected Script: " + str;
+        }
+
+        public static void PrintLL(string str)
+        {
+            
+#if DEBUG
+            // Debug Output
+            if (!Console.IsOutputRedirected)
+            {
+                Console.WriteLine(str);
+            }
+            else
+                Debug.WriteLine(str ?? "null");
+#endif
+
+            Venat?.Invoke(outputMammetSameLine, new object[] { str });
         }
 
         /// <summary>
         /// Output Misc. Messages to the Main Output Window (the big-ass richtext box).
         /// </summary>
-        internal static void Print(object str = null)
+        public static void PrintNL(object str = null)
         {
             if (str == null)
                 str = string.Empty;
@@ -137,9 +216,71 @@ namespace weapon_data
                 Debug.WriteLine(str ?? "null");
 #endif
 
-            Venat?.Invoke(Main.outputMammet, new object[] { str.ToString() });
+            Venat?.Invoke(outputMammet, new object[] { str.ToString() });
         }
         #endregion
+
+
+        
+
+
+        /// <summary>
+        /// Parse the current sidbase.bin
+        /// </summary>
+        /// <param name="bytesToDecode"></param>
+        /// <returns> The decoded string representation of the provided 64-bit fnv1a hash, or simply the string representation of said SID if it could not be decoded. </returns>
+        public static string DecodeSIDHash(byte[] bytesToDecode)
+        {            
+            if (bytesToDecode.Length == 8)
+            {
+                for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < sidLength; subArrayIndex = 0, mainArrayIndex+=8)
+                {
+                    if (sidbase[mainArrayIndex] != (byte)bytesToDecode[subArrayIndex])
+                    {
+                        continue;
+                    }
+
+
+                    // Scan for the rest of the bytes
+                    while ((subArrayIndex < 8 && mainArrayIndex < sidbase.Length) && sidbase[mainArrayIndex + subArrayIndex] == (byte)bytesToDecode[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
+                    {
+                        subArrayIndex++;
+                    }
+
+                    // continue if there was only a partial match
+                    if (subArrayIndex != 8)
+                    {
+                        continue;
+                    }
+                
+
+                    // Read the string pointer
+                    var stringPtr = BitConverter.ToInt64(sidbase, (int)(mainArrayIndex + subArrayIndex));
+                    if (stringPtr >= sidbase.Length)
+                    {
+                        throw new IndexOutOfRangeException($"ERROR: Invalid Pointer Read for String Data!\n    str* 0x{stringPtr:X} >= len 0x{sidbase.Length:X}.");
+                    }
+
+
+                    // Parse and add the string to the array
+                    var stringBuffer = string.Empty;
+
+                    while (sidbase[stringPtr] != 0)
+                    {
+                        stringBuffer += Encoding.UTF8.GetString(sidbase, (int)stringPtr++, 1);
+                    }
+
+                
+                    return stringBuffer;
+                }
+
+                return BitConverter.ToString(bytesToDecode).Replace("-", string.Empty);
+            }
+            else {
+                echo($"Invalid SID provided; unexpected length of \"{bytesToDecode?.Length ?? 0}\". Must be 8 bytes.");
+                return "INVALID_SID_64";
+            }
+        }
     }
 
 
