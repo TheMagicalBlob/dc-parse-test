@@ -1,14 +1,9 @@
 ﻿using System;
-using System.ComponentModel.Design;
-using System.Data.SqlTypes;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using static weapon_data.Common;
 
 namespace weapon_data
 {
@@ -22,7 +17,7 @@ namespace weapon_data
 
             Venat = this;
 
-            binPathTextBox.TextChanged += (sender, _) => BinPathBox_Set(((TextBox)sender).Text);
+            binPathTextBox.TextChanged += (sender, _) => CheckbinPathBoxText(((TextBox)sender).Text);
 
             Update();
             Refresh();
@@ -38,34 +33,19 @@ namespace weapon_data
             {
                 sidbase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sidbase.bin");
             }
+            else if (File.Exists($"{Directory.GetCurrentDirectory()}\\sid\\sidbase.bin"))
+            {
+                sidbase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sid\\sidbase.bin");
+            }
+            
             else if (File.Exists($"{Directory.GetCurrentDirectory()}\\sid1\\sidbase.bin"))
             {
                 sidbase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sid1\\sidbase.bin");
             }
-            else
-                sidbase = File.ReadAllBytes(@"O:\Modding\The Last of Us Part II\sid\sidbase.bin");
-
-            #if DEBUG
-            #endif
         }
 
 
 
-
-        /// <summary>
-        /// Use the Buffer class to copy and return a smaller sub-array from a provided <paramref name="array"/>.
-        /// </summary>
-        /// <param name="array"> The larger array from which to take the sub-array returned. </param>
-        /// <param name="index"> The start index in <paramref name="array"/> from which the copying starts. </param>
-        /// <param name="len"> The length of the sub-array to be returned. Defaults to 8 bytes. </param>
-        /// <returns> A byte array of 8 bytes (or an optional different length) copied from the specified <paramref name="index"/> in <paramref name="array"/>. </returns>
-        public static byte[] GetSubArray(byte[] array, int index, int len = 8)
-        {
-            var ret = new byte[8];
-            Buffer.BlockCopy(array, index, ret, 0, len);
-
-            return ret;
-        }
 
 
         //======================================\\
@@ -82,9 +62,11 @@ namespace weapon_data
             DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
         }
 
-        private void BrowseBtn_Click(object sender, EventArgs e)
+        private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
-            using (var Browser = new OpenFileDialog { Title = "Please select a non-state-script from \"bin/dc1\"." })
+            using (var Browser = new OpenFileDialog {
+                Title = "Please select a non-state-script from \"bin/dc1\"."
+            })
             {
                 if (Browser.ShowDialog() == DialogResult.OK)
                 {
@@ -93,26 +75,23 @@ namespace weapon_data
             }
         }
         
-        private void BinPathBox_Set(string text)
+        private void ReloadBinFile(object sender, EventArgs e)
         {
-            if (File.Exists(text))
+            if (File.Exists(binPathTextBox.Text))
             {
-                if (binThread != null && binThread.ThreadState != ThreadState.Unstarted)
-                {
-                    try {
-                        binThread.Abort();
-                    }
-                    catch (ThreadAbortException) { echo("Bin Thread Killed\n"); }
-                    catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting binThread.\n"); }
-                }
-
-
-                binThread = new Thread(new ParameterizedThreadStart(LoadBinFile));
-                binThread.Start(text);
+                LoadBinFile(binPathTextBox.Text);
+            }
+        }
+        
+        private void CheckbinPathBoxText(string boxText)
+        {
+            if (File.Exists(boxText))
+            {
+                LoadBinFile(boxText);
             }
         }
 
-        private void abortBtn_Click(object sender, EventArgs e)
+        private void AbortBinFileParse(object sender, EventArgs e)
         {
             abort = true;
             echo("Bin Thread Killed\n");
@@ -127,8 +106,23 @@ namespace weapon_data
         //--|   Function Delcarations   |---\\
         //==================================\\
         #region [Function Delcarations]
-        private Thread binThread;
-        private void LoadBinFile(object pathObj)
+
+        private void LoadBinFile(string binPath)
+        {   
+            if (binThread != null && binThread.ThreadState != ThreadState.Unstarted)
+            {
+                try {
+                    binThread.Abort();
+                }
+                catch (ThreadAbortException) { echo("Bin Thread Killed\n"); }
+                catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting binThread.\n"); }
+            }
+
+
+            binThread = new Thread(new ParameterizedThreadStart(ParseBinFile));
+            binThread.Start(binPath);
+        }
+        private void ParseBinFile(object pathObj)
         {
             try
             {
@@ -146,13 +140,11 @@ namespace weapon_data
                     return;
                 }
                 
-                ActiveForm.Invoke(buttonMammet, new object[] { true });
+                ActiveForm.Invoke(abortButtonMammet, new object[] { true });
+                ActiveForm.Invoke(reloadButtonMammet, new object[] { true });
 
-                // Read additional header info
-                endPointer = BitConverter.ToInt64(binFile, 0x8);
-                unkInteger0 = BitConverter.ToInt32(binFile, 0x10);
-                tableLength = BitConverter.ToInt32(binFile, 0x14);
-                unkInteger1 = BitConverter.ToInt64(binFile, 0x18);
+
+                DCHeader = new DCFileHeader(binName, binFile);
 
                 if (abort) {
                     goto yeet;
@@ -160,9 +152,10 @@ namespace weapon_data
 
                 // Parse symbol table or whatever
                 int addr = 0x20;
-                if (DecodeSIDHash(GetSubArray(binFile, addr)) != "array")
+                var eugh = DecodeSIDHash(GetSubArray(binFile, addr));
+                if (eugh != "array")
                 {
-                    Console.WriteLine($"Unexpected SID \"{DecodeSIDHash(GetSubArray(binFile, addr))}\" at {addr:X}, Aborting.");
+                    Console.WriteLine($"Unexpected SID \"{eugh}\" at {addr:X}, Aborting.");
                     return;
                 }
             
@@ -170,7 +163,7 @@ namespace weapon_data
                 CTUpdateLabel(activeLabel);
                 InitializeDcStructListsByScriptName(binName);
 
-                echo ($"Reading the whatever it's called. (length: {tableLength})");
+                echo ($"Reading the whatever it's called. (length: {DCHeader.TableLength})");
                 if (abort) {
                     goto yeet;
                 }
@@ -188,11 +181,12 @@ namespace weapon_data
                     goto yeet;
                 }
                 
-                PrintNL($"Parsing DC Content Table (Length: {tableLength.ToString().PadLeft(2, '0')})");
+                PrintNL($"Parsing DC Content Table (Length: {DCHeader.TableLength.ToString().PadLeft(2, '0')})");
 
-                for (int tableIndex = 0; tableIndex < tableLength && !abort; tableIndex++)
+
+                for (int tableIndex = 0; tableIndex < DCHeader.TableLength && !abort; tableIndex++)
                 {
-                    CTUpdateLabel(activeLabel + $" ({tableIndex} / {tableLength})");
+                    CTUpdateLabel(activeLabel + $" ({tableIndex} / {DCHeader.TableLength})");
                 
                     addr += 8;
                     name = DecodeSIDHash(GetSubArray(binFile, addr));
@@ -216,13 +210,15 @@ namespace weapon_data
 
                             PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]");
                             
-                            for (int arrayIndex = 0; arrayIndex < mapLength && !abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
+                            for (int arrayIndex = 0, tst = 0; arrayIndex < mapLength && !abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
                             {
-                                Venat?.Invoke(outputMammetSameLine, new object[] { $"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}" });
                                 PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}");
+
+
                                 var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
                                 var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
 
+                                // Check for and parse known structures, or just print the basic data if it's not a handled structure
                                 switch (structType)
                                 {
                                     case "weapon-gameplay-def":
@@ -234,10 +230,20 @@ namespace weapon_data
                                         break;
                                 }
                             }
+
+                            //! Print Parsed Data
                             if (weaponDefinitions.Count > 0)
                             {
-                                foreach(var newDef in weaponDefinitions)
-                                    PrintNL($"{newDef.GameplayDefinitionType}:{newDef.Name} Ammo Count: {newDef.AmmoCount}");
+                                var ext = "  ->  ";
+                                foreach (var newDef in weaponDefinitions)
+                                {
+                                    PrintNL($"{ext}0x{newDef.Address:X} {newDef.Name}; Is Firearm?: {newDef.IsFirearm}");
+
+                                    if (newDef.IsFirearm)
+                                    {
+                                        PrintNL($"{ext}Ammo Count: {newDef.AmmoCount}");
+                                    }
+                                }
                             }
                             PrintNL("");
                             break;
@@ -277,11 +283,13 @@ namespace weapon_data
                 
                 yeet:
                 CTUpdateLabel(binName + " Finished Loading dc File");
-                Venat.Invoke(buttonMammet, new object[] { false });
+                Venat.Invoke(abortButtonMammet, new object[] { false });
 
                 abort = false;
             }
-            catch(ThreadAbortException){}
+            catch(ThreadAbortException) {
+                ActiveForm.Invoke(abortButtonMammet, new object[] { false });
+            }
         }
         #endregion
     }

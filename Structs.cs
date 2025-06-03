@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Security.Policy;
-using static weapon_data.Common;
+using System.Security.Cryptography;
+using static weapon_data.Main;
 
 
 namespace weapon_data
@@ -14,7 +13,7 @@ namespace weapon_data
         /// Initialize Lists for the expected structures in a loaded script, or all if they changed the file name more than I could be bothered to account for.
         /// <br/> (I should probably just hash that data at the bottom or some shit, needs checking)
         /// </summary>
-        /// <param name="scriptName"></param>
+        /// <param name="scriptName"> The file name of the loaded script </param> //! TODO: find some bit you can scan to determine the script without forcing an expected file name 
         public void InitializeDcStructListsByScriptName(string scriptName)
         {
             switch (scriptName)
@@ -24,8 +23,8 @@ namespace weapon_data
                     break;
 
                 
+
                 case var _ when scriptName.ToLower().Contains("characters") && !scriptName.ToLower().Replace("_", "-").Contains("collision-settings"):
-                    break;
 
 
 
@@ -48,52 +47,101 @@ namespace weapon_data
     //==========================\\
     #region [MAP STRUCTURES]
 
-    public struct WeaponGameplayDef
+    public struct DCFileHeader
     {
-        public WeaponGameplayDef(string name, byte[] binFile, long address)
+        public DCFileHeader(string name, byte[] binFile)
         {
-            byte[] GetSubArray(byte[] array, int index, int len = 8)
-            {
-                var ret = new byte[8];
-                Buffer.BlockCopy(array, index, ret, 0, len);
-
-                return ret;
-            }
-
-
-            Address = (int)address;
-            Name = name;
-
-            var GameplayDefinitionAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)address + 0x10), 0);
-            GameplayDefinitionType = "none";
-
-            if (GameplayDefinitionAddress != 0)
-            {
-                echo($"Def Address: {GameplayDefinitionAddress:X}");
-                GameplayDefinitionType = DecodeSIDHash(GetSubArray(binFile, GameplayDefinitionAddress - 8));
-            }
+            // Read additional header info
+            BinFileLength = BitConverter.ToInt64(binFile, 0x8);
             
-            AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)BitConverter.ToInt64(GetSubArray(binFile, (int)address + 0x10), 0) + 0x98), 0);
+            unkInt0 = BitConverter.ToInt32(binFile, 0x10);
+            unkInt1 = BitConverter.ToInt64(binFile, 0x18);
+
+            TableLength = BitConverter.ToInt32(binFile, 0x14);
+
+            Structures = new List<DCStructArray>(TableLength);
+        }
+
+        
+        private int unkInt0;
+        private long unkInt1;
+
+        public long BinFileLength;
+        public int TableLength;
+
+        public List<DCStructArray> Structures;
+    }
+
+    public struct DCStructArray
+    {
+        public DCStructArray(byte[] binFile, int address)
+        {
+            Address = address;
+
+            Name = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, address));
+            Label = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, address + 8));
+            Pointer = (int)BitConverter.ToInt64(Venat.GetSubArray(binFile, address + 16), 0);
         }
 
         public int Address;
         public string Name;
+        public string Label;
+        public int Pointer;
+    }
 
-        public string GameplayDefinitionType;
+    public struct SymbolArrayDef
+    {
+        public SymbolArrayDef(long arrayPointer, byte[] binFile, long address)
+        {
+            Symbols = new List<string>();
+            Hashes  = new List<long  >();
+
+
+
+        }
+
+        public List<string> Symbols;
+        public List<long> Hashes;
+    }
+
+    public struct WeaponGameplayDef
+    {
+        public WeaponGameplayDef(string name, byte[] binFile, long address)
+        {
+            Name = name;
+            AmmoCount = 0;
+            Address = (int)address;
+
+            // Load firearm-related variables
+            FirearmGameplayDefAddress = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 0x10), 0);
+            if (FirearmGameplayDefAddress != 0)
+            {
+                if (Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def")
+                {
+                    Venat.PrintNL($"ERROR Parsing Firearm Gameplay Definition at {FirearmGameplayDefAddress:X}; unexpected id. ({Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def"})");
+                }
+
+                IsFirearm = true;
+                AmmoCount = (int)BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)FirearmGameplayDefAddress + 0x98), 0);
+            }
+
+            else {
+                IsFirearm = false;
+            }
+            
+        }
+
+        public string Name;
+        public int Address;
+        public bool IsFirearm;
+
+        public long FirearmGameplayDefAddress;
 
         public int AmmoCount;
     }
 
     public struct Look2Def
     {
-        byte[] GetSubArray(byte[] array, int index, int len = 8)
-        {
-            var ret = new byte[8];
-            Buffer.BlockCopy(array, index, ret, 0, len);
-
-            return ret;
-        }
-
         public Look2Def(string name, byte[] binFile, long address)
         {
 

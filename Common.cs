@@ -4,11 +4,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace weapon_data
 {
-    public static class Common
+    public partial class Main
     {
 
         //=================================\\
@@ -19,7 +20,7 @@ namespace weapon_data
         //#
         //## Script Parsing Globals
         //#
-        public static byte[] sidbase
+        public byte[] sidbase
         {
             get => _sidbase;
 
@@ -32,32 +33,37 @@ namespace weapon_data
                 }
             }
         }
-        private static byte[] _sidbase;
-        public static long sidLength;
+        private byte[] _sidbase;
+        public long sidLength;
 
-        public static int  unkInteger0;
-        public static long unkInteger1;
-        public static long endPointer;
-        public static int  tableLength;
+        public DCFileHeader DCHeader;
 
-        public static List<object[]> DecodedIDS = new List<object[]>(1000);
+        public List<object[]> DecodedIDS = new List<object[]>(1000);
 
 
 
         //#
         //## Form Functionality Globals
         //#
-        public static bool abort = false;
+        public bool abort = false;
         public static Label activeScriptLabel;
         public static Button abortBtn;
 
 
+        private Thread binThread;
         public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
 
-        public static binThreadFormWand labelMammet =          new binThreadFormWand(UpdateLabel);
-        public static binThreadFormWand buttonMammet =         new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
-        public static  binThreadFormWand outputMammet =          new binThreadFormWand((obj) => _OutputWindow.AppendLine(obj.ToString()));
-        public static  binThreadFormWand outputMammetSameLine =  new binThreadFormWand((obj) => { 
+        public binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
+        public  binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
+        public  binThreadFormWand reloadButtonMammet = new binThreadFormWand((_) =>
+        {
+            Venat.ReloadScriptBtn.Enabled ^= true;
+            Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
+        });
+
+        public binThreadFormWand outputMammet =          new binThreadFormWand((obj) => _OutputWindow.AppendLine(obj.ToString()));
+        public binThreadFormWand outputMammetSameLine =  new binThreadFormWand((obj) =>
+        {
             _OutputWindow.Text = _OutputWindow.Text.Remove(_OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
             _OutputWindow.Update();
         });
@@ -74,7 +80,8 @@ namespace weapon_data
         public static bool MouseIsDown = false;
 
 
-        /// <summary> Store Expected Options Form Offset
+        /// <summary>
+        /// Store Expected Options Form Offset
         /// </summary>
         public static Point OptionsFormLocation;
 
@@ -108,10 +115,10 @@ namespace weapon_data
 
         
         
-        //==================================\\
-        //--|   Function Delcarations   |---\\
-        //==================================\\
-        #region [Function Delcarations]
+        //=========================================\\
+        //--|   Global Function Delcarations   |---\\
+        //=========================================\\
+        #region [Global Function Delcarations]
 
         //#
         //## Form Functionality Functions
@@ -159,6 +166,7 @@ namespace weapon_data
         //#
         //## Logging functionaliy
         //#
+        #region [Logging Functionality]
 
         public static void echo(object str = null)
         {
@@ -166,12 +174,12 @@ namespace weapon_data
 
             if (Azem.DebugOutputCheckBox.Checked)
             {
-                PrintNL(str);
+                Venat?.PrintNL(str);
             }
         }
 
 
-        public static void CTUpdateLabel(object str)
+        public void CTUpdateLabel(object str)
         {
             Venat?.Invoke(labelMammet, new object[] { str });
         }
@@ -182,7 +190,7 @@ namespace weapon_data
             activeScriptLabel.Text = "Selected Script: " + str;
         }
 
-        public static void PrintLL(string str)
+        public void PrintLL(string str)
         {
             
 #if DEBUG
@@ -195,13 +203,13 @@ namespace weapon_data
                 Debug.WriteLine(str ?? "null");
 #endif
 
-            Venat?.Invoke(outputMammetSameLine, new object[] { str });
+            Venat?.Invoke(outputMammetSameLine, new object[] { str.TrimEnd('\n') });
         }
 
         /// <summary>
         /// Output Misc. Messages to the Main Output Window (the big-ass richtext box).
         /// </summary>
-        public static void PrintNL(object str = null)
+        public void PrintNL(object str = null)
         {
             if (str == null)
                 str = string.Empty;
@@ -222,14 +230,30 @@ namespace weapon_data
 
 
         
+        /// <summary>
+        /// Use the Buffer class to copy and return a smaller sub-array from a provided <paramref name="array"/>.
+        /// </summary>
+        /// <param name="array"> The larger array from which to take the sub-array returned. </param>
+        /// <param name="index"> The start index in <paramref name="array"/> from which the copying starts. </param>
+        /// <param name="len"> The length of the sub-array to be returned. Defaults to 8 bytes. </param>
+        /// <returns> A byte array of 8 bytes (or an optional different length) copied from the specified <paramref name="index"/> in <paramref name="array"/>. </returns>
+        public byte[] GetSubArray(byte[] array, int index, int len = 8)
+        {
+            var ret = new byte[8];
+            Buffer.BlockCopy(array, index, ret, 0, len);
+
+            return ret;
+        }
+
+        
 
 
         /// <summary>
-        /// Parse the current sidbase.bin
+        /// Parse the current sidbase.bin for the string representation of the provided 64-bit fnv1a hash.
         /// </summary>
-        /// <param name="bytesToDecode"></param>
-        /// <returns> The decoded string representation of the provided 64-bit fnv1a hash, or simply the string representation of said SID if it could not be decoded. </returns>
-        public static string DecodeSIDHash(byte[] bytesToDecode)
+        /// <param name="bytesToDecode"> The 8-byte array of bytes to decode. </param>
+        /// <returns> Either the decoded version of the provided hash, or the string representation of said SID if it could not be decoded. </returns>
+        public string DecodeSIDHash(byte[] bytesToDecode)
         {            
             if (bytesToDecode.Length == 8)
             {
@@ -281,6 +305,8 @@ namespace weapon_data
                 return "INVALID_SID_64";
             }
         }
+
+        #endregion
     }
 
 
@@ -311,7 +337,7 @@ namespace weapon_data
         public TextBox()
         {
             TextChanged += SetDefaultText; // Save the first Text assignment as the DefaultText
-            Font = Common.DefaultTextFont;
+            Font = Main.DefaultTextFont;
 
             GotFocus += (sender, args) => ReadyControl();
             LostFocus += (sender, args) => ResetControl(false); // Reset control if nothing was entered, or the text is a portion of the default text
@@ -319,10 +345,10 @@ namespace weapon_data
 
 
 
-
-        // Default Control Text to Be Displayed When "Empty".
+        /// <summary>
+        /// Default Control Text to Be Displayed When "Empty".
+        /// </summary>
         private string DefaultText;
-
         public override string Text
         {
             get => base.Text;
@@ -337,11 +363,13 @@ namespace weapon_data
         // Help Better Keep Track of Whether the User's Changed the Text, Because I'm a Moron.
         public bool IsDefault() => Text == DefaultText;
 
-        /// <summary> Yoink Default Text From First Text Assignment (Ideally right after being created). </summary>
+        /// <summary>
+        /// Yoink Default Text From First Text Assignment (Ideally right after being created).
+        /// </summary>
         private void SetDefaultText(object _, EventArgs __)
         {
             DefaultText = Text;
-            Font = Common.DefaultTextFont;
+            Font = Main.DefaultTextFont;
 
             TextChanged -= SetDefaultText;
         }
@@ -352,9 +380,10 @@ namespace weapon_data
             if(IsDefault()) {
                 Clear();
 
-                Font = Common.TextFont;
+                Font = Main.TextFont;
             }
         }
+
 
         public void Reset() => ResetControl(true);
         private void ResetControl(bool forceReset)
@@ -362,18 +391,21 @@ namespace weapon_data
             if(Text.Length < 1 || DefaultText.Contains(Text) || forceReset)
             {
                 Text = DefaultText;
-                Font = Common.DefaultTextFont;
+                Font = Main.DefaultTextFont;
             }
+
         }
 
 
-        /// <summary> Set Control Text and State Properly (meh). </summary>
+        /// <summary>
+        /// Set Control Text and State Properly (meh).
+        /// </summary>
         public void Set(string text)
         {
             if (text != string.Empty && !DefaultText.Contains(text))
             {   
                 Text = text;
-                Font = Common.TextFont;
+                Font = Main.TextFont;
             }
         }
     }

@@ -52,7 +52,9 @@
     <Compile Include="Ver.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Common.cs" />
+    <Compile Include="Common.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="OptionsPage.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Net.Http;
 using System.Windows.Forms;
 using System.ComponentModel;
-using static weapon_data.Common;
+using static weapon_data.Main;
 
 
 namespace weapon_data
@@ -24,7 +24,7 @@ namespace weapon_data
             {
                 if (File.Exists(((TextBox)sender).Text))
                 {
-                    sidbase = File.ReadAllBytes(((TextBox)sender).Text);
+                    Venat.sidbase = File.ReadAllBytes(((TextBox)sender).Text);
                 }
             };
         }
@@ -108,7 +108,7 @@ namespace weapon_data
                             var message = reply.Content.ReadAsStringAsync().Result;
                             var tag = message.Remove(message.IndexOf(',') - 1).Substring(message.IndexOf(':') + 2);
     #if DEBUG
-                            PrintNL($"Newest Tag: [{tag}]");
+                            Venat.PrintNL($"Newest Tag: [{tag}]");
     #endif
 
                             if (tag != Version) {
@@ -120,10 +120,10 @@ namespace weapon_data
                                 if (checkedVersion.Length != currentVersion.Length)
                                 {
                                     if (checkedVersion.Length < currentVersion.Length) {
-                                        PrintNL("Application Up-to-Date");
+                                        Venat.PrintNL("Application Up-to-Date");
                                     }
                                     else
-                                        PrintNL($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/weapon-data/releases");
+                                        Venat.PrintNL($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/weapon-data/releases");
                                     return;
                                 }
 
@@ -133,21 +133,21 @@ namespace weapon_data
                                     var newnum = checkedVersion[i];
 
                                     if (int.Parse(currnum) < int.Parse(newnum)) {
-                                        PrintNL($"New Version Available. (//! print link or prompt to open in browser)");
+                                        Venat.PrintNL($"New Version Available. (//! print link or prompt to open in browser)");
                                         return;
                                     }
                                 }
                             
-                                PrintNL("Application Up-to-Date");
+                                Venat.PrintNL("Application Up-to-Date");
                             }
                         }
                         else
-                            PrintNL($"Error checking for newest tag (Status: {reply.StatusCode})");
+                            Venat.PrintNL($"Error checking for newest tag (Status: {reply.StatusCode})");
                     }
                 }
             }
             catch (Exception dang) {
-                PrintNL($"Unable to connect to api.github");
+                Venat.PrintNL($"Unable to connect to api.github");
             }
         }
 
@@ -155,7 +155,7 @@ namespace weapon_data
         // Prompt user to open their default browser and download the latest source code
         private void DownloadSourceBtn_Click(object sender, EventArgs e)
         {
-            PrintNL("Download Latest Source: https://github.com/TheMagicalBlob/weapon-data/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
+            Venat.PrintNL("Download Latest Source: https://github.com/TheMagicalBlob/weapon-data/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
             
             if (MessageBox.Show(
                     "Download the latest source code through this system's default browser?\n\n(Download Will Start Automatically)",
