@@ -26,6 +26,7 @@ namespace weapon_data
             {
                 case var _ when scriptName.ToLower().Replace("_", "-").Contains("weapon-gameplay"):
                     WeaponDefinitions = new List<WeaponGameplayDef>();
+                    AmmoToWeaponDefinitions = new List<AmmoToWeaponArray>();
                     break;
 
                 
@@ -43,7 +44,8 @@ namespace weapon_data
 
 
         public List<WeaponGameplayDef> WeaponDefinitions;
-        public List<WeaponGameplayDef> SymbolDefinitions;
+        public List<AmmoToWeaponArray> AmmoToWeaponDefinitions;
+        public List<SymbolArrayDef> SymbolDefinitions;
 
         public List<string> UnknownDefinitions;
 
@@ -59,12 +61,15 @@ namespace weapon_data
 
             public DCFileHeader(string binName, byte[] binFile)
             {
+                //#
+                //## Variable Initializations
+                //#
                 unkInt0 = 0;
                 unkInt1 = 0;
                 BinFileLength = 0;
                 TableLength = 0;
 
-                Structures = null;
+                DCStructures = null;
 
                 //#
                 //## Read file magic from header
@@ -102,15 +107,16 @@ namespace weapon_data
 
             
                 //#
-                //## Read additional header info
+                //## Read remaining header info
                 //#
                 BinFileLength = BitConverter.ToInt64(binFile, 0x8);
                 TableLength = BitConverter.ToInt32(binFile, 0x14);
-                Structures = new DCStructEntry[TableLength];
+                DCStructures = new DCStructEntry[TableLength];
+
 
 
                 //#
-                //## Parse symbol table or whatever
+                //## Parse header content table
                 //#
                 ActiveLabel = binName + "; Reading Script...";
     #if DEBUG
@@ -124,7 +130,7 @@ namespace weapon_data
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength && !Venat.abort; tableIndex++, addr += 24)
                 {
-                    Structures[tableIndex] = new DCStructEntry(binFile, addr);
+                    DCStructures[tableIndex] = new DCStructEntry(binFile, addr);
                     echo ($"Structure {tableIndex} Loaded Without Error.{(tableIndex < TableLength - 1 ? ".." : "")}");
                 }
             
@@ -132,15 +138,17 @@ namespace weapon_data
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
     #endif
             }
-
-        
+            
+            //#
+            //## Variable Declarations
+            //#
             private readonly int unkInt0;
             private readonly long unkInt1;
 
             public long BinFileLength;
             public int TableLength;
 
-            public DCStructEntry[] Structures;
+            public DCStructEntry[] DCStructures;
         }
 
         public struct DCStructEntry
@@ -162,10 +170,51 @@ namespace weapon_data
 
         public struct SymbolArrayDef
         {
-            public SymbolArrayDef(long arrayPointer, byte[] binFile, long address)
+            public SymbolArrayDef(string name, byte[] binFile, long address)
             {
                 Symbols = new List<string>();
                 Hashes  = new List<long>();
+                Name = name;
+                
+                var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address), 0);
+                var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 8), 0);
+
+                PrintNL($"  Array Length: {arrayLen} ");
+                for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 16, i++)
+                {
+                    Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr));
+                }
+                PrintNL("");
+            }
+
+            public string Name;
+            public List<string> Symbols;
+            public List<long> Hashes;
+        }
+
+        public struct DCMapStruct
+        {
+
+        }
+
+        public struct AmmoToWeaponArray
+        {
+            public AmmoToWeaponArray(byte[] binFile, long address)
+            {
+                Symbols = new List<string>();
+                Hashes  = new List<long>();
+
+                
+                var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCFile.DCStructures[tableIndex].Pointer), 0);
+                var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCFile.DCStructures[tableIndex].Pointer + 8), 0);
+
+                PrintNL($"  Array Length: {arrayLen} ");
+                for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 16, i++)
+                {
+                    Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr + 8)) Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr))
+                    Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr + 8)) Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr))
+                }
+                PrintNL("");
             }
 
             public List<string> Symbols;
@@ -180,7 +229,7 @@ namespace weapon_data
             public WeaponGameplayDef(string name, byte[] binFile, long address)
             {
                 //#
-                //## Initial Member Declarations
+                //## Variable Initializations
                 //#
                 Name = name;
                 AmmoCount = 0;

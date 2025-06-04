@@ -37,7 +37,7 @@ namespace weapon_data
         private byte[] _sidbase;
         public long sidLength;
 
-        public DCFileHeader DCHeader;
+        public static DCFileHeader DCFile;
 
         public List<object[]> DecodedIDS = new List<object[]>(1000);
 
@@ -63,11 +63,11 @@ namespace weapon_data
             Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
         });
 
-        public binThreadFormWand outputMammet =          new binThreadFormWand((obj) => _OutputWindow.AppendLine(obj.ToString()));
+        public binThreadFormWand outputMammet =          new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
         public binThreadFormWand outputMammetSameLine =  new binThreadFormWand((obj) =>
         {
-            _OutputWindow.Text = _OutputWindow.Text.Remove(_OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
-            _OutputWindow.Update();
+            OutputWindow.Text = OutputWindow.Text.Remove(OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
+            OutputWindow.Update();
         });
 
 
@@ -97,7 +97,7 @@ namespace weapon_data
         public static OptionsPage Azem;
 
         /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
-        public static RichTextBox _OutputWindow;
+        public static RichTextBox OutputWindow;
 
 
 

@@ -34,16 +34,16 @@ namespace weapon_data
         {
             this.BinPathBrowseBtn = new System.Windows.Forms.Button();
             this.optionsMenuDropdownBtn = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.ChoosePropertyBtn = new System.Windows.Forms.Button();
             this.ActiveScriptLabel = new System.Windows.Forms.Label();
             this.ExitBtn = new System.Windows.Forms.Button();
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.AbortBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
             this.DisplayModeToggleCheckBox = new System.Windows.Forms.CheckBox();
-            this.richTextBox1 = new weapon_data.RichTextBox();
-            this.binPathTextBox = new weapon_data.TextBox();
             this.ClearBtn = new System.Windows.Forms.Button();
+            this.OutputWindowRichTextBox = new weapon_data.RichTextBox();
+            this.binPathTextBox = new weapon_data.TextBox();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -68,16 +68,17 @@ namespace weapon_data
             this.optionsMenuDropdownBtn.UseVisualStyleBackColor = false;
             this.optionsMenuDropdownBtn.Click += new System.EventHandler(this.OptionsMenuDropdownBtn_Click);
             // 
-            // button3
+            // ChoosePropertyBtn
             // 
-            this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.button3.Location = new System.Drawing.Point(88, 51);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(103, 23);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Choose Property";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Visible = false;
+            this.ChoosePropertyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.ChoosePropertyBtn.Location = new System.Drawing.Point(88, 51);
+            this.ChoosePropertyBtn.Name = "ChoosePropertyBtn";
+            this.ChoosePropertyBtn.Size = new System.Drawing.Size(103, 23);
+            this.ChoosePropertyBtn.TabIndex = 4;
+            this.ChoosePropertyBtn.Text = "Choose Property";
+            this.ChoosePropertyBtn.UseVisualStyleBackColor = false;
+            this.ChoosePropertyBtn.Visible = false;
+            this.ChoosePropertyBtn.Click += new System.EventHandler(this.ChoosePropertyBtn_Click);
             // 
             // ActiveScriptLabel
             // 
@@ -153,27 +154,6 @@ namespace weapon_data
             this.DisplayModeToggleCheckBox.UseVisualStyleBackColor = true;
             this.DisplayModeToggleCheckBox.Visible = false;
             // 
-            // richTextBox1
-            // 
-            this.richTextBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.richTextBox1.ForeColor = System.Drawing.SystemColors.Window;
-            this.richTextBox1.Location = new System.Drawing.Point(8, 128);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(623, 369);
-            this.richTextBox1.TabIndex = 2;
-            this.richTextBox1.Text = "";
-            // 
-            // binPathTextBox
-            // 
-            this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.binPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
-            this.binPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.binPathTextBox.Location = new System.Drawing.Point(7, 21);
-            this.binPathTextBox.Name = "binPathTextBox";
-            this.binPathTextBox.Size = new System.Drawing.Size(501, 24);
-            this.binPathTextBox.TabIndex = 0;
-            this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
-            // 
             // ClearBtn
             // 
             this.ClearBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -185,6 +165,27 @@ namespace weapon_data
             this.ClearBtn.UseVisualStyleBackColor = false;
             this.ClearBtn.Visible = false;
             this.ClearBtn.Click += new System.EventHandler(this.ClearBtn_Click);
+            // 
+            // OutputWindowRichTextBox
+            // 
+            this.OutputWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.OutputWindowRichTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.OutputWindowRichTextBox.Location = new System.Drawing.Point(8, 128);
+            this.OutputWindowRichTextBox.Name = "OutputWindowRichTextBox";
+            this.OutputWindowRichTextBox.Size = new System.Drawing.Size(623, 369);
+            this.OutputWindowRichTextBox.TabIndex = 2;
+            this.OutputWindowRichTextBox.Text = "";
+            // 
+            // binPathTextBox
+            // 
+            this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.binPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
+            this.binPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.binPathTextBox.Location = new System.Drawing.Point(7, 21);
+            this.binPathTextBox.Name = "binPathTextBox";
+            this.binPathTextBox.Size = new System.Drawing.Size(501, 24);
+            this.binPathTextBox.TabIndex = 0;
+            this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
             // 
             // Main
             // 
@@ -198,10 +199,10 @@ namespace weapon_data
             this.Controls.Add(this.AbortBtn);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.MinimizeBtn);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.ChoosePropertyBtn);
             this.Controls.Add(this.ActiveScriptLabel);
             this.Controls.Add(this.optionsMenuDropdownBtn);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.OutputWindowRichTextBox);
             this.Controls.Add(this.BinPathBrowseBtn);
             this.Controls.Add(this.binPathTextBox);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
@@ -343,9 +344,9 @@ namespace weapon_data
         public Button[] DropdownMenu = new Button[2];
         private TextBox binPathTextBox;
         private Button BinPathBrowseBtn;
-        private RichTextBox richTextBox1;
+        private RichTextBox OutputWindowRichTextBox;
         private Button optionsMenuDropdownBtn;
-        private Button button3;
+        private Button ChoosePropertyBtn;
         private Label ActiveScriptLabel;
 
         private Button ExitBtn;
