@@ -45,7 +45,7 @@ namespace weapon_data
         }
 
 
-
+        
 
 
         //======================================\\
@@ -96,7 +96,8 @@ namespace weapon_data
             abort = true;
             echo("Bin Thread Killed\n");
         }
-
+        
+        private void ClearBtn_Click(object sender, EventArgs e) => _OutputWindow.Clear();
         #endregion
 
 
@@ -131,157 +132,136 @@ namespace weapon_data
                 var binFile = File.ReadAllBytes(binPath);
                 var binName = binPath.Substring(binPath.LastIndexOf('\\') + 1);
             
-
-
-                // Read file magic from header
-                if (!binFile.Take(8).ToArray().SequenceEqual(new byte[] { 0x30, 0x30, 0x43, 0x44, 0x01, 0x00, 0x00, 0x00 }))
-                {
-                    Console.WriteLine($"Invalid File Provided: Invalid file magic.");
-                    return;
-                }
-                
                 ActiveForm.Invoke(abortButtonMammet, new object[] { true });
-                ActiveForm.Invoke(reloadButtonMammet, new object[] { true });
 
-
+                
                 DCHeader = new DCFileHeader(binName, binFile);
 
                 if (abort) {
                     goto yeet;
                 }
 
-                // Parse symbol table or whatever
-                int addr = 0x20;
-                var eugh = DecodeSIDHash(GetSubArray(binFile, addr));
-                if (eugh != "array")
+                
+                for (int tableIndex = 0, addr = 0x28; tableIndex < DCHeader.Structures.Length && !Venat.abort; tableIndex++, addr += 24)
                 {
-                    Console.WriteLine($"Unexpected SID \"{eugh}\" at {addr:X}, Aborting.");
-                    return;
-                }
-            
-                var activeLabel = binName + "; Reading Script...";
-                CTUpdateLabel(activeLabel);
-                InitializeDcStructListsByScriptName(binName);
-
-                echo ($"Reading the whatever it's called. (length: {DCHeader.TableLength})");
-                if (abort) {
-                    goto yeet;
-                }
+                    Venat.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCHeader.TableLength})");
+                    PrintNL($"Item #{tableIndex}: [ Label: {DCHeader.Structures[tableIndex].Name} Type: {DCHeader.Structures[tableIndex].Type} Data Address: {DCHeader.Structures[tableIndex].Pointer:X} ]");
                 
-                
-        #if DEBUG
-                var pre = DateTime.Now.ToString();
-        #endif
-                long address;
-
-                string name;
-                string type;
-
-                if (abort) {
-                    goto yeet;
-                }
-                
-                PrintNL($"Parsing DC Content Table (Length: {DCHeader.TableLength.ToString().PadLeft(2, '0')})");
-
-
-                for (int tableIndex = 0; tableIndex < DCHeader.TableLength && !abort; tableIndex++)
-                {
-                    CTUpdateLabel(activeLabel + $" ({tableIndex} / {DCHeader.TableLength})");
-                
-                    addr += 8;
-                    name = DecodeSIDHash(GetSubArray(binFile, addr));
-                
-                    addr += 8;
-                    type = DecodeSIDHash(GetSubArray(binFile, addr));
-                
-                    addr += 8;
-                    address = BitConverter.ToInt64(GetSubArray(binFile, addr), 0);
-
-                    PrintNL($"Item #{tableIndex}: [ Label: {name} Type: {type} Address: {address:X} ]");
-
-                    switch (type)
+                    switch (DCHeader.Structures[tableIndex].Type)
                     {
                         // map == [ struct len, sid[]* ids, struct*[] * data ]
                         case "map":
-                            var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
-                            var mapSymbolArray = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
-                            long mapStructArray = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 16), 0);
+                            var mapLength = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer), 0);
+                            var mapSymbolArray = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer + 8), 0);
+                            long mapStructArray = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer + 16), 0);
 
 
                             PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]");
                             
-                            for (int arrayIndex = 0, tst = 0; arrayIndex < mapLength && !abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
+                            for (int arrayIndex = 0, pad = mapLength.ToString().Length; arrayIndex < mapLength && !Venat.abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
                             {
                                 PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}");
 
 
-                                var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
-                                var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
+                                var structAddr = (int)BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)mapStructArray), 0);
+                                var structType = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, structAddr - 8));
 
-                                // Check for and parse known structures, or just print the basic data if it's not a handled structure
+                                // Check for and parse known DCHeader.Structures, or just print the basic data if it's not a handled structure
                                 switch (structType)
                                 {
                                     case "weapon-gameplay-def":
-                                        weaponDefinitions.Add(new WeaponGameplayDef(DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
+                                        Venat.WeaponDefinitions.Add(new WeaponGameplayDef(Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
                                         break;
+                                        case "melee-weapon-gameplay-def":
+                                            break;
 
                                     default:
-                                        PrintNL($"   {structType} #{arrayIndex.ToString().PadLeft(2, '0')}: Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')} {DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray))}");
+                                        Venat.UnknownDefinitions.Add($"Unknown Structure #{arrayIndex.ToString().PadLeft(pad, '0')}: {structType}\n    Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray))}");
                                         break;
                                 }
                             }
+                            PrintNL();
 
                             //! Print Parsed Data
-                            if (weaponDefinitions.Count > 0)
+                            if (Venat.WeaponDefinitions.Count > 0)
                             {
                                 var ext = "  ->  ";
-                                foreach (var newDef in weaponDefinitions)
+                                foreach (var newDef in Venat.WeaponDefinitions)
                                 {
-                                    PrintNL($"{ext}0x{newDef.Address:X} {newDef.Name}; Is Firearm?: {newDef.IsFirearm}");
+                                    PrintNL($"{ext}Weapon Definition @: 0x{newDef.Address:X} {newDef.Name}");
+
+
+                                    PrintNL($"{ext}Is Firearm?: {newDef.IsFirearm}");
 
                                     if (newDef.IsFirearm)
                                     {
                                         PrintNL($"{ext}Ammo Count: {newDef.AmmoCount}");
                                     }
+
+                                    PrintNL($"{ext}Reticle: {newDef.Hud2ReticleName}");
+                                    PrintNL($"{ext}SimpleReticle: {newDef.Hud2SimpleReticleName}");
+                                
+                                    PrintNL();
                                 }
+                                PrintNL();
                             }
+                        
+                            //! Print unknown remaining DCHeader.Structures
+                            if (Venat.UnknownDefinitions.Count > 0)
+                            {
+                                var ext = "  ->  ";
+                                foreach (var newDef in Venat.UnknownDefinitions)
+                                {
+                                    PrintNL(ext + newDef);
+                                }
+                                PrintNL();
+                            }
+
                             PrintNL("");
                             break;
+
 
                         case "symbol-array":
-                            //break;
-                            var sArrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
-                            var sArrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
+                        break;
+                            var sArrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer), 0);
+                            var sArrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer + 8), 0);
 
                             PrintNL($"  Item Details: [ Length: {sArrayLen} ]");
-                            for (int i = 0; i < sArrayLen && !abort; sArrayAddr += 8, i++)
+                            for (int i = 0; i < sArrayLen && !Venat.abort; sArrayAddr += 8, i++)
                             {
-                                PrintNL($"  Symbol: {DecodeSIDHash(GetSubArray(binFile, (int)sArrayAddr))}");
+                                PrintNL($"  Symbol: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)sArrayAddr))}");
                             }
                             PrintNL("");
                             break;
+
+
                         case "ammo-to-weapon-array":
-                            //break;
-                            var atwArrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
-                            var atwArrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
+                        break;
+                            var atwArrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer), 0);
+                            var atwArrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCHeader.Structures[tableIndex].Pointer + 8), 0);
 
                             PrintNL($"  Item Details: [ Length: {atwArrayLen} ]");
-                            for (int i = 0; i < atwArrayLen && !abort; atwArrayAddr += 16, i++)
+                            for (int i = 0; i < atwArrayLen && !Venat.abort; atwArrayAddr += 16, i++)
                             {
-                                PrintNL($" Weapon: {DecodeSIDHash(GetSubArray(binFile, (int)atwArrayAddr + 8))} Ammo Type: {DecodeSIDHash(GetSubArray(binFile, (int)atwArrayAddr))}");
+                                PrintNL($" Weapon: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)atwArrayAddr + 8))} Ammo Type: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)atwArrayAddr))}");
                             }
                             PrintNL("");
                             break;
                     }
                 }
 
-                #if DEBUG
-                var post = DateTime.Now.ToString();
-                echo (pre);
-                echo (post);
-                #endif
+                ActiveForm.Invoke(reloadButtonMammet, new object[] { true });
+
                 
+
+                //#
+                //## Do shit
+                //#
+
+
+
                 yeet:
+                PrintNL("Finished!");
                 CTUpdateLabel(binName + " Finished Loading dc File");
                 Venat.Invoke(abortButtonMammet, new object[] { false });
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -49,6 +50,7 @@ namespace weapon_data
         public static Label activeScriptLabel;
         public static Button abortBtn;
 
+        public static string ActiveLabel;
 
         private Thread binThread;
         public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
@@ -168,11 +170,13 @@ namespace weapon_data
         //#
         #region [Logging Functionality]
 
-        public static void echo(object str = null)
+        public static void echo(object message = null)
         {
+            var str = message.ToString();
+
             Console.WriteLine(str);
 
-            if (Azem.DebugOutputCheckBox.Checked)
+            if (Azem.DebugOutputCheckBox.Checked || str.Contains("ERROR"))
             {
                 Venat?.PrintNL(str);
             }

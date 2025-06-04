@@ -40,9 +40,10 @@ namespace weapon_data
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.AbortBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
+            this.DisplayModeToggleCheckBox = new System.Windows.Forms.CheckBox();
             this.richTextBox1 = new weapon_data.RichTextBox();
             this.binPathTextBox = new weapon_data.TextBox();
-            this.DisplayModeToggleCheckBox = new System.Windows.Forms.CheckBox();
+            this.ClearBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -70,12 +71,13 @@ namespace weapon_data
             // button3
             // 
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.button3.Location = new System.Drawing.Point(253, 60);
+            this.button3.Location = new System.Drawing.Point(88, 51);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(103, 23);
             this.button3.TabIndex = 4;
             this.button3.Text = "Choose Property";
             this.button3.UseVisualStyleBackColor = false;
+            this.button3.Visible = false;
             // 
             // ActiveScriptLabel
             // 
@@ -93,7 +95,7 @@ namespace weapon_data
             this.ExitBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.ExitBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
             this.ExitBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.ExitBtn.Location = new System.Drawing.Point(615, 2);
+            this.ExitBtn.Location = new System.Drawing.Point(615, 3);
             this.ExitBtn.Name = "ExitBtn";
             this.ExitBtn.Size = new System.Drawing.Size(22, 22);
             this.ExitBtn.TabIndex = 8;
@@ -107,7 +109,7 @@ namespace weapon_data
             this.MinimizeBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.MinimizeBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.MinimizeBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.MinimizeBtn.Location = new System.Drawing.Point(593, 2);
+            this.MinimizeBtn.Location = new System.Drawing.Point(593, 3);
             this.MinimizeBtn.Name = "MinimizeBtn";
             this.MinimizeBtn.Size = new System.Drawing.Size(22, 22);
             this.MinimizeBtn.TabIndex = 7;
@@ -118,7 +120,7 @@ namespace weapon_data
             // AbortBtn
             // 
             this.AbortBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.AbortBtn.Location = new System.Drawing.Point(593, 27);
+            this.AbortBtn.Location = new System.Drawing.Point(593, 28);
             this.AbortBtn.Name = "AbortBtn";
             this.AbortBtn.Size = new System.Drawing.Size(44, 23);
             this.AbortBtn.TabIndex = 9;
@@ -139,6 +141,17 @@ namespace weapon_data
             this.ReloadScriptBtn.Text = "Reload";
             this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             this.ReloadScriptBtn.Click += new System.EventHandler(this.ReloadBinFile);
+            // 
+            // DisplayModeToggleCheckBox
+            // 
+            this.DisplayModeToggleCheckBox.AutoSize = true;
+            this.DisplayModeToggleCheckBox.Location = new System.Drawing.Point(475, 107);
+            this.DisplayModeToggleCheckBox.Name = "DisplayModeToggleCheckBox";
+            this.DisplayModeToggleCheckBox.Size = new System.Drawing.Size(106, 17);
+            this.DisplayModeToggleCheckBox.TabIndex = 11;
+            this.DisplayModeToggleCheckBox.Text = "Interactive Mode";
+            this.DisplayModeToggleCheckBox.UseVisualStyleBackColor = true;
+            this.DisplayModeToggleCheckBox.Visible = false;
             // 
             // richTextBox1
             // 
@@ -161,15 +174,17 @@ namespace weapon_data
             this.binPathTextBox.TabIndex = 0;
             this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
             // 
-            // DisplayModeToggleCheckBox
+            // ClearBtn
             // 
-            this.DisplayModeToggleCheckBox.AutoSize = true;
-            this.DisplayModeToggleCheckBox.Location = new System.Drawing.Point(525, 107);
-            this.DisplayModeToggleCheckBox.Name = "DisplayModeToggleCheckBox";
-            this.DisplayModeToggleCheckBox.Size = new System.Drawing.Size(106, 17);
-            this.DisplayModeToggleCheckBox.TabIndex = 11;
-            this.DisplayModeToggleCheckBox.Text = "Interactive Mode";
-            this.DisplayModeToggleCheckBox.UseVisualStyleBackColor = true;
+            this.ClearBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.ClearBtn.Location = new System.Drawing.Point(587, 103);
+            this.ClearBtn.Name = "ClearBtn";
+            this.ClearBtn.Size = new System.Drawing.Size(44, 23);
+            this.ClearBtn.TabIndex = 12;
+            this.ClearBtn.Text = "Clear";
+            this.ClearBtn.UseVisualStyleBackColor = false;
+            this.ClearBtn.Visible = false;
+            this.ClearBtn.Click += new System.EventHandler(this.ClearBtn_Click);
             // 
             // Main
             // 
@@ -177,6 +192,7 @@ namespace weapon_data
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(639, 505);
+            this.Controls.Add(this.ClearBtn);
             this.Controls.Add(this.DisplayModeToggleCheckBox);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.AbortBtn);
@@ -339,6 +355,7 @@ namespace weapon_data
         private Button AbortBtn;
         private Button ReloadScriptBtn;
         private CheckBox DisplayModeToggleCheckBox;
+        private Button ClearBtn;
     }
 }
 
