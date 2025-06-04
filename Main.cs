@@ -184,7 +184,6 @@ namespace weapon_data
 
         private void LoadDcStruct(byte[] binFile, string Type, long Address)
         {
-                            
             switch (Type)
             {
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
@@ -260,21 +259,40 @@ namespace weapon_data
 
 
                 case "symbol-array":
-                    SymbolDefinitions.Add(new SymbolArrayDef(DCFile.DCStructures[tableIndex].Name, binFile, DCFile.DCStructures[tableIndex].Pointer));
+                //break;
+                    SymbolDefinitions.Add(new SymbolArrayDef(Name, binFile, Address));
+                    
+                    //! Print unknown remaining DCHeader.Structures
+                    if (Venat?.SymbolDefinitions?.Count > 0)
+                    {
+                        var ext = "  ->  ";
+                        PrintNL($"Printing Symbol Array of Length {Venat.SymbolDefinitions.Last().Symbols.Count}:");
+                        foreach (var symbolDef in Venat.SymbolDefinitions.Last().Symbols)
+                        {
+                            PrintNL(ext + symbolDef);
+                        }
+                        PrintNL();
+                    }
+                    PrintNL();
                     break;
 
 
                 case "ammo-to-weapon-array":
-                break;
-                    var atwArrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCFile.DCStructures[tableIndex].Pointer), 0);
-                    var atwArrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCFile.DCStructures[tableIndex].Pointer + 8), 0);
-
-                    PrintNL($"  Item Details: [ Length: {atwArrayLen} ]");
-                    for (int i = 0; i < atwArrayLen && !Venat.abort; atwArrayAddr += 16, i++)
+                //break;
+                    AmmoToWeaponDefinitions.Add(new AmmoToWeaponArray(Name, binFile, Address));
+                    
+                    //! Print unknown remaining DCHeader.Structures
+                    if (Venat?.AmmoToWeaponDefinitions?.Count > 0)
                     {
-                        PrintNL($" Weapon: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)atwArrayAddr + 8))} Ammo Type: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)atwArrayAddr))}");
+                        var ext = "  ->  ";
+                        PrintNL($"Printing Ammo-to-Weapon Array of Length {Venat.AmmoToWeaponDefinitions.Last().Symbols.Count}:");
+                        foreach (var symbolDef in Venat.AmmoToWeaponDefinitions.Last().Symbols)
+                        {
+                            PrintNL(ext + $"{symbolDef[0]} -> {symbolDef[1]}");
+                        }
+                        PrintNL();
                     }
-                    PrintNL("");
+                    PrintNL();
                     break;
             }
         }

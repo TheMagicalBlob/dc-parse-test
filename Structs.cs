@@ -27,6 +27,7 @@ namespace weapon_data
                 case var _ when scriptName.ToLower().Replace("_", "-").Contains("weapon-gameplay"):
                     WeaponDefinitions = new List<WeaponGameplayDef>();
                     AmmoToWeaponDefinitions = new List<AmmoToWeaponArray>();
+                    SymbolDefinitions = new List<SymbolArrayDef>();
                     break;
 
                 
@@ -38,6 +39,8 @@ namespace weapon_data
                 // Unknown Script; Initialize all
                 default:
                     WeaponDefinitions = new List<WeaponGameplayDef>();
+                    AmmoToWeaponDefinitions = new List<AmmoToWeaponArray>();
+                    SymbolDefinitions = new List<SymbolArrayDef>();
                     break;
             }
         }
@@ -173,23 +176,22 @@ namespace weapon_data
             public SymbolArrayDef(string name, byte[] binFile, long address)
             {
                 Symbols = new List<string>();
-                Hashes  = new List<long>();
+                Hashes  = new List<byte[]>();
                 Name = name;
                 
                 var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address), 0);
                 var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 8), 0);
 
-                PrintNL($"  Array Length: {arrayLen} ");
-                for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 16, i++)
+                for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 8, i++)
                 {
-                    Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr));
+                    Hashes.Add(Venat.GetSubArray(binFile, (int)arrayAddr));
+                    Symbols.Add(Venat.DecodeSIDHash(Hashes.Last()));
                 }
-                PrintNL("");
             }
 
             public string Name;
             public List<string> Symbols;
-            public List<long> Hashes;
+            public List<byte[]> Hashes;
         }
 
         public struct DCMapStruct
@@ -199,26 +201,29 @@ namespace weapon_data
 
         public struct AmmoToWeaponArray
         {
-            public AmmoToWeaponArray(byte[] binFile, long address)
+            public AmmoToWeaponArray(string name, byte[] binFile, long address)
             {
-                Symbols = new List<string>();
-                Hashes  = new List<long>();
-
+                Symbols = new List<string[]>();
+                Hashes  = new List<byte[][]>();
+                Name = name;
                 
-                var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCFile.DCStructures[tableIndex].Pointer), 0);
-                var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)DCFile.DCStructures[tableIndex].Pointer + 8), 0);
+                var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address), 0);
+                var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 8), 0);
 
-                PrintNL($"  Array Length: {arrayLen} ");
+                Venat?.PrintNL();
                 for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 16, i++)
                 {
-                    Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr + 8)) Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr))
-                    Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr + 8)) Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)arrayAddr))
+                    Venat?.PrintLL($"  Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}");
+                    Hashes.Add(new[] { Venat.GetSubArray(binFile, (int)arrayAddr + 8), Venat.GetSubArray(binFile, (int)arrayAddr) });
+                    Symbols.Add(new[] { Venat.DecodeSIDHash(Hashes.Last()[0]), Venat.DecodeSIDHash(Hashes.Last()[1]) });
                 }
-                PrintNL("");
             }
 
-            public List<string> Symbols;
-            public List<long> Hashes;
+            public string Name;
+
+
+            public List<string[]> Symbols;
+            public List<byte[][]> Hashes;
         }
 
 
