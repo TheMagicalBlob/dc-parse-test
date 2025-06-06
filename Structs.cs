@@ -171,6 +171,13 @@ namespace weapon_data
             public long Pointer;
         }
 
+        
+        public struct DCMapDef
+        {
+
+        }
+
+
         public struct SymbolArrayDef
         {
             public SymbolArrayDef(string name, byte[] binFile, long address)
@@ -194,10 +201,6 @@ namespace weapon_data
             public List<byte[]> Hashes;
         }
 
-        public struct DCMapStruct
-        {
-
-        }
 
         public struct AmmoToWeaponArray
         {
@@ -210,10 +213,13 @@ namespace weapon_data
                 var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address), 0);
                 var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 8), 0);
 
+                var outputLine = Venat.GetOutputWindowLines().Length - 1;
+
                 Venat?.PrintNL();
                 for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 16, i++)
                 {
-                    Venat?.PrintLL($"  Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}");
+                    Venat?.PrintLL($"  Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}", outputLine);
+
                     Hashes.Add(new[] { Venat.GetSubArray(binFile, (int)arrayAddr + 8), Venat.GetSubArray(binFile, (int)arrayAddr) });
                     Symbols.Add(new[] { Venat.DecodeSIDHash(Hashes.Last()[0]), Venat.DecodeSIDHash(Hashes.Last()[1]) });
                 }
@@ -290,8 +296,6 @@ namespace weapon_data
                     {
                         echo($"ERROR Parsing Hud2 Reticle Definition at {Hud2ReticleDefAddress:X}; unexpected id. ({Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8))} != hud2-reticle-def)");
                     }
-                    echo($"Fuck Sake: {Hud2ReticleDefAddress:X}");
-
 
                     // Read Hud2 Reticle Name
                     for (var i = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);

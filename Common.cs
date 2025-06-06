@@ -7,6 +7,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace weapon_data
 {
@@ -54,22 +55,32 @@ namespace weapon_data
 
         private Thread binThread;
         public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
+        public delegate void binThreadFormWandOutputRead(ref object obj); //! god I need to read about delegates lmao
+        public delegate void binThreadFormWandArray(string msg, int? line); //! god I need to read about delegates lmao
 
         public binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
-        public  binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
-        public  binThreadFormWand reloadButtonMammet = new binThreadFormWand((_) =>
+        public binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
+        public binThreadFormWand reloadButtonMammet = new binThreadFormWand((_) =>
         {
             Venat.ReloadScriptBtn.Enabled ^= true;
             Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
         });
 
-        public binThreadFormWand outputMammet =          new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
-        public binThreadFormWand outputMammetSameLine =  new binThreadFormWand((obj) =>
+        public binThreadFormWand outputMammet = new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
+        public binThreadFormWandOutputRead outputReadMammet = new binThreadFormWandOutputRead((ref object obj) =>
         {
-            OutputWindow.Text = OutputWindow.Text.Remove(OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
-            OutputWindow.Update();
+            ((string[][])obj)[0] = OutputWindow.Lines;
         });
-
+            
+        public binThreadFormWandArray outputMammetSameLine = new binThreadFormWandArray((msg, line) =>
+        {
+            OutputWindow.UpdateLine(msg, line ?? 1 - 1);
+            OutputWindow.Update();
+            
+            //OutputWindow.Text = OutputWindow.Text.Remove(OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
+            //OutputWindow.Update();
+        });
+        static int ttt = 0;
 
         
         /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
@@ -194,7 +205,7 @@ namespace weapon_data
             activeScriptLabel.Text = "Selected Script: " + str;
         }
 
-        public void PrintLL(string str)
+        public void PrintLL(string str, int line = 1)
         {
             
 #if DEBUG
@@ -207,7 +218,7 @@ namespace weapon_data
                 Debug.WriteLine(str ?? "null");
 #endif
 
-            Venat?.Invoke(outputMammetSameLine, new object[] { str.TrimEnd('\n') });
+            Venat?.Invoke(outputMammetSameLine, str, line < 1 ? 1 : line);
         }
 
         /// <summary>
@@ -229,6 +240,16 @@ namespace weapon_data
 #endif
 
             Venat?.Invoke(outputMammet, new object[] { str.ToString() });
+        }
+
+        public string[] GetOutputWindowLines()
+        {
+            var ret = new string[][] { new [] { "" } };
+            echo($"ret0 = {ret.Length}");
+            Venat?.Invoke(outputReadMammet, new [] { ret });
+            echo($"ret2 = {ret.Length}");
+
+            return ret[0];
         }
         #endregion
 
@@ -331,6 +352,14 @@ namespace weapon_data
         {
             AppendText($"{str}\n");
             ScrollToCaret();
+        }
+
+        public void UpdateLine(string newMsg, int line)
+        {
+            var lines = Lines; // Not sure why I can't directly write to the array and have it actually update
+            lines[line - 1] = newMsg;
+            Lines = lines;
+            Update();
         }
     }
 

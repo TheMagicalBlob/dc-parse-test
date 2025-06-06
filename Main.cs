@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace weapon_data
 {
-    public partial class Main: Form
+    public partial class Main : Form
     {
         public Main()
         {
@@ -160,7 +160,7 @@ namespace weapon_data
                     LoadDcStruct(binFile, DCFile.DCStructures[tableIndex].Type, (int)DCFile.DCStructures[tableIndex].Pointer);
                 }
 
-                ActiveForm.Invoke(reloadButtonMammet, new object[] { true });
+                Venat?.Invoke(reloadButtonMammet, new object[] { true });
 
                 
 
@@ -182,7 +182,7 @@ namespace weapon_data
             }
         }
 
-        private void LoadDcStruct(byte[] binFile, string Type, long Address)
+        private void LoadDcStruct(byte[] binFile, string Type, long Address, string Name = "")
         {
             switch (Type)
             {
@@ -197,7 +197,7 @@ namespace weapon_data
                             
                     for (int arrayIndex = 0, pad = mapLength.ToString().Length; arrayIndex < mapLength && !Venat.abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
                     {
-                        PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}");
+                        PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", 0);
 
 
                         var structAddr = (int)BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)mapStructArray), 0);
@@ -206,19 +206,19 @@ namespace weapon_data
                         // Check for and parse known DCHeader.Structures, or just print the basic data if it's not a handled structure
                         switch (structType)
                         {
-                            case "weapon-gameplay-def":
-                                Venat.WeaponDefinitions.Add(new WeaponGameplayDef(Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
-                                break;
-                                case "melee-weapon-gameplay-def":
-                                    break;
+                case "weapon-gameplay-def":
+                    Venat.WeaponDefinitions.Add(new WeaponGameplayDef(Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
+                    break;
+                    case "melee-weapon-gameplay-def":
+                        break;
 
-                            default:
-                                Venat.UnknownDefinitions.Add($"Unknown Structure #{arrayIndex.ToString().PadLeft(pad, '0')}: {structType}\n    Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray))}");
-                                break;
+                default:
+                    Venat.UnknownDefinitions.Add($"Unknown Structure #{arrayIndex.ToString().PadLeft(pad, '0')}: {structType}\n    Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray))}");
+                    break;
                         }
                     }
                     PrintNL();
-
+                    break;
                     //! Print Parsed Data
                     if (Venat.WeaponDefinitions.Count > 0)
                     {
@@ -297,5 +297,15 @@ namespace weapon_data
             }
         }
         #endregion
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            PrintNL("New Line.");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            PrintLL($"Repeated Line: #{ttt++}", Venat.GetOutputWindowLines().Length - 1);
+        }
     }
 }

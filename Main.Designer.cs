@@ -44,15 +44,18 @@ namespace weapon_data
             this.ClearBtn = new System.Windows.Forms.Button();
             this.OutputWindowRichTextBox = new weapon_data.RichTextBox();
             this.binPathTextBox = new weapon_data.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
             // 
             this.BinPathBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.BinPathBrowseBtn.Location = new System.Drawing.Point(515, 9);
+            this.BinPathBrowseBtn.Location = new System.Drawing.Point(566, 65);
             this.BinPathBrowseBtn.Name = "BinPathBrowseBtn";
             this.BinPathBrowseBtn.Size = new System.Drawing.Size(65, 23);
-            this.BinPathBrowseBtn.TabIndex = 1;
+            this.BinPathBrowseBtn.TabIndex = 2;
             this.BinPathBrowseBtn.Text = "Browse...";
             this.BinPathBrowseBtn.UseVisualStyleBackColor = false;
             this.BinPathBrowseBtn.Click += new System.EventHandler(this.BinPathBrowseBtn_Click);
@@ -60,7 +63,7 @@ namespace weapon_data
             // optionsMenuDropdownBtn
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(7, 50);
+            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(7, 65);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(75, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
@@ -71,7 +74,7 @@ namespace weapon_data
             // ChoosePropertyBtn
             // 
             this.ChoosePropertyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.ChoosePropertyBtn.Location = new System.Drawing.Point(88, 51);
+            this.ChoosePropertyBtn.Location = new System.Drawing.Point(88, 66);
             this.ChoosePropertyBtn.Name = "ChoosePropertyBtn";
             this.ChoosePropertyBtn.Size = new System.Drawing.Size(103, 23);
             this.ChoosePropertyBtn.TabIndex = 4;
@@ -84,10 +87,10 @@ namespace weapon_data
             // 
             this.ActiveScriptLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
             this.ActiveScriptLabel.ForeColor = System.Drawing.Color.Gold;
-            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 101);
+            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 129);
             this.ActiveScriptLabel.Name = "ActiveScriptLabel";
-            this.ActiveScriptLabel.Size = new System.Drawing.Size(510, 23);
-            this.ActiveScriptLabel.TabIndex = 5;
+            this.ActiveScriptLabel.Size = new System.Drawing.Size(573, 23);
+            this.ActiveScriptLabel.TabIndex = 0;
             this.ActiveScriptLabel.Text = "Selected Script: none selected";
             // 
             // ExitBtn
@@ -121,10 +124,10 @@ namespace weapon_data
             // AbortBtn
             // 
             this.AbortBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.AbortBtn.Location = new System.Drawing.Point(593, 28);
+            this.AbortBtn.Location = new System.Drawing.Point(451, 65);
             this.AbortBtn.Name = "AbortBtn";
             this.AbortBtn.Size = new System.Drawing.Size(44, 23);
-            this.AbortBtn.TabIndex = 9;
+            this.AbortBtn.TabIndex = 0;
             this.AbortBtn.Text = "Abort";
             this.AbortBtn.UseVisualStyleBackColor = false;
             this.AbortBtn.Visible = false;
@@ -135,7 +138,7 @@ namespace weapon_data
             this.ReloadScriptBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.ReloadScriptBtn.Enabled = false;
             this.ReloadScriptBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReloadScriptBtn.Location = new System.Drawing.Point(515, 35);
+            this.ReloadScriptBtn.Location = new System.Drawing.Point(498, 65);
             this.ReloadScriptBtn.Name = "ReloadScriptBtn";
             this.ReloadScriptBtn.Size = new System.Drawing.Size(65, 23);
             this.ReloadScriptBtn.TabIndex = 10;
@@ -146,7 +149,7 @@ namespace weapon_data
             // DisplayModeToggleCheckBox
             // 
             this.DisplayModeToggleCheckBox.AutoSize = true;
-            this.DisplayModeToggleCheckBox.Location = new System.Drawing.Point(475, 107);
+            this.DisplayModeToggleCheckBox.Location = new System.Drawing.Point(8, 92);
             this.DisplayModeToggleCheckBox.Name = "DisplayModeToggleCheckBox";
             this.DisplayModeToggleCheckBox.Size = new System.Drawing.Size(106, 17);
             this.DisplayModeToggleCheckBox.TabIndex = 11;
@@ -157,21 +160,22 @@ namespace weapon_data
             // ClearBtn
             // 
             this.ClearBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.ClearBtn.Location = new System.Drawing.Point(587, 103);
+            this.ClearBtn.Location = new System.Drawing.Point(587, 131);
             this.ClearBtn.Name = "ClearBtn";
             this.ClearBtn.Size = new System.Drawing.Size(44, 23);
-            this.ClearBtn.TabIndex = 12;
+            this.ClearBtn.TabIndex = 4;
             this.ClearBtn.Text = "Clear";
             this.ClearBtn.UseVisualStyleBackColor = false;
-            this.ClearBtn.Visible = false;
             this.ClearBtn.Click += new System.EventHandler(this.ClearBtn_Click);
             // 
             // OutputWindowRichTextBox
             // 
             this.OutputWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.OutputWindowRichTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.OutputWindowRichTextBox.Location = new System.Drawing.Point(8, 128);
+            this.OutputWindowRichTextBox.Location = new System.Drawing.Point(8, 156);
             this.OutputWindowRichTextBox.Name = "OutputWindowRichTextBox";
+            this.OutputWindowRichTextBox.ReadOnly = true;
+            this.OutputWindowRichTextBox.ShortcutsEnabled = false;
             this.OutputWindowRichTextBox.Size = new System.Drawing.Size(623, 369);
             this.OutputWindowRichTextBox.TabIndex = 2;
             this.OutputWindowRichTextBox.Text = "";
@@ -181,18 +185,53 @@ namespace weapon_data
             this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.binPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
             this.binPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.binPathTextBox.Location = new System.Drawing.Point(7, 21);
+            this.binPathTextBox.Location = new System.Drawing.Point(7, 38);
             this.binPathTextBox.Name = "binPathTextBox";
-            this.binPathTextBox.Size = new System.Drawing.Size(501, 24);
-            this.binPathTextBox.TabIndex = 0;
+            this.binPathTextBox.Size = new System.Drawing.Size(624, 24);
+            this.binPathTextBox.TabIndex = 3;
             this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.label1.ForeColor = System.Drawing.Color.Gold;
+            this.label1.Location = new System.Drawing.Point(4, 4);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(190, 30);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "NaughtyDog DC Test";
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.button1.Location = new System.Drawing.Point(250, 92);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(35, 23);
+            this.button1.TabIndex = 13;
+            this.button1.Text = "Choose Property";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.button2.Location = new System.Drawing.Point(291, 92);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(32, 23);
+            this.button2.TabIndex = 14;
+            this.button2.Text = "Choose Property";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(639, 505);
+            this.ClientSize = new System.Drawing.Size(639, 533);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.ClearBtn);
             this.Controls.Add(this.DisplayModeToggleCheckBox);
             this.Controls.Add(this.ReloadScriptBtn);
@@ -357,6 +396,9 @@ namespace weapon_data
         private Button ReloadScriptBtn;
         private CheckBox DisplayModeToggleCheckBox;
         private Button ClearBtn;
+        private Label label1;
+        private Button button1;
+        private Button button2;
     }
 }
 
