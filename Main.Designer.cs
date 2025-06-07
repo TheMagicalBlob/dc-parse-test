@@ -42,11 +42,10 @@ namespace weapon_data
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
             this.DisplayModeToggleCheckBox = new System.Windows.Forms.CheckBox();
             this.ClearBtn = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.redirectCheckBox = new System.Windows.Forms.CheckBox();
             this.OutputWindowRichTextBox = new weapon_data.RichTextBox();
             this.binPathTextBox = new weapon_data.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -168,6 +167,27 @@ namespace weapon_data
             this.ClearBtn.UseVisualStyleBackColor = false;
             this.ClearBtn.Click += new System.EventHandler(this.ClearBtn_Click);
             // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.label1.ForeColor = System.Drawing.Color.Gold;
+            this.label1.Location = new System.Drawing.Point(4, 4);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(190, 30);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "NaughtyDog DC Test";
+            // 
+            // redirectCheckBox
+            // 
+            this.redirectCheckBox.AutoSize = true;
+            this.redirectCheckBox.Location = new System.Drawing.Point(8, 109);
+            this.redirectCheckBox.Name = "redirectCheckBox";
+            this.redirectCheckBox.Size = new System.Drawing.Size(216, 17);
+            this.redirectCheckBox.TabIndex = 13;
+            this.redirectCheckBox.Text = "Redirect Debug Prints to OutputWindow";
+            this.redirectCheckBox.UseVisualStyleBackColor = true;
+            this.redirectCheckBox.CheckedChanged += new System.EventHandler(this.redirectCheckBox_CheckedChanged);
+            // 
             // OutputWindowRichTextBox
             // 
             this.OutputWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -191,46 +211,13 @@ namespace weapon_data
             this.binPathTextBox.TabIndex = 3;
             this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
             // 
-            // label1
-            // 
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.label1.ForeColor = System.Drawing.Color.Gold;
-            this.label1.Location = new System.Drawing.Point(4, 4);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(190, 30);
-            this.label1.TabIndex = 12;
-            this.label1.Text = "NaughtyDog DC Test";
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.button1.Location = new System.Drawing.Point(250, 92);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(35, 23);
-            this.button1.TabIndex = 13;
-            this.button1.Text = "Choose Property";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.button2.Location = new System.Drawing.Point(291, 92);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(32, 23);
-            this.button2.TabIndex = 14;
-            this.button2.Text = "Choose Property";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(639, 533);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.redirectCheckBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ClearBtn);
             this.Controls.Add(this.DisplayModeToggleCheckBox);
@@ -293,16 +280,22 @@ namespace weapon_data
                 if (Item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
                     continue;
                 
-                Item.MouseDown += new MouseEventHandler((sender, e) => {
-                    Main.MouseDif = new Point(MousePosition.X - Main.Venat.Location.X, MousePosition.Y - Main.Venat.Location.Y);
+                Item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    Main.MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                     Main.MouseIsDown = true;
                     DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
                 });
-                Item.MouseUp   += new MouseEventHandler((sender, e) => { Main.MouseIsDown = false; if (Main.OptionsPageIsOpen) Main.Azem?.BringToFront(); });
+                Item.MouseUp   += new MouseEventHandler((sender, e) =>
+                {
+                    MouseIsDown = false;
+                    if (OptionsPageIsOpen)
+                        Azem?.BringToFront();
+                });
                 
                 // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
                 if (Item.GetType() != typeof(TextBox) && Item.GetType() != typeof(RichTextBox))
-                    Item.MouseMove += new MouseEventHandler((sender, e) => Main.MoveForm());
+                    Item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
             }
 
             Paint += Main.PaintBorder;
@@ -397,8 +390,7 @@ namespace weapon_data
         private CheckBox DisplayModeToggleCheckBox;
         private Button ClearBtn;
         private Label label1;
-        private Button button1;
-        private Button button2;
+        private CheckBox redirectCheckBox;
     }
 }
 

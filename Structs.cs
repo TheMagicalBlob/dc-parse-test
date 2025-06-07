@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting;
 using System.Security.Cryptography;
 using System.Text;
 using static weapon_data.Main;
@@ -58,9 +59,56 @@ namespace weapon_data
         //=================================\\
         #region [Structure Definitions]
 
+        public struct MapDefinition
+        {
+            public MapDefinition(byte[] binFile, long address, string name = null)
+            {
+                Name = name ?? "";
+                Address = address;
+
+                Type = Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)address + 8));
+                Pointer = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address + 16), 0);
+
+                
+                Venat?.WeaponDefinitions.Add(new WeaponGameplayDef(Name, binFile, Address));
+                var mapLength = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Address), 0);
+                var mapSymbolArray = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Address + 8), 0);
+                long mapStructArray = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Address + 16), 0);
+
+
+                Venat?.PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]\n");
+                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
+                    
+                for (int arrayIndex = 0, pad = mapLength.ToString().Length; arrayIndex < mapLength && !(Venat?.abort ?? true); mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
+                {
+                    Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", outputLine);
+
+
+                    var structAddr = (int)BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)mapStructArray), 0);
+                    var structType = Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, structAddr - 8));
+
+                    Venat?.LoadDcStruct(binFile, structType, structAddr, Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)mapSymbolArray)));
+                }
+                Venat?.PrintNL();
+
+
+                if (Name.Length < 1)
+                {
+                    Name = "unnamed";
+                }
+            }
+
+            public long Address;
+            public string Name;
+            public string Type;
+            public long Pointer;
+
+
+        }
+
         public struct DCFileHeader
         {
-            void PrintNL(string str = "") => Venat.PrintNL(str);
+            void PrintNL(string str = "") => Venat?.PrintNL(str);
 
             public DCFileHeader(string binName, byte[] binFile)
             {
@@ -87,7 +135,7 @@ namespace weapon_data
                 //#
                 //## Run a few basic integrity checks
                 //#
-                var integrityCheck  = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, 0x20));
+                var integrityCheck  = Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, 0x20));
                 if (integrityCheck != "array")
                 {
                     echo($"ERROR; Unexpected SID \"{integrityCheck}\" at 0x20, aborting.");
@@ -104,7 +152,7 @@ namespace weapon_data
                     return;
                 }
             
-                if (Venat.abort) {
+                if ((Venat?.abort ?? true)) {
                     return;
                 }
 
@@ -128,10 +176,10 @@ namespace weapon_data
 
 
                 PrintNL($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})");
-                Venat.CTUpdateLabel(ActiveLabel);
-                Venat.InitializeDcStructListsByScriptName(binName);
+                Venat?.CTUpdateLabel(ActiveLabel);
+                Venat?.InitializeDcStructListsByScriptName(binName);
 
-                for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength && !Venat.abort; tableIndex++, addr += 24)
+                for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength && !(Venat?.abort ?? true); tableIndex++, addr += 24)
                 {
                     DCStructures[tableIndex] = new DCStructEntry(binFile, addr);
                     echo ($"Structure {tableIndex} Loaded Without Error.{(tableIndex < TableLength - 1 ? ".." : "")}");
@@ -154,15 +202,16 @@ namespace weapon_data
             public DCStructEntry[] DCStructures;
         }
 
+
         public struct DCStructEntry
         {
             public DCStructEntry(byte[] binFile, int address)
             {
                 Address = address;
 
-                Name = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, address));
-                Type = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, address + 8));
-                Pointer = BitConverter.ToInt64(Venat.GetSubArray(binFile, address + 16), 0);
+                Name = Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, address));
+                Type = Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, address + 8));
+                Pointer = BitConverter.ToInt64(Venat?.GetSubArray(binFile, address + 16), 0);
             }
 
             public long Address;
@@ -174,7 +223,38 @@ namespace weapon_data
         
         public struct DCMapDef
         {
+            public DCMapDef(byte[] binFile, string Type, long Address, string Name = "")
+            {
+                var mapLength = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Address), 0);
+                var mapNamesArrayPtr = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Address + 8), 0);
+                long mapStructsArrayPtr = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Address + 16), 0);
 
+                Items = new object[mapLength][];
+                Items[0] = new object[2];
+
+                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
+                    
+
+                Venat?.PrintNL();
+
+                for (int arrayIndex = 0; arrayIndex < mapLength && !(Venat?.abort ?? true); mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++, Items[arrayIndex] = new object[2])
+                {
+                    Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", outputLine);
+
+                    var structAddr = (int)BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
+                    var structType = Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, structAddr - 8));
+                    var structName = Venat?.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapNamesArrayPtr));
+
+                    Venat?.PrintLL($"  - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}", outputLine + 1);
+
+
+                    Items[arrayIndex][0] = structType;
+                    Items[arrayIndex][1] = Venat?.LoadDcStruct(binFile, structType, structAddr, structName, true);
+                }
+                Venat?.PrintNL();
+            }
+
+            public object[][] Items;
         }
 
 
@@ -186,13 +266,13 @@ namespace weapon_data
                 Hashes  = new List<byte[]>();
                 Name = name;
                 
-                var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address), 0);
-                var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 8), 0);
+                var arrayLen = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address), 0);
+                var arrayAddr = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address + 8), 0);
 
-                for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 8, i++)
+                for (int i = 0; i < arrayLen && !(Venat?.abort ?? true); arrayAddr += 8, i++)
                 {
-                    Hashes.Add(Venat.GetSubArray(binFile, (int)arrayAddr));
-                    Symbols.Add(Venat.DecodeSIDHash(Hashes.Last()));
+                    Hashes.Add(Venat?.GetSubArray(binFile, (int)arrayAddr));
+                    Symbols.Add(Venat?.DecodeSIDHash(Hashes.Last()));
                 }
             }
 
@@ -210,18 +290,18 @@ namespace weapon_data
                 Hashes  = new List<byte[][]>();
                 Name = name;
                 
-                var arrayLen = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address), 0);
-                var arrayAddr = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + 8), 0);
+                var arrayLen = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address), 0);
+                var arrayAddr = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address + 8), 0);
 
-                var outputLine = Venat.GetOutputWindowLines().Length - 1;
+                var outputLine = Venat?.GetOutputWindowLines().Length ?? 0;
 
-                Venat?.PrintNL();
-                for (int i = 0; i < arrayLen && !Venat.abort; arrayAddr += 16, i++)
+                Venat?.PrintNL("\n");
+                for (int i = 0; i < arrayLen && !(Venat?.abort ?? true); arrayAddr += 16, i++)
                 {
                     Venat?.PrintLL($"  Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}", outputLine);
 
-                    Hashes.Add(new[] { Venat.GetSubArray(binFile, (int)arrayAddr + 8), Venat.GetSubArray(binFile, (int)arrayAddr) });
-                    Symbols.Add(new[] { Venat.DecodeSIDHash(Hashes.Last()[0]), Venat.DecodeSIDHash(Hashes.Last()[1]) });
+                    Hashes.Add(new[] { Venat?.GetSubArray(binFile, (int)arrayAddr + 8), Venat?.GetSubArray(binFile, (int)arrayAddr) });
+                    Symbols.Add(new[] { Venat?.DecodeSIDHash(Hashes.Last()[0]), Venat?.DecodeSIDHash(Hashes.Last()[1]) });
                 }
             }
 
@@ -265,42 +345,43 @@ namespace weapon_data
                 //## Parse Weapon Gameplay Definition
                 //#
                 // Load firearm-related variables
-                FirearmGameplayDefAddress = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + FirearmGameplayDefOffset), 0);
+                FirearmGameplayDefAddress = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address + FirearmGameplayDefOffset), 0);
                 if (FirearmGameplayDefAddress != 0)
                 {
-                    if (Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def")
+                    if (Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def")
                     {
-                        echo($"ERROR Parsing Firearm Gameplay Definition at {FirearmGameplayDefAddress:X}; unexpected id. ({Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def"})");
+                        echo($"ERROR Parsing Firearm Gameplay Definition at {FirearmGameplayDefAddress:X}; unexpected id. ({Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def"})");
                     }
 
                     IsFirearm = true;
-                    AmmoCount = (int)BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)FirearmGameplayDefAddress + AmmoCountOffset), 0);
+                    AmmoCount = (int)BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)FirearmGameplayDefAddress + AmmoCountOffset), 0);
                 }
             
 
 
-                MeleeGameplayDefAddress = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + MeleeGameplayDefOffset), 0);
+                MeleeGameplayDefAddress = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address + MeleeGameplayDefOffset), 0);
+                echo($"\n## MeleeFameplayDefAddress = {MeleeGameplayDefAddress}\n");
                 if (MeleeGameplayDefAddress != 0)
                 {
-                    if (Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def")
+                    if (Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def")
                     {
-                        echo($"ERROR Parsing Melee Weapon Gameplay Definition at {MeleeGameplayDefAddress:X}; unexpected id. ({Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def"})");
+                        echo($"ERROR Parsing Melee Weapon Gameplay Definition at {MeleeGameplayDefAddress:X}; unexpected id. ({Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def"})");
                     }
                 }
 
 
-                Hud2ReticleDefAddress = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)address + Hud2ReticleDefOffset), 0);
+                Hud2ReticleDefAddress = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)address + Hud2ReticleDefOffset), 0);
                 if (Hud2ReticleDefAddress != 0)
                 {
-                    if (Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8)) != "hud2-reticle-def")
+                    if (Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8)) != "hud2-reticle-def")
                     {
-                        echo($"ERROR Parsing Hud2 Reticle Definition at {Hud2ReticleDefAddress:X}; unexpected id. ({Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8))} != hud2-reticle-def)");
+                        echo($"ERROR Parsing Hud2 Reticle Definition at {Hud2ReticleDefAddress:X}; unexpected id. ({Venat?.DecodeSIDHash(Venat?.GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8))} != hud2-reticle-def)");
                     }
 
                     // Read Hud2 Reticle Name
-                    for (var i = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
                     // Read Hud2 Simple Reticle Name
-                    for (var i = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(Venat?.GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
                 }
             }
 

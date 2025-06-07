@@ -2,6 +2,6 @@
 {
     public partial class OptionsPage
     {
-        public const string Version = "0.30.164 "
+        public const string Version = "0.35.184 "
    ;}
 }

@@ -69,7 +69,7 @@ namespace weapon_data
         {
             return;
             Azem.Visible ^= true;
-		    Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width)/2, Venat.Location.Y + 80);
+		    Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
             Azem.Update();
 
             DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
@@ -79,7 +79,7 @@ namespace weapon_data
         {
             return;
             Azem.Visible ^= true;
-		    Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width)/2, Venat.Location.Y + 80);
+		    Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
             Azem.Update();
 
             DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
@@ -152,9 +152,9 @@ namespace weapon_data
                 }
 
                 
-                for (int tableIndex = 0, addr = 0x28; tableIndex < DCFile.DCStructures.Length && !Venat.abort; tableIndex++, addr += 24)
+                for (int tableIndex = 0, addr = 0x28; tableIndex < DCFile.DCStructures.Length && !(Venat?.abort ?? true); tableIndex++, addr += 24)
                 {
-                    Venat.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCFile.TableLength})");
+                    Venat?.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCFile.TableLength})");
                     PrintNL($"Item #{tableIndex}: [ Label: {DCFile.DCStructures[tableIndex].Name} Type: {DCFile.DCStructures[tableIndex].Type} Data Address: {DCFile.DCStructures[tableIndex].Pointer:X} ]");
 
                     LoadDcStruct(binFile, DCFile.DCStructures[tableIndex].Type, (int)DCFile.DCStructures[tableIndex].Pointer);
@@ -173,7 +173,7 @@ namespace weapon_data
                 yeet:
                 PrintNL("Finished!");
                 CTUpdateLabel(binName + " Finished Loading dc File");
-                Venat.Invoke(abortButtonMammet, new object[] { false });
+                Venat?.Invoke(abortButtonMammet, new object[] { false });
 
                 abort = false;
             }
@@ -182,81 +182,42 @@ namespace weapon_data
             }
         }
 
-        private void LoadDcStruct(byte[] binFile, string Type, long Address, string Name = "")
+        private object LoadDcStruct(byte[] binFile, string Type, long Address, string Name = null, bool silent = false)
         {
+            if (Name == null || Name.Length < 1)
+            {
+                Name = "unnamed";
+            }
+
+            if (!silent)
+            Venat?.PrintNL($" #[{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}");
+            object ret;
+
             switch (Type)
             {
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
                 case "map":
-                    var mapLength = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)Address), 0);
-                    var mapSymbolArray = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)Address + 8), 0);
-                    long mapStructArray = BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)Address + 16), 0);
-
-
-                    PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]");
-                            
-                    for (int arrayIndex = 0, pad = mapLength.ToString().Length; arrayIndex < mapLength && !Venat.abort; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
-                    {
-                        PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", 0);
-
-
-                        var structAddr = (int)BitConverter.ToInt64(Venat.GetSubArray(binFile, (int)mapStructArray), 0);
-                        var structType = Venat.DecodeSIDHash(Venat.GetSubArray(binFile, structAddr - 8));
-
-                        // Check for and parse known DCHeader.Structures, or just print the basic data if it's not a handled structure
-                        switch (structType)
-                        {
-                case "weapon-gameplay-def":
-                    Venat.WeaponDefinitions.Add(new WeaponGameplayDef(Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray)), binFile, structAddr));
-                    break;
-                    case "melee-weapon-gameplay-def":
-                        break;
-
-                default:
-                    Venat.UnknownDefinitions.Add($"Unknown Structure #{arrayIndex.ToString().PadLeft(pad, '0')}: {structType}\n    Struct Addr: 0x{structAddr.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Venat.DecodeSIDHash(Venat.GetSubArray(binFile, (int)mapSymbolArray))}");
-                    break;
-                        }
-                    }
-                    PrintNL();
+                    ret = new DCMapDef(binFile, Type, Address);
                     break;
                     //! Print Parsed Data
-                    if (Venat.WeaponDefinitions.Count > 0)
+                    foreach (var item in ((DCMapDef)ret).Items)
                     {
-                        var ext = "  ->  ";
-                        foreach (var newDef in Venat.WeaponDefinitions)
+                        switch ((string)item[0])
                         {
-                            PrintNL($"{ext}Weapon Definition @: 0x{newDef.Address:X} {newDef.Name}");
+                            case "":
+                                break;
 
-
-                            PrintNL($"{ext}Is Firearm?: {newDef.IsFirearm}");
-
-                            if (newDef.IsFirearm)
-                            {
-                                PrintNL($"{ext}Ammo Count: {newDef.AmmoCount}");
-                            }
-
-                            PrintNL($"{ext}Reticle: {newDef.Hud2ReticleName}");
-                            PrintNL($"{ext}SimpleReticle: {newDef.Hud2SimpleReticleName}");
-                                
-                            PrintNL();
+                            default:
+                                break;
                         }
-                        PrintNL();
                     }
-                        
-                    //! Print unknown remaining DCHeader.Structures
-                    if (Venat.UnknownDefinitions.Count > 0)
-                    {
-                        var ext = "  ->  ";
-                        foreach (var newDef in Venat.UnknownDefinitions)
-                        {
-                            PrintNL(ext + newDef);
-                        }
-                        PrintNL();
-                    }
-
-                    PrintNL("");
                     break;
 
+                case "weapon-gameplay-def":
+                    Venat?.WeaponDefinitions.Add(new WeaponGameplayDef(Name, binFile, Address));
+                    break;
+                case "melee-weapon-gameplay-def":
+                    break;
 
                 case "symbol-array":
                 //break;
@@ -266,8 +227,8 @@ namespace weapon_data
                     if (Venat?.SymbolDefinitions?.Count > 0)
                     {
                         var ext = "  ->  ";
-                        PrintNL($"Printing Symbol Array of Length {Venat.SymbolDefinitions.Last().Symbols.Count}:");
-                        foreach (var symbolDef in Venat.SymbolDefinitions.Last().Symbols)
+                        PrintNL($"Printing Symbol Array of Length {Venat?.SymbolDefinitions.Last().Symbols.Count}:");
+                        foreach (var symbolDef in Venat?.SymbolDefinitions.Last().Symbols)
                         {
                             PrintNL(ext + symbolDef);
                         }
@@ -278,15 +239,15 @@ namespace weapon_data
 
 
                 case "ammo-to-weapon-array":
-                //break;
+                    break;
                     AmmoToWeaponDefinitions.Add(new AmmoToWeaponArray(Name, binFile, Address));
                     
                     //! Print unknown remaining DCHeader.Structures
                     if (Venat?.AmmoToWeaponDefinitions?.Count > 0)
                     {
                         var ext = "  ->  ";
-                        PrintNL($"Printing Ammo-to-Weapon Array of Length {Venat.AmmoToWeaponDefinitions.Last().Symbols.Count}:");
-                        foreach (var symbolDef in Venat.AmmoToWeaponDefinitions.Last().Symbols)
+                        PrintNL($"Printing Ammo-to-Weapon Array of Length {Venat?.AmmoToWeaponDefinitions.Last().Symbols.Count}:");
+                        foreach (var symbolDef in Venat?.AmmoToWeaponDefinitions.Last().Symbols)
                         {
                             PrintNL(ext + $"{symbolDef[0]} -> {symbolDef[1]}");
                         }
@@ -294,18 +255,19 @@ namespace weapon_data
                     }
                     PrintNL();
                     break;
+
+                default:
+                    Venat?.UnknownDefinitions.Add($"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}");
+                    break;
             }
+
+            return null;
         }
         #endregion
 
-        private void button1_Click(object sender, EventArgs e)
+        private void redirectCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            PrintNL("New Line.");
-        }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            PrintLL($"Repeated Line: #{ttt++}", Venat.GetOutputWindowLines().Length - 1);
         }
     }
 }

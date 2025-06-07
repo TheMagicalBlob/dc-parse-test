@@ -48,29 +48,40 @@ namespace weapon_data
         //## Form Functionality Globals
         //#
         public bool abort = false;
-        public static Label activeScriptLabel;
-        public static Button abortBtn;
+        public bool redirect = 
+#if DEBUG
+            true
+#else
+            false
+#endif
+        ;
 
         public static string ActiveLabel;
 
+        
+        public static Label activeScriptLabel;
+        public static Button abortBtn;
+
+
         private Thread binThread;
         public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
-        public delegate void binThreadFormWandOutputRead(ref object obj); //! god I need to read about delegates lmao
+        public delegate string[] binThreadFormWandOutputRead(); //! god I need to read about delegates lmao
         public delegate void binThreadFormWandArray(string msg, int? line); //! god I need to read about delegates lmao
 
+        public binThreadFormWand outputMammet = new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
         public binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
         public binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
         public binThreadFormWand reloadButtonMammet = new binThreadFormWand((_) =>
         {
+            if (Venat == null) {
+                return;
+            }
+
             Venat.ReloadScriptBtn.Enabled ^= true;
-            Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
+            Venat.ReloadScriptBtn.Font = new Font(Venat?.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
         });
 
-        public binThreadFormWand outputMammet = new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
-        public binThreadFormWandOutputRead outputReadMammet = new binThreadFormWandOutputRead((ref object obj) =>
-        {
-            ((string[][])obj)[0] = OutputWindow.Lines;
-        });
+        public binThreadFormWandOutputRead outputReadMammet = new binThreadFormWandOutputRead(() => OutputWindow.Lines);
             
         public binThreadFormWandArray outputMammetSameLine = new binThreadFormWandArray((msg, line) =>
         {
@@ -80,7 +91,6 @@ namespace weapon_data
             //OutputWindow.Text = OutputWindow.Text.Remove(OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
             //OutputWindow.Update();
         });
-        static int ttt = 0;
 
         
         /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
@@ -141,15 +151,16 @@ namespace weapon_data
         /// <summary>
         /// Handle Form Dragging for Borderless Form.
         /// </summary>
-        public static void MoveForm() {
-            if(MouseIsDown)
+        public static void MoveForm()
+        {
+            if(MouseIsDown && Venat != null)
             {
-                Venat.Location = new Point(Form.MousePosition.X - MouseDif.X, Form.MousePosition.Y - MouseDif.Y);
+                Venat.Location = new Point(MousePosition.X - MouseDif.X, MousePosition.Y - MouseDif.Y);
                 if (Azem != null)
-                    Azem.Location = new Point(Form.MousePosition.X - MouseDif.X + (Venat.Size.Width - Azem.Size.Width)/2, Venat.Location.Y + 80);
-                
+                    Azem.Location = new Point(MousePosition.X - MouseDif.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 40);
                 
                 Venat.Update();
+                Azem?.Update();
             }
         }
 
@@ -184,10 +195,12 @@ namespace weapon_data
         public static void echo(object message = null)
         {
             var str = message.ToString();
-
             Console.WriteLine(str);
+            if (!Console.IsInputRedirected) {
+                Debug.WriteLine(str);
+            }
 
-            if (Azem.DebugOutputCheckBox.Checked || str.Contains("ERROR"))
+            if (Venat?.redirect ?? false || str.Contains("ERROR"))
             {
                 Venat?.PrintNL(str);
             }
@@ -242,15 +255,7 @@ namespace weapon_data
             Venat?.Invoke(outputMammet, new object[] { str.ToString() });
         }
 
-        public string[] GetOutputWindowLines()
-        {
-            var ret = new string[][] { new [] { "" } };
-            echo($"ret0 = {ret.Length}");
-            Venat?.Invoke(outputReadMammet, new [] { ret });
-            echo($"ret2 = {ret.Length}");
-
-            return ret[0];
-        }
+        public string[] GetOutputWindowLines() => (string[]) Venat?.Invoke(outputReadMammet);
         #endregion
 
 
