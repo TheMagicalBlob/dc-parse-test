@@ -130,7 +130,7 @@ namespace weapon_data
             this.AbortBtn.Text = "Abort";
             this.AbortBtn.UseVisualStyleBackColor = false;
             this.AbortBtn.Visible = false;
-            this.AbortBtn.Click += new System.EventHandler(this.AbortBinFileParse);
+            this.AbortBtn.Click += new System.EventHandler(this.AbortBtn_Click);
             // 
             // ReloadScriptBtn
             // 
@@ -210,6 +210,7 @@ namespace weapon_data
             this.binPathTextBox.Size = new System.Drawing.Size(624, 24);
             this.binPathTextBox.TabIndex = 3;
             this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
+            this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
             // 
             // Main
             // 
@@ -246,7 +247,7 @@ namespace weapon_data
         /// </summary>
         public void InitializeAdditionalEventHandlers()
         {
-            MinimizeBtn.Click      += new EventHandler((sender, e) => ActiveForm.WindowState      = FormWindowState.Minimized     );
+            MinimizeBtn.Click      += new EventHandler((sender, e) => Venat?.WindowState      = FormWindowState.Minimized     );
             MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
             MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
             ExitBtn.Click          += new EventHandler((sender, e) => Environment.Exit(                            0             ));

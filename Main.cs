@@ -15,19 +15,16 @@ namespace weapon_data
             CreateBrowseModeDropdownMenu();
             InitializeAdditionalEventHandlers();
 
+            Update(); Refresh();
             Venat = this;
-
-            binPathTextBox.TextChanged += (sender, _) => CheckbinPathBoxText(((TextBox)sender).Text);
-
-            Update();
-            Refresh();
-
             Azem = new OptionsPage();
-            Update();
-            Refresh();
+            Update(); Refresh();
+            
+
             activeScriptLabel = ActiveScriptLabel;
             abortBtn = AbortBtn;
             OutputWindow = OutputWindowRichTextBox;
+
 
             if (File.Exists($"{Directory.GetCurrentDirectory()}\\sidbase.bin"))
             {
@@ -42,6 +39,8 @@ namespace weapon_data
             {
                 sidbase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sid1\\sidbase.bin");
             }
+
+            redirectCheckBox.Checked = redirect;
         }
 
 
@@ -63,7 +62,7 @@ namespace weapon_data
                 binPathTextBox.Set(Browser.FileName);
             }
         }
-
+        
 
         private void ChoosePropertyBtn_Click(object sender, EventArgs e)
         {
@@ -93,22 +92,35 @@ namespace weapon_data
             }
         }
         
-        private void CheckbinPathBoxText(string boxText)
+        private void CheckbinPathBoxText(object sender, EventArgs _)
         {
+            var boxText = ((TextBox)sender).Text;
             if (File.Exists(boxText))
             {
                 LoadBinFile(boxText);
             }
         }
-
-        private void AbortBinFileParse(object sender, EventArgs e)
+        
+        private void AbortBtn_Click(object sender, EventArgs e)
         {
+            echo("\naborting bin thread...");
             abort = true;
-            echo("Bin Thread Killed\n");
         }
+
         
         private void ClearBtn_Click(object sender, EventArgs e) => OutputWindow.Clear();
+
+
+        private void redirectCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            #if DEBUG
+            redirect = ((CheckBox)sender).Checked;
+            #endif
+        }
         #endregion
+
+
+
 
 
 
@@ -133,16 +145,17 @@ namespace weapon_data
             binThread = new Thread(new ParameterizedThreadStart(ParseBinFile));
             binThread.Start(binPath);
         }
+
+
         private void ParseBinFile(object pathObj)
         {
-            try
-            {
+             try {
                 var binPath = pathObj as string;
 
                 var binFile = File.ReadAllBytes(binPath);
                 var binName = binPath.Substring(binPath.LastIndexOf('\\') + 1);
             
-                ActiveForm.Invoke(abortButtonMammet, new object[] { true });
+                Venat?.Invoke(abortButtonMammet, new object[] { true });
 
                 
                 DCFile = new DCFileHeader(binName, binFile);
@@ -152,12 +165,12 @@ namespace weapon_data
                 }
 
                 
-                for (int tableIndex = 0, addr = 0x28; tableIndex < DCFile.DCStructures.Length && !(Venat?.abort ?? true); tableIndex++, addr += 24)
+                for (int tableIndex = 0, addr = 0x28; tableIndex < DCFile.HeaderItems.Length && !(Venat?.abort ?? true); tableIndex++, addr += 24)
                 {
                     Venat?.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCFile.TableLength})");
-                    PrintNL($"Item #{tableIndex}: [ Label: {DCFile.DCStructures[tableIndex].Name} Type: {DCFile.DCStructures[tableIndex].Type} Data Address: {DCFile.DCStructures[tableIndex].Pointer:X} ]");
+                    PrintNL($"Item #{tableIndex}: [ Label: {DCFile.HeaderItems[tableIndex].Name} Type: {DCFile.HeaderItems[tableIndex].Type} Data Address: {DCFile.HeaderItems[tableIndex].StructAddress:X} ]");
 
-                    LoadDcStruct(binFile, DCFile.DCStructures[tableIndex].Type, (int)DCFile.DCStructures[tableIndex].Pointer);
+                    DCEntries[tableIndex] = LoadDcStruct(binFile, DCFile.HeaderItems[tableIndex].Type, (int)DCFile.HeaderItems[tableIndex].StructAddress);
                 }
 
                 Venat?.Invoke(reloadButtonMammet, new object[] { true });
@@ -178,11 +191,11 @@ namespace weapon_data
                 abort = false;
             }
             catch(ThreadAbortException) {
-                ActiveForm.Invoke(abortButtonMammet, new object[] { false });
+                Venat?.Invoke(abortButtonMammet, new object[] { false });
             }
         }
 
-        private object LoadDcStruct(byte[] binFile, string Type, long Address, string Name = null, bool silent = false)
+        private static object LoadDcStruct(byte[] binFile, string Type, long Address, string Name = null, bool silent = false)
         {
             if (Name == null || Name.Length < 1)
             {
@@ -190,7 +203,7 @@ namespace weapon_data
             }
 
             if (!silent)
-            Venat?.PrintNL($" #[{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}");
+            PrintNL($" #[{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}");
             object ret;
 
             switch (Type)
@@ -221,7 +234,7 @@ namespace weapon_data
 
                 case "symbol-array":
                 //break;
-                    SymbolDefinitions.Add(new SymbolArrayDef(Name, binFile, Address));
+                    Venat.SymbolDefinitions.Add(new SymbolArrayDef(Name, binFile, Address));
                     
                     //! Print unknown remaining DCHeader.Structures
                     if (Venat?.SymbolDefinitions?.Count > 0)
@@ -240,7 +253,7 @@ namespace weapon_data
 
                 case "ammo-to-weapon-array":
                     break;
-                    AmmoToWeaponDefinitions.Add(new AmmoToWeaponArray(Name, binFile, Address));
+                    Venat.AmmoToWeaponDefinitions.Add(new AmmoToWeaponArray(Name, binFile, Address));
                     
                     //! Print unknown remaining DCHeader.Structures
                     if (Venat?.AmmoToWeaponDefinitions?.Count > 0)
@@ -264,10 +277,5 @@ namespace weapon_data
             return null;
         }
         #endregion
-
-        private void redirectCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }

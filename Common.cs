@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace weapon_data
 {
@@ -22,7 +19,7 @@ namespace weapon_data
         //#
         //## Script Parsing Globals
         //#
-        public byte[] sidbase
+        public static byte[] sidbase
         {
             get => _sidbase;
 
@@ -35,10 +32,11 @@ namespace weapon_data
                 }
             }
         }
-        private byte[] _sidbase;
-        public long sidLength;
+        private static byte[] _sidbase;
+        public static long sidLength;
 
         public static DCFileHeader DCFile;
+        public static object[] DCEntries;
 
         public List<object[]> DecodedIDS = new List<object[]>(1000);
 
@@ -202,7 +200,7 @@ namespace weapon_data
 
             if (Venat?.redirect ?? false || str.Contains("ERROR"))
             {
-                Venat?.PrintNL(str);
+                PrintNL(str);
             }
         }
 
@@ -237,7 +235,7 @@ namespace weapon_data
         /// <summary>
         /// Output Misc. Messages to the Main Output Window (the big-ass richtext box).
         /// </summary>
-        public void PrintNL(object str = null)
+        public static void PrintNL(object str = null)
         {
             if (str == null)
                 str = string.Empty;
@@ -252,7 +250,7 @@ namespace weapon_data
                 Debug.WriteLine(str ?? "null");
 #endif
 
-            Venat?.Invoke(outputMammet, new object[] { str.ToString() });
+            Venat?.Invoke(Venat.outputMammet, new object[] { str.ToString() });
         }
 
         public string[] GetOutputWindowLines() => (string[]) Venat?.Invoke(outputReadMammet);
@@ -267,7 +265,7 @@ namespace weapon_data
         /// <param name="index"> The start index in <paramref name="array"/> from which the copying starts. </param>
         /// <param name="len"> The length of the sub-array to be returned. Defaults to 8 bytes. </param>
         /// <returns> A byte array of 8 bytes (or an optional different length) copied from the specified <paramref name="index"/> in <paramref name="array"/>. </returns>
-        public byte[] GetSubArray(byte[] array, int index, int len = 8)
+        public static byte[] GetSubArray(byte[] array, int index, int len = 8)
         {
             var ret = new byte[8];
             Buffer.BlockCopy(array, index, ret, 0, len);
@@ -283,7 +281,7 @@ namespace weapon_data
         /// </summary>
         /// <param name="bytesToDecode"> The 8-byte array of bytes to decode. </param>
         /// <returns> Either the decoded version of the provided hash, or the string representation of said SID if it could not be decoded. </returns>
-        public string DecodeSIDHash(byte[] bytesToDecode)
+        public static string DecodeSIDHash(byte[] bytesToDecode)
         {            
             if (bytesToDecode.Length == 8)
             {
