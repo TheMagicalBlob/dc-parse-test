@@ -51,6 +51,7 @@ namespace weapon_data
         //--|   Event Handler Declarations   |--\\
         //======================================\\
         #region [Event Handler Declarations]
+
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
             using (var Browser = new OpenFileDialog
@@ -129,7 +130,7 @@ namespace weapon_data
         //--|   Function Delcarations   |---\\
         //==================================\\
         #region [Function Delcarations]
-
+        
         private void LoadBinFile(string binPath)
         {   
             if (binThread != null && binThread.ThreadState != ThreadState.Unstarted)
@@ -147,6 +148,11 @@ namespace weapon_data
         }
 
 
+        private void Laziness(object sender, EventArgs e){}
+        /// <summary>
+        ///  //! Write Me
+        /// </summary>
+        /// <param name="pathObj"> The string object containing the path to the .bin file to be parsed. </param>
         private void ParseBinFile(object pathObj)
         {
              try {
@@ -204,26 +210,13 @@ namespace weapon_data
 
             if (!silent)
             PrintNL($" #[{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}");
-            object ret;
+            object ret = null;
 
             switch (Type)
             {
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
                 case "map":
                     ret = new DCMapDef(binFile, Type, Address);
-                    break;
-                    //! Print Parsed Data
-                    foreach (var item in ((DCMapDef)ret).Items)
-                    {
-                        switch ((string)item[0])
-                        {
-                            case "":
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
                     break;
 
                 case "weapon-gameplay-def":
@@ -274,7 +267,7 @@ namespace weapon_data
                     break;
             }
 
-            return null;
+            return ret;
         }
         #endregion
     }

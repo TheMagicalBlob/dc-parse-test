@@ -24,7 +24,7 @@ namespace weapon_data
             {
                 if (File.Exists(((TextBox)sender).Text))
                 {
-                    Venat.sidbase = File.ReadAllBytes(((TextBox)sender).Text);
+                    sidbase = File.ReadAllBytes(((TextBox)sender).Text);
                 }
             };
         }

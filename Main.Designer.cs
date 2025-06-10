@@ -40,12 +40,12 @@ namespace weapon_data
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.AbortBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
-            this.DisplayModeToggleCheckBox = new System.Windows.Forms.CheckBox();
             this.ClearBtn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.redirectCheckBox = new System.Windows.Forms.CheckBox();
             this.OutputWindowRichTextBox = new weapon_data.RichTextBox();
             this.binPathTextBox = new weapon_data.TextBox();
+            this.LazyBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -73,7 +73,7 @@ namespace weapon_data
             // ChoosePropertyBtn
             // 
             this.ChoosePropertyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.ChoosePropertyBtn.Location = new System.Drawing.Point(88, 66);
+            this.ChoosePropertyBtn.Location = new System.Drawing.Point(121, 65);
             this.ChoosePropertyBtn.Name = "ChoosePropertyBtn";
             this.ChoosePropertyBtn.Size = new System.Drawing.Size(103, 23);
             this.ChoosePropertyBtn.TabIndex = 4;
@@ -145,17 +145,6 @@ namespace weapon_data
             this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             this.ReloadScriptBtn.Click += new System.EventHandler(this.ReloadBinFile);
             // 
-            // DisplayModeToggleCheckBox
-            // 
-            this.DisplayModeToggleCheckBox.AutoSize = true;
-            this.DisplayModeToggleCheckBox.Location = new System.Drawing.Point(8, 92);
-            this.DisplayModeToggleCheckBox.Name = "DisplayModeToggleCheckBox";
-            this.DisplayModeToggleCheckBox.Size = new System.Drawing.Size(106, 17);
-            this.DisplayModeToggleCheckBox.TabIndex = 11;
-            this.DisplayModeToggleCheckBox.Text = "Interactive Mode";
-            this.DisplayModeToggleCheckBox.UseVisualStyleBackColor = true;
-            this.DisplayModeToggleCheckBox.Visible = false;
-            // 
             // ClearBtn
             // 
             this.ClearBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -180,7 +169,7 @@ namespace weapon_data
             // redirectCheckBox
             // 
             this.redirectCheckBox.AutoSize = true;
-            this.redirectCheckBox.Location = new System.Drawing.Point(8, 109);
+            this.redirectCheckBox.Location = new System.Drawing.Point(8, 95);
             this.redirectCheckBox.Name = "redirectCheckBox";
             this.redirectCheckBox.Size = new System.Drawing.Size(216, 17);
             this.redirectCheckBox.TabIndex = 13;
@@ -212,16 +201,27 @@ namespace weapon_data
             this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
             this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
             // 
+            // LazyBtn
+            // 
+            this.LazyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.LazyBtn.Location = new System.Drawing.Point(536, 3);
+            this.LazyBtn.Name = "LazyBtn";
+            this.LazyBtn.Size = new System.Drawing.Size(55, 25);
+            this.LazyBtn.TabIndex = 14;
+            this.LazyBtn.Text = "I\'m Lazy";
+            this.LazyBtn.UseVisualStyleBackColor = false;
+            this.LazyBtn.Click += new System.EventHandler(this.Laziness);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(639, 533);
+            this.Controls.Add(this.LazyBtn);
             this.Controls.Add(this.redirectCheckBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ClearBtn);
-            this.Controls.Add(this.DisplayModeToggleCheckBox);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.AbortBtn);
             this.Controls.Add(this.ExitBtn);
@@ -247,7 +247,7 @@ namespace weapon_data
         /// </summary>
         public void InitializeAdditionalEventHandlers()
         {
-            MinimizeBtn.Click      += new EventHandler((sender, e) => Venat?.WindowState      = FormWindowState.Minimized     );
+            MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
             MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
             MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
             ExitBtn.Click          += new EventHandler((sender, e) => Environment.Exit(                            0             ));
@@ -388,10 +388,10 @@ namespace weapon_data
 
         private Button AbortBtn;
         private Button ReloadScriptBtn;
-        private CheckBox DisplayModeToggleCheckBox;
         private Button ClearBtn;
         private Label label1;
         private CheckBox redirectCheckBox;
+        private Button LazyBtn;
     }
 }
 
