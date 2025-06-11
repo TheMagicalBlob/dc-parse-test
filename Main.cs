@@ -220,52 +220,28 @@ namespace weapon_data
                     break;
 
                 case "weapon-gameplay-def":
-                    Venat?.WeaponDefinitions.Add(new WeaponGameplayDef(Name, binFile, Address));
+                    ret = new WeaponGameplayDef(Name, binFile, Address);
                     break;
                 case "melee-weapon-gameplay-def":
+                    //ret = new MeleeWeaponGameplayDef(Name, binFile, Address);
                     break;
 
                 case "symbol-array":
                 //break;
-                    Venat.SymbolDefinitions.Add(new SymbolArrayDef(Name, binFile, Address));
-                    
-                    //! Print unknown remaining DCHeader.Structures
-                    if (Venat?.SymbolDefinitions?.Count > 0)
-                    {
-                        var ext = "  ->  ";
-                        PrintNL($"Printing Symbol Array of Length {Venat?.SymbolDefinitions.Last().Symbols.Count}:");
-                        foreach (var symbolDef in Venat?.SymbolDefinitions.Last().Symbols)
-                        {
-                            PrintNL(ext + symbolDef);
-                        }
-                        PrintNL();
-                    }
-                    PrintNL();
+                    ret = new SymbolArrayDef(Name, binFile, Address);
                     break;
 
 
                 case "ammo-to-weapon-array":
-                    break;
-                    Venat.AmmoToWeaponDefinitions.Add(new AmmoToWeaponArray(Name, binFile, Address));
-                    
-                    //! Print unknown remaining DCHeader.Structures
-                    if (Venat?.AmmoToWeaponDefinitions?.Count > 0)
-                    {
-                        var ext = "  ->  ";
-                        PrintNL($"Printing Ammo-to-Weapon Array of Length {Venat?.AmmoToWeaponDefinitions.Last().Symbols.Count}:");
-                        foreach (var symbolDef in Venat?.AmmoToWeaponDefinitions.Last().Symbols)
-                        {
-                            PrintNL(ext + $"{symbolDef[0]} -> {symbolDef[1]}");
-                        }
-                        PrintNL();
-                    }
-                    PrintNL();
+                    ret = new AmmoToWeaponArray(Name, binFile, Address);
                     break;
 
                 default:
-                    Venat?.UnknownDefinitions.Add($"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}");
+                    ret = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
                     break;
             }
+
+            echo($"Returning {ret.GetType()} {((dynamic)ret).Name}");
 
             return ret;
         }

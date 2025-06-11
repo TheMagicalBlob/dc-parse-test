@@ -409,6 +409,20 @@ namespace weapon_data
             public int AmmoCount;
         }
 
+
+        public struct MeleeWeaponGameplayDef
+        {
+            public MeleeWeaponGameplayDef(byte[] binFile, long address, string name = "")
+            {
+                Address = (int)address;
+                Name = name == null | name.Length < 1 ? "unnamed" : name;
+            }
+
+            
+            public string Name;
+            public int Address;
+        }
+
         public struct Look2Def
         {
             public Look2Def(string name, byte[] binFile, long address)
