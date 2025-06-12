@@ -43,9 +43,11 @@ namespace weapon_data
             this.ClearBtn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.redirectCheckBox = new System.Windows.Forms.CheckBox();
+            this.LazyBtn = new System.Windows.Forms.Button();
+            this.SeperatorLine1 = new System.Windows.Forms.Label();
             this.OutputWindowRichTextBox = new weapon_data.RichTextBox();
             this.binPathTextBox = new weapon_data.TextBox();
-            this.LazyBtn = new System.Windows.Forms.Button();
+            this.debugShowAllBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -64,7 +66,7 @@ namespace weapon_data
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(7, 65);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
-            this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(75, 23);
+            this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
             this.optionsMenuDropdownBtn.Text = "Options...";
             this.optionsMenuDropdownBtn.UseVisualStyleBackColor = false;
@@ -79,7 +81,6 @@ namespace weapon_data
             this.ChoosePropertyBtn.TabIndex = 4;
             this.ChoosePropertyBtn.Text = "Choose Property";
             this.ChoosePropertyBtn.UseVisualStyleBackColor = false;
-            this.ChoosePropertyBtn.Visible = false;
             this.ChoosePropertyBtn.Click += new System.EventHandler(this.ChoosePropertyBtn_Click);
             // 
             // ActiveScriptLabel
@@ -177,6 +178,29 @@ namespace weapon_data
             this.redirectCheckBox.UseVisualStyleBackColor = true;
             this.redirectCheckBox.CheckedChanged += new System.EventHandler(this.redirectCheckBox_CheckedChanged);
             // 
+            // LazyBtn
+            // 
+            this.LazyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.LazyBtn.Location = new System.Drawing.Point(536, 3);
+            this.LazyBtn.Name = "LazyBtn";
+            this.LazyBtn.Size = new System.Drawing.Size(55, 25);
+            this.LazyBtn.TabIndex = 14;
+            this.LazyBtn.Text = "I\'m Lazy";
+            this.LazyBtn.UseVisualStyleBackColor = false;
+            this.LazyBtn.Visible = false;
+            this.LazyBtn.Click += new System.EventHandler(this.Laziness);
+            // 
+            // SeperatorLine1
+            // 
+            this.SeperatorLine1.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
+            this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.SeperatorLine1.Location = new System.Drawing.Point(2, 114);
+            this.SeperatorLine1.Name = "SeperatorLine1";
+            this.SeperatorLine1.Size = new System.Drawing.Size(636, 17);
+            this.SeperatorLine1.TabIndex = 15;
+            this.SeperatorLine1.Text = "---------------------------------------------------------------------------------" +
+    "----------------------------------------------";
+            // 
             // OutputWindowRichTextBox
             // 
             this.OutputWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -201,16 +225,21 @@ namespace weapon_data
             this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
             this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
             // 
-            // LazyBtn
+            // debugShowAllBtn
             // 
-            this.LazyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.LazyBtn.Location = new System.Drawing.Point(536, 3);
-            this.LazyBtn.Name = "LazyBtn";
-            this.LazyBtn.Size = new System.Drawing.Size(55, 25);
-            this.LazyBtn.TabIndex = 14;
-            this.LazyBtn.Text = "I\'m Lazy";
-            this.LazyBtn.UseVisualStyleBackColor = false;
-            this.LazyBtn.Click += new System.EventHandler(this.Laziness);
+            this.debugShowAllBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugShowAllBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugShowAllBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.debugShowAllBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugShowAllBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugShowAllBtn.Location = new System.Drawing.Point(200, 3);
+            this.debugShowAllBtn.Name = "debugShowAllBtn";
+            this.debugShowAllBtn.Size = new System.Drawing.Size(57, 20);
+            this.debugShowAllBtn.TabIndex = 16;
+            this.debugShowAllBtn.Text = "showAll";
+            this.debugShowAllBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugShowAllBtn.UseVisualStyleBackColor = false;
+            this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click);
             // 
             // Main
             // 
@@ -218,6 +247,8 @@ namespace weapon_data
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(639, 533);
+            this.Controls.Add(this.debugShowAllBtn);
+            this.Controls.Add(this.SeperatorLine1);
             this.Controls.Add(this.LazyBtn);
             this.Controls.Add(this.redirectCheckBox);
             this.Controls.Add(this.label1);
@@ -261,7 +292,6 @@ namespace weapon_data
                 Main.MouseDif = new Point(MousePosition.X - Location.X, MousePosition.Y - Location.Y);
 
                 Main.MouseIsDown = true;
-                DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
             });
 
             MouseUp   += new MouseEventHandler((sender, e) =>
@@ -276,18 +306,24 @@ namespace weapon_data
 
 
             // Set appropriate event handlers for the controls on the form as well
-            foreach (Control Item in Controls)
+            foreach (Control item in Controls)
             {
-                if (Item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
+                if (item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
                     continue;
+
                 
-                Item.MouseDown += new MouseEventHandler((sender, e) =>
+                // Apply the seperator drawing function to any seperator lines
+                if (item.Name.Contains("SeperatorLine") && item.GetType() == typeof(Label))
+                {
+                    item.Paint += DrawSeperatorLine;
+                }
+                
+                item.MouseDown += new MouseEventHandler((sender, e) =>
                 {
                     Main.MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                     Main.MouseIsDown = true;
-                    DropdownMenu[1].Visible = DropdownMenu[0].Visible = false;
                 });
-                Item.MouseUp   += new MouseEventHandler((sender, e) =>
+                item.MouseUp   += new MouseEventHandler((sender, e) =>
                 {
                     MouseIsDown = false;
                     if (OptionsPageIsOpen)
@@ -295,8 +331,8 @@ namespace weapon_data
                 });
                 
                 // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
-                if (Item.GetType() != typeof(TextBox) && Item.GetType() != typeof(RichTextBox))
-                    Item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
             }
 
             Paint += Main.PaintBorder;
@@ -332,7 +368,6 @@ namespace weapon_data
             };
 
 
-
             // Create and Assign Event Handlers
             DropdownMenu[0].Click += (why, does) =>
             {
@@ -352,7 +387,7 @@ namespace weapon_data
                     Main.LegacyFolderSelectionDialogue ^= true;
                 }
             };
-            // hurt. there was a third event at first.
+            // still hurt. there was a third event at first.
 
 
             // Add Controls to MainForm Control Collection
@@ -372,7 +407,7 @@ namespace weapon_data
         //================================\\
         //--|   Control Declarations   |--\\
         //================================\\
-        #region Control Declarations
+        #region [Control Declarations]
 
         public Button[] DropdownMenu = new Button[2];
         private TextBox binPathTextBox;
@@ -381,17 +416,17 @@ namespace weapon_data
         private Button optionsMenuDropdownBtn;
         private Button ChoosePropertyBtn;
         private Label ActiveScriptLabel;
-
         private Button ExitBtn;
         private Button MinimizeBtn;
-        #endregion
-
         private Button AbortBtn;
         private Button ReloadScriptBtn;
         private Button ClearBtn;
         private Label label1;
         private CheckBox redirectCheckBox;
         private Button LazyBtn;
+        private Label SeperatorLine1;
+        private Button debugShowAllBtn;
+        #endregion
     }
 }
 

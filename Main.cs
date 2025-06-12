@@ -12,7 +12,6 @@ namespace weapon_data
         public Main()
         {
             InitializeComponent();
-            CreateBrowseModeDropdownMenu();
             InitializeAdditionalEventHandlers();
 
             Update(); Refresh();
@@ -51,6 +50,15 @@ namespace weapon_data
         //--|   Event Handler Declarations   |--\\
         //======================================\\
         #region [Event Handler Declarations]
+        
+
+        private void debugShowAllBtn_Click(object sender, EventArgs e)
+        {
+            foreach (Control control in Controls)
+            {
+                control.Visible = true;
+            }
+        }
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
