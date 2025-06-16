@@ -270,34 +270,23 @@ namespace weapon_data
         {
             var item = sender as Label;
 
-            if (item == null)
-            {
-                echo("!! ERROR: Invalid control passed as Seperator line.");
-                echo($"  - Control \"{item.Name}\" location: {item.Location}.");
-            }
-            if (item.Name == "SeperatorLine0" && item.Location != new Point(2, 20))
-            {
-                echo($"Seperator Line 0 Improperly positioned on {item.Parent.Name}");
-            }
-            if (item.Height != 15)
-            {
-                echo($"# WARNING: \"{item.Name}\" has an invalid height!!! (Label is {item.Height} pixels in hight)");
-            }
-/*
-            if (!(item.Location.X == 2 && item.Width == item.Parent.Width - 4))
-            {
-                echo($"Moved And Resized {item.Name} ({item.Parent.Name}).");
 
-                item.Location = new Point(2, item.Location.Y);
-                item.Width = item.Parent.Width - 4;
-            }
-*/
+            @event.Graphics.Clear(item.Parent.BackColor);
 
-            @event.Graphics.Clear(((Control)sender).Parent.BackColor);
-            @event.Graphics.DrawLines(pen, new [] {
-                new Point(0, 9),
-                new Point(item.Width, 9)
-            });
+            if (item.Tag != null && item.Tag.GetType() == typeof(bool) && (bool)item.Tag)
+            {
+                @event.Graphics.DrawLines(pen, new [] {
+                    new Point(0, 9),
+                    new Point(item.Width, 9)
+                });
+            }
+            else {
+                @event.Graphics.DrawLines(pen, new [] {
+                    new Point(0, 9),
+                    new Point(item.Width, 9)
+                });
+            }
+
         }
         #endregion
 

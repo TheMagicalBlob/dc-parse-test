@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace weapon_data
 {
@@ -169,7 +170,7 @@ namespace weapon_data
             // 
             this.SeperatorLine1.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
             this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine1.Location = new System.Drawing.Point(2, 154);
+            this.SeperatorLine1.Location = new System.Drawing.Point(1, 154);
             this.SeperatorLine1.Name = "SeperatorLine1";
             this.SeperatorLine1.Size = new System.Drawing.Size(817, 17);
             this.SeperatorLine1.TabIndex = 15;
@@ -243,9 +244,9 @@ namespace weapon_data
             // 
             this.SeperatorLine2.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
             this.SeperatorLine2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine2.Location = new System.Drawing.Point(37, 190);
+            this.SeperatorLine2.Location = new System.Drawing.Point(1, 190);
             this.SeperatorLine2.Name = "SeperatorLine2";
-            this.SeperatorLine2.Size = new System.Drawing.Size(463, 17);
+            this.SeperatorLine2.Size = new System.Drawing.Size(539, 17);
             this.SeperatorLine2.TabIndex = 21;
             this.SeperatorLine2.Text = "---------------------------------------------------------------------------------" +
     "----------------------------------------------";
@@ -348,7 +349,7 @@ namespace weapon_data
 
                 
                 // Apply the seperator drawing function to any seperator lines
-                if (item.Name.Contains("SeperatorLine") && item.GetType() == typeof(Label))
+                if (item.GetType() == typeof(Label) && !item.Text.Any(character => character != '-'))
                 {
                     item.Paint += DrawSeperatorLine;
                 }

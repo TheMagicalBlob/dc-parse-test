@@ -49,10 +49,12 @@ namespace weapon_data
 
 
             // Set Event Handlers for Form Dragging
-            MouseDown += new MouseEventHandler((sender, e) => {
+            MouseDown += new MouseEventHandler((sender, e) =>
+            {
                 MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                 MouseIsDown = true;
-                Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
+
+                //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
 
             });
             MouseUp += new MouseEventHandler((sender, e) => 
@@ -61,20 +63,24 @@ namespace weapon_data
             MouseMove += new MouseEventHandler((sender, e) => MoveForm());
 
             
-            foreach(Control Item in Controls)
+            foreach(Control item in Controls)
             {
-                Item.MouseDown += new MouseEventHandler((sender, e) => {
+                item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
                     MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                     MouseIsDown = true;
-                    Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
+
+                    //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
                 });
-                Item.MouseUp   += new MouseEventHandler((sender, e) => 
+                item.MouseUp   += new MouseEventHandler((sender, e) => 
                     MouseIsDown = false
                 );
                 
                 // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
-                if (Item.GetType() != typeof(TextBox) && Item.GetType() != typeof(RichTextBox))
-                Item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                {
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                }
             }
         }
 

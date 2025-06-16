@@ -17,17 +17,6 @@ namespace weapon_data
 
 
 
-
-        //======================================\\
-        //--|   Event Handler Declarations   |--\\
-        //======================================\\
-        #region [Event Handler Declarations]
-
-        private void CloseBtn_Click(object sender, EventArgs e) => Dispose(true);
-        #endregion
-
-
-
         
         //=================================\\
         //--|   Function Delcarations   |--\\
