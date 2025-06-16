@@ -1,31 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
-using static weapon_data.Main;
 
 namespace weapon_data
 {
-    public partial class PropertyPanel : Form
+    public partial class Main
     {
-        public PropertyPanel(DCFileHeader header)
-        {
-            InitializeComponent();
-
-            Title.Text = Title.Text.Replace("%s", ActiveFileName);
-            HeaderButtons = new List<Button>();
-
-            SuspendLayout();
-            foreach (var item in header.HeaderItems)
-            {
-                HeaderButtons.Add(CreateHeaderButtoon(item.Name));
-                Controls.Add(HeaderButtons.Last());
-            }
-            ResumeLayout(true);
-        }
-        
-
-
         //=================================\\
         //--|   Variable Declarations   |--\\
         //=================================\\
@@ -54,7 +34,7 @@ namespace weapon_data
         //=================================\\
         #region [Function Delcarations]
 
-        private Button CreateHeaderButtoon(string headerEntryName)
+        private Button PopulatePropertiesPanel(string headerEntryName)
         {
             return new Button()
             {

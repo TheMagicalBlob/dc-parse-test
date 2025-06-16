@@ -17,6 +17,7 @@ namespace weapon_data
             Update(); Refresh();
             Venat = this;
             Azem = new OptionsPage();
+            Emmet = PropertiesPanel;
             Update(); Refresh();
             
 
@@ -40,10 +41,10 @@ namespace weapon_data
 
             activeScriptLabel = ActiveScriptLabel;
             abortBtn = AbortOrCloseBtn;
-            OutputWindow = OutputWindowRichTextBox;
+            OutputWindow = PropertiesWindowRichTextBox;
 
-            redirectCheckBox.Checked = redirect;
             BaseAbortButtonWidth = abortBtn.Size.Width;
+            
         }
 
 
@@ -117,8 +118,6 @@ namespace weapon_data
         }
 
         
-        private void ClearBtn_Click(object sender, EventArgs e) => OutputWindow.Clear();
-
         
         private void debugShowAllBtn_Click(object sender, EventArgs e)
         {
@@ -154,6 +153,7 @@ namespace weapon_data
         private void bleghBtn_Click(object sender, EventArgs e)
         {
             echo("currently unused");
+            Venat?.Invoke(abortButtonMammet, new object[] { null });
         }
         #endregion
 
@@ -225,7 +225,6 @@ namespace weapon_data
                 //#
                 //## Setup Form
                 //#
-                Emmet = new PropertyPanel(DCHeader);
 
                 PrintNL("Finished!");
                 CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
@@ -291,8 +290,7 @@ namespace weapon_data
         private static void CloseBinFile()
         {
             DCFile = null;
-            Emmet?.Dispose();
-            Emmet = null;
+            Emmet.Controls.Clear();
         }
         #endregion
     }

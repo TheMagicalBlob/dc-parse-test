@@ -40,20 +40,23 @@ namespace weapon_data
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.AbortOrCloseBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
-            this.ClearBtn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.redirectCheckBox = new System.Windows.Forms.CheckBox();
             this.SeperatorLine1 = new System.Windows.Forms.Label();
-            this.OutputWindowRichTextBox = new weapon_data.RichTextBox();
-            this.binPathTextBox = new weapon_data.TextBox();
             this.debugShowAllBtn = new System.Windows.Forms.Button();
             this.bleghBtn = new System.Windows.Forms.Button();
             this.VersionLabel = new System.Windows.Forms.Label();
+            this.PropertiesPanel = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.SeperatorLine2 = new System.Windows.Forms.Label();
+            this.PropertiesWindowRichTextBox = new weapon_data.RichTextBox();
+            this.binPathTextBox = new weapon_data.TextBox();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
             // 
             this.BinPathBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.BinPathBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.BinPathBrowseBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BinPathBrowseBtn.Location = new System.Drawing.Point(566, 106);
             this.BinPathBrowseBtn.Name = "BinPathBrowseBtn";
             this.BinPathBrowseBtn.Size = new System.Drawing.Size(65, 23);
@@ -65,6 +68,7 @@ namespace weapon_data
             // optionsMenuDropdownBtn
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(7, 106);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
@@ -76,7 +80,6 @@ namespace weapon_data
             // ChoosePropertyBtn
             // 
             this.ChoosePropertyBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.ChoosePropertyBtn.FlatAppearance.BorderSize = 2;
             this.ChoosePropertyBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ChoosePropertyBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F);
             this.ChoosePropertyBtn.Location = new System.Drawing.Point(81, 106);
@@ -91,9 +94,9 @@ namespace weapon_data
             // 
             this.ActiveScriptLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
             this.ActiveScriptLabel.ForeColor = System.Drawing.Color.Gold;
-            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 170);
+            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 172);
             this.ActiveScriptLabel.Name = "ActiveScriptLabel";
-            this.ActiveScriptLabel.Size = new System.Drawing.Size(573, 23);
+            this.ActiveScriptLabel.Size = new System.Drawing.Size(809, 23);
             this.ActiveScriptLabel.TabIndex = 0;
             this.ActiveScriptLabel.Text = "Selected Script: none selected";
             // 
@@ -128,6 +131,7 @@ namespace weapon_data
             // AbortOrCloseBtn
             // 
             this.AbortOrCloseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.AbortOrCloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.AbortOrCloseBtn.Location = new System.Drawing.Point(451, 106);
             this.AbortOrCloseBtn.Name = "AbortOrCloseBtn";
             this.AbortOrCloseBtn.Size = new System.Drawing.Size(44, 23);
@@ -141,7 +145,8 @@ namespace weapon_data
             // 
             this.ReloadScriptBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.ReloadScriptBtn.Enabled = false;
-            this.ReloadScriptBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ReloadScriptBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ReloadScriptBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ReloadScriptBtn.Location = new System.Drawing.Point(498, 106);
             this.ReloadScriptBtn.Name = "ReloadScriptBtn";
             this.ReloadScriptBtn.Size = new System.Drawing.Size(65, 23);
@@ -149,17 +154,6 @@ namespace weapon_data
             this.ReloadScriptBtn.Text = "Reload";
             this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             this.ReloadScriptBtn.Click += new System.EventHandler(this.ReloadBinFile);
-            // 
-            // ClearBtn
-            // 
-            this.ClearBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.ClearBtn.Location = new System.Drawing.Point(587, 172);
-            this.ClearBtn.Name = "ClearBtn";
-            this.ClearBtn.Size = new System.Drawing.Size(44, 23);
-            this.ClearBtn.TabIndex = 4;
-            this.ClearBtn.Text = "Clear";
-            this.ClearBtn.UseVisualStyleBackColor = false;
-            this.ClearBtn.Click += new System.EventHandler(this.ClearBtn_Click);
             // 
             // label1
             // 
@@ -171,51 +165,16 @@ namespace weapon_data
             this.label1.TabIndex = 12;
             this.label1.Text = "NaughtyDog DC Test";
             // 
-            // redirectCheckBox
-            // 
-            this.redirectCheckBox.AutoSize = true;
-            this.redirectCheckBox.Location = new System.Drawing.Point(9, 136);
-            this.redirectCheckBox.Name = "redirectCheckBox";
-            this.redirectCheckBox.Size = new System.Drawing.Size(216, 17);
-            this.redirectCheckBox.TabIndex = 13;
-            this.redirectCheckBox.Text = "Redirect Debug Prints to OutputWindow";
-            this.redirectCheckBox.UseVisualStyleBackColor = true;
-            this.redirectCheckBox.CheckedChanged += new System.EventHandler(this.redirectCheckBox_CheckedChanged);
-            // 
             // SeperatorLine1
             // 
             this.SeperatorLine1.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
             this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine1.Location = new System.Drawing.Point(2, 155);
+            this.SeperatorLine1.Location = new System.Drawing.Point(2, 154);
             this.SeperatorLine1.Name = "SeperatorLine1";
-            this.SeperatorLine1.Size = new System.Drawing.Size(636, 17);
+            this.SeperatorLine1.Size = new System.Drawing.Size(817, 17);
             this.SeperatorLine1.TabIndex = 15;
             this.SeperatorLine1.Text = "---------------------------------------------------------------------------------" +
     "----------------------------------------------";
-            // 
-            // OutputWindowRichTextBox
-            // 
-            this.OutputWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.OutputWindowRichTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.OutputWindowRichTextBox.Location = new System.Drawing.Point(8, 197);
-            this.OutputWindowRichTextBox.Name = "OutputWindowRichTextBox";
-            this.OutputWindowRichTextBox.ReadOnly = true;
-            this.OutputWindowRichTextBox.ShortcutsEnabled = false;
-            this.OutputWindowRichTextBox.Size = new System.Drawing.Size(623, 369);
-            this.OutputWindowRichTextBox.TabIndex = 2;
-            this.OutputWindowRichTextBox.Text = "";
-            // 
-            // binPathTextBox
-            // 
-            this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.binPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
-            this.binPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.binPathTextBox.Location = new System.Drawing.Point(7, 44);
-            this.binPathTextBox.Name = "binPathTextBox";
-            this.binPathTextBox.Size = new System.Drawing.Size(624, 24);
-            this.binPathTextBox.TabIndex = 3;
-            this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
-            this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
             // 
             // debugShowAllBtn
             // 
@@ -260,19 +219,76 @@ namespace weapon_data
             this.VersionLabel.Text = "==version==";
             this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // PropertiesPanel
+            // 
+            this.PropertiesPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.PropertiesPanel.Location = new System.Drawing.Point(5, 218);
+            this.PropertiesPanel.Name = "PropertiesPanel";
+            this.PropertiesPanel.Size = new System.Drawing.Size(529, 351);
+            this.PropertiesPanel.TabIndex = 19;
+            this.PropertiesPanel.TabStop = false;
+            // 
+            // label2
+            // 
+            this.label2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.label2.ForeColor = System.Drawing.Color.Gold;
+            this.label2.Location = new System.Drawing.Point(8, 203);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(526, 19);
+            this.label2.TabIndex = 20;
+            this.label2.Text = "abcdefghijklmnopqrstuvwxyz!?";
+            // 
+            // SeperatorLine2
+            // 
+            this.SeperatorLine2.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
+            this.SeperatorLine2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.SeperatorLine2.Location = new System.Drawing.Point(37, 190);
+            this.SeperatorLine2.Name = "SeperatorLine2";
+            this.SeperatorLine2.Size = new System.Drawing.Size(463, 17);
+            this.SeperatorLine2.TabIndex = 21;
+            this.SeperatorLine2.Text = "---------------------------------------------------------------------------------" +
+    "----------------------------------------------";
+            // 
+            // PropertiesWindowRichTextBox
+            // 
+            this.PropertiesWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.PropertiesWindowRichTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.PropertiesWindowRichTextBox.Location = new System.Drawing.Point(540, 199);
+            this.PropertiesWindowRichTextBox.Name = "PropertiesWindowRichTextBox";
+            this.PropertiesWindowRichTextBox.ReadOnly = true;
+            this.PropertiesWindowRichTextBox.ShortcutsEnabled = false;
+            this.PropertiesWindowRichTextBox.Size = new System.Drawing.Size(278, 369);
+            this.PropertiesWindowRichTextBox.TabIndex = 2;
+            this.PropertiesWindowRichTextBox.Text = "";
+            // 
+            // binPathTextBox
+            // 
+            this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.binPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
+            this.binPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.binPathTextBox.Location = new System.Drawing.Point(7, 44);
+            this.binPathTextBox.Name = "binPathTextBox";
+            this.binPathTextBox.Size = new System.Drawing.Size(624, 24);
+            this.binPathTextBox.TabIndex = 3;
+            this.binPathTextBox.Text = "Select Browse Button or Paste .bin Path Here";
+            this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(822, 572);
+            this.Controls.Add(this.PropertiesWindowRichTextBox);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.SeperatorLine2);
+            this.Controls.Add(this.PropertiesPanel);
             this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.bleghBtn);
             this.Controls.Add(this.debugShowAllBtn);
             this.Controls.Add(this.SeperatorLine1);
-            this.Controls.Add(this.redirectCheckBox);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.ClearBtn);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.AbortOrCloseBtn);
             this.Controls.Add(this.ExitBtn);
@@ -280,7 +296,6 @@ namespace weapon_data
             this.Controls.Add(this.ChoosePropertyBtn);
             this.Controls.Add(this.ActiveScriptLabel);
             this.Controls.Add(this.optionsMenuDropdownBtn);
-            this.Controls.Add(this.OutputWindowRichTextBox);
             this.Controls.Add(this.BinPathBrowseBtn);
             this.Controls.Add(this.binPathTextBox);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
@@ -432,7 +447,7 @@ namespace weapon_data
         public Button[] DropdownMenu = new Button[2];
         private TextBox binPathTextBox;
         private Button BinPathBrowseBtn;
-        private RichTextBox OutputWindowRichTextBox;
+        private RichTextBox PropertiesWindowRichTextBox;
         private Button optionsMenuDropdownBtn;
         private Button ChoosePropertyBtn;
         private Label ActiveScriptLabel;
@@ -440,15 +455,16 @@ namespace weapon_data
         private Button MinimizeBtn;
         private Button AbortOrCloseBtn;
         private Button ReloadScriptBtn;
-        private Button ClearBtn;
         private Label label1;
-        private CheckBox redirectCheckBox;
         private Label SeperatorLine1;
         private Button debugShowAllBtn;
         #endregion
 
         private Button bleghBtn;
         private Label VersionLabel;
+        private GroupBox PropertiesPanel;
+        private Label label2;
+        private Label SeperatorLine2;
     }
 }
 

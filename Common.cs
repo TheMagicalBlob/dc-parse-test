@@ -86,7 +86,7 @@ namespace weapon_data
 
 
         //#
-        //## Form Functionality Globals
+        //## //!
         //#
         public static bool Abort
         {
@@ -122,8 +122,8 @@ namespace weapon_data
 
         private static Thread binThread;
         public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
-        public delegate string[] binThreadFormWandOutputRead();
         public delegate void binThreadFormWandArray(string msg, int? line);
+        public delegate string[] binThreadFormWandOutputRead();
 
         public binThreadFormWand outputMammet = new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
         public binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
@@ -162,7 +162,12 @@ namespace weapon_data
             OutputWindow.Update();
         });
 
+
         
+
+        //#
+        //## Form Functionality Globals
+        //#
         /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
         public static bool LegacyFolderSelectionDialogue = true;
 
@@ -178,7 +183,7 @@ namespace weapon_data
 
         /// <summary> Variable for Smooth Form Dragging. </summary>
         public static Point MouseDif;
-        
+
 
         /// <summary> MainPage Form Pointer/Refference. </summary>
         public static Main Venat;
@@ -187,15 +192,16 @@ namespace weapon_data
         public static OptionsPage Azem;
 
         /// <summary> Properties Panel Form Pointer/Refference. </summary>
-        public static PropertyPanel Emmet;
+        public static GroupBox Emmet;
 
         /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
         public static RichTextBox OutputWindow;
 
 
 
+
         //#
-        //## Look/Feel-Related Variables
+        //## Global Look/Feel-Related Variables
         //#
 
         public static Color AppColour = Color.FromArgb(125, 183, 245);
@@ -277,6 +283,7 @@ namespace weapon_data
             {
                 echo($"# WARNING: \"{item.Name}\" has an invalid height!!! (Label is {item.Height} pixels in hight)");
             }
+/*
             if (!(item.Location.X == 2 && item.Width == item.Parent.Width - 4))
             {
                 echo($"Moved And Resized {item.Name} ({item.Parent.Name}).");
@@ -284,12 +291,12 @@ namespace weapon_data
                 item.Location = new Point(2, item.Location.Y);
                 item.Width = item.Parent.Width - 4;
             }
-
+*/
 
             @event.Graphics.Clear(((Control)sender).Parent.BackColor);
-            @event.Graphics.DrawLines(pen, new Point[] {
+            @event.Graphics.DrawLines(pen, new [] {
                 new Point(0, 9),
-                new Point(item.Parent.Width, 9)
+                new Point(item.Width, 9)
             });
         }
         #endregion
@@ -317,7 +324,10 @@ namespace weapon_data
             }
         }
 
-
+        /// <summary>
+        /// Update the yellow status/info label from a different thread through <paramref name="labelMammet"/>
+        /// </summary>
+        /// <param name="str"> The string to update the label's text with. </param>
         public void CTUpdateLabel(object str)
         {
             Venat?.Invoke(labelMammet, new object[] { str });
@@ -362,7 +372,18 @@ namespace weapon_data
                 Debug.WriteLine(str ?? "null");
 #endif
 
-            Venat?.Invoke(Venat.outputMammet, new object[] { str.ToString() });
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(Venat.outputMammet, new object[] { str.ToString() });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed PrintNL Invokation due to a {dang.GetType()}";
+                if (!Console.IsOutputRedirected)
+                    Console.WriteLine(err);
+                else
+                    Debug.WriteLine(err);
+            }
         }
 
         public string[] GetOutputWindowLines() => (string[]) Venat?.Invoke(outputMammetReadLines);
