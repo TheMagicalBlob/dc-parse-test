@@ -59,6 +59,7 @@ namespace weapon_data
             this.CloseBtn.Text = "X";
             this.CloseBtn.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CloseBtn.UseVisualStyleBackColor = false;
+            this.CloseBtn.Click += new System.EventHandler(this.CloseBtn_Click);
             // 
             // dummy
             // 

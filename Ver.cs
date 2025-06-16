@@ -1,7 +1,7 @@
 ﻿namespace weapon_data
 {
-    public partial class OptionsPage
+    public partial class Main
     {
-        public const string Version = "0.37.189 "
+        public const string Version = "0.41.203 "
    ;}
 }

@@ -19,33 +19,88 @@ namespace weapon_data
         //#
         //## Script Parsing Globals
         //#
-        public static byte[] sidbase
+        /// <summary>
+        /// An array of bytes containing the entire provided sidbase.bin file.<br/>
+        /// Used for decoding any read SID's that haven't already been decoded and chached.
+        /// </summary>
+        public static byte[] SIDBase
         {
             get => _sidbase;
 
             set {
                 _sidbase = value;
 
-                if (value.Length > 8)
+                if (value.Length > 0x19)
                 {
-                    sidLength = BitConverter.ToInt64(sidbase, 0) * 16;
+                    SIDBaseTableLength = BitConverter.ToInt64(SIDBase, 0) * 16;
+                }
+                else {
+                    //! Implement an error, since the file would obviously be corrupted.
                 }
             }
         }
         private static byte[] _sidbase;
-        public static long sidLength;
 
-        public static DCFileHeader DCFile;
+        /// <summary>
+        /// The length (in bytes) of the sidbase.bin's lookup table (relative to the first entry), read from the first 8 bytes in the file.
+        /// </summary>
+        public static long SIDBaseTableLength;
+
+        
+        /// <summary>
+        /// An array of bytes containing the entire provided DC .bin file. <br/>
+        /// </summary>
+        public static byte[] DCFile
+        {
+            get => _dcFile;
+
+            set {
+                _dcFile = value;
+
+                if (value.Length > 0x2C)
+                {
+                    DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
+                }
+                else {
+                    //! Implement an error, since the file would obviously be corrupted.
+                }
+            }
+        }
+        private static byte[] _dcFile;
+
+        /// <summary>
+        /// The address of the provided DC file's relocation table
+        /// </summary>
+        private static long DCFileMainDataLength;
+
+
+        
+        public static DCFileHeader DCHeader;
+
         public static object[] DCEntries;
 
         public List<object[]> DecodedIDS = new List<object[]>(1000);
 
 
 
+
+
         //#
         //## Form Functionality Globals
         //#
-        public bool abort = false;
+        public static bool Abort
+        {
+            set {
+                if (value && binThread != null)
+                {
+                    echo ("Aborting...");
+
+                    binThread.Abort();
+                    Venat?.Invoke(Venat.abortButtonMammet, new object[] { false });
+                }
+            }
+        }
+
         public bool redirect = 
 #if DEBUG
             true
@@ -54,40 +109,57 @@ namespace weapon_data
 #endif
         ;
 
+        private static int BaseAbortButtonWidth;
+
         public static string ActiveLabel;
+        public static string ActiveFileName;
+        private static readonly int AbortButtonWidthDifference = 20; //! Lazy
 
         
         public static Label activeScriptLabel;
         public static Button abortBtn;
 
 
-        private Thread binThread;
+        private static Thread binThread;
         public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
-        public delegate string[] binThreadFormWandOutputRead(); //! god I need to read about delegates lmao
-        public delegate void binThreadFormWandArray(string msg, int? line); //! god I need to read about delegates lmao
+        public delegate string[] binThreadFormWandOutputRead();
+        public delegate void binThreadFormWandArray(string msg, int? line);
 
         public binThreadFormWand outputMammet = new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
         public binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
-        public binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) => abortBtn.Visible = (bool)obj);
-        public binThreadFormWand reloadButtonMammet = new binThreadFormWand((_) =>
+
+        public binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) =>
+        {
+            if (obj == null)
+            {
+                var newIndex = abortBtn.Text == "Abort" ? 1 : 0;
+
+                abortBtn.Text = new[] { "Abort", "Close File" }[newIndex];
+                
+                abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
+                abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
+                return;
+            }
+
+            abortBtn.Visible = (bool)obj;
+        });
+
+        public binThreadFormWand reloadButtonMammet = new binThreadFormWand((Hmmm) =>
         {
             if (Venat == null) {
                 return;
             }
 
             Venat.ReloadScriptBtn.Enabled ^= true;
-            Venat.ReloadScriptBtn.Font = new Font(Venat?.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
+            Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
         });
 
-        public binThreadFormWandOutputRead outputReadMammet = new binThreadFormWandOutputRead(() => OutputWindow.Lines);
+        public binThreadFormWandOutputRead outputMammetReadLines = new binThreadFormWandOutputRead(() => OutputWindow.Lines);
             
-        public binThreadFormWandArray outputMammetSameLine = new binThreadFormWandArray((msg, line) =>
+        public binThreadFormWandArray outputMammetSpecificLine = new binThreadFormWandArray((msg, line) =>
         {
             OutputWindow.UpdateLine(msg, line ?? 1 - 1);
             OutputWindow.Update();
-            
-            //OutputWindow.Text = OutputWindow.Text.Remove(OutputWindow.Text.LastIndexOf("\n")) + '\n' + obj;
-            //OutputWindow.Update();
         });
 
         
@@ -101,19 +173,21 @@ namespace weapon_data
         public static bool MouseIsDown = false;
 
 
-        /// <summary>
-        /// Store Expected Options Form Offset
-        /// </summary>
+        /// <summary> Store Expected Options Form Offset. </summary>
         public static Point OptionsFormLocation;
 
         /// <summary> Variable for Smooth Form Dragging. </summary>
         public static Point MouseDif;
         
+
         /// <summary> MainPage Form Pointer/Refference. </summary>
         public static Main Venat;
 
         /// <summary> OptionsPage Form Pointer/Refference. </summary>
         public static OptionsPage Azem;
+
+        /// <summary> Properties Panel Form Pointer/Refference. </summary>
+        public static PropertyPanel Emmet;
 
         /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
         public static RichTextBox OutputWindow;
@@ -136,9 +210,9 @@ namespace weapon_data
 
         
         
-        //=========================================\\
-        //--|   Global Function Delcarations   |---\\
-        //=========================================\\
+        //==========================================\\
+        //---|   Global Function Delcarations   |---\\
+        //==========================================\\
         #region [Global Function Delcarations]
 
         //#
@@ -170,7 +244,7 @@ namespace weapon_data
         {
             var ItemPtr = sender as Form;
 
-            var Border = new Point[]
+            var Border = new []
             {
                 Point.Empty,
                 new Point(ItemPtr.Width-1, 0),
@@ -212,13 +286,16 @@ namespace weapon_data
             }
 
 
-            @event.Graphics.Clear(Color.FromArgb(100, 100, 100));
+            @event.Graphics.Clear(((Control)sender).Parent.BackColor);
             @event.Graphics.DrawLines(pen, new Point[] {
                 new Point(0, 9),
                 new Point(item.Parent.Width, 9)
             });
         }
         #endregion
+
+
+
 
 
         //#
@@ -254,7 +331,6 @@ namespace weapon_data
 
         public void PrintLL(string str, int line = 1)
         {
-            
 #if DEBUG
             // Debug Output
             if (!Console.IsOutputRedirected)
@@ -263,9 +339,9 @@ namespace weapon_data
             }
             else
                 Debug.WriteLine(str ?? "null");
-#endif
 
-            Venat?.Invoke(outputMammetSameLine, str, line < 1 ? 1 : line);
+#endif
+            Venat?.Invoke(outputMammetSpecificLine, str, line < 1 ? 1 : line);
         }
 
         /// <summary>
@@ -289,7 +365,7 @@ namespace weapon_data
             Venat?.Invoke(Venat.outputMammet, new object[] { str.ToString() });
         }
 
-        public string[] GetOutputWindowLines() => (string[]) Venat?.Invoke(outputReadMammet);
+        public string[] GetOutputWindowLines() => (string[]) Venat?.Invoke(outputMammetReadLines);
         #endregion
 
 
@@ -321,16 +397,16 @@ namespace weapon_data
         {            
             if (bytesToDecode.Length == 8)
             {
-                for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < sidLength; subArrayIndex = 0, mainArrayIndex+=8)
+                for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < SIDBaseTableLength; subArrayIndex = 0, mainArrayIndex+=8)
                 {
-                    if (sidbase[mainArrayIndex] != (byte)bytesToDecode[subArrayIndex])
+                    if (SIDBase[mainArrayIndex] != (byte)bytesToDecode[subArrayIndex])
                     {
                         continue;
                     }
 
 
                     // Scan for the rest of the bytes
-                    while ((subArrayIndex < 8 && mainArrayIndex < sidbase.Length) && sidbase[mainArrayIndex + subArrayIndex] == (byte)bytesToDecode[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
+                    while ((subArrayIndex < 8 && mainArrayIndex < SIDBase.Length) && SIDBase[mainArrayIndex + subArrayIndex] == (byte)bytesToDecode[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
                     {
                         subArrayIndex++;
                     }
@@ -343,19 +419,19 @@ namespace weapon_data
                 
 
                     // Read the string pointer
-                    var stringPtr = BitConverter.ToInt64(sidbase, (int)(mainArrayIndex + subArrayIndex));
-                    if (stringPtr >= sidbase.Length)
+                    var stringPtr = BitConverter.ToInt64(SIDBase, (int)(mainArrayIndex + subArrayIndex));
+                    if (stringPtr >= SIDBase.Length)
                     {
-                        throw new IndexOutOfRangeException($"ERROR: Invalid Pointer Read for String Data!\n    str* 0x{stringPtr:X} >= len 0x{sidbase.Length:X}.");
+                        throw new IndexOutOfRangeException($"ERROR: Invalid Pointer Read for String Data!\n    str* 0x{stringPtr:X} >= len 0x{SIDBase.Length:X}.");
                     }
 
 
                     // Parse and add the string to the array
                     var stringBuffer = string.Empty;
 
-                    while (sidbase[stringPtr] != 0)
+                    while (SIDBase[stringPtr] != 0)
                     {
-                        stringBuffer += Encoding.UTF8.GetString(sidbase, (int)stringPtr++, 1);
+                        stringBuffer += Encoding.UTF8.GetString(SIDBase, (int)stringPtr++, 1);
                     }
 
                 

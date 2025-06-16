@@ -17,14 +17,13 @@ namespace weapon_data
             InitializeAdditionalEventHandlers(); // Set Event Handlers and Other Form-Related Crap
             
             Paint += PaintBorder;
-            TinyVersionLabel.Text = Version; // Set Version Label
-
             
+
             sidbasePathTextBox.TextChanged += (sender, _) =>
             {
                 if (File.Exists(((TextBox)sender).Text))
                 {
-                    sidbase = File.ReadAllBytes(((TextBox)sender).Text);
+                    SIDBase = File.ReadAllBytes(((TextBox)sender).Text);
                 }
             };
         }
@@ -111,10 +110,10 @@ namespace weapon_data
                             PrintNL($"Newest Tag: [{tag}]");
     #endif
 
-                            if (tag != Version) {
+                            if (tag != Main.Version) {
                                 string[]
                                     checkedVersion = tag.Split('.'),
-                                    currentVersion = Version.Split('.')
+                                    currentVersion = Main.Version.Split('.')
                                 ;
                             
                                 if (checkedVersion.Length != currentVersion.Length)

@@ -34,7 +34,6 @@ namespace weapon_data
             this.CloseBtn = new System.Windows.Forms.Button();
             this.SidbasePathBrowseBtn = new System.Windows.Forms.Button();
             this.UnusedBrowseBtn = new System.Windows.Forms.Button();
-            this.TinyVersionLabel = new System.Windows.Forms.Label();
             this.UnusedCheckBox = new System.Windows.Forms.CheckBox();
             this.dummy = new System.Windows.Forms.Button();
             this.SeperatorLine1 = new System.Windows.Forms.Label();
@@ -43,7 +42,7 @@ namespace weapon_data
             this.CreditsLabel = new System.Windows.Forms.Label();
             this.sidbasePathTextBox = new weapon_data.TextBox();
             this.UnusedPathTextBox = new weapon_data.TextBox();
-            this.DebugOutputCheckBox = new System.Windows.Forms.CheckBox();
+            this.SeperatorLine0 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Title
@@ -99,17 +98,6 @@ namespace weapon_data
             this.UnusedBrowseBtn.UseVisualStyleBackColor = false;
             this.UnusedBrowseBtn.Click += new System.EventHandler(this.BasePackagePathBrowseBtn_Click);
             // 
-            // TinyVersionLabel
-            // 
-            this.TinyVersionLabel.AutoSize = true;
-            this.TinyVersionLabel.Font = new System.Drawing.Font("Gadugi", 7F, System.Drawing.FontStyle.Bold);
-            this.TinyVersionLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.TinyVersionLabel.Location = new System.Drawing.Point(8, 139);
-            this.TinyVersionLabel.Name = "TinyVersionLabel";
-            this.TinyVersionLabel.Size = new System.Drawing.Size(59, 12);
-            this.TinyVersionLabel.TabIndex = 0;
-            this.TinyVersionLabel.Text = "placeholder";
-            // 
             // UnusedCheckBox
             // 
             this.UnusedCheckBox.AutoSize = true;
@@ -151,7 +139,7 @@ namespace weapon_data
             this.DownloadSourceBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.DownloadSourceBtn.Font = new System.Drawing.Font("Gadugi", 7F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))));
             this.DownloadSourceBtn.ForeColor = System.Drawing.SystemColors.Window;
-            this.DownloadSourceBtn.Location = new System.Drawing.Point(289, 182);
+            this.DownloadSourceBtn.Location = new System.Drawing.Point(291, 179);
             this.DownloadSourceBtn.Name = "DownloadSourceBtn";
             this.DownloadSourceBtn.Size = new System.Drawing.Size(120, 22);
             this.DownloadSourceBtn.TabIndex = 15;
@@ -175,19 +163,20 @@ namespace weapon_data
             // 
             this.CreditsLabel.Font = new System.Drawing.Font("Gadugi", 7.5F, System.Drawing.FontStyle.Bold);
             this.CreditsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.CreditsLabel.Location = new System.Drawing.Point(8, 165);
+            this.CreditsLabel.Location = new System.Drawing.Point(8, 158);
             this.CreditsLabel.Name = "CreditsLabel";
-            this.CreditsLabel.Size = new System.Drawing.Size(277, 59);
+            this.CreditsLabel.Size = new System.Drawing.Size(277, 75);
             this.CreditsLabel.TabIndex = 17;
             this.CreditsLabel.Text = "Credits:\r\n  libgp4: TheMagicalBlob, Icemesh\r\n";
             // 
             // sidbasePathTextBox
             // 
             this.sidbasePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.sidbasePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
             this.sidbasePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.sidbasePathTextBox.Location = new System.Drawing.Point(6, 71);
             this.sidbasePathTextBox.Name = "sidbasePathTextBox";
-            this.sidbasePathTextBox.Size = new System.Drawing.Size(335, 20);
+            this.sidbasePathTextBox.Size = new System.Drawing.Size(335, 24);
             this.sidbasePathTextBox.TabIndex = 18;
             this.sidbasePathTextBox.Text = "No valid sidbase.bin found or provided";
             this.sidbasePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -195,25 +184,25 @@ namespace weapon_data
             // UnusedPathTextBox
             // 
             this.UnusedPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.UnusedPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
             this.UnusedPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.UnusedPathTextBox.Location = new System.Drawing.Point(6, 95);
             this.UnusedPathTextBox.Name = "UnusedPathTextBox";
-            this.UnusedPathTextBox.Size = new System.Drawing.Size(335, 20);
+            this.UnusedPathTextBox.Size = new System.Drawing.Size(335, 24);
             this.UnusedPathTextBox.TabIndex = 19;
             this.UnusedPathTextBox.Text = "pLaCeHoLdEr";
             this.UnusedPathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // DebugOutputCheckBox
+            // SeperatorLine0
             // 
-            this.DebugOutputCheckBox.AutoSize = true;
-            this.DebugOutputCheckBox.Font = new System.Drawing.Font("Gadugi", 9.25F);
-            this.DebugOutputCheckBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.DebugOutputCheckBox.Location = new System.Drawing.Point(111, 30);
-            this.DebugOutputCheckBox.Name = "DebugOutputCheckBox";
-            this.DebugOutputCheckBox.Size = new System.Drawing.Size(109, 20);
-            this.DebugOutputCheckBox.TabIndex = 20;
-            this.DebugOutputCheckBox.Text = "Debug Output";
-            this.DebugOutputCheckBox.UseVisualStyleBackColor = true;
+            this.SeperatorLine0.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
+            this.SeperatorLine0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.SeperatorLine0.Location = new System.Drawing.Point(2, 52);
+            this.SeperatorLine0.Name = "SeperatorLine0";
+            this.SeperatorLine0.Size = new System.Drawing.Size(411, 17);
+            this.SeperatorLine0.TabIndex = 20;
+            this.SeperatorLine0.Text = "---------------------------------------------------------------------------------" +
+    "";
             // 
             // OptionsPage
             // 
@@ -221,13 +210,12 @@ namespace weapon_data
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(415, 237);
-            this.Controls.Add(this.DebugOutputCheckBox);
+            this.Controls.Add(this.SeperatorLine0);
             this.Controls.Add(this.UnusedPathTextBox);
             this.Controls.Add(this.sidbasePathTextBox);
             this.Controls.Add(this.CreditsLabel);
             this.Controls.Add(this.Title2);
             this.Controls.Add(this.DownloadSourceBtn);
-            this.Controls.Add(this.TinyVersionLabel);
             this.Controls.Add(this.SeperatorLine1);
             this.Controls.Add(this.dummy);
             this.Controls.Add(this.UnusedCheckBox);
@@ -252,8 +240,6 @@ namespace weapon_data
         //--|   Control Declarations   |--\\
         //================================\\
         #region [Control Declarations]
-
-        private Label TinyVersionLabel;
         private Label Title;
         private Button CloseBtn;
         private Button SidbasePathBrowseBtn;
@@ -265,9 +251,10 @@ namespace weapon_data
         private Label CreditsLabel;
         private TextBox sidbasePathTextBox;
         private TextBox UnusedPathTextBox;
-        public CheckBox DebugOutputCheckBox;
 
         private Button dummy;
         #endregion
+
+        private Label SeperatorLine0;
     }
 }
