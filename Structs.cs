@@ -73,7 +73,7 @@ namespace weapon_data
                 PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]\n");
                 var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
                     
-                for (int arrayIndex = 0, pad = mapLength.ToString().Length; arrayIndex < mapLength; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
+                for (int arrayIndex = 0; arrayIndex < mapLength; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
                 {
                     Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", outputLine);
 
@@ -81,7 +81,7 @@ namespace weapon_data
                     var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
                     var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
 
-                    LoadDcStruct(binFile, structType, structAddr, DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray)));
+                    LoadDCStructByType(binFile, structType, structAddr, DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray)));
                 }
                 PrintNL();
 
@@ -154,13 +154,12 @@ namespace weapon_data
                 HeaderItems = new DCHeaderItem[TableLength];
 
 
-
                 //#
                 //## Parse header content table
                 //#
                 ActiveLabel = binName + "; Reading Script...";
-    #if DEBUG
-                var pre = new[] {DateTime.Now.Minute, DateTime.Now.Second};
+    #if ass
+                var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
     #endif
 
 
@@ -168,13 +167,15 @@ namespace weapon_data
                 Venat?.CTUpdateLabel(ActiveLabel);
                 Venat?.InitializeDcStructListsByScriptName(binName);
 
+                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
                     HeaderItems[tableIndex] = new DCHeaderItem(binFile, addr);
-                    echo ($"Structure {tableIndex} Loaded Without Error.{(tableIndex < TableLength - 1 ? ".." : "")}");
+                    Venat?.PrintLL($"{(tableIndex < TableLength - 1 ? $"  # Structure {tableIndex} Loaded Without Error..." : "All DC Entries Loaded Successfully.")}", outputLine);
                 }
+                PrintNL();
             
-    #if DEBUG
+    #if false
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
     #endif
             }
@@ -231,6 +232,8 @@ namespace weapon_data
         {
             public DCMapDef(byte[] binFile, string Type, long Address, string Name = "")
             {
+                this.Name = Name;
+
                 var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 var mapNamesArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
                 long mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
@@ -245,22 +248,32 @@ namespace weapon_data
 
                 for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
-                    Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex + 1} / {mapLength}", outputLine);
+                    Venat?.PrintLL($"  # Parsing Map Structures... {arrayIndex + 1} / {mapLength}", outputLine);
                     
                     var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
                     var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
                     var structName = DecodeSIDHash(GetSubArray(binFile, (int)mapNamesArrayPtr));
 
-                    Venat?.PrintLL($"  - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}", outputLine + 1);
+                    Venat?.PrintLL($"    - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}", outputLine + 1);
 
 
                     Items[arrayIndex] = new object[2];
+
                     Items[arrayIndex][0] = structType;
-                    Items[arrayIndex][1] = LoadDcStruct(binFile, structType, structAddr, structName, true);
+                    Items[arrayIndex][1] = LoadDCStructByType(binFile, structType, structAddr, structName);
                 }
-                PrintNL();
+                Venat?.PrintLL($"  # Finished Parsing All Map Structures.", outputLine);
             }
 
+            
+            /// <summary>
+            /// The name of the map item.
+            /// </summary>
+            public string Name;
+
+            /// <summary>
+            /// An array of object arrays with the first element being the map item's struct type, and the other being the struct itself
+            /// </summary>
             public object[][] Items;
         }
 
@@ -289,13 +302,16 @@ namespace weapon_data
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public struct AmmoToWeaponArray
         {
-            public AmmoToWeaponArray(string name, byte[] binFile, long address)
+            public AmmoToWeaponArray(byte[] binFile, long address, string Name)
             {
-                Symbols = new List<string[]>();
-                Hashes  = new List<byte[][]>();
-                Name = name;
+                var symbols = new List<string[]>();
+                var hashes  = new List<byte[][]>();
+                this.Name = Name;
                 
                 var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
                 var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
@@ -305,18 +321,22 @@ namespace weapon_data
                 PrintNL("\n");
                 for (int i = 0; i < arrayLen; arrayAddr += 16, i++)
                 {
-                    Venat?.PrintLL($"  Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}", outputLine);
+                    Venat?.PrintLL($"  # Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}", outputLine);
 
-                    Hashes.Add(new[] { GetSubArray(binFile, (int)arrayAddr + 8), GetSubArray(binFile, (int)arrayAddr) });
-                    Symbols.Add(new[] { DecodeSIDHash(Hashes.Last()[0]), DecodeSIDHash(Hashes.Last()[1]) });
+                    hashes.Add(new[] { GetSubArray(binFile, (int)arrayAddr + 8), GetSubArray(binFile, (int)arrayAddr) });
+                    symbols.Add(new[] { DecodeSIDHash(hashes.Last()[0]), DecodeSIDHash(hashes.Last()[1]) });
                 }
+                Venat?.PrintLL($"  # Finished Parsing Ammo-to-Weapon Structures.", outputLine);
+
+                Symbols = symbols.ToArray();
+                Hashes = hashes.ToArray();
             }
 
             public string Name;
 
 
-            public List<string[]> Symbols;
-            public List<byte[][]> Hashes;
+            public string[][] Symbols;
+            public byte[][][] Hashes;
         }
 
 
@@ -352,7 +372,7 @@ namespace weapon_data
                 //## Parse Weapon Gameplay Definition
                 //#
                 // Load firearm-related variables
-                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + FirearmGameplayDefOffset), 0);
+                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_FirearmGameplayDefOffset), 0);
                 if (FirearmGameplayDefAddress != 0)
                 {
                     if (DecodeSIDHash(GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def")
@@ -361,12 +381,12 @@ namespace weapon_data
                     }
 
                     IsFirearm = true;
-                    AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)FirearmGameplayDefAddress + AmmoCountOffset), 0);
+                    AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)FirearmGameplayDefAddress + WD_AmmoCountOffset), 0);
                 }
             
 
 
-                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + MeleeGameplayDefOffset), 0);
+                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_MeleeGameplayDefOffset), 0);
                 if (MeleeGameplayDefAddress != 0)
                 {
                     if (DecodeSIDHash(GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def")
@@ -376,7 +396,7 @@ namespace weapon_data
                 }
 
 
-                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + Hud2ReticleDefOffset), 0);
+                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_Hud2ReticleDefOffset), 0);
                 if (Hud2ReticleDefAddress != 0)
                 {
                     if (DecodeSIDHash(GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8)) != "hud2-reticle-def")
@@ -385,12 +405,33 @@ namespace weapon_data
                     }
 
                     // Read Hud2 Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + WD_Hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
                     // Read Hud2 Simple Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + Hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + WD_Hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
                 }
             }
 
+            //#
+            //## Private Members
+            //#
+            /// <summary> Weapon Gameplay Definition structure offset. </summary>
+            private const byte
+                WD_FirearmGameplayDefOffset = 0x10,
+                    WD_AmmoCountOffset = 0x98,
+
+                WD_MeleeGameplayDefOffset = 0x30,
+
+                WD_Hud2ReticleDefOffset = 0x58,
+                    WD_Hud2ReticleDefNameOffset = 0x8,
+                    WD_Hud2ReticleDefSimpleNameOffset = 0x18
+            ;
+
+
+
+            
+            //#
+            //## Public Members (heh)
+            //#
             public string Name;
             public int Address;
             public bool IsFirearm;

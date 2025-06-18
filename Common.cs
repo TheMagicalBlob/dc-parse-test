@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -81,13 +83,6 @@ namespace weapon_data
 
         public List<object[]> DecodedIDS = new List<object[]>(1000);
 
-
-
-
-
-        //#
-        //## //!
-        //#
         public static bool Abort
         {
             set {
@@ -101,6 +96,41 @@ namespace weapon_data
             }
         }
 
+
+
+
+        
+        //#
+        //## Form Functionality Globals
+        //#
+        /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
+        public static bool LegacyFolderSelectionDialogue = true;
+
+        /// <summary> Return the current state of the options page. </summary>
+        public static bool OptionsPageIsOpen { get => Azem.Visible; }
+
+        /// <summary> Boolean global for keeping track of the current mouse state. </summary>
+        public static bool MouseIsDown = false;
+
+
+        /// <summary> Store Expected Options Form Offset. </summary>
+        public static Point OptionsFormLocation;
+
+        /// <summary> Variable for Smooth Form Dragging. </summary>
+        public static Point MouseDif;
+
+
+        /// <summary> MainPage Form Pointer/Refference. </summary>
+        public static Main Venat;
+
+        /// <summary> OptionsPage Form Pointer/Refference. </summary>
+        public static OptionsPage Azem;
+
+        /// <summary> Properties Panel Form Pointer/Refference. </summary>
+        public static GroupBox Emmet;
+
+        /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
+        public static RichTextBox OutputWindow;
         public bool redirect = 
 #if DEBUG
             true
@@ -163,40 +193,6 @@ namespace weapon_data
         });
 
 
-        
-
-        //#
-        //## Form Functionality Globals
-        //#
-        /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
-        public static bool LegacyFolderSelectionDialogue = true;
-
-        /// <summary> Return the current state of the options page. </summary>
-        public static bool OptionsPageIsOpen { get => Azem.Visible; }
-
-        /// <summary> Boolean global for keeping track of the current mouse state. </summary>
-        public static bool MouseIsDown = false;
-
-
-        /// <summary> Store Expected Options Form Offset. </summary>
-        public static Point OptionsFormLocation;
-
-        /// <summary> Variable for Smooth Form Dragging. </summary>
-        public static Point MouseDif;
-
-
-        /// <summary> MainPage Form Pointer/Refference. </summary>
-        public static Main Venat;
-
-        /// <summary> OptionsPage Form Pointer/Refference. </summary>
-        public static OptionsPage Azem;
-
-        /// <summary> Properties Panel Form Pointer/Refference. </summary>
-        public static GroupBox Emmet;
-
-        /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
-        public static RichTextBox OutputWindow;
-
 
 
 
@@ -215,6 +211,7 @@ namespace weapon_data
         #endregion
 
         
+
         
         //==========================================\\
         //---|   Global Function Delcarations   |---\\
@@ -270,23 +267,150 @@ namespace weapon_data
         {
             var item = sender as Label;
 
-
+            // Clear line bounds with the current form's background colour
             @event.Graphics.Clear(item.Parent.BackColor);
+            @event.Graphics.DrawLine(pen, new Point(0, 9), new Point(item.Width, 9));
+        }
+        
 
-            if (item.Tag != null && item.Tag.GetType() == typeof(bool) && (bool)item.Tag)
+
+        /// <summary>
+        /// Post-InitializeComponent Configuration. <br/><br/>
+        /// Create Assign Anonomous Event Handlers to Parent and Children.
+        /// </summary>
+        public void InitializeAdditionalEventHandlers()
+        {
+            MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
+            MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
+            MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
+            ExitBtn.Click          += new EventHandler((sender, e) => Environment.Exit(                            0             ));
+            ExitBtn.MouseEnter     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(230, 100, 100 ));
+            ExitBtn.MouseLeave     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0  , 0  , 0   ));
+
+
+            // Set Event Handlers for Form Dragging
+            MouseDown += new MouseEventHandler((sender, e) =>
             {
-                @event.Graphics.DrawLines(pen, new [] {
-                    new Point(0, 9),
-                    new Point(item.Width, 9)
+                MouseDif = new Point(MousePosition.X - Location.X, MousePosition.Y - Location.Y);
+
+                MouseIsDown = true;
+            });
+
+            MouseUp   += new MouseEventHandler((sender, e) =>
+            {
+                MouseIsDown = false;
+
+                if (OptionsPageIsOpen)
+                    Azem?.BringToFront();
+            });
+
+            MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            
+
+            // Set appropriate event handlers for the controls on the form as well
+            foreach (Control item in Controls)
+            {
+                if (item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
+                    continue;
+
+                
+                // Apply the seperator drawing function to any seperator lines
+                if (item.GetType() == typeof(Label) && !item.Text.Any(character => character != '-'))
+                {
+                    if (item.Tag == null) // fuck it // if (!(item.Tag?.Equals(true) ?? true))
+                    {
+                        item.Location = new Point(1, item.Location.Y);
+                        item.Size = new Size(item.Parent.Size.Width - 2, item.Size.Height);
+                    }
+
+                    item.Paint += DrawSeperatorLine;
+                }
+
+                
+                item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                    MouseIsDown = true;
                 });
-            }
-            else {
-                @event.Graphics.DrawLines(pen, new [] {
-                    new Point(0, 9),
-                    new Point(item.Width, 9)
+                item.MouseUp   += new MouseEventHandler((sender, e) =>
+                {
+                    MouseIsDown = false;
+                    if (OptionsPageIsOpen)
+                        Azem?.BringToFront();
                 });
+                
+                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
+                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
             }
 
+            Paint += PaintBorder;
+        }
+
+
+
+        /// <summary>
+        /// Initialize Dropdown Menu Used for Toggling of Folder Browser Method
+        /// </summary>
+        private void CreateBrowseModeDropdownMenu()
+        {
+            var extalignment = BinPathBrowseBtn.Size.Height;
+            var alignment = BinPathBrowseBtn.Location;
+
+            var ButtonSize = new Size(BinPathBrowseBtn.Size.Width + optionsMenuDropdownBtn.Size.Width, 25);
+
+            DropdownMenu[0] = new Button() {
+                Font = new Font("Gadugi", 7.25f, FontStyle.Bold),
+                Text = "Directory Tree*",
+                BackColor = AppColour,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(alignment.X, alignment.Y + extalignment),
+                Size = ButtonSize
+            };
+            DropdownMenu[1] = new Button() {
+                Font = new Font("Gadugi", 7.25F, FontStyle.Bold),
+                Text = "File Browser",
+                BackColor = AppColour,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(alignment.X, alignment.Y + extalignment + DropdownMenu[0].Size.Height),
+                Size = ButtonSize
+            };
+
+
+            // Create and Assign Event Handlers
+            DropdownMenu[0].Click += (why, does) =>
+            {
+                if (!LegacyFolderSelectionDialogue) {
+                    DropdownMenu[0].Text += '*';
+                    DropdownMenu[1].Text = DropdownMenu[1].Text.Remove(DropdownMenu[1].Text.Length-1);
+
+                    LegacyFolderSelectionDialogue ^= true;
+                }
+            };
+            DropdownMenu[1].Click += (my, back) =>
+            {
+                if (LegacyFolderSelectionDialogue) {
+                    DropdownMenu[1].Text += '*';
+                    DropdownMenu[0].Text = DropdownMenu[0].Text.Remove(DropdownMenu[0].Text.Length-1);
+
+                    LegacyFolderSelectionDialogue ^= true;
+                }
+            };
+            // still hurt. there was a third event at first.
+
+
+            // Add Controls to MainForm Control Collection
+            Controls.Add(DropdownMenu[0]);
+            Controls.Add(DropdownMenu[1]);
+
+            // Ensure Controls Display Correctly
+            DropdownMenu[0].Hide();
+            DropdownMenu[1].Hide();
+            DropdownMenu[0].BringToFront();
+            DropdownMenu[1].BringToFront();
         }
         #endregion
 
@@ -461,6 +585,9 @@ namespace weapon_data
 
 
 
+    
+    
+
     //=====================================\\
     //---|   Custom Class Extensions   |---\\
     //=====================================\\
@@ -473,15 +600,26 @@ namespace weapon_data
 
         /// <summary> Appends Text to The Currrent Text of A Text Box, Followed By The Standard Line Terminator.<br/>Scrolls To Keep The Newest Line In View. </summary>
         /// <param name="str"> The String To Output. </param>
-        public void AppendLine(string str = "")
+        public void AppendLine(string str = "", bool scroll = true)
         {
-            AppendText($"{str}\n");
-            ScrollToCaret();
+            AppendText(str + '\n');
+                
+            if (scroll) {
+                ScrollToCaret();
+            }
         }
+
+
 
         public void UpdateLine(string newMsg, int line)
         {
             var lines = Lines; // Not sure why I can't directly write to the array and have it actually update
+            
+            while (line >= Lines.Length)
+            {
+                Text += '\n';
+            }
+
             lines[line - 1] = newMsg;
             Lines = lines;
             Update();
@@ -566,6 +704,17 @@ namespace weapon_data
                 Font = Main.TextFont;
             }
         }
+    }
+
+    public class Label : System.Windows.Forms.Label
+    {
+        public bool IsSeparatorLine = false;
+        public bool TopMost
+        {
+            get => _topMost & IsSeparatorLine;
+            set => _topMost = value;
+        }
+        private bool _topMost = false;
     }
     #endregion
 }

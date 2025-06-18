@@ -20,7 +20,12 @@ namespace weapon_data
             Emmet = PropertiesPanel;
             Update(); Refresh();
             
-
+            
+            Paint += (meh, painter) =>
+            {
+                ((Control)meh).BringToFront();
+                painter.Graphics.DrawLine(pen, new Point(540, 0), new Point(540, Height));
+            };
 
             if (File.Exists($"{Directory.GetCurrentDirectory()}\\sidbase.bin"))
             {
@@ -152,7 +157,7 @@ namespace weapon_data
 
         private void bleghBtn_Click(object sender, EventArgs e)
         {
-            echo("currently unused");
+            echo("print");
             Venat?.Invoke(abortButtonMammet, new object[] { null });
         }
         #endregion
@@ -207,13 +212,15 @@ namespace weapon_data
                 DCHeader = new DCFileHeader(DCFile, ActiveFileName);
                 DCEntries = new object[DCHeader.TableLength];
 
+                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
                 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < DCHeader.HeaderItems.Length; tableIndex++, addr += 24)
                 {
                     Venat?.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCHeader.TableLength})");
-                    PrintNL($"Item #{tableIndex}: [ Label: {DCHeader.HeaderItems[tableIndex].Name} Type: {DCHeader.HeaderItems[tableIndex].Type} Data Address: {DCHeader.HeaderItems[tableIndex].StructAddress:X} ]");
+                    PrintLL($"Item #{tableIndex}: {DCHeader.HeaderItems[tableIndex].Name}", outputLine);
+                    echo($"Item #{tableIndex}: [ Label: {DCHeader.HeaderItems[tableIndex].Name} Type: {DCHeader.HeaderItems[tableIndex].Type} Data Address: {DCHeader.HeaderItems[tableIndex].StructAddress:X} ]");
 
-                    DCEntries[tableIndex] = LoadDcStruct(DCFile, DCHeader.HeaderItems[tableIndex].Type, (int)DCHeader.HeaderItems[tableIndex].StructAddress, DCHeader.HeaderItems[tableIndex].Name);
+                    DCEntries[tableIndex] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[tableIndex].Type, (int)DCHeader.HeaderItems[tableIndex].StructAddress, DCHeader.HeaderItems[tableIndex].Name);
                 }
 
                 Venat?.Invoke(reloadButtonMammet, new object[] { true });
@@ -236,7 +243,16 @@ namespace weapon_data
         }
 
 
-        private static object LoadDcStruct(byte[] binFile, string Type, long Address, string Name = null, bool silent = false)
+        /// <summary>
+        /// //! WRITE ME
+        /// </summary>
+        /// <param name="binFile"> The whole DC file, loaded as a byte array. </param>
+        /// <param name="Type"> The type of the DC struct. </param>
+        /// <param name="Address"> The address of the DC struct in the <paramref name="binFile"/>. </param>
+        /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
+        /// <param name="silent"></param>
+        /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
+        private static object LoadDCStructByType(byte[] binFile, string Type, long Address, string Name = null, bool silent = false)
         {
             if (Name == null || Name.Length < 1)
             {
@@ -244,7 +260,8 @@ namespace weapon_data
             }
             if (!silent)
             {
-                PrintNL($" #[{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}");
+                Venat?.PrintLL($"  # [{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}", Venat?.GetOutputWindowLines().Length ?? 1);
+                Thread.Sleep(500);
             }
 
 
@@ -254,6 +271,9 @@ namespace weapon_data
 
             switch (Type)
             {
+                //#
+                //## Mapped Structures
+                //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
                 case "map":
                     ret = new DCMapDef(binFile, Type, Address);
@@ -267,15 +287,19 @@ namespace weapon_data
                     break;
 
                 case "symbol-array":
-                //break;
                     ret = new SymbolArrayDef(Name, binFile, Address);
                     break;
 
 
                 case "ammo-to-weapon-array":
-                    ret = new AmmoToWeaponArray(Name, binFile, Address);
+                    ret = new AmmoToWeaponArray(binFile, Address, Name);
                     break;
 
+
+                    
+                //#
+                //## Unmapped Structures
+                //#
                 default:
                     ret = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
                     break;

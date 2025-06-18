@@ -30,19 +30,19 @@ namespace weapon_data
         /// </summary>
         private void InitializeComponent()
         {
-            this.Title = new System.Windows.Forms.Label();
+            this.Title = new weapon_data.Label();
             this.CloseBtn = new System.Windows.Forms.Button();
             this.SidbasePathBrowseBtn = new System.Windows.Forms.Button();
             this.UnusedBrowseBtn = new System.Windows.Forms.Button();
             this.UnusedCheckBox = new System.Windows.Forms.CheckBox();
             this.dummy = new System.Windows.Forms.Button();
-            this.SeperatorLine1 = new System.Windows.Forms.Label();
+            this.SeperatorLine1 = new weapon_data.Label();
             this.DownloadSourceBtn = new System.Windows.Forms.Button();
-            this.Title2 = new System.Windows.Forms.Label();
-            this.CreditsLabel = new System.Windows.Forms.Label();
+            this.Title2 = new weapon_data.Label();
+            this.CreditsLabel = new weapon_data.Label();
             this.sidbasePathTextBox = new weapon_data.TextBox();
             this.UnusedPathTextBox = new weapon_data.TextBox();
-            this.SeperatorLine0 = new System.Windows.Forms.Label();
+            this.SeperatorLine0 = new weapon_data.Label();
             this.SuspendLayout();
             // 
             // Title
