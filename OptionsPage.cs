@@ -16,8 +16,6 @@ namespace weapon_data
             InitializeComponent();
             InitializeAdditionalEventHandlers(); // Set Event Handlers and Other Form-Related Crap
             
-            Paint += PaintBorder;
-            
 
             sidbasePathTextBox.TextChanged += (sender, _) =>
             {
@@ -82,6 +80,8 @@ namespace weapon_data
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
                 }
             }
+
+            //Paint += (azem, yoshiP) => DrawFormDecorations(((Form)azem), yoshiP);
         }
 
 

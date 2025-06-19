@@ -50,9 +50,11 @@ namespace weapon_data
             this.Title.AutoSize = true;
             this.Title.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
             this.Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.Title.IsSeparatorLine = false;
             this.Title.Location = new System.Drawing.Point(172, 3);
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(57, 17);
+            this.Title.StretchToFitForm = false;
             this.Title.TabIndex = 0;
             this.Title.Text = "Options";
             // 
@@ -124,11 +126,13 @@ namespace weapon_data
             // 
             // SeperatorLine1
             // 
-            this.SeperatorLine1.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
+            this.SeperatorLine1.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine1.Location = new System.Drawing.Point(3, 119);
+            this.SeperatorLine1.IsSeparatorLine = false;
+            this.SeperatorLine1.Location = new System.Drawing.Point(3, 120);
             this.SeperatorLine1.Name = "SeperatorLine1";
             this.SeperatorLine1.Size = new System.Drawing.Size(411, 17);
+            this.SeperatorLine1.StretchToFitForm = false;
             this.SeperatorLine1.TabIndex = 13;
             this.SeperatorLine1.Text = "---------------------------------------------------------------------------------" +
     "";
@@ -152,9 +156,11 @@ namespace weapon_data
             this.Title2.AutoSize = true;
             this.Title2.Font = new System.Drawing.Font("Gadugi", 8F, System.Drawing.FontStyle.Bold);
             this.Title2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.Title2.IsSeparatorLine = false;
             this.Title2.Location = new System.Drawing.Point(183, 137);
             this.Title2.Name = "Title2";
             this.Title2.Size = new System.Drawing.Size(43, 14);
+            this.Title2.StretchToFitForm = false;
             this.Title2.TabIndex = 16;
             this.Title2.Text = "Credits";
             this.Title2.Visible = false;
@@ -163,9 +169,11 @@ namespace weapon_data
             // 
             this.CreditsLabel.Font = new System.Drawing.Font("Gadugi", 7.5F, System.Drawing.FontStyle.Bold);
             this.CreditsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.CreditsLabel.IsSeparatorLine = false;
             this.CreditsLabel.Location = new System.Drawing.Point(8, 158);
             this.CreditsLabel.Name = "CreditsLabel";
             this.CreditsLabel.Size = new System.Drawing.Size(277, 75);
+            this.CreditsLabel.StretchToFitForm = false;
             this.CreditsLabel.TabIndex = 17;
             this.CreditsLabel.Text = "Credits:\r\n  libgp4: TheMagicalBlob, Icemesh\r\n";
             // 
@@ -195,11 +203,13 @@ namespace weapon_data
             // 
             // SeperatorLine0
             // 
-            this.SeperatorLine0.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
+            this.SeperatorLine0.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.SeperatorLine0.IsSeparatorLine = false;
             this.SeperatorLine0.Location = new System.Drawing.Point(2, 52);
             this.SeperatorLine0.Name = "SeperatorLine0";
             this.SeperatorLine0.Size = new System.Drawing.Size(411, 17);
+            this.SeperatorLine0.StretchToFitForm = false;
             this.SeperatorLine0.TabIndex = 20;
             this.SeperatorLine0.Text = "---------------------------------------------------------------------------------" +
     "";

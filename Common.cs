@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -119,6 +118,11 @@ namespace weapon_data
         /// <summary> Variable for Smooth Form Dragging. </summary>
         public static Point MouseDif;
 
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        private static Point[][] HSeparatorLines;
+        
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        private static Point[][] VSeparatorLines; 
 
         /// <summary> MainPage Form Pointer/Refference. </summary>
         public static Main Venat;
@@ -239,39 +243,39 @@ namespace weapon_data
             }
         }
 
+
         
         /// <summary>
-        /// Draw a Thin Border for the Control On-Paint
-        /// </summary>
-        public static void PaintBorder(object sender, PaintEventArgs e)
-        {
-            var ItemPtr = sender as Form;
-
-            var Border = new []
-            {
-                Point.Empty,
-                new Point(ItemPtr.Width-1, 0),
-                new Point(ItemPtr.Width-1, ItemPtr.Height-1),
-                new Point(0, ItemPtr.Height-1),
-                Point.Empty
-            };
-
-            e.Graphics.Clear(Color.FromArgb(0, 0, 0));
-            e.Graphics.DrawLines(pen, Border);
-        }
-        
-
-        /// <summary> Create and draw a thin white line from one end of the form to the other. (placeholder code atm)
+        /// Draw a thin border over the for edges on repaint.
+        /// <br/>Draw a thin line from one end of the painted control to the other.
         ///</summary>
-        public static void DrawSeperatorLine(object sender, PaintEventArgs @event)
+        public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
         {
-            var item = sender as Label;
+            yoshiP.Graphics.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
 
-            // Clear line bounds with the current form's background colour
-            @event.Graphics.Clear(item.Parent.BackColor);
-            @event.Graphics.DrawLine(pen, new Point(0, 9), new Point(item.Width, 9));
+            
+            //## Draw Vertical Lines
+            foreach (var line in VSeparatorLines ?? Array.Empty<Point[]>())
+            {
+                yoshiP?.Graphics.DrawLine(pen, line[0], line[1]);
+            }
+
+            //## Draw Horizontal Lines
+            foreach (var line in HSeparatorLines ?? Array.Empty<Point[]>())
+            {
+                yoshiP?.Graphics.DrawLine(pen, line[0], line[1]);
+            }
+
+            // Draw a thin (1 pixel) border around the form with the current Pen
+            yoshiP?.Graphics.DrawLines(pen, new [] {
+                Point.Empty,
+                new Point(venat.Width-1, 0),
+                new Point(venat.Width-1, venat.Height-1),
+                new Point(0, venat.Height-1),
+                Point.Empty
+            });
         }
-        
+
 
 
         /// <summary>
@@ -280,6 +284,60 @@ namespace weapon_data
         /// </summary>
         public void InitializeAdditionalEventHandlers()
         {
+            var hSeparatorLines = new List<Point[]>();
+            var vSeparatorLines = new List<Point[]>();
+
+
+            // Set appropriate event handlers for the controls on the form as well
+            foreach (Control item in Controls)
+            {
+                if (item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
+                    continue;
+
+                
+                // Apply the seperator drawing function to any seperator lines
+                if (item.GetType() == typeof(weapon_data.Label) && ((weapon_data.Label)item).IsSeparatorLine)
+                {
+                    if (item.Size.Width > item.Size.Height)
+                    {
+                        // Horizontal Lines
+                        hSeparatorLines.Add(new Point[2] { new Point(((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7), new Point(((weapon_data.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7) });
+                        Controls.Remove(item);
+                    }
+                    else {
+                        // Vertical Lines
+                        vSeparatorLines.Add(new [] { new Point(item.Location.X + 4, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y), new Point(item.Location.X + 4, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height) });
+                        Controls.Remove(item);
+                    }
+                }
+                
+                item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                    MouseIsDown = true;
+                });
+                item.MouseUp   += new MouseEventHandler((sender, e) =>
+                {
+                    MouseIsDown = false;
+                    if (OptionsPageIsOpen)
+                        Azem?.BringToFront();
+                });
+                
+                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
+                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+            }
+            
+            if (hSeparatorLines.Count > 0) {
+                HSeparatorLines = hSeparatorLines.ToArray();
+            }
+            if (vSeparatorLines.Count > 0) {
+                VSeparatorLines = vSeparatorLines.ToArray();
+            }
+            echo($"Vertical: {VSeparatorLines?.Length ?? 0}");
+            echo($"Horizontal: {HSeparatorLines?.Length ?? 0}");
+            
+            
             MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
             MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
             MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
@@ -305,47 +363,9 @@ namespace weapon_data
             });
 
             MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
             
 
-            // Set appropriate event handlers for the controls on the form as well
-            foreach (Control item in Controls)
-            {
-                if (item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
-                    continue;
-
-                
-                // Apply the seperator drawing function to any seperator lines
-                if (item.GetType() == typeof(Label) && !item.Text.Any(character => character != '-'))
-                {
-                    if (item.Tag == null) // fuck it // if (!(item.Tag?.Equals(true) ?? true))
-                    {
-                        item.Location = new Point(1, item.Location.Y);
-                        item.Size = new Size(item.Parent.Size.Width - 2, item.Size.Height);
-                    }
-
-                    item.Paint += DrawSeperatorLine;
-                }
-
-                
-                item.MouseDown += new MouseEventHandler((sender, e) =>
-                {
-                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                    MouseIsDown = true;
-                });
-                item.MouseUp   += new MouseEventHandler((sender, e) =>
-                {
-                    MouseIsDown = false;
-                    if (OptionsPageIsOpen)
-                        Azem?.BringToFront();
-                });
-                
-                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
-                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
-                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-            }
-
-            Paint += PaintBorder;
+            Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
         }
 
 
@@ -708,13 +728,20 @@ namespace weapon_data
 
     public class Label : System.Windows.Forms.Label
     {
-        public bool IsSeparatorLine = false;
-        public bool TopMost
+        public bool IsSeparatorLine
         {
-            get => _topMost & IsSeparatorLine;
-            set => _topMost = value;
+            get => _isSeparatorLine;
+            set => _isSeparatorLine = value;
         }
-        private bool _topMost = false;
+        private bool _isSeparatorLine = false;
+
+
+        public bool StretchToFitForm
+        {
+            get => _stretchToFitForm & IsSeparatorLine;
+            set => _stretchToFitForm = value;
+        }
+        private bool _stretchToFitForm = false;
     }
     #endregion
 }

@@ -20,12 +20,6 @@ namespace weapon_data
             Emmet = PropertiesPanel;
             Update(); Refresh();
             
-            
-            Paint += (meh, painter) =>
-            {
-                ((Control)meh).BringToFront();
-                painter.Graphics.DrawLine(pen, new Point(540, 0), new Point(540, Height));
-            };
 
             if (File.Exists($"{Directory.GetCurrentDirectory()}\\sidbase.bin"))
             {
