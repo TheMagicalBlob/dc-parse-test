@@ -195,6 +195,9 @@ namespace weapon_data
 
 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public struct DCHeaderItem
         {
             public DCHeaderItem(byte[] binFile, int address)
@@ -227,7 +230,11 @@ namespace weapon_data
             public long StructAddress;
         }
 
-        
+     
+
+        /// <summary>
+        /// 
+        /// </summary>
         public struct DCMapDef
         {
             public DCMapDef(byte[] binFile, string Type, long Address, string Name = "")
@@ -278,6 +285,10 @@ namespace weapon_data
         }
 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public struct SymbolArrayDef
         {
             public SymbolArrayDef(string name, byte[] binFile, long address)
@@ -300,6 +311,7 @@ namespace weapon_data
             public List<string> Symbols;
             public List<byte[]> Hashes;
         }
+
 
 
         /// <summary>
@@ -339,19 +351,22 @@ namespace weapon_data
             public byte[][][] Hashes;
         }
 
-
     
 
+        /// <summary>
+        /// 
+        /// </summary>
         public struct WeaponGameplayDef
         {
-            public WeaponGameplayDef(string name, byte[] binFile, long address)
+            public WeaponGameplayDef(string Name, byte[] binFile, long address)
             {
                 //#
                 //## Variable Initializations
                 //#
-                Name = name;
-                AmmoCount = 0;
+                this.Name = Name;
                 Address = (int)address;
+
+                AmmoCount = 0;
                 IsFirearm = false;
             
                 FirearmGameplayDefAddress = 0;
@@ -372,7 +387,7 @@ namespace weapon_data
                 //## Parse Weapon Gameplay Definition
                 //#
                 // Load firearm-related variables
-                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_FirearmGameplayDefOffset), 0);
+                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_FirearmGameplayDef_Ptr), 0);
                 if (FirearmGameplayDefAddress != 0)
                 {
                     if (DecodeSIDHash(GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def")
@@ -386,7 +401,7 @@ namespace weapon_data
             
 
 
-                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_MeleeGameplayDefOffset), 0);
+                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_MeleeGameplayDef_Ptr), 0);
                 if (MeleeGameplayDefAddress != 0)
                 {
                     if (DecodeSIDHash(GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def")
@@ -396,7 +411,7 @@ namespace weapon_data
                 }
 
 
-                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_Hud2ReticleDefOffset), 0);
+                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_Hud2ReticleDef_Ptr), 0);
                 if (Hud2ReticleDefAddress != 0)
                 {
                     if (DecodeSIDHash(GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8)) != "hud2-reticle-def")
@@ -416,14 +431,26 @@ namespace weapon_data
             //#
             /// <summary> Weapon Gameplay Definition structure offset. </summary>
             private const byte
-                WD_FirearmGameplayDefOffset = 0x10,
+                WD_UnknownInt_0_at0x00 = 0x00, // unknown
+                WD_UnknownInt_1_at0x04 = 0x04, // unknown
+                WD_UnknownInt_2_at0x08 = 0x08, // unknown
+                WD_UnknownFloat_0_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
+
+                WD_FirearmGameplayDef_Ptr = 0x10, // firearm-gameplay-def*
                     WD_AmmoCountOffset = 0x98,
+                
+                WD_BlindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def
 
-                WD_MeleeGameplayDefOffset = 0x30,
+                WD_MeleeGameplayDef_Ptr = 0x30, // melee-gameplay-def*
 
-                WD_Hud2ReticleDefOffset = 0x58,
+                WD_Hud2ReticleDef_Ptr = 0x58, // hud2-reticle-def*
                     WD_Hud2ReticleDefNameOffset = 0x8,
-                    WD_Hud2ReticleDefSimpleNameOffset = 0x18
+                    WD_Hud2ReticleDefSimpleNameOffset = 0x18,
+
+                WD_UnknownByteArray_0_at0x50 = 0x50, // unknown
+                WD_ZoomCameraDoFSettingsSP_SID = 0x68, // *zoom-camera-dof-settings-sp*
+                WD_ScreenEffectSettings_Ptr = 0x80, // screen-effect-settings*
+                WD_UnknownByteArray_1_at0x88 = 0x88 // unknown
             ;
 
 
@@ -434,6 +461,8 @@ namespace weapon_data
             //#
             public string Name;
             public int Address;
+
+
             public bool IsFirearm;
 
             public long FirearmGameplayDefAddress;
@@ -442,11 +471,14 @@ namespace weapon_data
             public string Hud2ReticleName;
             public string Hud2SimpleReticleName;
 
-
             public int AmmoCount;
         }
 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         public struct MeleeWeaponGameplayDef
         {
             public MeleeWeaponGameplayDef(byte[] binFile, long address, string name = "")
@@ -460,6 +492,11 @@ namespace weapon_data
             public int Address;
         }
 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         public struct Look2Def
         {
             public Look2Def(string name, byte[] binFile, long address)

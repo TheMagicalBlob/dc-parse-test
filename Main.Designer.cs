@@ -44,14 +44,11 @@ namespace weapon_data
             this.PropertiesPanel = new System.Windows.Forms.GroupBox();
             this.binPathTextBox = new weapon_data.TextBox();
             this.label5 = new weapon_data.Label();
-            this.label6 = new weapon_data.Label();
-            this.label4 = new weapon_data.Label();
             this.label3 = new weapon_data.Label();
             this.PropertiesWindowRichTextBox = new weapon_data.RichTextBox();
             this.label2 = new weapon_data.Label();
             this.SeperatorLine2 = new weapon_data.Label();
             this.VersionLabel = new weapon_data.Label();
-            this.SeperatorLine1 = new weapon_data.Label();
             this.label1 = new weapon_data.Label();
             this.ActiveScriptLabel = new weapon_data.Label();
             this.SuspendLayout();
@@ -61,7 +58,7 @@ namespace weapon_data
             this.BinPathBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.BinPathBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BinPathBrowseBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BinPathBrowseBtn.Location = new System.Drawing.Point(469, 73);
+            this.BinPathBrowseBtn.Location = new System.Drawing.Point(3, 73);
             this.BinPathBrowseBtn.Name = "BinPathBrowseBtn";
             this.BinPathBrowseBtn.Size = new System.Drawing.Size(65, 23);
             this.BinPathBrowseBtn.TabIndex = 2;
@@ -73,7 +70,7 @@ namespace weapon_data
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(4, 72);
+            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(150, 141);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
@@ -203,42 +200,14 @@ namespace weapon_data
             this.label5.Text = "---------------------------------------------------------------------------------" +
     "-----------------------------------------------------------------------------";
             // 
-            // label6
-            // 
-            this.label6.Font = new System.Drawing.Font("Cambria", 8F);
-            this.label6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.label6.IsSeparatorLine = false;
-            this.label6.Location = new System.Drawing.Point(603, 21);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(10, 130);
-            this.label6.StretchToFitForm = false;
-            this.label6.TabIndex = 26;
-            this.label6.Tag = "";
-            this.label6.Text = "---------------------------------------------------------------------------------" +
-    "-----------------------------------------------------------------------------";
-            // 
-            // label4
-            // 
-            this.label4.Font = new System.Drawing.Font("Cambria", 8F);
-            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.label4.IsSeparatorLine = true;
-            this.label4.Location = new System.Drawing.Point(573, 21);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(10, 130);
-            this.label4.StretchToFitForm = false;
-            this.label4.TabIndex = 25;
-            this.label4.Tag = "";
-            this.label4.Text = "---------------------------------------------------------------------------------" +
-    "-----------------------------------------------------------------------------";
-            // 
             // label3
             // 
             this.label3.Font = new System.Drawing.Font("Cambria", 8F);
             this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.label3.IsSeparatorLine = true;
-            this.label3.Location = new System.Drawing.Point(536, 6);
+            this.label3.Location = new System.Drawing.Point(537, 20);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(10, 130);
+            this.label3.Size = new System.Drawing.Size(8, 316);
             this.label3.StretchToFitForm = true;
             this.label3.TabIndex = 22;
             this.label3.Tag = "";
@@ -277,8 +246,8 @@ namespace weapon_data
             this.SeperatorLine2.IsSeparatorLine = true;
             this.SeperatorLine2.Location = new System.Drawing.Point(1, 187);
             this.SeperatorLine2.Name = "SeperatorLine2";
-            this.SeperatorLine2.Size = new System.Drawing.Size(539, 17);
-            this.SeperatorLine2.StretchToFitForm = true;
+            this.SeperatorLine2.Size = new System.Drawing.Size(550, 17);
+            this.SeperatorLine2.StretchToFitForm = false;
             this.SeperatorLine2.TabIndex = 21;
             this.SeperatorLine2.Tag = "True";
             this.SeperatorLine2.Text = "---------------------------------------------------------------------------------" +
@@ -296,20 +265,6 @@ namespace weapon_data
             this.VersionLabel.TabIndex = 18;
             this.VersionLabel.Text = "==version==";
             this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // SeperatorLine1
-            // 
-            this.SeperatorLine1.Font = new System.Drawing.Font("Cambria", 8F);
-            this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine1.IsSeparatorLine = true;
-            this.SeperatorLine1.Location = new System.Drawing.Point(3, 89);
-            this.SeperatorLine1.Name = "SeperatorLine1";
-            this.SeperatorLine1.Size = new System.Drawing.Size(644, 13);
-            this.SeperatorLine1.StretchToFitForm = true;
-            this.SeperatorLine1.TabIndex = 15;
-            this.SeperatorLine1.Tag = "";
-            this.SeperatorLine1.Text = "---------------------------------------------------------------------------------" +
-    "-----------------------------------------------------------------------------";
             // 
             // label1
             // 
@@ -344,8 +299,6 @@ namespace weapon_data
             this.Controls.Add(this.binPathTextBox);
             this.Controls.Add(this.optionsMenuDropdownBtn);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.AbortOrCloseBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.PropertiesWindowRichTextBox);
@@ -355,7 +308,6 @@ namespace weapon_data
             this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.bleghBtn);
             this.Controls.Add(this.debugShowAllBtn);
-            this.Controls.Add(this.SeperatorLine1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.ExitBtn);
@@ -389,7 +341,6 @@ namespace weapon_data
         private Button AbortOrCloseBtn;
         private Button ReloadScriptBtn;
         private Label label1;
-        private Label SeperatorLine1;
         private Button debugShowAllBtn;
         #endregion
 
@@ -399,8 +350,6 @@ namespace weapon_data
         private Label label2;
         private Label SeperatorLine2;
         private Label label3;
-        private Label label4;
-        private Label label6;
         private Label label5;
     }
 }

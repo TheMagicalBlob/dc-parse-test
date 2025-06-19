@@ -52,9 +52,6 @@
     <Compile Include="Structs.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StructureOffsets.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Ver.cs">
       <SubType>Form</SubType>
     </Compile>

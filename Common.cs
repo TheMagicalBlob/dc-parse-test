@@ -106,7 +106,7 @@ namespace weapon_data
         public static bool LegacyFolderSelectionDialogue = true;
 
         /// <summary> Return the current state of the options page. </summary>
-        public static bool OptionsPageIsOpen { get => Azem.Visible; }
+        public static bool OptionsPageIsOpen { get => Azem?.Visible ?? false; }
 
         /// <summary> Boolean global for keeping track of the current mouse state. </summary>
         public static bool MouseIsDown = false;
@@ -306,7 +306,7 @@ namespace weapon_data
                     }
                     else {
                         // Vertical Lines
-                        vSeparatorLines.Add(new [] { new Point(item.Location.X + 4, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y), new Point(item.Location.X + 4, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height) });
+                        vSeparatorLines.Add(new [] { new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y), new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height) });
                         Controls.Remove(item);
                     }
                 }
@@ -319,8 +319,9 @@ namespace weapon_data
                 item.MouseUp   += new MouseEventHandler((sender, e) =>
                 {
                     MouseIsDown = false;
-                    if (OptionsPageIsOpen)
-                        Azem?.BringToFront();
+                    if (OptionsPageIsOpen) {
+                        Azem.BringToFront();
+                    }
                 });
                 
                 // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
