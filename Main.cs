@@ -189,6 +189,7 @@ namespace weapon_data
         /// <param name="pathObj"> The string object containing the path to the .bin file to be parsed. </param>
         private void ParseBinFile(object pathObj)
         {
+            blegh = string.Empty;
             var binPath = pathObj?.ToString() ?? "null";
             try {
                 //#
@@ -230,6 +231,8 @@ namespace weapon_data
                 PrintNL("Finished!");
                 CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
                 Venat?.Invoke(abortButtonMammet, new object[] { false });
+
+                File.WriteAllText(Directory.GetCurrentDirectory() + "\\temp.txt", blegh);
             }
             catch(ThreadAbortException) {
                 Venat?.Invoke(abortButtonMammet, new object[] { Abort = false });
@@ -254,8 +257,7 @@ namespace weapon_data
             }
             if (!silent)
             {
-                Venat?.PrintLL($"  # [{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}", Venat?.GetOutputWindowLines().Length ?? 1);
-                Thread.Sleep(500);
+                //Venat?.PrintLL($"  # [{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}", Venat?.GetOutputWindowLines().Length - 1 ?? 1);
             }
 
 
@@ -277,17 +279,17 @@ namespace weapon_data
                     ret = new WeaponGameplayDef(Name, binFile, Address);
                     break;
                 case "melee-weapon-gameplay-def":
-                    //ret = new MeleeWeaponGameplayDef(Name, binFile, Address);
                     break;
+                    //ret = new MeleeWeaponGameplayDef(Name, binFile, Address);
 
                 case "symbol-array":
-                    ret = new SymbolArrayDef(Name, binFile, Address);
                     break;
+                    ret = new SymbolArrayDef(Name, binFile, Address);
 
 
                 case "ammo-to-weapon-array":
-                    ret = new AmmoToWeaponArray(binFile, Address, Name);
                     break;
+                    ret = new AmmoToWeaponArray(binFile, Address, Name);
 
 
                     

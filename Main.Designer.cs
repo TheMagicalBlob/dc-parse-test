@@ -70,7 +70,7 @@ namespace weapon_data
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(150, 141);
+            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(758, 45);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
@@ -110,7 +110,7 @@ namespace weapon_data
             // 
             this.AbortOrCloseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.AbortOrCloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.AbortOrCloseBtn.Location = new System.Drawing.Point(321, 73);
+            this.AbortOrCloseBtn.Location = new System.Drawing.Point(392, 73);
             this.AbortOrCloseBtn.Name = "AbortOrCloseBtn";
             this.AbortOrCloseBtn.Size = new System.Drawing.Size(44, 23);
             this.AbortOrCloseBtn.TabIndex = 0;
@@ -125,7 +125,7 @@ namespace weapon_data
             this.ReloadScriptBtn.Enabled = false;
             this.ReloadScriptBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ReloadScriptBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReloadScriptBtn.Location = new System.Drawing.Point(368, 73);
+            this.ReloadScriptBtn.Location = new System.Drawing.Point(439, 73);
             this.ReloadScriptBtn.Name = "ReloadScriptBtn";
             this.ReloadScriptBtn.Size = new System.Drawing.Size(95, 23);
             this.ReloadScriptBtn.TabIndex = 10;

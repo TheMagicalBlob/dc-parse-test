@@ -17,6 +17,9 @@ namespace weapon_data
         //=================================\\
         #region [Variable Declarations]
 
+        public static string blegh;
+
+
         //#
         //## Script Parsing Globals
         //#
@@ -136,7 +139,7 @@ namespace weapon_data
         /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
         public static RichTextBox OutputWindow;
         public bool redirect = 
-#if DEBUG
+#if false //DEBUG
             true
 #else
             false
@@ -335,8 +338,6 @@ namespace weapon_data
             if (vSeparatorLines.Count > 0) {
                 VSeparatorLines = vSeparatorLines.ToArray();
             }
-            echo($"Vertical: {VSeparatorLines?.Length ?? 0}");
-            echo($"Horizontal: {HSeparatorLines?.Length ?? 0}");
             
             
             MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
@@ -446,16 +447,21 @@ namespace weapon_data
 
         public static void echo(object message = null)
         {
+            # if DEBUG
             var str = message.ToString();
-            Console.WriteLine(str);
-            if (!Console.IsInputRedirected) {
-                Debug.WriteLine(str);
-            }
-
+            
             if (Venat?.redirect ?? false || str.Contains("ERROR"))
             {
                 PrintNL(str);
             }
+            else {
+                Console.WriteLine(str);
+
+                if (!Console.IsInputRedirected) {
+                    Debug.WriteLine(str);
+                }
+            }
+            #endif
         }
 
         /// <summary>
@@ -500,10 +506,10 @@ namespace weapon_data
             // Debug Output
             if (!Console.IsOutputRedirected)
             {
-                Console.WriteLine(str);
+                Debug.WriteLine(str);
             }
             else
-                Debug.WriteLine(str ?? "null");
+                Console.WriteLine(str ?? "null");
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh

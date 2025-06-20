@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 
@@ -361,68 +362,57 @@ namespace weapon_data
             public WeaponGameplayDef(string Name, byte[] binFile, long address)
             {
                 //#
-                //## Variable Initializations
+                //## Variable Declarations
                 //#
                 this.Name = Name;
                 Address = (int)address;
 
                 AmmoCount = 0;
-                IsFirearm = false;
+
             
+                UnknownInt_0_at0x00 = 0x00;
+                UnknownInt_1_at0x04 = 0x04;
+                UnknownInt_2_at0x08 = 0x08;
+                UnknownFloat_0_at0x0C = 0x0C;
+
                 FirearmGameplayDefAddress = 0;
+                AmmoCount = 0;
                 MeleeGameplayDefAddress = 0;
+                BlindfireAutoTargetDef = 0; // blindfire-auto-target-def
                 Hud2ReticleDefAddress = 0;
                 Hud2ReticleName = string.Empty;
                 Hud2SimpleReticleName = string.Empty;
+                
 
-            
-                //#
-                //## Local Variable Declarations
-                //#
 
-            
+                UnknownByteArray_0_at0x50 = null;
+                ZoomCameraDoFSettingsSP = "none";
+                ScreenEffectSettings = 0;
+                UnknownByteArray_1_at0x88 = null;
+
 
                 
                 //#
                 //## Parse Weapon Gameplay Definition
                 //#
                 // Load firearm-related variables
-                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_FirearmGameplayDef_Ptr), 0);
+                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + firearmGameplayDef), 0);
                 if (FirearmGameplayDefAddress != 0)
                 {
-                    if (DecodeSIDHash(GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def")
-                    {
-                        echo($"ERROR Parsing Firearm Gameplay Definition at {FirearmGameplayDefAddress:X}; unexpected id. ({DecodeSIDHash(GetSubArray(binFile, (int)FirearmGameplayDefAddress - 8)) != "firearm-gameplay-def"})");
-                    }
-
-                    IsFirearm = true;
-                    AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)FirearmGameplayDefAddress + WD_AmmoCountOffset), 0);
+                    AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)FirearmGameplayDefAddress + ammoCount), 0);
                 }
             
 
 
-                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_MeleeGameplayDef_Ptr), 0);
-                if (MeleeGameplayDefAddress != 0)
-                {
-                    if (DecodeSIDHash(GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def")
-                    {
-                        echo($"ERROR Parsing Melee Weapon Gameplay Definition at {MeleeGameplayDefAddress:X}; unexpected id. ({DecodeSIDHash(GetSubArray(binFile, (int)MeleeGameplayDefAddress - 8)) != "melee-weapon-gameplay-def"})");
-                    }
-                }
+                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + meleeGameplayDef), 0);
 
-
-                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + WD_Hud2ReticleDef_Ptr), 0);
+                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + hud2ReticleDef), 0);
                 if (Hud2ReticleDefAddress != 0)
                 {
-                    if (DecodeSIDHash(GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8)) != "hud2-reticle-def")
-                    {
-                        echo($"ERROR Parsing Hud2 Reticle Definition at {Hud2ReticleDefAddress:X}; unexpected id. ({DecodeSIDHash(GetSubArray(binFile, (int)Hud2ReticleDefAddress - 8))} != hud2-reticle-def)");
-                    }
-
                     // Read Hud2 Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + WD_Hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
                     // Read Hud2 Simple Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + WD_Hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
                 }
             }
 
@@ -431,26 +421,26 @@ namespace weapon_data
             //#
             /// <summary> Weapon Gameplay Definition structure offset. </summary>
             private const byte
-                WD_UnknownInt_0_at0x00 = 0x00, // unknown
-                WD_UnknownInt_1_at0x04 = 0x04, // unknown
-                WD_UnknownInt_2_at0x08 = 0x08, // unknown
-                WD_UnknownFloat_0_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
+                unknownInt_0_at0x00 = 0x00, // unknown
+                unknownInt_1_at0x04 = 0x04, // unknown
+                unknownInt_2_at0x08 = 0x08, // unknown
+                unknownFloat_0_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
 
-                WD_FirearmGameplayDef_Ptr = 0x10, // firearm-gameplay-def*
-                    WD_AmmoCountOffset = 0x98,
+                firearmGameplayDef = 0x10, // firearm-gameplay-def*
+                    ammoCount = 0x98,
                 
-                WD_BlindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def
+                blindfireAutoTargetDef = 0x18, // blindfire-auto-target-def
 
-                WD_MeleeGameplayDef_Ptr = 0x30, // melee-gameplay-def*
+                meleeGameplayDef = 0x30, // melee-gameplay-def*
 
-                WD_Hud2ReticleDef_Ptr = 0x58, // hud2-reticle-def*
-                    WD_Hud2ReticleDefNameOffset = 0x8,
-                    WD_Hud2ReticleDefSimpleNameOffset = 0x18,
+                hud2ReticleDef = 0x58, // hud2-reticle-def*
+                    hud2ReticleDefNameOffset = 0x8,
+                    hud2ReticleDefSimpleNameOffset = 0x18,
 
-                WD_UnknownByteArray_0_at0x50 = 0x50, // unknown
-                WD_ZoomCameraDoFSettingsSP_SID = 0x68, // *zoom-camera-dof-settings-sp*
-                WD_ScreenEffectSettings_Ptr = 0x80, // screen-effect-settings*
-                WD_UnknownByteArray_1_at0x88 = 0x88 // unknown
+                unknownByteArray_0_at0x50 = 0x50, // unknown
+                zoomCameraDoFSettingsSP = 0x68, // *zoom-camera-dof-settings-sp*
+                screenEffectSettings = 0x80, // screen-effect-settings*
+                unknownByteArray_1_at0x88 = 0x88 // unknown
             ;
 
 
@@ -463,15 +453,25 @@ namespace weapon_data
             public int Address;
 
 
-            public bool IsFirearm;
+            public int UnknownInt_0_at0x00;
+            public int UnknownInt_1_at0x04;
+            public int UnknownInt_2_at0x08;
+            public float UnknownFloat_0_at0x0C;
 
             public long FirearmGameplayDefAddress;
+                public int AmmoCount;
+
+            public long BlindfireAutoTargetDef;
+
             public long MeleeGameplayDefAddress;
             public long Hud2ReticleDefAddress;
-            public string Hud2ReticleName;
-            public string Hud2SimpleReticleName;
-
-            public int AmmoCount;
+                public string Hud2ReticleName;
+                public string Hud2SimpleReticleName;
+            
+            public byte[] UnknownByteArray_0_at0x50;
+            public string ZoomCameraDoFSettingsSP;
+            public long ScreenEffectSettings;
+            public byte[] UnknownByteArray_1_at0x88;
         }
 
 
