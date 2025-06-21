@@ -189,13 +189,18 @@ namespace weapon_data
         /// <param name="pathObj"> The string object containing the path to the .bin file to be parsed. </param>
         private void ParseBinFile(object pathObj)
         {
-            blegh = string.Empty;
             var binPath = pathObj?.ToString() ?? "null";
             try {
                 //#
                 //## Load provided DC file.
                 //#
-                DCFile = File.ReadAllBytes(binPath);
+                try {
+                    DCFile = File.ReadAllBytes(binPath);
+                }
+                catch(IOException) {
+                    PrintNL($"\nERROR: Selected File is Being Used by Another Process.");
+                    goto error;
+                }
                 ActiveFileName = binPath.Substring(binPath.LastIndexOf('\\') + 1);
 
                 
@@ -218,9 +223,6 @@ namespace weapon_data
                     DCEntries[tableIndex] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[tableIndex].Type, (int)DCHeader.HeaderItems[tableIndex].StructAddress, DCHeader.HeaderItems[tableIndex].Name);
                 }
 
-                Venat?.Invoke(reloadButtonMammet, new object[] { true });
-                Venat?.Invoke(abortButtonMammet, new object[] { null });
-
                 
 
 
@@ -228,14 +230,24 @@ namespace weapon_data
                 //## Setup Form
                 //#
 
-                PrintNL("Finished!");
+                PrintNL("\nFinished!");
                 CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
-                Venat?.Invoke(abortButtonMammet, new object[] { false });
 
-                File.WriteAllText(Directory.GetCurrentDirectory() + "\\temp.txt", blegh);
+                Venat?.Invoke(reloadButtonMammet, new object[] { true });
+                Venat?.Invoke(abortButtonMammet, new object[] { 1 });
+                return;
+
+                error:;
+                CTUpdateLabel(ActiveFileName + " Error Loading dc File!!!");
+                Venat?.Invoke(abortButtonMammet, new object[] { false });
             }
             catch(ThreadAbortException) {
-                Venat?.Invoke(abortButtonMammet, new object[] { Abort = false });
+                Venat?.Invoke(abortButtonMammet, new object[] { 0 });
+                Venat?.Invoke(abortButtonMammet, new object[] { false });
+            }
+            catch (Exception fuck) {
+                PrintNL($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
+                MessageBox.Show($"An Unexpected {fuck.GetType()} Occured While");
             }
         }
 
@@ -257,7 +269,7 @@ namespace weapon_data
             }
             if (!silent)
             {
-                //Venat?.PrintLL($"  # [{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}", Venat?.GetOutputWindowLines().Length - 1 ?? 1);
+                Venat?.PrintLL($"  # [{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}", Venat?.GetOutputWindowLines().Length - 1 ?? 1);
             }
 
 
@@ -276,7 +288,7 @@ namespace weapon_data
                     break;
 
                 case "weapon-gameplay-def":
-                    ret = new WeaponGameplayDef(Name, binFile, Address);
+                    ret = new WeaponGameplayDef(binFile, Address, Name);
                     break;
                 case "melee-weapon-gameplay-def":
                     break;

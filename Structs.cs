@@ -54,53 +54,9 @@ namespace weapon_data
         //=================================\\
         #region [Structure Definitions]
 
-        public struct MapDefinition
-        {
-            public MapDefinition(byte[] binFile, long address, string name = null)
-            {
-                Name = name ?? "";
-                Address = address;
-
-                Type = DecodeSIDHash(GetSubArray(binFile, (int)address + 8));
-                Pointer = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 16), 0);
-
-                
-                Venat?.WeaponDefinitions.Add(new WeaponGameplayDef(Name, binFile, Address));
-                var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
-                var mapSymbolArray = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
-                long mapStructArray = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
-
-
-                PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]\n");
-                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
-                    
-                for (int arrayIndex = 0; arrayIndex < mapLength; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
-                {
-                    Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", outputLine);
-
-
-                    var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
-                    var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
-
-                    LoadDCStructByType(binFile, structType, structAddr, DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray)));
-                }
-                PrintNL();
-
-
-                if (Name.Length < 1)
-                {
-                    Name = "unnamed";
-                }
-            }
-
-            public long Address;
-            public string Name;
-            public string Type;
-            public long Pointer;
-
-
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public struct DCFileHeader
         {
             public DCFileHeader(byte[] binFile, string binName)
@@ -195,9 +151,8 @@ namespace weapon_data
         }
 
 
-
         /// <summary>
-        /// 
+        /// An individual item (module?) from the array at the beginning of the DC file.
         /// </summary>
         public struct DCHeaderItem
         {
@@ -206,7 +161,8 @@ namespace weapon_data
                 Address = address;
                 Name = DecodeSIDHash(GetSubArray(binFile, address));
                 Type = DecodeSIDHash(GetSubArray(binFile, address + 8));
-                StructAddress = BitConverter.ToInt64(GetSubArray(binFile, address + 16), 0);
+
+                StructAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
             }
 
 
@@ -231,7 +187,52 @@ namespace weapon_data
             public long StructAddress;
         }
 
-     
+
+
+        /// <summary>
+        /// A collection of whatever-the-fuck naughty dog felt like including. This may be annoying.
+        /// </summary>
+        public struct MapDefinition
+        {
+            public MapDefinition(byte[] binFile, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+
+                Type = DecodeSIDHash(GetSubArray(binFile, (int)Address + 8));
+                Pointer = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
+
+                
+                var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)this.Address), 0);
+                var mapSymbolArray = BitConverter.ToInt64(GetSubArray(binFile, (int)this.Address + 8), 0);
+                long mapStructArray = BitConverter.ToInt64(GetSubArray(binFile, (int)this.Address + 16), 0);
+
+
+                PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]\n");
+                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
+                    
+                for (int arrayIndex = 0; arrayIndex < mapLength; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
+                {
+                    Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", outputLine);
+
+
+                    var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
+                    var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
+
+                    LoadDCStructByType(binFile, structType, structAddr, DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray)));
+                }
+                PrintNL();
+            }
+
+            public long Address;
+            public string Name;
+            public string Type;
+            public long Pointer;
+
+
+        }
+
+
 
         /// <summary>
         /// 
@@ -359,32 +360,31 @@ namespace weapon_data
         /// </summary>
         public struct WeaponGameplayDef
         {
-            public WeaponGameplayDef(string Name, byte[] binFile, long address)
+            public WeaponGameplayDef(byte[] binFile, long Address, string Name)
             {
                 //#
                 //## Variable Declarations
                 //#
                 this.Name = Name;
-                Address = (int)address;
-
-                AmmoCount = 0;
+                this.Address = Address;
 
             
-                UnknownInt_0_at0x00 = 0x00;
-                UnknownInt_1_at0x04 = 0x04;
-                UnknownInt_2_at0x08 = 0x08;
-                UnknownFloat_0_at0x0C = 0x0C;
+                UnknownInt_0_at0x00 = 0;
+                UnknownInt_1_at0x04 = 0;
+                UnknownInt_2_at0x08 = 0;
+                UnknownFloat_0_at0x0C = 0;
 
                 FirearmGameplayDefAddress = 0;
-                AmmoCount = 0;
+                    AmmoCount = 0;
+
                 MeleeGameplayDefAddress = 0;
-                BlindfireAutoTargetDef = 0; // blindfire-auto-target-def
-                Hud2ReticleDefAddress = 0;
-                Hud2ReticleName = string.Empty;
-                Hud2SimpleReticleName = string.Empty;
                 
-
-
+                BlindfireAutoTargetDef = 0;
+                
+                Hud2ReticleDefAddress = 0;
+                    Hud2ReticleName = string.Empty;
+                    Hud2SimpleReticleName = string.Empty;
+                
                 UnknownByteArray_0_at0x50 = null;
                 ZoomCameraDoFSettingsSP = "none";
                 ScreenEffectSettings = 0;
@@ -392,34 +392,47 @@ namespace weapon_data
 
 
                 
+
                 //#
                 //## Parse Weapon Gameplay Definition
                 //#
+
                 // Load firearm-related variables
-                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + firearmGameplayDef), 0);
+                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmGameplayDef), 0);
+                
                 if (FirearmGameplayDefAddress != 0)
                 {
                     AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)FirearmGameplayDefAddress + ammoCount), 0);
                 }
             
 
+                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + meleeGameplayDef), 0);
 
-                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + meleeGameplayDef), 0);
 
-                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)address + hud2ReticleDef), 0);
+                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + hud2ReticleDef), 0);
+                
                 if (Hud2ReticleDefAddress != 0)
                 {
                     // Read Hud2 Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefNameOffset), 0); binFile[i] != 0; Hud2ReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefNameOffset), 0); binFile[i] != 0;)
+                    {
+                        Hud2ReticleName += (char)binFile[i++];
+                    }
                     // Read Hud2 Simple Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0; Hud2SimpleReticleName += (char)binFile[i++]);
+                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0;)
+                    {
+                        Hud2SimpleReticleName += (char)binFile[i++];
+                    }
                 }
             }
+
 
             //#
             //## Private Members
             //#
-            /// <summary> Weapon Gameplay Definition structure offset. </summary>
+            /// <summary>
+            /// Weapon Gameplay Definition structure offset.
+            /// </summary>
             private const byte
                 unknownInt_0_at0x00 = 0x00, // unknown
                 unknownInt_1_at0x04 = 0x04, // unknown
@@ -450,7 +463,7 @@ namespace weapon_data
             //## Public Members (heh)
             //#
             public string Name;
-            public int Address;
+            public long Address;
 
 
             public int UnknownInt_0_at0x00;
@@ -464,6 +477,7 @@ namespace weapon_data
             public long BlindfireAutoTargetDef;
 
             public long MeleeGameplayDefAddress;
+
             public long Hud2ReticleDefAddress;
                 public string Hud2ReticleName;
                 public string Hud2SimpleReticleName;
@@ -479,17 +493,240 @@ namespace weapon_data
         /// <summary>
         /// 
         /// </summary>
-        public struct MeleeWeaponGameplayDef
+        public struct FirearmGameplayDef
         {
-            public MeleeWeaponGameplayDef(byte[] binFile, long address, string name = "")
+            public FirearmGameplayDef(byte[] binFile, long Address, string Name = "unnamed")
             {
-                Address = (int)address;
-                Name = name == null | name.Length < 1 ? "unnamed" : name;
+                //#
+                //## Variable Declarations
+                //#
+                // TODO:
+                // - Remove the initializations for variables once code to read said variable has been added
+                this.Name = Name;
+                this.Address = Address;
+
+                AmmoTypes_Ptr = 0;
+                UnknownFloat_at0x14 = 0;
+                UnknownFloat_at0x18 = 0;
+                UnknownFloat_at0x24 = 0;
+                UnknownFloat_at0x28 = 0;
+                UnknownInt_at0x20 = 0;
+                UnknownFloat_at0x2C = 0;
+                UnknownFloat_at0x30 = 0;
+                UnknownFloat_at0x48 = 0;
+                UnknownFloat_at0x50 = 0;
+                UnknownFloat_at0x54 = 0;
+                UnknownFloat_at0x60 = 0;
+                UnknownInt_at0x68 = 0;
+                UnknownFloat_at0x6C = 0;
+                UnknownFloat_at0x70 = 0;
+                UnknownFloat_at0x74 = 0;
+                UnknownFloat_at0x78 = 0;
+                UnknownFloat_at0x7C = 0;
+                UnknownFloat_at0x80 = 0;
+                UnknownFloat_at0x84 = 0;
+                UnknownFloat_at0x88 = 0;
+                UnknownFloat_at0x8C = 0;
+                UnknownFloat_at0xA0 = 0;
+                UnknownFloat_at0xA4 = 0;
+                UnknownFloat_at0xA8 = 0;
+                UnknownFloat_at0xAC = 0;
+                ProneAimSID = 0;
+                ScopedLagSettings_Ptr = 0;
+                UnknownFloat_at0xC0 = 0;
+                UnknownFloat_at0xC4 = 0;
+                UnknownFloat_at0xC8 = 0;
+                UnknownFloat_at0xCC = 0;
+                AmmoCount = 0;
+                FirearmAimDeviationDef0_Ptr = 0;
+                FirearmAimDeviationDef1_Ptr = 0;
+                UnknownFloat_at0xE0 = 0;
+                UnknownFloat_at0xE4 = 0;
+                UnknownFloat_at0xE8 = 0;
+                FirearmKickbackDef0_Ptr = 0;
+                FirearmKickbackDef1_Ptr = 0;
+                FirearmKickbackDef2_Ptr = 0;
+                FirearmKickbackDef3_Ptr = 0;
+                UnknownFloat_at0x118 = 0;
+                UnknownFloat_at0x120 = 0;
+                LerpAimSwaySettings0_Ptr = 0;
+                LerpAimSwaySettings1_Ptr = 0;
+                LerpAimSwaySettings2_Ptr = 0;
+                SwayHoldBreathSettings0_Ptr = 0;
+                SwayHoldBreathSettings1_Ptr = 0;
+                UnknownInt_at0x158 = 0;
+                UnknownFloat_at0x15C = 0;
+                UnknownFloat_at0x160 = 0;
+                UnknownFloat_at0x164 = 0;
+                UnknownFloat_at0x168 = 0;
+                UnknownFloat_at0x16C = 0;
+                UnknownInt_at0x194 = 0;
+                UnknownFloat_at0x19C = 0;
             }
 
-            
+
+            /// <summary>
+            /// Firearm Gameplay Definition structure offset.
+            /// </summary>
+            private const int
+                ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
+                unknownFloat_at0x14 = 0x14,
+                unknownFloat_at0x18 = 0x18,
+                unknownFloat_at0x24 = 0x24,
+                unknownFloat_at0x28 = 0x28,
+                unknownInt_at0x20 = 0x20,
+                unknownFloat_at0x2C = 0x2C,
+                unknownFloat_at0x30 = 0x30,
+                unknownFloat_at0x48 = 0x48,
+                unknownFloat_at0x50 = 0x50,
+                unknownFloat_at0x54 = 0x54,
+                unknownFloat_at0x60 = 0x60,
+                unknownInt_at0x68 = 0x68,
+                unknownFloat_at0x6C = 0x6C,
+                unknownFloat_at0x70 = 0x70,
+                unknownFloat_at0x74 = 0x74,
+                unknownFloat_at0x78 = 0x78,
+                unknownFloat_at0x7C = 0x7C,
+                unknownFloat_at0x80 = 0x80,
+                unknownFloat_at0x84 = 0x84,
+                unknownFloat_at0x88 = 0x88,
+                unknownFloat_at0x8C = 0x8C,
+                unknownFloat_at0xA0 = 0xA0,
+                unknownFloat_at0xA4 = 0xA4,
+                unknownFloat_at0xA8 = 0xA8,
+                unknownFloat_at0xAC = 0xAC,
+                proneAimSID = 0xB8,
+                scopedLagSettings_Ptr = 0xB0, // scoped-lag-settings*
+                unknownFloat_at0xC0 = 0xC0,
+                unknownFloat_at0xC4 = 0xC4,
+                unknownFloat_at0xC8 = 0xC8,
+                unknownFloat_at0xCC = 0xCC,
+                ammoCount = 0x98, // integer (long or int?) amount of base ammo
+                firearmAimDeviationDef0_Ptr = 0xD0, // firearm-aim-deviation-def
+                firearmAimDeviationDef1_Ptr = 0xD8, // firearm-aim-deviation-def
+                unknownFloat_at0xE0 = 0xE0, // unknown float
+                unknownFloat_at0xE4 = 0xE4, // unknown float
+                unknownFloat_at0xE8 = 0xE8, // unknown float
+                firearmKickbackDef0_Ptr = 0xF0, // firearm-kickback-def*
+                firearmKickbackDef1_Ptr = 0xF8, // firearm-kickback-def*
+                firearmKickbackDef2_Ptr = 0x108, // firearm-kickback-def*
+                firearmKickbackDef3_Ptr = 0x110, // firearm-kickback-def*
+                unknownFloat_at0x118 = 0x118, // unknown float
+                unknownFloat_at0x120 = 0x120, // unknown float
+                lerpAimSwaySettings0_Ptr = 0x128, // lerp-aim-sway-settings
+                lerpAimSwaySettings1_Ptr = 0x130, // lerp-aim-sway-settings
+                lerpAimSwaySettings2_Ptr = 0x140, // lerp-aim-sway-settings
+                swayHoldBreathSettings0_Ptr = 0x148, // sway-hold-breath-settings*
+                swayHoldBreathSettings1_Ptr = 0x150, // sway-hold-breath-settings*
+                unknownInt_at0x158 = 0x158,
+                unknownFloat_at0x15C = 0x15C,
+                unknownFloat_at0x160 = 0x160, // unknown float
+                unknownFloat_at0x164 = 0x164, // unknown float
+                unknownFloat_at0x168 = 0x168, // unknown float
+                unknownFloat_at0x16C = 0x16C, // unknown float
+                unknownInt_at0x194 = 0x194,
+                unknownFloat_at0x19C = 0x19C    
+            ;
+
+            //#
+            //## Private Members
+            //#
+
+
+
+
+            //#
+            //## Public Members
+            //#
             public string Name;
-            public int Address;
+            public long Address;
+
+            public ulong AmmoTypes_Ptr; // symbol-array containing ammo type names
+            public float UnknownFloat_at0x14;
+            public float UnknownFloat_at0x18;
+            public float UnknownFloat_at0x24;
+            public float UnknownFloat_at0x28;
+            public int   UnknownInt_at0x20;
+            public float UnknownFloat_at0x2C;
+            public float UnknownFloat_at0x30;
+            public float UnknownFloat_at0x48;
+            public float UnknownFloat_at0x50;
+            public float UnknownFloat_at0x54;
+            public float UnknownFloat_at0x60;
+            public int   UnknownInt_at0x68;
+            public float UnknownFloat_at0x6C;
+            public float UnknownFloat_at0x70;
+            public float UnknownFloat_at0x74;
+            public float UnknownFloat_at0x78;
+            public float UnknownFloat_at0x7C;
+            public float UnknownFloat_at0x80;
+            public float UnknownFloat_at0x84;
+            public float UnknownFloat_at0x88;
+            public float UnknownFloat_at0x8C;
+            public float UnknownFloat_at0xA0;
+            public float UnknownFloat_at0xA4;
+            public float UnknownFloat_at0xA8;
+            public float UnknownFloat_at0xAC;
+            public ulong ProneAimSID;
+            public ulong ScopedLagSettings_Ptr; // scoped-lag-settings*
+            public float UnknownFloat_at0xC0;
+            public float UnknownFloat_at0xC4;
+            public float UnknownFloat_at0xC8;
+            public float UnknownFloat_at0xCC;
+            public long AmmoCount; // integer (long or int?) amount of base ammo
+            public ulong FirearmAimDeviationDef0_Ptr; // firearm-aim-deviation-def
+            public ulong FirearmAimDeviationDef1_Ptr; // firearm-aim-deviation-def
+            public float UnknownFloat_at0xE0; // Unknown float
+            public float UnknownFloat_at0xE4; // Unknown float
+            public float UnknownFloat_at0xE8; // Unknown float
+            public ulong FirearmKickbackDef0_Ptr; // firearm-kickback-def*
+            public ulong FirearmKickbackDef1_Ptr; // firearm-kickback-def*
+            public ulong FirearmKickbackDef2_Ptr; // firearm-kickback-def*
+            public ulong FirearmKickbackDef3_Ptr; // firearm-kickback-def*
+            public float UnknownFloat_at0x118; // Unknown float
+            public float UnknownFloat_at0x120; // Unknown float
+            public ulong LerpAimSwaySettings0_Ptr; // lerp-aim-sway-settings
+            public ulong LerpAimSwaySettings1_Ptr; // lerp-aim-sway-settings
+            public ulong LerpAimSwaySettings2_Ptr; // lerp-aim-sway-settings
+            public ulong SwayHoldBreathSettings0_Ptr; // sway-hold-breath-settings*
+            public ulong SwayHoldBreathSettings1_Ptr; // sway-hold-breath-settings*
+            public int UnknownInt_at0x158;
+            public float UnknownFloat_at0x15C;
+            public float UnknownFloat_at0x160; // Unknown float
+            public float UnknownFloat_at0x164; // Unknown float
+            public float UnknownFloat_at0x168; // Unknown float
+            public float UnknownFloat_at0x16C; // Unknown float
+            public int UnknownInt_at0x194;
+            public float UnknownFloat_at0x19C;
+        }
+
+
+        public struct Hud2ReticleDef
+        {
+            public Hud2ReticleDef(byte[] binFile, long Address, string Name = "unnamed")
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct MeleeWeaponGameplayDef
+        {
+            public MeleeWeaponGameplayDef(byte[] binFile, long Address, string Name = "unnamed")
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
         }
 
 
@@ -499,10 +736,14 @@ namespace weapon_data
         /// </summary>
         public struct Look2Def
         {
-            public Look2Def(string name, byte[] binFile, long address)
+            public Look2Def(byte[] binFile, long Address, string Name = "unnamed")
             {
-
+                this.Name = Name;
+                this.Address = Address;
             }
+
+            public string Name;
+            public long Address;
         }
         #endregion
     }

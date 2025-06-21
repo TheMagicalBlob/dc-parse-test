@@ -17,8 +17,6 @@ namespace weapon_data
         //=================================\\
         #region [Variable Declarations]
 
-        public static string blegh;
-
 
         //#
         //## Script Parsing Globals
@@ -167,9 +165,9 @@ namespace weapon_data
 
         public binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) =>
         {
-            if (obj == null)
+            if (obj.GetType() == typeof(byte))
             {
-                var newIndex = abortBtn.Text == "Abort" ? 1 : 0;
+                byte newIndex = (byte) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0));
 
                 abortBtn.Text = new[] { "Abort", "Close File" }[newIndex];
                 
