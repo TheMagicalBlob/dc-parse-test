@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static weapon_data.Main;
 
 
 namespace weapon_data
@@ -367,28 +368,33 @@ namespace weapon_data
                 //#
                 this.Name = Name;
                 this.Address = Address;
-
-            
-                UnknownInt_0_at0x00 = 0;
-                UnknownInt_1_at0x04 = 0;
-                UnknownInt_2_at0x08 = 0;
-                UnknownFloat_0_at0x0C = 0;
-
-                FirearmGameplayDefAddress = 0;
-                    AmmoCount = 0;
-
-                MeleeGameplayDefAddress = 0;
                 
-                BlindfireAutoTargetDef = 0;
-                
-                Hud2ReticleDefAddress = 0;
-                    Hud2ReticleName = string.Empty;
-                    Hud2SimpleReticleName = string.Empty;
-                
-                UnknownByteArray_0_at0x50 = null;
-                ZoomCameraDoFSettingsSP = "none";
-                ScreenEffectSettings = 0;
-                UnknownByteArray_1_at0x88 = null;
+				# region [variable initializations]
+				UnknownInt_0_at0x00 = 0;
+				UnknownInt_1_at0x04 = 0;
+				UnknownInt_2_at0x08 = 0;
+			
+				UnknownFloat_0_at0x0C = 0;
+				BlindfireAutoTargetDef = 0;
+			
+				UnknownLong_0_at0x20 = 0;
+				UnknownLong_1_at0x28 = 0;
+			
+				MeleeGameplayDef = 0;
+			
+				UnknownLong_2_at0x38 = 0;
+				UnknownLong_3_at0x40 = 0;
+				UnknownLong_4_at0x48 = 0;
+				UnknownByteArray_0_at0x50 = null;
+			
+				UnknownLong_5_at0x60 = 0;
+				ZoomCameraDoFSettingsSP = 0;
+				ZoomSniperCameraDoFSettingsSP = 0;
+				UnknownLong_6_at0x78 = 0;
+				ScreenEffectSettings = 0;
+				UnknownByteArray_1_at0x88 = null;
+				#endregion [variable initializations]
+
 
 
                 
@@ -398,32 +404,14 @@ namespace weapon_data
                 //#
 
                 // Load firearm-related variables
-                FirearmGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmGameplayDef), 0);
+                FirearmGameplayDef = new FirearmGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmGameplayDef_Ptr), 0), Name);
                 
-                if (FirearmGameplayDefAddress != 0)
-                {
-                    AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)FirearmGameplayDefAddress + ammoCount), 0);
-                }
-            
 
-                MeleeGameplayDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + meleeGameplayDef), 0);
+                MeleeGameplayDef = 0; // new MeleeGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + meleeGameplayDef_Ptr), 0), Name);
 
 
-                Hud2ReticleDefAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + hud2ReticleDef), 0);
+                Hud2ReticleDef = new Hud2ReticleDef(binFile,  BitConverter.ToInt64(GetSubArray(binFile, (int)Address + hud2ReticleDef_Ptr), 0), Name);
                 
-                if (Hud2ReticleDefAddress != 0)
-                {
-                    // Read Hud2 Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefNameOffset), 0); binFile[i] != 0;)
-                    {
-                        Hud2ReticleName += (char)binFile[i++];
-                    }
-                    // Read Hud2 Simple Reticle Name
-                    for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Hud2ReticleDefAddress + hud2ReticleDefSimpleNameOffset), 0); binFile[i] != 0;)
-                    {
-                        Hud2SimpleReticleName += (char)binFile[i++];
-                    }
-                }
             }
 
 
@@ -433,59 +421,112 @@ namespace weapon_data
             /// <summary>
             /// Weapon Gameplay Definition structure offset.
             /// </summary>
-            private const byte
-                unknownInt_0_at0x00 = 0x00, // unknown
-                unknownInt_1_at0x04 = 0x04, // unknown
-                unknownInt_2_at0x08 = 0x08, // unknown
-                unknownFloat_0_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
+			private const int
+				# region [offsets]
+				unknownInt_0_at0x00 = 0x00, // unknown uint
+				unknownInt_1_at0x04 = 0x04, // unknown uint
+				unknownInt_2_at0x08 = 0x08, // unknown uint
+				
+				unknownFloat_0_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
+				firearmGameplayDef_Ptr = 0x10, // firearm-gameplay-def*
+				blindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def
+				
+				unknownLong_0_at0x20 = 0x20, // unknown ulong
+				unknownLong_1_at0x28 = 0x28, // unknown ulong
+				
+				meleeGameplayDef_Ptr = 0x30, // melee-gameplay-def*
+				
+				unknownLong_2_at0x38 = 0x38, // unknown ulong
+				unknownLong_3_at0x40 = 0x40, // unknown ulong
+				unknownLong_4_at0x48 = 0x48, // unknown ulong
+				unknownByteArray_0_at0x50 = 0x50, // unknown ubyte
+				
+				hud2ReticleDef_Ptr = 0x58, // hud2-reticle-def*
+				unknownLong_5_at0x60 = 0x60, // unknown ulong
+				zoomCameraDoFSettingsSP = 0x68, // *zoom-camera-dof-settings-sp*
+				zoomSniperCameraDoFSettingsSP = 0x70, // *zoom-sniper-camera-dof-settings-sp*
+				unknownLong_6_at0x78 = 0x78, // unknown ulong
+				screenEffectSettings_Ptr = 0x80, // screen-effect-settings*
+				unknownByteArray_1_at0x88 = 0x88 // unknown ubyte
+				#endregion [offsets]
+			;
 
-                firearmGameplayDef = 0x10, // firearm-gameplay-def*
-                    ammoCount = 0x98,
-                
-                blindfireAutoTargetDef = 0x18, // blindfire-auto-target-def
 
-                meleeGameplayDef = 0x30, // melee-gameplay-def*
-
-                hud2ReticleDef = 0x58, // hud2-reticle-def*
-                    hud2ReticleDefNameOffset = 0x8,
-                    hud2ReticleDefSimpleNameOffset = 0x18,
-
-                unknownByteArray_0_at0x50 = 0x50, // unknown
-                zoomCameraDoFSettingsSP = 0x68, // *zoom-camera-dof-settings-sp*
-                screenEffectSettings = 0x80, // screen-effect-settings*
-                unknownByteArray_1_at0x88 = 0x88 // unknown
-            ;
-
-
-
+            
             
             //#
             //## Public Members (heh)
             //#
             public string Name;
             public long Address;
-
-
-            public int UnknownInt_0_at0x00;
-            public int UnknownInt_1_at0x04;
-            public int UnknownInt_2_at0x08;
-            public float UnknownFloat_0_at0x0C;
-
-            public long FirearmGameplayDefAddress;
-                public int AmmoCount;
-
-            public long BlindfireAutoTargetDef;
-
-            public long MeleeGameplayDefAddress;
-
-            public long Hud2ReticleDefAddress;
-                public string Hud2ReticleName;
-                public string Hud2SimpleReticleName;
             
-            public byte[] UnknownByteArray_0_at0x50;
-            public string ZoomCameraDoFSettingsSP;
-            public long ScreenEffectSettings;
-            public byte[] UnknownByteArray_1_at0x88;
+
+			#region [variable declarations]
+			/// <summary> unknown uint <summary/>
+			public uint UnknownInt_0_at0x00;
+
+			/// <summary> unknown uint <summary/>
+			public uint UnknownInt_1_at0x04;
+
+			/// <summary> unknown uint <summary/>
+			public uint UnknownInt_2_at0x08;
+
+			
+			/// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
+			public float UnknownFloat_0_at0x0C;
+
+			/// <summary> firearm-gameplay-def* <summary/>
+			public FirearmGameplayDef FirearmGameplayDef;
+
+			/// <summary> blindfire-auto-target-def <summary/>
+			public ulong BlindfireAutoTargetDef;
+
+			
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_0_at0x20;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_1_at0x28;
+
+			
+			/// <summary> melee-gameplay-def* <summary/>
+			public ulong MeleeGameplayDef;
+
+			
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_2_at0x38;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_3_at0x40;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_4_at0x48;
+
+			/// <summary> unknown ubyte <summary/>
+			public byte[] UnknownByteArray_0_at0x50;
+
+			
+			/// <summary> hud2-reticle-def* <summary/>
+			public Hud2ReticleDef Hud2ReticleDef;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_5_at0x60;
+
+			/// <summary> *zoom-camera-dof-settings-sp* <summary/>
+			public ulong ZoomCameraDoFSettingsSP;
+
+			/// <summary> *zoom-sniper-camera-dof-settings-sp* <summary/>
+			public ulong ZoomSniperCameraDoFSettingsSP;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownLong_6_at0x78;
+
+			/// <summary> screen-effect-settings* <summary/>
+			public ulong ScreenEffectSettings;
+
+			/// <summary> unknown ubyte <summary/>
+			public byte[] UnknownByteArray_1_at0x88;
+			#endregion [varaible declarations]
         }
 
 
@@ -498,206 +539,379 @@ namespace weapon_data
             public FirearmGameplayDef(byte[] binFile, long Address, string Name = "unnamed")
             {
                 //#
-                //## Variable Declarations
+                //## Variable Initializations
                 //#
+                #region [variable initializations]
                 // TODO:
                 // - Remove the initializations for variables once code to read said variable has been added
                 this.Name = Name;
                 this.Address = Address;
 
-                AmmoTypes_Ptr = 0;
-                UnknownFloat_at0x14 = 0;
-                UnknownFloat_at0x18 = 0;
-                UnknownFloat_at0x24 = 0;
-                UnknownFloat_at0x28 = 0;
-                UnknownInt_at0x20 = 0;
-                UnknownFloat_at0x2C = 0;
-                UnknownFloat_at0x30 = 0;
-                UnknownFloat_at0x48 = 0;
-                UnknownFloat_at0x50 = 0;
-                UnknownFloat_at0x54 = 0;
-                UnknownFloat_at0x60 = 0;
-                UnknownInt_at0x68 = 0;
-                UnknownFloat_at0x6C = 0;
-                UnknownFloat_at0x70 = 0;
-                UnknownFloat_at0x74 = 0;
-                UnknownFloat_at0x78 = 0;
-                UnknownFloat_at0x7C = 0;
-                UnknownFloat_at0x80 = 0;
-                UnknownFloat_at0x84 = 0;
-                UnknownFloat_at0x88 = 0;
-                UnknownFloat_at0x8C = 0;
-                UnknownFloat_at0xA0 = 0;
-                UnknownFloat_at0xA4 = 0;
-                UnknownFloat_at0xA8 = 0;
-                UnknownFloat_at0xAC = 0;
-                ProneAimSID = 0;
-                ScopedLagSettings_Ptr = 0;
-                UnknownFloat_at0xC0 = 0;
-                UnknownFloat_at0xC4 = 0;
-                UnknownFloat_at0xC8 = 0;
-                UnknownFloat_at0xCC = 0;
-                AmmoCount = 0;
-                FirearmAimDeviationDef0_Ptr = 0;
-                FirearmAimDeviationDef1_Ptr = 0;
-                UnknownFloat_at0xE0 = 0;
-                UnknownFloat_at0xE4 = 0;
-                UnknownFloat_at0xE8 = 0;
-                FirearmKickbackDef0_Ptr = 0;
-                FirearmKickbackDef1_Ptr = 0;
-                FirearmKickbackDef2_Ptr = 0;
-                FirearmKickbackDef3_Ptr = 0;
-                UnknownFloat_at0x118 = 0;
-                UnknownFloat_at0x120 = 0;
-                LerpAimSwaySettings0_Ptr = 0;
-                LerpAimSwaySettings1_Ptr = 0;
-                LerpAimSwaySettings2_Ptr = 0;
-                SwayHoldBreathSettings0_Ptr = 0;
-                SwayHoldBreathSettings1_Ptr = 0;
-                UnknownInt_at0x158 = 0;
-                UnknownFloat_at0x15C = 0;
-                UnknownFloat_at0x160 = 0;
-                UnknownFloat_at0x164 = 0;
-                UnknownFloat_at0x168 = 0;
-                UnknownFloat_at0x16C = 0;
-                UnknownInt_at0x194 = 0;
-                UnknownFloat_at0x19C = 0;
+				AmmoTypes = 0;
+			
+				UnknownFloat_at0x14 = 0;
+				UnknownFloat_at0x18 = 0;
+				UnknownInt_at0x20 = 0;
+				UnknownFloat_at0x24 = 0;
+				UnknownFloat_at0x28 = 0;
+				UnknownFloat_at0x2C = 0;
+				UnknownFloat_at0x30 = 0;
+				UnknownFloat_at0x48 = 0;
+				UnknownFloat_at0x50 = 0;
+				UnknownFloat_at0x54 = 0;
+				UnknownFloat_at0x60 = 0;
+				UnknownInt_at0x68 = 0;
+				UnknownFloat_at0x6C = 0;
+				UnknownFloat_at0x70 = 0;
+				UnknownFloat_at0x74 = 0;
+				UnknownFloat_at0x78 = 0;
+				UnknownFloat_at0x7C = 0;
+				UnknownFloat_at0x80 = 0;
+				UnknownFloat_at0x84 = 0;
+				UnknownFloat_at0x88 = 0;
+				UnknownFloat_at0x8C = 0;
+				AmmoCount = 0;
+				UnknownFloat_at0xA0 = 0;
+				UnknownFloat_at0xA4 = 0;
+				UnknownFloat_at0xA8 = 0;
+				UnknownFloat_at0xAC = 0;
+			
+				ScopedLagSettings = 0;
+			
+				ProneAimSID = 0;
+				UnknownFloat_at0xC0 = 0;
+				UnknownFloat_at0xC4 = 0;
+				UnknownFloat_at0xC8 = 0;
+				UnknownFloat_at0xCC = 0;
+			
+				FirearmAimDeviationDef0 = 0;
+				FirearmAimDeviationDef1 = 0;
+			
+				UnknownFloat_at0xE0 = 0;
+				UnknownFloat_at0xE4 = 0;
+				UnknownFloat_at0xE8 = 0;
+			
+				FirearmKickbackDef0 = 0;
+				FirearmKickbackDef1 = 0;
+				FirearmKickbackDef2 = 0;
+				FirearmKickbackDef3 = 0;
+			
+				UnknownFloat_at0x118 = 0;
+				UnknownFloat_at0x120 = 0;
+			
+				LerpAimSwaySettings0 = 0;
+				LerpAimSwaySettings1 = 0;
+				LerpAimSwaySettings2 = 0;
+				SwayHoldBreathSettings0 = 0;
+				SwayHoldBreathSettings1 = 0;
+			
+				UnknownInt_at0x158 = 0;
+				UnknownFloat_at0x15C = 0;
+				UnknownFloat_at0x160 = 0;
+				UnknownFloat_at0x164 = 0;
+				UnknownFloat_at0x168 = 0;
+				UnknownFloat_at0x16C = 0;
+				UnknownInt_at0x194 = 0;
+				UnknownFloat_at0x19C = 0;
+			
+				FirearmDamageMovementDef = 0;
+				PointCurve0 = 0;
+				GunmoveIkSettings = 0;
+				FirearmStatBarDef = 0;
+				#endregion [variable initializations]
+
+
+
+                AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)Address + ammoCount), 0);
             }
 
-
-            /// <summary>
-            /// Firearm Gameplay Definition structure offset.
-            /// </summary>
-            private const int
-                ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
-                unknownFloat_at0x14 = 0x14,
-                unknownFloat_at0x18 = 0x18,
-                unknownFloat_at0x24 = 0x24,
-                unknownFloat_at0x28 = 0x28,
-                unknownInt_at0x20 = 0x20,
-                unknownFloat_at0x2C = 0x2C,
-                unknownFloat_at0x30 = 0x30,
-                unknownFloat_at0x48 = 0x48,
-                unknownFloat_at0x50 = 0x50,
-                unknownFloat_at0x54 = 0x54,
-                unknownFloat_at0x60 = 0x60,
-                unknownInt_at0x68 = 0x68,
-                unknownFloat_at0x6C = 0x6C,
-                unknownFloat_at0x70 = 0x70,
-                unknownFloat_at0x74 = 0x74,
-                unknownFloat_at0x78 = 0x78,
-                unknownFloat_at0x7C = 0x7C,
-                unknownFloat_at0x80 = 0x80,
-                unknownFloat_at0x84 = 0x84,
-                unknownFloat_at0x88 = 0x88,
-                unknownFloat_at0x8C = 0x8C,
-                unknownFloat_at0xA0 = 0xA0,
-                unknownFloat_at0xA4 = 0xA4,
-                unknownFloat_at0xA8 = 0xA8,
-                unknownFloat_at0xAC = 0xAC,
-                proneAimSID = 0xB8,
-                scopedLagSettings_Ptr = 0xB0, // scoped-lag-settings*
-                unknownFloat_at0xC0 = 0xC0,
-                unknownFloat_at0xC4 = 0xC4,
-                unknownFloat_at0xC8 = 0xC8,
-                unknownFloat_at0xCC = 0xCC,
-                ammoCount = 0x98, // integer (long or int?) amount of base ammo
-                firearmAimDeviationDef0_Ptr = 0xD0, // firearm-aim-deviation-def
-                firearmAimDeviationDef1_Ptr = 0xD8, // firearm-aim-deviation-def
-                unknownFloat_at0xE0 = 0xE0, // unknown float
-                unknownFloat_at0xE4 = 0xE4, // unknown float
-                unknownFloat_at0xE8 = 0xE8, // unknown float
-                firearmKickbackDef0_Ptr = 0xF0, // firearm-kickback-def*
-                firearmKickbackDef1_Ptr = 0xF8, // firearm-kickback-def*
-                firearmKickbackDef2_Ptr = 0x108, // firearm-kickback-def*
-                firearmKickbackDef3_Ptr = 0x110, // firearm-kickback-def*
-                unknownFloat_at0x118 = 0x118, // unknown float
-                unknownFloat_at0x120 = 0x120, // unknown float
-                lerpAimSwaySettings0_Ptr = 0x128, // lerp-aim-sway-settings
-                lerpAimSwaySettings1_Ptr = 0x130, // lerp-aim-sway-settings
-                lerpAimSwaySettings2_Ptr = 0x140, // lerp-aim-sway-settings
-                swayHoldBreathSettings0_Ptr = 0x148, // sway-hold-breath-settings*
-                swayHoldBreathSettings1_Ptr = 0x150, // sway-hold-breath-settings*
-                unknownInt_at0x158 = 0x158,
-                unknownFloat_at0x15C = 0x15C,
-                unknownFloat_at0x160 = 0x160, // unknown float
-                unknownFloat_at0x164 = 0x164, // unknown float
-                unknownFloat_at0x168 = 0x168, // unknown float
-                unknownFloat_at0x16C = 0x16C, // unknown float
-                unknownInt_at0x194 = 0x194,
-                unknownFloat_at0x19C = 0x19C    
-            ;
+            
 
             //#
-            //## Private Members
+            //## Variable Declarations
             //#
+            
+            //# Private Members
+
+            /// <summary>  Firearm Gameplay Definition structure offset. </summary>
+
+			private const int
+				# region [offsets]
+				ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
+				
+				unknownFloat_at0x14 = 0x14, // unknown float
+				unknownFloat_at0x18 = 0x18, // unknown float
+				unknownInt_at0x20 = 0x20, // unknown int
+				unknownFloat_at0x24 = 0x24, // unknown float
+				unknownFloat_at0x28 = 0x28, // unknown float
+				unknownFloat_at0x2C = 0x2C, // unknown float
+				unknownFloat_at0x30 = 0x30, // unknown float
+				unknownFloat_at0x48 = 0x48, // unknown float
+				unknownFloat_at0x50 = 0x50, // unknown float
+				unknownFloat_at0x54 = 0x54, // unknown float
+				unknownFloat_at0x60 = 0x60, // unknown float
+				unknownInt_at0x68 = 0x68, // unknown int
+				unknownFloat_at0x6C = 0x6C, // unknown float
+				unknownFloat_at0x70 = 0x70, // unknown float
+				unknownFloat_at0x74 = 0x74, // unknown float
+				unknownFloat_at0x78 = 0x78, // unknown float
+				unknownFloat_at0x7C = 0x7C, // unknown float
+				unknownFloat_at0x80 = 0x80, // unknown float
+				unknownFloat_at0x84 = 0x84, // unknown float
+				unknownFloat_at0x88 = 0x88, // unknown float
+				unknownFloat_at0x8C = 0x8C, // unknown float
+				ammoCount = 0x98, // integer (long or int?) amount of base ammo
+				unknownFloat_at0xA0 = 0xA0, // unknown float
+				unknownFloat_at0xA4 = 0xA4, // unknown float
+				unknownFloat_at0xA8 = 0xA8, // unknown float
+				unknownFloat_at0xAC = 0xAC, // unknown float
+				
+				scopedLagSettings_Ptr = 0xB0, // scoped-lag-settings*
+				
+				proneAimSID = 0xB8, // unknown ulong
+				unknownFloat_at0xC0 = 0xC0, // unknown float
+				unknownFloat_at0xC4 = 0xC4, // unknown float
+				unknownFloat_at0xC8 = 0xC8, // unknown float
+				unknownFloat_at0xCC = 0xCC, // unknown float
+				
+				firearmAimDeviationDef0_Ptr = 0xD0, // firearm-aim-deviation-def*
+				firearmAimDeviationDef1_Ptr = 0xD8, // firearm-aim-deviation-def*
+				
+				unknownFloat_at0xE0 = 0xE0, // unknown float
+				unknownFloat_at0xE4 = 0xE4, // unknown float
+				unknownFloat_at0xE8 = 0xE8, // unknown float
+				
+				firearmKickbackDef0_Ptr = 0xF0, // firearm-kickback-def*
+				firearmKickbackDef1_Ptr = 0xF8, // firearm-kickback-def*
+				firearmKickbackDef2_Ptr = 0x108, // firearm-kickback-def*
+				firearmKickbackDef3_Ptr = 0x110, // firearm-kickback-def*
+				
+				unknownFloat_at0x118 = 0x118, // unknown float
+				unknownFloat_at0x120 = 0x120, // unknown float
+				
+				lerpAimSwaySettings0_Ptr = 0x128, // lerp-aim-sway-settings*
+				lerpAimSwaySettings1_Ptr = 0x130, // lerp-aim-sway-settings*
+				lerpAimSwaySettings2_Ptr = 0x140, // lerp-aim-sway-settings*
+				swayHoldBreathSettings0_Ptr = 0x148, // sway-hold-breath-settings*
+				swayHoldBreathSettings1_Ptr = 0x150, // sway-hold-breath-settings*
+				
+				unknownInt_at0x158 = 0x158, // unknown int
+				unknownFloat_at0x15C = 0x15C, // unknown float
+				unknownFloat_at0x160 = 0x160, // unknown float
+				unknownFloat_at0x164 = 0x164, // unknown float
+				unknownFloat_at0x168 = 0x168, // unknown float
+				unknownFloat_at0x16C = 0x16C, // unknown float
+				unknownInt_at0x194 = 0x194, // unknown int
+				unknownFloat_at0x19C = 0x19C, // unknown float
+				
+				firearmDamageMovementDef_Ptr = 0x1C8, // firearm-damage-movement-def*
+				pointCurve0_Ptr = 0x228, // unknown ulong
+				gunmoveIkSettings_Ptr = 0x278, // gunmove-ik-settings*
+				firearmStatBarDef_Ptr = 0x280 // firearm-stat-bar-def*
+				#endregion [offsets]
+			;
 
 
 
-
-            //#
-            //## Public Members
-            //#
+            //# Public Members
+            #region [public members]
             public string Name;
             public long Address;
 
-            public ulong AmmoTypes_Ptr; // symbol-array containing ammo type names
-            public float UnknownFloat_at0x14;
-            public float UnknownFloat_at0x18;
-            public float UnknownFloat_at0x24;
-            public float UnknownFloat_at0x28;
-            public int   UnknownInt_at0x20;
-            public float UnknownFloat_at0x2C;
-            public float UnknownFloat_at0x30;
-            public float UnknownFloat_at0x48;
-            public float UnknownFloat_at0x50;
-            public float UnknownFloat_at0x54;
-            public float UnknownFloat_at0x60;
-            public int   UnknownInt_at0x68;
-            public float UnknownFloat_at0x6C;
-            public float UnknownFloat_at0x70;
-            public float UnknownFloat_at0x74;
-            public float UnknownFloat_at0x78;
-            public float UnknownFloat_at0x7C;
-            public float UnknownFloat_at0x80;
-            public float UnknownFloat_at0x84;
-            public float UnknownFloat_at0x88;
-            public float UnknownFloat_at0x8C;
-            public float UnknownFloat_at0xA0;
-            public float UnknownFloat_at0xA4;
-            public float UnknownFloat_at0xA8;
-            public float UnknownFloat_at0xAC;
-            public ulong ProneAimSID;
-            public ulong ScopedLagSettings_Ptr; // scoped-lag-settings*
-            public float UnknownFloat_at0xC0;
-            public float UnknownFloat_at0xC4;
-            public float UnknownFloat_at0xC8;
-            public float UnknownFloat_at0xCC;
-            public long AmmoCount; // integer (long or int?) amount of base ammo
-            public ulong FirearmAimDeviationDef0_Ptr; // firearm-aim-deviation-def
-            public ulong FirearmAimDeviationDef1_Ptr; // firearm-aim-deviation-def
-            public float UnknownFloat_at0xE0; // Unknown float
-            public float UnknownFloat_at0xE4; // Unknown float
-            public float UnknownFloat_at0xE8; // Unknown float
-            public ulong FirearmKickbackDef0_Ptr; // firearm-kickback-def*
-            public ulong FirearmKickbackDef1_Ptr; // firearm-kickback-def*
-            public ulong FirearmKickbackDef2_Ptr; // firearm-kickback-def*
-            public ulong FirearmKickbackDef3_Ptr; // firearm-kickback-def*
-            public float UnknownFloat_at0x118; // Unknown float
-            public float UnknownFloat_at0x120; // Unknown float
-            public ulong LerpAimSwaySettings0_Ptr; // lerp-aim-sway-settings
-            public ulong LerpAimSwaySettings1_Ptr; // lerp-aim-sway-settings
-            public ulong LerpAimSwaySettings2_Ptr; // lerp-aim-sway-settings
-            public ulong SwayHoldBreathSettings0_Ptr; // sway-hold-breath-settings*
-            public ulong SwayHoldBreathSettings1_Ptr; // sway-hold-breath-settings*
-            public int UnknownInt_at0x158;
-            public float UnknownFloat_at0x15C;
-            public float UnknownFloat_at0x160; // Unknown float
-            public float UnknownFloat_at0x164; // Unknown float
-            public float UnknownFloat_at0x168; // Unknown float
-            public float UnknownFloat_at0x16C; // Unknown float
-            public int UnknownInt_at0x194;
-            public float UnknownFloat_at0x19C;
+            
+			/// <summary> symbol-array containing ammo type names <summary/>
+			public ulong AmmoTypes;
+
+			
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x14;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x18;
+
+			/// <summary> unknown int <summary/>
+			public int UnknownInt_at0x20;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x24;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x28;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x2C;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x30;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x48;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x50;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x54;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x60;
+
+			/// <summary> unknown int <summary/>
+			public int UnknownInt_at0x68;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x6C;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x70;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x74;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x78;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x7C;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x80;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x84;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x88;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x8C;
+
+			/// <summary> integer (long or int?) amount of base ammo <summary/>
+			public long AmmoCount;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xA0;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xA4;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xA8;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xAC;
+
+			
+			/// <summary> scoped-lag-settings* <summary/>
+			public ulong ScopedLagSettings;
+
+			
+			/// <summary> unknown ulong <summary/>
+			public ulong ProneAimSID;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xC0;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xC4;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xC8;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xCC;
+
+			
+			/// <summary> firearm-aim-deviation-def* <summary/>
+			public ulong FirearmAimDeviationDef0;
+
+			/// <summary> firearm-aim-deviation-def* <summary/>
+			public ulong FirearmAimDeviationDef1;
+
+			
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xE0;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xE4;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0xE8;
+
+			
+			/// <summary> firearm-kickback-def* <summary/>
+			public ulong FirearmKickbackDef0;
+
+			/// <summary> firearm-kickback-def* <summary/>
+			public ulong FirearmKickbackDef1;
+
+			/// <summary> firearm-kickback-def* <summary/>
+			public ulong FirearmKickbackDef2;
+
+			/// <summary> firearm-kickback-def* <summary/>
+			public ulong FirearmKickbackDef3;
+
+			
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x118;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x120;
+
+			
+			/// <summary> lerp-aim-sway-settings* <summary/>
+			public ulong LerpAimSwaySettings0;
+
+			/// <summary> lerp-aim-sway-settings* <summary/>
+			public ulong LerpAimSwaySettings1;
+
+			/// <summary> lerp-aim-sway-settings* <summary/>
+			public ulong LerpAimSwaySettings2;
+
+			/// <summary> sway-hold-breath-settings* <summary/>
+			public ulong SwayHoldBreathSettings0;
+
+			/// <summary> sway-hold-breath-settings* <summary/>
+			public ulong SwayHoldBreathSettings1;
+
+			
+			/// <summary> unknown int <summary/>
+			public int UnknownInt_at0x158;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x15C;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x160;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x164;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x168;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x16C;
+
+			/// <summary> unknown int <summary/>
+			public int UnknownInt_at0x194;
+
+			/// <summary> unknown float <summary/>
+			public float UnknownFloat_at0x19C;
+
+			
+			/// <summary> firearm-damage-movement-def* <summary/>
+			public ulong FirearmDamageMovementDef;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong PointCurve0;
+
+			/// <summary> gunmove-ik-settings* <summary/>
+			public ulong GunmoveIkSettings;
+
+			/// <summary> firearm-stat-bar-def* <summary/>
+			public ulong FirearmStatBarDef;
+			#endregion [variable declarations]
         }
 
 
@@ -707,10 +921,38 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
+                
+                ReticleName = 0;
+                ReticleSimpleName = 0;
+
+                
+                    // Read Hud2 Reticle Name
+                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + reticleDefNameOffset), 0); binFile[i] != 0;)
+                {
+                    ReticleName += (char)binFile[i++];
+                }
+                // Read Hud2 Simple Reticle Name
+                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + reticleDefSimpleNameOffset), 0); binFile[i] != 0;)
+                {
+                    ReticleSimpleName += (char)binFile[i++];
+                }
             }
 
             public string Name;
             public long Address;
+
+            
+            /// <summary>
+            /// HUD2 Reticle Definition structure offset.
+            /// </summary>
+            private const byte
+                reticleDefNameOffset = 0x8,
+                reticleDefSimpleNameOffset = 0x18
+            ;
+
+            
+            public long ReticleName;
+            public long ReticleSimpleName;
         }
 
 
