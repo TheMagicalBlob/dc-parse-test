@@ -364,37 +364,30 @@ namespace weapon_data
             public WeaponGameplayDef(byte[] binFile, long Address, string Name)
             {
                 //#
-                //## Variable Declarations
+                //## Variable Initializations
                 //#
                 this.Name = Name;
                 this.Address = Address;
-                
-				# region [variable initializations]
-				UnknownInt_0_at0x00 = 0;
-				UnknownInt_1_at0x04 = 0;
-				UnknownInt_2_at0x08 = 0;
+
+                # region [variable initializations]
+				UnknownInt_at0x00 = 0;
+				UnknownInt_at0x04 = 0;
+				UnknownInt_at0x08 = 0;
+				UnknownFloat_at0x0C = 0;
+				UnknownLong_at0x20 = 0;
+				UnknownLong_at0x38 = 0;
+				UnknownLong_at0x40 = 0;
+				UnknownLong_at0x48 = 0;
+				UnknownByteArray_at0x50 = null;
+				UnknownLong_at0x60 = 0;
+				UnknownLong_at0x78 = 0;
+				UnknownByteArray_at0x88 = null;
 			
-				UnknownFloat_0_at0x0C = 0;
-				BlindfireAutoTargetDef = 0;
 			
-				UnknownLong_0_at0x20 = 0;
-				UnknownLong_1_at0x28 = 0;
-			
-				MeleeGameplayDef = 0;
-			
-				UnknownLong_2_at0x38 = 0;
-				UnknownLong_3_at0x40 = 0;
-				UnknownLong_4_at0x48 = 0;
-				UnknownByteArray_0_at0x50 = null;
-			
-				UnknownLong_5_at0x60 = 0;
 				ZoomCameraDoFSettingsSP = 0;
 				ZoomSniperCameraDoFSettingsSP = 0;
-				UnknownLong_6_at0x78 = 0;
 				ScreenEffectSettings = 0;
-				UnknownByteArray_1_at0x88 = null;
 				#endregion [variable initializations]
-
 
 
                 
@@ -402,115 +395,112 @@ namespace weapon_data
                 //#
                 //## Parse Weapon Gameplay Definition
                 //#
-
-                // Load firearm-related variables
-                FirearmGameplayDef = new FirearmGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmGameplayDef_Ptr), 0), Name);
                 
+                // Load firearm-related variables
+                FirearmGameplayDefinition = new FirearmGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmGameplayDef_Ptr), 0), Name);
+                
+                MeleeWeaponGameplayDefinition = new MeleeWeaponGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + meleeGameplayDef_Ptr), 0), Name);
 
-                MeleeGameplayDef = 0; // new MeleeGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + meleeGameplayDef_Ptr), 0), Name);
+                BlindfireAutoTargetDefinition = new BlindfireAutoTargetDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + blindfireAutoTargetDef_Ptr), 0), Name);
 
+                GrenadeGameplayDefinition = new GrenadeGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + grenadeGameplayDef_Ptr), 0), Name);
 
-                Hud2ReticleDef = new Hud2ReticleDef(binFile,  BitConverter.ToInt64(GetSubArray(binFile, (int)Address + hud2ReticleDef_Ptr), 0), Name);
+                Hud2ReticleDefinition = new Hud2ReticleDef(binFile,  BitConverter.ToInt64(GetSubArray(binFile, (int)Address + hud2ReticleDef_Ptr), 0), Name);
                 
             }
 
 
             //#
-            //## Private Members
+            //## Variable Declarations
             //#
-            /// <summary>
-            /// Weapon Gameplay Definition structure offset.
-            /// </summary>
+            //# Private Members
+            /// <summary> Weapon Gameplay Definition structure offset. </summary>
 			private const int
 				# region [offsets]
-				unknownInt_0_at0x00 = 0x00, // unknown uint
-				unknownInt_1_at0x04 = 0x04, // unknown uint
-				unknownInt_2_at0x08 = 0x08, // unknown uint
+				unknownInt_at0x00 = 0x00, // unknown uint
+				unknownInt_at0x04 = 0x04, // unknown uint
+				unknownInt_at0x08 = 0x08, // unknown uint
 				
-				unknownFloat_0_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
+				unknownFloat_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
 				firearmGameplayDef_Ptr = 0x10, // firearm-gameplay-def*
-				blindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def
+				blindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def*
 				
-				unknownLong_0_at0x20 = 0x20, // unknown ulong
-				unknownLong_1_at0x28 = 0x28, // unknown ulong
+				unknownLong_at0x20 = 0x20, // unknown ulong
+				grenadeGameplayDef_Ptr = 0x28, // grenade-gameplay-def*
 				
 				meleeGameplayDef_Ptr = 0x30, // melee-gameplay-def*
 				
-				unknownLong_2_at0x38 = 0x38, // unknown ulong
-				unknownLong_3_at0x40 = 0x40, // unknown ulong
-				unknownLong_4_at0x48 = 0x48, // unknown ulong
-				unknownByteArray_0_at0x50 = 0x50, // unknown ubyte
+				unknownLong_at0x38 = 0x38, // unknown ulong
+				unknownLong_at0x40 = 0x40, // unknown ulong
+				unknownLong_at0x48 = 0x48, // unknown ulong
+				unknownByteArray_at0x50 = 0x50, // unknown byte[]
 				
 				hud2ReticleDef_Ptr = 0x58, // hud2-reticle-def*
-				unknownLong_5_at0x60 = 0x60, // unknown ulong
+				unknownLong_at0x60 = 0x60, // unknown ulong
 				zoomCameraDoFSettingsSP = 0x68, // *zoom-camera-dof-settings-sp*
 				zoomSniperCameraDoFSettingsSP = 0x70, // *zoom-sniper-camera-dof-settings-sp*
-				unknownLong_6_at0x78 = 0x78, // unknown ulong
+				unknownLong_at0x78 = 0x78, // unknown ulong
 				screenEffectSettings_Ptr = 0x80, // screen-effect-settings*
-				unknownByteArray_1_at0x88 = 0x88 // unknown ubyte
+				unknownByteArray_at0x88 = 0x88 // unknown byte[]
 				#endregion [offsets]
 			;
 
-
             
-            
-            //#
-            //## Public Members (heh)
-            //#
+            //# Public Members (heh)
             public string Name;
             public long Address;
-            
 
+            
 			#region [variable declarations]
 			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_0_at0x00;
+			public uint UnknownInt_at0x00;
 
 			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_1_at0x04;
+			public uint UnknownInt_at0x04;
 
 			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_2_at0x08;
+			public uint UnknownInt_at0x08;
 
 			
 			/// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
-			public float UnknownFloat_0_at0x0C;
+			public float UnknownFloat_at0x0C;
 
 			/// <summary> firearm-gameplay-def* <summary/>
-			public FirearmGameplayDef FirearmGameplayDef;
+			public FirearmGameplayDef FirearmGameplayDefinition;
 
-			/// <summary> blindfire-auto-target-def <summary/>
-			public ulong BlindfireAutoTargetDef;
+			/// <summary> blindfire-auto-target-def* <summary/>
+			public BlindfireAutoTargetDef BlindfireAutoTargetDefinition;
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_0_at0x20;
+			public ulong UnknownLong_at0x20;
 
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_1_at0x28;
+			/// <summary> grenade-gameplay-def* <summary/>
+			public GrenadeGameplayDef GrenadeGameplayDefinition;
 
 			
 			/// <summary> melee-gameplay-def* <summary/>
-			public ulong MeleeGameplayDef;
+			public MeleeWeaponGameplayDef MeleeWeaponGameplayDefinition;
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_2_at0x38;
+			public ulong UnknownLong_at0x38;
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_3_at0x40;
+			public ulong UnknownLong_at0x40;
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_4_at0x48;
+			public ulong UnknownLong_at0x48;
 
-			/// <summary> unknown ubyte <summary/>
-			public byte[] UnknownByteArray_0_at0x50;
+			/// <summary> unknown byte[] <summary/>
+			public byte[] UnknownByteArray_at0x50;
 
 			
 			/// <summary> hud2-reticle-def* <summary/>
-			public Hud2ReticleDef Hud2ReticleDef;
+			public Hud2ReticleDef Hud2ReticleDefinition;
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_5_at0x60;
+			public ulong UnknownLong_at0x60;
 
 			/// <summary> *zoom-camera-dof-settings-sp* <summary/>
 			public ulong ZoomCameraDoFSettingsSP;
@@ -519,13 +509,13 @@ namespace weapon_data
 			public ulong ZoomSniperCameraDoFSettingsSP;
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_6_at0x78;
+			public ulong UnknownLong_at0x78;
 
 			/// <summary> screen-effect-settings* <summary/>
 			public ulong ScreenEffectSettings;
 
-			/// <summary> unknown ubyte <summary/>
-			public byte[] UnknownByteArray_1_at0x88;
+			/// <summary> unknown byte[] <summary/>
+			public byte[] UnknownByteArray_at0x88;
 			#endregion [varaible declarations]
         }
 
@@ -536,17 +526,17 @@ namespace weapon_data
         /// </summary>
         public struct FirearmGameplayDef
         {
-            public FirearmGameplayDef(byte[] binFile, long Address, string Name = "unnamed")
+            public FirearmGameplayDef(byte[] binFile, long Address, string Name)
             {
                 //#
                 //## Variable Initializations
                 //#
-                #region [variable initializations]
                 // TODO:
                 // - Remove the initializations for variables once code to read said variable has been added
                 this.Name = Name;
                 this.Address = Address;
 
+                # region [variable initializations]
 				AmmoTypes = 0;
 			
 				UnknownFloat_at0x14 = 0;
@@ -570,7 +560,7 @@ namespace weapon_data
 				UnknownFloat_at0x84 = 0;
 				UnknownFloat_at0x88 = 0;
 				UnknownFloat_at0x8C = 0;
-				AmmoCount = 0;
+				BaseAmmoCount = 0;
 				UnknownFloat_at0xA0 = 0;
 				UnknownFloat_at0xA4 = 0;
 				UnknownFloat_at0xA8 = 0;
@@ -578,7 +568,7 @@ namespace weapon_data
 			
 				ScopedLagSettings = 0;
 			
-				ProneAimSID = 0;
+				ProneAim0SID = 0;
 				UnknownFloat_at0xC0 = 0;
 				UnknownFloat_at0xC4 = 0;
 				UnknownFloat_at0xC8 = 0;
@@ -614,15 +604,30 @@ namespace weapon_data
 				UnknownInt_at0x194 = 0;
 				UnknownFloat_at0x19C = 0;
 			
-				FirearmDamageMovementDef = 0;
+				UnknownAimSID = 0;
+				HorseAimSID = 0;
+				ProneAim1SID = 0;
+				AimAssistSID = 0;
+				HapticSettingsSID = 0;
+				RumbleSettingsSID = 0;
+				CameraShakeRightSID = 0;
+				CameraShakeLeftSID = 0;
 				PointCurve0 = 0;
 				GunmoveIkSettings = 0;
-				FirearmStatBarDef = 0;
+				PointCurve1 = 0;
+				PointCurve2 = 0;
+				DamageLinksSID = 0;
 				#endregion [variable initializations]
 
 
 
-                AmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)Address + ammoCount), 0);
+
+                BaseAmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)Address + baseAmmoCount), 0);
+
+                
+                FirearmDamageMovementDefinition = new FirearmDamageMovementDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmDamageMovementDef_Ptr), 0), Name);
+                
+                FirearmStatBarDefinition = new FirearmStatBarDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmStatBarDef_Ptr), 0), Name);
             }
 
             
@@ -632,9 +637,8 @@ namespace weapon_data
             //#
             
             //# Private Members
-
             /// <summary>  Firearm Gameplay Definition structure offset. </summary>
-
+            
 			private const int
 				# region [offsets]
 				ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
@@ -660,7 +664,7 @@ namespace weapon_data
 				unknownFloat_at0x84 = 0x84, // unknown float
 				unknownFloat_at0x88 = 0x88, // unknown float
 				unknownFloat_at0x8C = 0x8C, // unknown float
-				ammoCount = 0x98, // integer (long or int?) amount of base ammo
+				baseAmmoCount = 0x98, // integer (long or int?) amount of base ammo
 				unknownFloat_at0xA0 = 0xA0, // unknown float
 				unknownFloat_at0xA4 = 0xA4, // unknown float
 				unknownFloat_at0xA8 = 0xA8, // unknown float
@@ -668,7 +672,7 @@ namespace weapon_data
 				
 				scopedLagSettings_Ptr = 0xB0, // scoped-lag-settings*
 				
-				proneAimSID = 0xB8, // unknown ulong
+				proneAim0SID = 0xB8, // unknown ulong
 				unknownFloat_at0xC0 = 0xC0, // unknown float
 				unknownFloat_at0xC4 = 0xC4, // unknown float
 				unknownFloat_at0xC8 = 0xC8, // unknown float
@@ -704,21 +708,30 @@ namespace weapon_data
 				unknownInt_at0x194 = 0x194, // unknown int
 				unknownFloat_at0x19C = 0x19C, // unknown float
 				
+				unknownAimSID = 0x1A0, // unknown ulong
+				horseAimSID = 0x1A8, // unknown ulong
+				proneAim1SID = 0x1B0, // unknown ulong
+				aimAssistSID = 0x1B8, // unknown ulong
 				firearmDamageMovementDef_Ptr = 0x1C8, // firearm-damage-movement-def*
+				hapticSettingsSID = 0x1F8, // unknown ulong
+				rumbleSettingsSID = 0x200, // unknown ulong
+				cameraShakeRightSID = 0x208, // unknown ulong
+				cameraShakeLeftSID = 0x210, // unknown ulong
 				pointCurve0_Ptr = 0x228, // unknown ulong
 				gunmoveIkSettings_Ptr = 0x278, // gunmove-ik-settings*
-				firearmStatBarDef_Ptr = 0x280 // firearm-stat-bar-def*
+				firearmStatBarDef_Ptr = 0x280, // firearm-stat-bar-def*
+				pointCurve1_Ptr = 0x288, // unknown ulong
+				pointCurve2_Ptr = 0x290, // unknown ulong
+				damageLinksSID = 0x2A0  // unknown ulong
 				#endregion [offsets]
 			;
 
 
-
             //# Public Members
-            #region [public members]
             public string Name;
             public long Address;
 
-            
+            #region [variable declarations]
 			/// <summary> symbol-array containing ammo type names <summary/>
 			public ulong AmmoTypes;
 
@@ -787,7 +800,7 @@ namespace weapon_data
 			public float UnknownFloat_at0x8C;
 
 			/// <summary> integer (long or int?) amount of base ammo <summary/>
-			public long AmmoCount;
+			public long BaseAmmoCount;
 
 			/// <summary> unknown float <summary/>
 			public float UnknownFloat_at0xA0;
@@ -807,7 +820,7 @@ namespace weapon_data
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong ProneAimSID;
+			public ulong ProneAim0SID;
 
 			/// <summary> unknown float <summary/>
 			public float UnknownFloat_at0xC0;
@@ -900,8 +913,32 @@ namespace weapon_data
 			public float UnknownFloat_at0x19C;
 
 			
+			/// <summary> unknown ulong <summary/>
+			public ulong UnknownAimSID;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong HorseAimSID;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong ProneAim1SID;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong AimAssistSID;
+
 			/// <summary> firearm-damage-movement-def* <summary/>
-			public ulong FirearmDamageMovementDef;
+			public FirearmDamageMovementDef FirearmDamageMovementDefinition;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong HapticSettingsSID;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong RumbleSettingsSID;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong CameraShakeRightSID;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong CameraShakeLeftSID;
 
 			/// <summary> unknown ulong <summary/>
 			public ulong PointCurve0;
@@ -910,11 +947,108 @@ namespace weapon_data
 			public ulong GunmoveIkSettings;
 
 			/// <summary> firearm-stat-bar-def* <summary/>
-			public ulong FirearmStatBarDef;
-			#endregion [variable declarations]
+			public FirearmStatBarDef FirearmStatBarDefinition;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong PointCurve1;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong PointCurve2;
+
+			/// <summary> unknown ulong <summary/>
+			public ulong DamageLinksSID;
+			#endregion [varaible declarations]
         }
 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct MeleeWeaponGameplayDef
+        {
+            public MeleeWeaponGameplayDef(byte[] binFile, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct GrenadeGameplayDef
+        {
+            public GrenadeGameplayDef(byte[] binFile, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct BlindfireAutoTargetDef
+        {
+            public BlindfireAutoTargetDef(byte[] binFile, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct FirearmDamageMovementDef
+        {
+            public FirearmDamageMovementDef(byte[] binFile, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct FirearmStatBarDef
+        {
+            public FirearmStatBarDef(byte[] binFile, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public string Name;
+            public long Address;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         public struct Hud2ReticleDef
         {
             public Hud2ReticleDef(byte[] binFile, long Address, string Name = "unnamed")
@@ -956,12 +1090,13 @@ namespace weapon_data
         }
 
 
+
         /// <summary>
         /// 
         /// </summary>
-        public struct MeleeWeaponGameplayDef
+        public struct Look2Def
         {
-            public MeleeWeaponGameplayDef(byte[] binFile, long Address, string Name = "unnamed")
+            public Look2Def(byte[] binFile, long Address, string Name = "unnamed")
             {
                 this.Name = Name;
                 this.Address = Address;
@@ -976,9 +1111,9 @@ namespace weapon_data
         /// <summary>
         /// 
         /// </summary>
-        public struct Look2Def
+        private struct StructTemplate
         {
-            public Look2Def(byte[] binFile, long Address, string Name = "unnamed")
+            public StructTemplate(byte[] binFile, long Address, string Name)
             {
                 this.Name = Name;
                 this.Address = Address;
