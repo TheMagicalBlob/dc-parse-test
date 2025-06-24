@@ -51,6 +51,7 @@ namespace weapon_data
             this.VersionLabel = new weapon_data.Label();
             this.label1 = new weapon_data.Label();
             this.ActiveScriptLabel = new weapon_data.Label();
+            this.label4 = new weapon_data.Label();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -58,7 +59,7 @@ namespace weapon_data
             this.BinPathBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.BinPathBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BinPathBrowseBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BinPathBrowseBtn.Location = new System.Drawing.Point(3, 73);
+            this.BinPathBrowseBtn.Location = new System.Drawing.Point(4, 73);
             this.BinPathBrowseBtn.Name = "BinPathBrowseBtn";
             this.BinPathBrowseBtn.Size = new System.Drawing.Size(65, 23);
             this.BinPathBrowseBtn.TabIndex = 2;
@@ -70,7 +71,7 @@ namespace weapon_data
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(758, 45);
+            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 54);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
@@ -218,11 +219,11 @@ namespace weapon_data
             // 
             this.PropertiesWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.PropertiesWindowRichTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.PropertiesWindowRichTextBox.Location = new System.Drawing.Point(545, 198);
+            this.PropertiesWindowRichTextBox.Location = new System.Drawing.Point(545, 194);
             this.PropertiesWindowRichTextBox.Name = "PropertiesWindowRichTextBox";
             this.PropertiesWindowRichTextBox.ReadOnly = true;
             this.PropertiesWindowRichTextBox.ShortcutsEnabled = false;
-            this.PropertiesWindowRichTextBox.Size = new System.Drawing.Size(284, 369);
+            this.PropertiesWindowRichTextBox.Size = new System.Drawing.Size(284, 373);
             this.PropertiesWindowRichTextBox.TabIndex = 2;
             this.PropertiesWindowRichTextBox.Text = "";
             // 
@@ -232,7 +233,7 @@ namespace weapon_data
             this.label2.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.label2.ForeColor = System.Drawing.Color.Gold;
             this.label2.IsSeparatorLine = false;
-            this.label2.Location = new System.Drawing.Point(10, 202);
+            this.label2.Location = new System.Drawing.Point(9, 200);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(526, 19);
             this.label2.StretchToFitForm = false;
@@ -246,7 +247,7 @@ namespace weapon_data
             this.SeperatorLine2.IsSeparatorLine = true;
             this.SeperatorLine2.Location = new System.Drawing.Point(1, 187);
             this.SeperatorLine2.Name = "SeperatorLine2";
-            this.SeperatorLine2.Size = new System.Drawing.Size(550, 17);
+            this.SeperatorLine2.Size = new System.Drawing.Size(539, 10);
             this.SeperatorLine2.StretchToFitForm = false;
             this.SeperatorLine2.TabIndex = 21;
             this.SeperatorLine2.Tag = "True";
@@ -283,12 +284,26 @@ namespace weapon_data
             this.ActiveScriptLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
             this.ActiveScriptLabel.ForeColor = System.Drawing.Color.Gold;
             this.ActiveScriptLabel.IsSeparatorLine = false;
-            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 171);
+            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 170);
             this.ActiveScriptLabel.Name = "ActiveScriptLabel";
             this.ActiveScriptLabel.Size = new System.Drawing.Size(521, 23);
             this.ActiveScriptLabel.StretchToFitForm = false;
             this.ActiveScriptLabel.TabIndex = 0;
             this.ActiveScriptLabel.Text = "Selected Script: none selected";
+            // 
+            // label4
+            // 
+            this.label4.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label4.IsSeparatorLine = true;
+            this.label4.Location = new System.Drawing.Point(540, 37);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(292, 13);
+            this.label4.StretchToFitForm = false;
+            this.label4.TabIndex = 28;
+            this.label4.Tag = "";
+            this.label4.Text = "---------------------------------------------------------------------------------" +
+    "-----------------------------------------------------------------------------";
             // 
             // Main
             // 
@@ -297,6 +312,7 @@ namespace weapon_data
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(834, 572);
             this.Controls.Add(this.binPathTextBox);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.optionsMenuDropdownBtn);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.AbortOrCloseBtn);
@@ -351,6 +367,7 @@ namespace weapon_data
         private Label SeperatorLine2;
         private Label label3;
         private Label label5;
+        private Label label4;
     }
 }
 

@@ -184,7 +184,7 @@ namespace weapon_data
 
 
         /// <summary>
-        ///  //! Write Me
+        /// //! Write Me
         /// </summary>
         /// <param name="pathObj"> The string object containing the path to the .bin file to be parsed. </param>
         private void ParseBinFile(object pathObj)
