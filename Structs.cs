@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using static weapon_data.Main;
@@ -242,16 +243,22 @@ namespace weapon_data
         {
             public DCMapDef(byte[] binFile, string Type, long Address, string Name = "")
             {
-                this.Name = Name;
-
                 var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 var mapNamesArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
                 long mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
                 Items = new object[mapLength][];
-                Items[0] = new object[2];
+                this.Name = Name;
 
                 var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
+
+                if (mapLength < 1)
+                {
+                    Venat?.PrintLL($"  # Empty Map Structures.", outputLine);
+                    return;
+                }
+                Items[0] = new object[2];
+
                     
 
                 PrintNL();

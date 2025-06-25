@@ -49,6 +49,7 @@ namespace weapon_data
         public static long SIDBaseTableLength;
 
         
+
         /// <summary>
         /// An array of bytes containing the entire provided DC .bin file. <br/>
         /// </summary>
@@ -59,11 +60,11 @@ namespace weapon_data
             set {
                 _dcFile = value;
 
-                if (value.Length > 0x2C)
+                if (value?.Length > 0x2C)
                 {
                     DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
                 }
-                else {
+                else if ((value ?? null) != Array.Empty<byte>()){
                     //! Implement an error, since the file would obviously be corrupted.
                 }
             }
@@ -73,7 +74,7 @@ namespace weapon_data
         /// <summary>
         /// The address of the provided DC file's relocation table
         /// </summary>
-        private static long DCFileMainDataLength;
+        public static long DCFileMainDataLength;
 
 
         
@@ -91,7 +92,7 @@ namespace weapon_data
                     echo ("Aborting...");
 
                     binThread.Abort();
-                    Venat?.Invoke(Venat.abortButtonMammet, new object[] { false });
+                    Venat?.Invoke(Venat.abortButtonMammet, new[] { new object[] { false } });
                 }
             }
         }
@@ -156,27 +157,40 @@ namespace weapon_data
 
 
         private static Thread binThread;
-        public delegate void binThreadFormWand(object obj); //! god I need to read about delegates lmao
+        public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
         public delegate void binThreadFormWandArray(string msg, int? line);
         public delegate string[] binThreadFormWandOutputRead();
 
-        public binThreadFormWand outputMammet = new binThreadFormWand((obj) => OutputWindow.AppendLine(obj.ToString()));
-        public binThreadFormWand labelMammet = new binThreadFormWand(UpdateLabel);
+        public binThreadFormWand outputMammet = new binThreadFormWand((args) => OutputWindow.AppendLine(args[0].ToString()));
+        public binThreadFormWand labelMammet = new binThreadFormWand((args) => UpdateLabel(args[0]));
 
-        public binThreadFormWand abortButtonMammet  = new binThreadFormWand((obj) =>
+        public binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
-            if (obj.GetType() == typeof(byte))
+            if (args == null || args.Length < 1 || abortBtn == null)
             {
-                byte newIndex = (byte) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0));
-
-                abortBtn.Text = new[] { "Abort", "Close File" }[newIndex];
-                
-                abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
-                abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
                 return;
             }
 
-            abortBtn.Visible = (bool)obj;
+            foreach (object obj in args)
+            {
+                if (obj?.GetType() == typeof(int) || obj == null)
+                {
+                    var newIndex = (int) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0));
+
+                    abortBtn.Text = new[] { "Abort", "Close File" }[newIndex];
+                
+                    abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
+                    abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
+                    return;
+                }
+                else if (obj.GetType() == typeof(bool))
+                {
+                    abortBtn.Enabled = (bool)obj;
+                    abortBtn.Font = new Font(abortBtn.Font.FontFamily, abortBtn.Font.Size, (FontStyle)(((bool) obj ? 0 : 8)));
+                }
+                else
+                    echo($"ERROR: Unexpected argument type of \"{obj.GetType()}\" provided to abortButtonMammet");
+                }
         });
 
         public binThreadFormWand reloadButtonMammet = new binThreadFormWand((Hmmm) =>
@@ -252,6 +266,11 @@ namespace weapon_data
         ///</summary>
         public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
         {
+            if (Venat?.debugDisableLinesBtn.Checked ?? true)
+            {
+                return;
+            }
+
             yoshiP.Graphics.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
 
             

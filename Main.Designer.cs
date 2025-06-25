@@ -42,7 +42,9 @@ namespace weapon_data
             this.debugShowAllBtn = new System.Windows.Forms.Button();
             this.bleghBtn = new System.Windows.Forms.Button();
             this.PropertiesPanel = new System.Windows.Forms.GroupBox();
+            this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
             this.binPathTextBox = new weapon_data.TextBox();
+            this.label4 = new weapon_data.Label();
             this.label5 = new weapon_data.Label();
             this.label3 = new weapon_data.Label();
             this.PropertiesWindowRichTextBox = new weapon_data.RichTextBox();
@@ -51,7 +53,6 @@ namespace weapon_data
             this.VersionLabel = new weapon_data.Label();
             this.label1 = new weapon_data.Label();
             this.ActiveScriptLabel = new weapon_data.Label();
-            this.label4 = new weapon_data.Label();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -59,7 +60,7 @@ namespace weapon_data
             this.BinPathBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.BinPathBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BinPathBrowseBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BinPathBrowseBtn.Location = new System.Drawing.Point(4, 73);
+            this.BinPathBrowseBtn.Location = new System.Drawing.Point(4, 63);
             this.BinPathBrowseBtn.Name = "BinPathBrowseBtn";
             this.BinPathBrowseBtn.Size = new System.Drawing.Size(65, 23);
             this.BinPathBrowseBtn.TabIndex = 2;
@@ -71,7 +72,7 @@ namespace weapon_data
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 54);
+            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 44);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
             this.optionsMenuDropdownBtn.TabIndex = 3;
@@ -85,7 +86,7 @@ namespace weapon_data
             this.ExitBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.ExitBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
             this.ExitBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.ExitBtn.Location = new System.Drawing.Point(810, 1);
+            this.ExitBtn.Location = new System.Drawing.Point(808, 5);
             this.ExitBtn.Name = "ExitBtn";
             this.ExitBtn.Size = new System.Drawing.Size(22, 22);
             this.ExitBtn.TabIndex = 8;
@@ -99,7 +100,7 @@ namespace weapon_data
             this.MinimizeBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.MinimizeBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.MinimizeBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.MinimizeBtn.Location = new System.Drawing.Point(788, 1);
+            this.MinimizeBtn.Location = new System.Drawing.Point(783, 5);
             this.MinimizeBtn.Name = "MinimizeBtn";
             this.MinimizeBtn.Size = new System.Drawing.Size(22, 22);
             this.MinimizeBtn.TabIndex = 7;
@@ -110,14 +111,15 @@ namespace weapon_data
             // AbortOrCloseBtn
             // 
             this.AbortOrCloseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.AbortOrCloseBtn.Enabled = false;
             this.AbortOrCloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.AbortOrCloseBtn.Location = new System.Drawing.Point(392, 73);
+            this.AbortOrCloseBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AbortOrCloseBtn.Location = new System.Drawing.Point(392, 63);
             this.AbortOrCloseBtn.Name = "AbortOrCloseBtn";
             this.AbortOrCloseBtn.Size = new System.Drawing.Size(44, 23);
             this.AbortOrCloseBtn.TabIndex = 0;
             this.AbortOrCloseBtn.Text = "Abort";
             this.AbortOrCloseBtn.UseVisualStyleBackColor = false;
-            this.AbortOrCloseBtn.Visible = false;
             this.AbortOrCloseBtn.Click += new System.EventHandler(this.AbortOrCloseBtn_Click);
             // 
             // ReloadScriptBtn
@@ -126,7 +128,7 @@ namespace weapon_data
             this.ReloadScriptBtn.Enabled = false;
             this.ReloadScriptBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ReloadScriptBtn.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReloadScriptBtn.Location = new System.Drawing.Point(439, 73);
+            this.ReloadScriptBtn.Location = new System.Drawing.Point(439, 63);
             this.ReloadScriptBtn.Name = "ReloadScriptBtn";
             this.ReloadScriptBtn.Size = new System.Drawing.Size(95, 23);
             this.ReloadScriptBtn.TabIndex = 10;
@@ -141,7 +143,7 @@ namespace weapon_data
             this.debugShowAllBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 8F, System.Drawing.FontStyle.Bold);
             this.debugShowAllBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.debugShowAllBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugShowAllBtn.Location = new System.Drawing.Point(200, 18);
+            this.debugShowAllBtn.Location = new System.Drawing.Point(546, 6);
             this.debugShowAllBtn.Name = "debugShowAllBtn";
             this.debugShowAllBtn.Size = new System.Drawing.Size(56, 20);
             this.debugShowAllBtn.TabIndex = 16;
@@ -157,7 +159,7 @@ namespace weapon_data
             this.bleghBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.bleghBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.bleghBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.bleghBtn.Location = new System.Drawing.Point(262, 17);
+            this.bleghBtn.Location = new System.Drawing.Point(608, 5);
             this.bleghBtn.Name = "bleghBtn";
             this.bleghBtn.Size = new System.Drawing.Size(43, 21);
             this.bleghBtn.TabIndex = 17;
@@ -169,30 +171,55 @@ namespace weapon_data
             // PropertiesPanel
             // 
             this.PropertiesPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.PropertiesPanel.Location = new System.Drawing.Point(5, 217);
+            this.PropertiesPanel.Location = new System.Drawing.Point(5, 206);
             this.PropertiesPanel.Name = "PropertiesPanel";
-            this.PropertiesPanel.Size = new System.Drawing.Size(531, 351);
+            this.PropertiesPanel.Size = new System.Drawing.Size(531, 363);
             this.PropertiesPanel.TabIndex = 19;
             this.PropertiesPanel.TabStop = false;
+            // 
+            // debugDisableLinesBtn
+            // 
+            this.debugDisableLinesBtn.AutoSize = true;
+            this.debugDisableLinesBtn.Location = new System.Drawing.Point(657, 8);
+            this.debugDisableLinesBtn.Name = "debugDisableLinesBtn";
+            this.debugDisableLinesBtn.Size = new System.Drawing.Size(54, 17);
+            this.debugDisableLinesBtn.TabIndex = 29;
+            this.debugDisableLinesBtn.Text = "noline";
+            this.debugDisableLinesBtn.UseVisualStyleBackColor = true;
+            this.debugDisableLinesBtn.CheckedChanged += new System.EventHandler(this.debugDisableLinesBtn_CheckedChanged);
             // 
             // binPathTextBox
             // 
             this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.binPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
             this.binPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.binPathTextBox.Location = new System.Drawing.Point(4, 44);
+            this.binPathTextBox.Location = new System.Drawing.Point(4, 34);
             this.binPathTextBox.Name = "binPathTextBox";
             this.binPathTextBox.Size = new System.Drawing.Size(530, 24);
             this.binPathTextBox.TabIndex = 3;
             this.binPathTextBox.Text = "Browse for/Paste in a dc file path";
             this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
             // 
+            // label4
+            // 
+            this.label4.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label4.IsSeparatorLine = true;
+            this.label4.Location = new System.Drawing.Point(540, 27);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(292, 13);
+            this.label4.StretchToFitForm = false;
+            this.label4.TabIndex = 28;
+            this.label4.Tag = "";
+            this.label4.Text = "---------------------------------------------------------------------------------" +
+    "-----------------------------------------------------------------------------";
+            // 
             // label5
             // 
             this.label5.Font = new System.Drawing.Font("Cambria", 8F);
             this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.label5.IsSeparatorLine = true;
-            this.label5.Location = new System.Drawing.Point(29, 151);
+            this.label5.Location = new System.Drawing.Point(29, 141);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(644, 13);
             this.label5.StretchToFitForm = true;
@@ -206,7 +233,7 @@ namespace weapon_data
             this.label3.Font = new System.Drawing.Font("Cambria", 8F);
             this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.label3.IsSeparatorLine = true;
-            this.label3.Location = new System.Drawing.Point(537, 20);
+            this.label3.Location = new System.Drawing.Point(537, 10);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(8, 316);
             this.label3.StretchToFitForm = true;
@@ -219,11 +246,11 @@ namespace weapon_data
             // 
             this.PropertiesWindowRichTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.PropertiesWindowRichTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.PropertiesWindowRichTextBox.Location = new System.Drawing.Point(545, 194);
+            this.PropertiesWindowRichTextBox.Location = new System.Drawing.Point(545, 184);
             this.PropertiesWindowRichTextBox.Name = "PropertiesWindowRichTextBox";
             this.PropertiesWindowRichTextBox.ReadOnly = true;
             this.PropertiesWindowRichTextBox.ShortcutsEnabled = false;
-            this.PropertiesWindowRichTextBox.Size = new System.Drawing.Size(284, 373);
+            this.PropertiesWindowRichTextBox.Size = new System.Drawing.Size(284, 385);
             this.PropertiesWindowRichTextBox.TabIndex = 2;
             this.PropertiesWindowRichTextBox.Text = "";
             // 
@@ -233,7 +260,7 @@ namespace weapon_data
             this.label2.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.label2.ForeColor = System.Drawing.Color.Gold;
             this.label2.IsSeparatorLine = false;
-            this.label2.Location = new System.Drawing.Point(9, 200);
+            this.label2.Location = new System.Drawing.Point(9, 189);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(526, 19);
             this.label2.StretchToFitForm = false;
@@ -245,7 +272,7 @@ namespace weapon_data
             this.SeperatorLine2.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.SeperatorLine2.IsSeparatorLine = true;
-            this.SeperatorLine2.Location = new System.Drawing.Point(1, 187);
+            this.SeperatorLine2.Location = new System.Drawing.Point(1, 177);
             this.SeperatorLine2.Name = "SeperatorLine2";
             this.SeperatorLine2.Size = new System.Drawing.Size(539, 10);
             this.SeperatorLine2.StretchToFitForm = false;
@@ -259,7 +286,7 @@ namespace weapon_data
             this.VersionLabel.Font = new System.Drawing.Font("Segoe UI", 6.5F);
             this.VersionLabel.ForeColor = System.Drawing.Color.Gold;
             this.VersionLabel.IsSeparatorLine = false;
-            this.VersionLabel.Location = new System.Drawing.Point(200, 3);
+            this.VersionLabel.Location = new System.Drawing.Point(201, 3);
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(58, 13);
             this.VersionLabel.StretchToFitForm = false;
@@ -284,26 +311,12 @@ namespace weapon_data
             this.ActiveScriptLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
             this.ActiveScriptLabel.ForeColor = System.Drawing.Color.Gold;
             this.ActiveScriptLabel.IsSeparatorLine = false;
-            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 170);
+            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 159);
             this.ActiveScriptLabel.Name = "ActiveScriptLabel";
             this.ActiveScriptLabel.Size = new System.Drawing.Size(521, 23);
             this.ActiveScriptLabel.StretchToFitForm = false;
             this.ActiveScriptLabel.TabIndex = 0;
             this.ActiveScriptLabel.Text = "Selected Script: none selected";
-            // 
-            // label4
-            // 
-            this.label4.Font = new System.Drawing.Font("Cambria", 8F);
-            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.label4.IsSeparatorLine = true;
-            this.label4.Location = new System.Drawing.Point(540, 37);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(292, 13);
-            this.label4.StretchToFitForm = false;
-            this.label4.TabIndex = 28;
-            this.label4.Tag = "";
-            this.label4.Text = "---------------------------------------------------------------------------------" +
-    "-----------------------------------------------------------------------------";
             // 
             // Main
             // 
@@ -311,6 +324,7 @@ namespace weapon_data
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(834, 572);
+            this.Controls.Add(this.debugDisableLinesBtn);
             this.Controls.Add(this.binPathTextBox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.optionsMenuDropdownBtn);
@@ -368,6 +382,7 @@ namespace weapon_data
         private Label label3;
         private Label label5;
         private Label label4;
+        private CheckBox debugDisableLinesBtn;
     }
 }
 

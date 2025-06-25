@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -92,6 +93,7 @@ namespace weapon_data
         {
             if (File.Exists(binPathTextBox.Text))
             {
+                this.Invoke(abortButtonMammet, new[] { new object[] { 0 } });
                 LoadBinFile(binPathTextBox.Text);
             }
         }
@@ -110,6 +112,7 @@ namespace weapon_data
             if (((Button)sender).Text == "Abort")
             {
                 Abort = true;
+                this.Invoke(abortButtonMammet, new[] { new object[] { 0, false } });
             }
             else {
                 CloseBinFile();
@@ -117,28 +120,57 @@ namespace weapon_data
         }
 
         
-        
+        private List<object[]> shownControls;
         private void debugShowAllBtn_Click(object sender, EventArgs e)
         {
-            foreach (Control control in Controls)
+            if (shownControls == null)
             {
-                control.Visible = true;
-            }
-
-            if (Azem != null)
-            {
-                foreach (Control control in Azem.Controls)
+                shownControls = new List<object[]>();
+                
+                foreach (Control control in Controls)
                 {
+                    if (!control.Visible || !control.Enabled)
+                    {
+                        shownControls.Add(new object[] { control, new[] { control.Visible, control.Enabled } });
+                    }
                     control.Visible = true;
+                    control.Enabled = true;
+                }
+
+                if (Azem != null)
+                {
+                    foreach (Control control in Azem.Controls)
+                    {
+                        if (!control.Visible || !control.Enabled)
+                        {
+                            shownControls.Add(new object[] { control, new[] { control.Visible, control.Enabled } });
+                        }
+                        control.Visible = true;
+                        control.Enabled = true;
+                    }
+                }
+
+                if (Emmet != null)
+                {
+                    foreach (Control control in Emmet.Controls)
+                    {
+                        if (!control.Visible || !control.Enabled)
+                        {
+                            shownControls.Add(new object[] { control, new[] { control.Visible, control.Enabled } });
+                        }
+                        control.Visible = true;
+                        control.Enabled = true;
+                    }
                 }
             }
-
-            if (Emmet != null)
-            {
-                foreach (Control control in Emmet.Controls)
+            else {
+                for (int i = 0; i < shownControls.Count; i++)
                 {
-                    control.Visible = true;
+                    ((Control)shownControls[i][0]).Visible = (shownControls[1][1] as bool[])[0];
+                    ((Control)shownControls[i][0]).Enabled = (shownControls[1][1] as bool[])[1];
                 }
+
+                shownControls = null;
             }
         }
 
@@ -151,8 +183,7 @@ namespace weapon_data
 
         private void bleghBtn_Click(object sender, EventArgs e)
         {
-            echo("print");
-            Venat?.Invoke(abortButtonMammet, new object[] { null });
+            Venat?.Invoke(abortButtonMammet, new[] { new object[] { !abortBtn.Enabled } });
         }
         #endregion
 
@@ -207,7 +238,7 @@ namespace weapon_data
                 //#
                 //## Parse provided DC file.
                 //#
-                Venat?.Invoke(abortButtonMammet, new object[] { true });
+                Venat?.Invoke(abortButtonMammet, new[] { new object[] { true } });
             
                 DCHeader = new DCFileHeader(DCFile, ActiveFileName);
                 DCEntries = new object[DCHeader.TableLength];
@@ -233,22 +264,23 @@ namespace weapon_data
                 PrintNL("\nFinished!");
                 CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
 
-                Venat?.Invoke(reloadButtonMammet, new object[] { true });
-                Venat?.Invoke(abortButtonMammet, new object[] { 1 });
+                Venat?.Invoke(reloadButtonMammet, new[] { new object[] { true } });
+                Venat?.Invoke(abortButtonMammet, new[] { new object[] { 1 } });
                 return;
 
                 error:;
                 CTUpdateLabel(ActiveFileName + " Error Loading dc File!!!");
-                Venat?.Invoke(abortButtonMammet, new object[] { false });
+                Venat?.Invoke(abortButtonMammet, new[] { new object[] { false } });
             }
             catch(ThreadAbortException) {
-                Venat?.Invoke(abortButtonMammet, new object[] { 0 });
-                Venat?.Invoke(abortButtonMammet, new object[] { false });
+                Venat?.Invoke(abortButtonMammet, new[] { new object[] { false, 0 } });
             }
+            # if !DEBUG
             catch (Exception fuck) {
                 PrintNL($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
                 MessageBox.Show($"An Unexpected {fuck.GetType()} Occured While");
             }
+            #endif
         }
 
 
@@ -325,5 +357,11 @@ namespace weapon_data
             Emmet.Controls.Clear();
         }
         #endregion
+
+        private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
+        {
+            CreateGraphics().Clear(BackColor);
+            Refresh();
+        }
     }
 }
