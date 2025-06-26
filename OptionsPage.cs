@@ -24,6 +24,8 @@ namespace weapon_data
                     SIDBase = File.ReadAllBytes(((TextBox)sender).Text);
                 }
             };
+
+            LoadOptions();
         }
 
         
@@ -86,10 +88,30 @@ namespace weapon_data
 
 
         /// <summary>
-        /// Mirror Any Non-Default Options to GP4Creator Instance.
+        /// Mirror Any Non-Default Options to local dc.blb file.
         /// </summary>
         public void SaveOptions()
         {
+            using (var settings = File.Open($"{Directory.GetCurrentDirectory()}\\dc.blb", FileMode.OpenOrCreate, FileAccess.Write))
+            {
+
+            }
+        }
+
+        
+
+        /// <summary>
+        /// Load any saved options from the local dc.blb file.
+        /// </summary>
+        private void LoadOptions()
+        {
+            if (File.Exists($@"{Directory.GetCurrentDirectory()}\dc.blb"))
+            {
+                using (var settings = File.Open($@"{Directory.GetCurrentDirectory()}\dc.blb", FileMode.OpenOrCreate, FileAccess.Read))
+                {
+
+                }
+            }
         }
 
 
@@ -108,7 +130,7 @@ namespace weapon_data
                         HttpResponseMessage reply;
                         client.DefaultRequestHeaders.Add("User-Agent", "Other"); // Set request headers to avoid error 403
                    
-                        if ((reply = await client.GetAsync("https://api.github.com/repos/TheMagicalBlob/weapon-data/tags")).IsSuccessStatusCode)
+                        if ((reply = await client.GetAsync($"https://api.github.com/repos/TheMagicalBlob/{nameof(weapon_data)}/tags")).IsSuccessStatusCode)
                         {
                             var message = reply.Content.ReadAsStringAsync().Result;
                             var tag = message.Remove(message.IndexOf(',') - 1).Substring(message.IndexOf(':') + 2);
@@ -128,7 +150,7 @@ namespace weapon_data
                                         PrintNL("Application Up-to-Date");
                                     }
                                     else
-                                        PrintNL($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/weapon-data/releases");
+                                        PrintNL($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/releases");
                                     return;
                                 }
 
@@ -160,7 +182,7 @@ namespace weapon_data
         // Prompt user to open their default browser and download the latest source code
         private void DownloadSourceBtn_Click(object sender, EventArgs e)
         {
-            PrintNL("Download Latest Source: https://github.com/TheMagicalBlob/weapon-data/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
+            PrintNL($"Download Latest Source: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
             
             if (MessageBox.Show(
                     "Download the latest source code through this system's default browser?\n\n(Download Will Start Automatically)",
@@ -170,7 +192,7 @@ namespace weapon_data
                 ) 
                 == DialogResult.Yes)
             {
-                System.Diagnostics.Process.Start("https://github.com/TheMagicalBlob/weapon-data/archive/refs/heads/master.zip");
+                System.Diagnostics.Process.Start($"https://github.com/TheMagicalBlob/{nameof(weapon_data)}/archive/refs/heads/master.zip");
             }
             else Azem.BringToFront();
         }
@@ -213,7 +235,9 @@ namespace weapon_data
         // Search for the Base Application Package Through an OpenFileDialogue Instance.
         private void BasePackagePathBrowseBtn_Click(object sender, EventArgs e)
         {
-            using (var Browser = new OpenFileDialog { Title = "Please Select the Base-Game Package You're Creating a Patch Package for." })
+            using (var Browser = new OpenFileDialog
+            {
+                Title = "Please Select the Base-Game Package You're Creating a Patch Package for." })
             {
                 if (Browser.ShowDialog() == DialogResult.OK)
                 {

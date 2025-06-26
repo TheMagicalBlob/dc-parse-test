@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace weapon_data
@@ -13,6 +15,10 @@ namespace weapon_data
 
         private List<Button> HeaderButtons;
         private List<Button> StructButtons;
+
+        public delegate void PropertiesPanelWand(string dcFileName, object[] dcEntries);
+
+        public PropertiesPanelWand propertiesPanelMammet;
         #endregion
 
 
@@ -23,12 +29,52 @@ namespace weapon_data
         //=================================\\
         #region [Function Delcarations]
 
-        private Button PopulatePropertiesPanel(string headerEntryName)
+        private void PopulatePropertiesPanel(string dcFileName, object[] dcEntries)
         {
-            return new Button()
+            Button newButton()
             {
-                Text = headerEntryName
-            };
+                var btn = new Button()
+                {
+                    Text = dcFileName,
+                    Font = MainFont,
+
+                    BackColor = Color.Black,
+                    ForeColor = Color.White,
+
+                    FlatStyle = 0 
+                };
+                
+
+                                
+                btn.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                    MouseIsDown = true;
+                });
+                btn.MouseUp   += new MouseEventHandler((sender, e) =>
+                {
+                    MouseIsDown = false;
+                    if (OptionsPageIsOpen) {
+                        Azem.BringToFront();
+                    }
+                });
+                
+                btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+
+                return btn;
+            }
+
+
+            Button currentButton;
+            for (int i = 0; i < dcEntries.Length; i++)
+            {
+                var dcEntry = dcEntries[i];
+                currentButton = newButton();
+
+                PropertiesPanel.Controls.Add(currentButton);
+                currentButton.Location = new Point(4, 10 + (currentButton.Height + 3) * i);
+            }
         }
         #endregion
     }

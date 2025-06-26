@@ -92,7 +92,7 @@ namespace weapon_data
                     echo ("Aborting...");
 
                     binThread.Abort();
-                    Venat?.Invoke(Venat.abortButtonMammet, new[] { new object[] { false } });
+                    AbortButtonMammet(false);
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace weapon_data
         private static Point[][] HSeparatorLines;
         
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private static Point[][] VSeparatorLines; 
+        private static Point[][] VSeparatorLines;
 
         /// <summary> MainPage Form Pointer/Refference. </summary>
         public static Main Venat;
@@ -164,7 +164,7 @@ namespace weapon_data
         public binThreadFormWand outputMammet = new binThreadFormWand((args) => OutputWindow.AppendLine(args[0].ToString()));
         public binThreadFormWand labelMammet = new binThreadFormWand((args) => UpdateLabel(args[0]));
 
-        public binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
+        private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
             if (args == null || args.Length < 1 || abortBtn == null)
             {
@@ -173,11 +173,11 @@ namespace weapon_data
 
             foreach (object obj in args)
             {
-                if (obj?.GetType() == typeof(int) || obj == null)
+                if (obj == null || obj.GetType() == typeof(int))
                 {
-                    var newIndex = (int) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0));
+                    int newIndex;
 
-                    abortBtn.Text = new[] { "Abort", "Close File" }[newIndex];
+                    abortBtn.Text = new[] { "Abort", "Close File" } [newIndex = (int) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0))];
                 
                     abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
                     abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
@@ -227,6 +227,9 @@ namespace weapon_data
         public static readonly Font MainFont        = new Font("Gadugi", 8.25f, FontStyle.Bold); // For the vast majority of controls; anything the user doesn't edit, really.
         public static readonly Font TextFont        = new Font("Segoe UI Semibold", 9f); // For option controls with customized contents
         public static readonly Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
+
+        /// <summary> Disable drawing of form border/separator lines </summary>
+        public static bool noDraw;
         #endregion
 
         
@@ -266,7 +269,7 @@ namespace weapon_data
         ///</summary>
         public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
         {
-            if (Venat?.debugDisableLinesBtn.Checked ?? true)
+            if (noDraw)
             {
                 return;
             }
@@ -360,7 +363,7 @@ namespace weapon_data
             MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
             MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
             MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
-            ExitBtn.Click          += new EventHandler((sender, e) => Environment.Exit(                            0             ));
+            ExitBtn.Click          += new EventHandler((sender, e) => { noDraw = true;  Environment.Exit(          0           );});
             ExitBtn.MouseEnter     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(230, 100, 100 ));
             ExitBtn.MouseLeave     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0  , 0  , 0   ));
 
@@ -487,7 +490,7 @@ namespace weapon_data
         /// <param name="str"> The string to update the label's text with. </param>
         public void CTUpdateLabel(object str)
         {
-            Venat?.Invoke(labelMammet, new object[] { str });
+            Venat?.Invoke(labelMammet, new [] { new[] { str } });
         }
 
         
@@ -531,7 +534,7 @@ namespace weapon_data
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
             try {
-                Venat?.Invoke(Venat.outputMammet, new object[] { str.ToString() });
+                Venat?.Invoke(Venat.outputMammet, new [] { new object [] { str.ToString() } });
             }
             catch (Exception dang)
             {
@@ -657,14 +660,15 @@ namespace weapon_data
 
         public void UpdateLine(string newMsg, int line)
         {
-            var lines = Lines; // Not sure why I can't directly write to the array and have it actually update
-            
             while (line >= Lines.Length)
             {
                 Text += '\n';
             }
+            var lines = Lines;
+            
 
-            lines[line - 1] = newMsg;
+
+            lines[line] = newMsg ?? " ";
             Lines = lines;
             Update();
         }

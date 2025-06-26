@@ -45,6 +45,7 @@ namespace weapon_data
 
             BaseAbortButtonWidth = abortBtn.Size.Width;
             
+            propertiesPanelMammet = new PropertiesPanelWand(PopulatePropertiesPanel);
         }
 
 
@@ -93,7 +94,6 @@ namespace weapon_data
         {
             if (File.Exists(binPathTextBox.Text))
             {
-                this.Invoke(abortButtonMammet, new[] { new object[] { 0 } });
                 LoadBinFile(binPathTextBox.Text);
             }
         }
@@ -112,11 +112,13 @@ namespace weapon_data
             if (((Button)sender).Text == "Abort")
             {
                 Abort = true;
-                this.Invoke(abortButtonMammet, new[] { new object[] { 0, false } });
             }
             else {
                 CloseBinFile();
             }
+
+            AbortButtonMammet(0, false);
+            ReloadButtonMammet(false);
         }
 
         
@@ -183,7 +185,7 @@ namespace weapon_data
 
         private void bleghBtn_Click(object sender, EventArgs e)
         {
-            Venat?.Invoke(abortButtonMammet, new[] { new object[] { !abortBtn.Enabled } });
+            AbortButtonMammet(!abortBtn.Enabled);
         }
         #endregion
 
@@ -221,40 +223,36 @@ namespace weapon_data
         private void ParseBinFile(object pathObj)
         {
             var binPath = pathObj?.ToString() ?? "null";
-            try {
+            try
+            {
                 //#
                 //## Load provided DC file.
                 //#
-                try {
-                    DCFile = File.ReadAllBytes(binPath);
-                }
-                catch(IOException) {
-                    PrintNL($"\nERROR: Selected File is Being Used by Another Process.");
-                    goto error;
-                }
+                DCFile = File.ReadAllBytes(binPath);
                 ActiveFileName = binPath.Substring(binPath.LastIndexOf('\\') + 1);
 
-                
+
                 //#
                 //## Parse provided DC file.
                 //#
-                Venat?.Invoke(abortButtonMammet, new[] { new object[] { true } });
-            
+                AbortButtonMammet(true);
+
                 DCHeader = new DCFileHeader(DCFile, ActiveFileName);
                 DCEntries = new object[DCHeader.TableLength];
 
                 var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
-                
+
                 for (int tableIndex = 0, addr = 0x28; tableIndex < DCHeader.HeaderItems.Length; tableIndex++, addr += 24)
                 {
                     Venat?.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCHeader.TableLength})");
+
                     PrintLL($"Item #{tableIndex}: {DCHeader.HeaderItems[tableIndex].Name}", outputLine);
                     echo($"Item #{tableIndex}: [ Label: {DCHeader.HeaderItems[tableIndex].Name} Type: {DCHeader.HeaderItems[tableIndex].Type} Data Address: {DCHeader.HeaderItems[tableIndex].StructAddress:X} ]");
 
                     DCEntries[tableIndex] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[tableIndex].Type, (int)DCHeader.HeaderItems[tableIndex].StructAddress, DCHeader.HeaderItems[tableIndex].Name);
                 }
 
-                
+
 
 
                 //#
@@ -264,21 +262,25 @@ namespace weapon_data
                 PrintNL("\nFinished!");
                 CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
 
-                Venat?.Invoke(reloadButtonMammet, new[] { new object[] { true } });
-                Venat?.Invoke(abortButtonMammet, new[] { new object[] { 1 } });
-                return;
+                ReloadButtonMammet(true);
+                AbortButtonMammet(1);
 
-                error:;
-                CTUpdateLabel(ActiveFileName + " Error Loading dc File!!!");
-                Venat?.Invoke(abortButtonMammet, new[] { new object[] { false } });
+
+                PropertiesPanelMammet(ActiveFileName, DCEntries);
             }
-            catch(ThreadAbortException) {
-                Venat?.Invoke(abortButtonMammet, new[] { new object[] { false, 0 } });
+            catch (IOException) {
+                PrintNL($"\nERROR: Selected File is Being Used by Another Process.");
+                CTUpdateLabel(ActiveFileName + " Error Loading dc File!!!");
+                AbortButtonMammet(false, 0);
+            }
+            catch (ThreadAbortException) {
+                AbortButtonMammet(false, 0);
             }
             # if !DEBUG
             catch (Exception fuck) {
                 PrintNL($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
                 MessageBox.Show($"An Unexpected {fuck.GetType()} Occured While");
+                AbortButtonMammet(false, 0);
             }
             #endif
         }
@@ -293,19 +295,13 @@ namespace weapon_data
         /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
         /// <param name="silent"></param>
         /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
-        private static object LoadDCStructByType(byte[] binFile, string Type, long Address, string Name = null, bool silent = false)
+        private static object LoadDCStructByType(byte[] binFile, string Type, long Address, string Name = null)
         {
             if (Name == null || Name.Length < 1)
             {
                 Name = "unnamed";
             }
-            if (!silent)
-            {
-                Venat?.PrintLL($"  # [{Type}]: {{ Struct Address: 0x{Address.ToString("X").PadLeft(8, '0')}; DC Size: 0x{binFile.Length.ToString("X").PadLeft(8, '0')}; Name: {Name} }}", Venat?.GetOutputWindowLines().Length - 1 ?? 1);
-            }
 
-
-            object ret = null;
 
 
 
@@ -315,40 +311,38 @@ namespace weapon_data
                 //## Mapped Structures
                 //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case "map":
-                    ret = new DCMapDef(binFile, Type, Address);
-                    break;
+                case "map":                         return new DCMapDef(binFile, Address, Name);
 
-                case "weapon-gameplay-def":
-                    ret = new WeaponGameplayDef(binFile, Address, Name);
-                    break;
-                case "melee-weapon-gameplay-def":
-                    break;
-                    //ret = new MeleeWeaponGameplayDef(Name, binFile, Address);
+                case "weapon-gameplay-def":         return new WeaponGameplayDef(binFile, Address, Name);
 
-                case "symbol-array":
-                    break;
-                    ret = new SymbolArrayDef(Name, binFile, Address);
+                case "melee-weapon-gameplay-def":   return new MeleeWeaponGameplayDef(binFile, Address, Name);
 
+                case "symbol-array":                return new SymbolArrayDef(Name, binFile, Address);
 
-                case "ammo-to-weapon-array":
-                    break;
-                    ret = new AmmoToWeaponArray(binFile, Address, Name);
+                case "ammo-to-weapon-array":        return new AmmoToWeaponArray(binFile, Address, Name);
 
 
                     
                 //#
                 //## Unmapped Structures
                 //#
-                default:
-                    ret = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
-                    break;
+                default: return $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
             }
+        }
 
+        public static void ReloadButtonMammet(bool enabled)
+        {
+            Venat?.Invoke(Venat.reloadButtonMammet, new[] { enabled });
+        }
 
-            //var returnType = ret.GetType();
-            //echo($"Returning {returnType} {(returnType != typeof(string) ? ((dynamic)ret).Name : "string")}");
-            return ret;
+        public static void AbortButtonMammet(params object[] args)
+        {
+            Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
+        }
+
+        public static void PropertiesPanelMammet(string dcFileName, object[] dcEntries)
+        {
+            Venat?.Invoke(Venat.propertiesPanelMammet, new object [] { dcFileName, dcEntries });
         }
 
         private static void CloseBinFile()
@@ -356,12 +350,13 @@ namespace weapon_data
             DCFile = null;
             Emmet.Controls.Clear();
         }
-        #endregion
 
         private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
         {
+            noDraw ^= true;
             CreateGraphics().Clear(BackColor);
             Refresh();
         }
+        #endregion
     }
 }

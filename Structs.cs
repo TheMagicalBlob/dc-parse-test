@@ -117,12 +117,12 @@ namespace weapon_data
                 //## Parse header content table
                 //#
                 ActiveLabel = binName + "; Reading Script...";
-    #if ass
+    #if false
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
     #endif
 
 
-                PrintNL($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})");
+                PrintNL($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
                 Venat?.CTUpdateLabel(ActiveLabel);
                 Venat?.InitializeDcStructListsByScriptName(binName);
 
@@ -191,66 +191,22 @@ namespace weapon_data
 
 
 
+
         /// <summary>
         /// A collection of whatever-the-fuck naughty dog felt like including. This may be annoying.
         /// </summary>
-        public struct MapDefinition
-        {
-            public MapDefinition(byte[] binFile, long Address, string Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-
-                Type = DecodeSIDHash(GetSubArray(binFile, (int)Address + 8));
-                Pointer = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
-
-                
-                var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)this.Address), 0);
-                var mapSymbolArray = BitConverter.ToInt64(GetSubArray(binFile, (int)this.Address + 8), 0);
-                long mapStructArray = BitConverter.ToInt64(GetSubArray(binFile, (int)this.Address + 16), 0);
-
-
-                PrintNL($"  Found Map: [ Length: {mapLength}; Symbol Array Address: 0x{mapSymbolArray:X}; Struct Array Address: 0x{mapStructArray:X} ]\n");
-                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
-                    
-                for (int arrayIndex = 0; arrayIndex < mapLength; mapStructArray += 8, mapSymbolArray += 8, arrayIndex++)
-                {
-                    Venat?.PrintLL($"  Parsing Map Structures... {arrayIndex} / {mapLength - 1}", outputLine);
-
-
-                    var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructArray), 0);
-                    var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
-
-                    LoadDCStructByType(binFile, structType, structAddr, DecodeSIDHash(GetSubArray(binFile, (int)mapSymbolArray)));
-                }
-                PrintNL();
-            }
-
-            public long Address;
-            public string Name;
-            public string Type;
-            public long Pointer;
-
-
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
         public struct DCMapDef
         {
-            public DCMapDef(byte[] binFile, string Type, long Address, string Name = "")
+            public DCMapDef(byte[] binFile, long Address, string Name)
             {
-                var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
+                long mapLength;
+                this.Name = Name;
+                Items = new object[mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0)][];
                 var mapNamesArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
                 long mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
-                Items = new object[mapLength][];
-                this.Name = Name;
 
-                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
+                var outputLine = Venat?.GetOutputWindowLines().Length ?? 0;
 
                 if (mapLength < 1)
                 {
