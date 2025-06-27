@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using static weapon_data.Main;
 
 
@@ -257,25 +258,33 @@ namespace weapon_data
         /// </summary>
         public struct SymbolArrayDef
         {
-            public SymbolArrayDef(string name, byte[] binFile, long address)
+            public SymbolArrayDef(byte[] binFile, long Address, string Name)
             {
+                this.Name = Name;
+                this.Address = Address;
+
                 Symbols = new List<string>();
-                Hashes  = new List<byte[]>();
-                Name = name;
-                
-                var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
-                var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
+                Hashes  = new List<long>();
+
+
+                var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
+                var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
 
                 for (int i = 0; i < arrayLen; arrayAddr += 8, i++)
                 {
-                    Hashes.Add(GetSubArray(binFile, (int)arrayAddr));
-                    Symbols.Add(DecodeSIDHash(Hashes.Last()));
+                    var dat = GetSubArray(binFile, (int)arrayAddr);
+
+                    Hashes.Add(BitConverter.ToInt64(dat, 0));
+                    Symbols.Add(DecodeSIDHash(dat));
                 }
             }
 
+
             public string Name;
+            public long Address;
+
             public List<string> Symbols;
-            public List<byte[]> Hashes;
+            public List<long> Hashes;
         }
 
 
@@ -1066,6 +1075,26 @@ namespace weapon_data
             }
 
             public string Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private struct UnknownStruct
+        {
+            public UnknownStruct(string Type, long Address, string Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+
+                Message = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
+            }
+
+            public string Name;
+            public string Message;
             public long Address;
         }
 

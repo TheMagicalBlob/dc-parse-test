@@ -317,7 +317,7 @@ namespace weapon_data
 
                 case "melee-weapon-gameplay-def":   return new MeleeWeaponGameplayDef(binFile, Address, Name);
 
-                case "symbol-array":                return new SymbolArrayDef(Name, binFile, Address);
+                case "symbol-array":                return new SymbolArrayDef(binFile, Address, Name);
 
                 case "ammo-to-weapon-array":        return new AmmoToWeaponArray(binFile, Address, Name);
 
@@ -326,13 +326,13 @@ namespace weapon_data
                 //#
                 //## Unmapped Structures
                 //#
-                default: return $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
+                default: return new UnknownStruct(Type, Address, Name);
             }
         }
 
         public static void ReloadButtonMammet(bool enabled)
         {
-            Venat?.Invoke(Venat.reloadButtonMammet, new[] { enabled });
+            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
         }
 
         public static void AbortButtonMammet(params object[] args)

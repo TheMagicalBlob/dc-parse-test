@@ -35,7 +35,6 @@ namespace weapon_data
             {
                 var btn = new Button()
                 {
-                    Text = dcFileName,
                     Font = MainFont,
 
                     BackColor = Color.Black,
@@ -74,6 +73,7 @@ namespace weapon_data
 
                 PropertiesPanel.Controls.Add(currentButton);
                 currentButton.Location = new Point(4, 10 + (currentButton.Height + 3) * i);
+                currentButton.Text = ((dynamic)dcEntry).Name;
             }
         }
         #endregion
