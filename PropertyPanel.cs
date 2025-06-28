@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Windows.Forms;
 
 namespace weapon_data
@@ -15,6 +17,8 @@ namespace weapon_data
 
         private List<Button> HeaderButtons;
         private List<Button> StructButtons;
+
+        private Button selection;
 
         public delegate void PropertiesPanelWand(string dcFileName, object[] dcEntries);
 
@@ -40,7 +44,7 @@ namespace weapon_data
                     BackColor = Color.Black,
                     ForeColor = Color.White,
 
-                    FlatStyle = 0 
+                    FlatStyle = 0
                 };
                 
 
@@ -64,16 +68,64 @@ namespace weapon_data
                 return btn;
             }
 
+            void selectHeaderButton(Button sender)
+            {
+                
+                    if (selection != null)
+                    {
+                        selection.Font = new Font(selection.Font.FontFamily, selection.Font.Size, (FontStyle) 0);
+                    }
+                    
+                    (selection = sender)
+                    .Font = new Font(selection.Font.FontFamily, selection.Font.Size, selection.Font.Style ^ FontStyle.Underline);
+            }
 
             Button currentButton;
+            HeaderButtons = new List<Button>(dcEntries.Length);
+            Venat.KeyDown += (sender, arg) => FormArrowInitialInputHandler(arg.KeyData == Keys.Down);
+
             for (int i = 0; i < dcEntries.Length; i++)
             {
                 var dcEntry = dcEntries[i];
-                currentButton = newButton();
 
+                currentButton = newButton();
                 PropertiesPanel.Controls.Add(currentButton);
-                currentButton.Location = new Point(4, 10 + (currentButton.Height + 3) * i);
+
+                currentButton.Location = new Point(1, 7 + currentButton.Height * i);
                 currentButton.Text = ((dynamic)dcEntry).Name;
+
+                currentButton.FlatAppearance.BorderSize = 0;
+                currentButton.Width = currentButton.Parent.Width - 2;
+
+                currentButton.Tag = i;
+                currentButton.GotFocus += (button, @event) => selectHeaderButton(button as Button);
+                currentButton.Click += (button, @event) => selectHeaderButton(button as Button);
+
+                currentButton.KeyDown += (sender, arg) =>
+                {
+                    if (arg.KeyData == Keys.Down)
+                    {
+                        if ((int)currentButton.Tag == HeaderButtons.Count - 1)
+                        {
+                            HeaderButtons[0].Focus();
+                        }
+                        else {
+                            HeaderButtons[(int)currentButton.Tag + 1].Focus();
+                        }
+                    }
+                    else if (arg.KeyData == Keys.Up)
+                    {
+                        if ((int)currentButton.Tag == 0)
+                        {
+                            HeaderButtons[HeaderButtons.Count - 1].Focus();
+                        }
+                        else {
+                            HeaderButtons[(int)currentButton.Tag - 1].Focus();
+                        }
+                    }
+                };
+
+                HeaderButtons.Add(currentButton);
             }
         }
         #endregion

@@ -143,9 +143,9 @@ namespace weapon_data
             this.debugShowAllBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 8F, System.Drawing.FontStyle.Bold);
             this.debugShowAllBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.debugShowAllBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugShowAllBtn.Location = new System.Drawing.Point(546, 6);
+            this.debugShowAllBtn.Location = new System.Drawing.Point(589, 8);
             this.debugShowAllBtn.Name = "debugShowAllBtn";
-            this.debugShowAllBtn.Size = new System.Drawing.Size(56, 20);
+            this.debugShowAllBtn.Size = new System.Drawing.Size(56, 19);
             this.debugShowAllBtn.TabIndex = 16;
             this.debugShowAllBtn.Text = "showAll";
             this.debugShowAllBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
@@ -159,7 +159,7 @@ namespace weapon_data
             this.bleghBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.bleghBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.bleghBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.bleghBtn.Location = new System.Drawing.Point(608, 5);
+            this.bleghBtn.Location = new System.Drawing.Point(545, 7);
             this.bleghBtn.Name = "bleghBtn";
             this.bleghBtn.Size = new System.Drawing.Size(43, 21);
             this.bleghBtn.TabIndex = 17;
@@ -180,7 +180,7 @@ namespace weapon_data
             // debugDisableLinesBtn
             // 
             this.debugDisableLinesBtn.AutoSize = true;
-            this.debugDisableLinesBtn.Location = new System.Drawing.Point(657, 8);
+            this.debugDisableLinesBtn.Location = new System.Drawing.Point(649, 10);
             this.debugDisableLinesBtn.Name = "debugDisableLinesBtn";
             this.debugDisableLinesBtn.Size = new System.Drawing.Size(54, 17);
             this.debugDisableLinesBtn.TabIndex = 29;

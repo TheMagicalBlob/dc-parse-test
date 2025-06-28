@@ -57,6 +57,13 @@ namespace weapon_data
         //======================================\\
         #region [Event Handler Declarations]
 
+        private void FormArrowInitialInputHandler(bool topStart)
+        {
+            HeaderButtons[topStart ? 0 : 1].Focus();
+
+            Venat.KeyDown -= (sender, arg) => FormArrowInitialInputHandler(arg.KeyData == Keys.Down);
+        }
+
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
             using (var Browser = new OpenFileDialog
@@ -279,7 +286,7 @@ namespace weapon_data
             # if !DEBUG
             catch (Exception fuck) {
                 PrintNL($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
-                MessageBox.Show($"An Unexpected {fuck.GetType()} Occured While");
+                MessageBox.Show($"An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file");
                 AbortButtonMammet(false, 0);
             }
             #endif
@@ -349,6 +356,13 @@ namespace weapon_data
         {
             DCFile = null;
             Emmet.Controls.Clear();
+
+            if (Venat != null)
+            {
+                Venat.HeaderButtons?.Clear();
+                Venat.HeaderButtons = null;
+                Venat.selection = null;
+            }
         }
 
         private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
