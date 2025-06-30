@@ -100,18 +100,17 @@ namespace weapon_data
 
 
 
+
         
         //#
         //## Form Functionality Globals
         //#
-        /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
-        public static bool LegacyFolderSelectionDialogue = true;
-
         /// <summary> Return the current state of the options page. </summary>
         public static bool OptionsPageIsOpen { get => Azem?.Visible ?? false; }
 
         /// <summary> Boolean global for keeping track of the current mouse state. </summary>
         public static bool MouseIsDown = false;
+
 
 
         /// <summary> Store Expected Options Form Offset. </summary>
@@ -126,6 +125,8 @@ namespace weapon_data
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
         private static Point[][] VSeparatorLines;
 
+
+
         /// <summary> MainPage Form Pointer/Refference. </summary>
         public static Main Venat;
 
@@ -137,32 +138,54 @@ namespace weapon_data
 
         /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
         public static RichTextBox OutputWindow;
-        public bool redirect = 
-#if false //DEBUG
-            true
-#else
-            false
-#endif
-        ;
 
-        private static int BaseAbortButtonWidth;
-
-        public static string ActiveLabel;
-        public static string ActiveFileName;
-        private static readonly int AbortButtonWidthDifference = 20; //! Lazy
 
         
-        public static Label activeScriptLabel;
+        /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
+        public static bool LegacyFolderSelectionDialogue = true;
+
+
+
+        /// <summary> The name of the . </summary>
+        public static string ActiveFileName;
+
+        /// <summary>
+        /// Constant prefix for repeated Label edits.
+        /// </summary>
+        public static string LabelTextBuffer;
+
+
+        /// <summary> The difference in size (horizontally, in pixels) of the Abort/Close File button when it changes from one to the other. </summary>
+        private static readonly int AbortButtonWidthDifference = 20; //! Lazy
+
+        /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
+        private static int BaseAbortButtonWidth;
+
+        
+        public static Label scriptStatusLabel;
         public static Button abortBtn;
 
 
+
+        
+        //#
+        //## Threading-Related Variables
+        //#
         private static Thread binThread;
         public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
         public delegate void binThreadFormWandArray(string msg, int? line);
         public delegate string[] binThreadFormWandOutputRead();
 
-        public binThreadFormWand outputMammet = new binThreadFormWand((args) => OutputWindow.AppendLine(args[0].ToString()));
-        public binThreadFormWand labelMammet = new binThreadFormWand((args) => UpdateLabel(args[0]));
+
+        public binThreadFormWand outputMammet = new binThreadFormWand((args) =>
+        {
+            OutputWindow.AppendLine(args[0].ToString());
+        });
+
+        public binThreadFormWand labelMammet = new binThreadFormWand((args) =>
+        {
+            UpdateLabel(LabelTextBuffer ?? string.Empty + args[0].ToString());
+        });
 
         private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
@@ -215,6 +238,7 @@ namespace weapon_data
 
 
 
+
         //#
         //## Global Look/Feel-Related Variables
         //#
@@ -229,7 +253,9 @@ namespace weapon_data
         public static readonly Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
 
         /// <summary> Disable drawing of form border/separator lines </summary>
+        #if DEBUG
         public static bool noDraw;
+        #endif
         #endregion
 
         
@@ -347,9 +373,12 @@ namespace weapon_data
                     }
                 });
                 
-                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
+                // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)
                 if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                    item.KeyDown += (sender, arg) => FormKeyboardInputHandler(arg.KeyData, arg.Control, arg.Shift);
+                }
             }
             
             if (hSeparatorLines.Count > 0) {
@@ -386,6 +415,7 @@ namespace weapon_data
 
             MouseMove += new MouseEventHandler((sender, e) => MoveForm());
             
+            KeyDown += (sender, arg) => FormKeyboardInputHandler(arg.KeyData, arg.Control, arg.Shift);
 
             Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
         }
@@ -470,16 +500,10 @@ namespace weapon_data
             # if DEBUG
             var str = message.ToString();
             
-            if (Venat?.redirect ?? false || str.Contains("ERROR"))
-            {
-                PrintNL(str);
-            }
-            else {
-                Console.WriteLine(str);
+            Console.WriteLine(str);
 
-                if (!Console.IsInputRedirected) {
-                    Debug.WriteLine(str);
-                }
+            if (!Console.IsInputRedirected) {
+                Debug.WriteLine(str);
             }
             #endif
         }
@@ -494,10 +518,11 @@ namespace weapon_data
         }
 
         
-        public static void UpdateLabel(object str)
+        public static void UpdateLabel(string str)
         {
-            activeScriptLabel.Text = "Selected Script: " + str;
+            scriptStatusLabel.Text = $"Selected Script: {ActiveFileName} {str}";
         }
+
 
         public void PrintLL(string str, int line = 1)
         {
@@ -513,6 +538,7 @@ namespace weapon_data
 #endif
             Venat?.Invoke(outputMammetSpecificLine, str, line < 1 ? 1 : line);
         }
+
 
         /// <summary>
         /// Output Misc. Messages to the Main Output Window (the big-ass richtext box).

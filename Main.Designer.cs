@@ -39,7 +39,6 @@ namespace weapon_data
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.AbortOrCloseBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
-            this.debugShowAllBtn = new System.Windows.Forms.Button();
             this.bleghBtn = new System.Windows.Forms.Button();
             this.PropertiesPanel = new System.Windows.Forms.GroupBox();
             this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
@@ -52,7 +51,7 @@ namespace weapon_data
             this.SeperatorLine2 = new weapon_data.Label();
             this.VersionLabel = new weapon_data.Label();
             this.label1 = new weapon_data.Label();
-            this.ActiveScriptLabel = new weapon_data.Label();
+            this.ScriptStatusLabel = new weapon_data.Label();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -136,22 +135,6 @@ namespace weapon_data
             this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             this.ReloadScriptBtn.Click += new System.EventHandler(this.ReloadBinFile);
             // 
-            // debugShowAllBtn
-            // 
-            this.debugShowAllBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.debugShowAllBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.debugShowAllBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 8F, System.Drawing.FontStyle.Bold);
-            this.debugShowAllBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.debugShowAllBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugShowAllBtn.Location = new System.Drawing.Point(589, 8);
-            this.debugShowAllBtn.Name = "debugShowAllBtn";
-            this.debugShowAllBtn.Size = new System.Drawing.Size(56, 19);
-            this.debugShowAllBtn.TabIndex = 16;
-            this.debugShowAllBtn.Text = "showAll";
-            this.debugShowAllBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.debugShowAllBtn.UseVisualStyleBackColor = false;
-            this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click);
-            // 
             // bleghBtn
             // 
             this.bleghBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
@@ -180,7 +163,7 @@ namespace weapon_data
             // debugDisableLinesBtn
             // 
             this.debugDisableLinesBtn.AutoSize = true;
-            this.debugDisableLinesBtn.Location = new System.Drawing.Point(649, 10);
+            this.debugDisableLinesBtn.Location = new System.Drawing.Point(592, 10);
             this.debugDisableLinesBtn.Name = "debugDisableLinesBtn";
             this.debugDisableLinesBtn.Size = new System.Drawing.Size(54, 17);
             this.debugDisableLinesBtn.TabIndex = 29;
@@ -219,7 +202,7 @@ namespace weapon_data
             this.label5.Font = new System.Drawing.Font("Cambria", 8F);
             this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.label5.IsSeparatorLine = true;
-            this.label5.Location = new System.Drawing.Point(29, 141);
+            this.label5.Location = new System.Drawing.Point(29, 142);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(644, 13);
             this.label5.StretchToFitForm = true;
@@ -308,15 +291,15 @@ namespace weapon_data
             // 
             // ActiveScriptLabel
             // 
-            this.ActiveScriptLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
-            this.ActiveScriptLabel.ForeColor = System.Drawing.Color.Gold;
-            this.ActiveScriptLabel.IsSeparatorLine = false;
-            this.ActiveScriptLabel.Location = new System.Drawing.Point(8, 159);
-            this.ActiveScriptLabel.Name = "ActiveScriptLabel";
-            this.ActiveScriptLabel.Size = new System.Drawing.Size(521, 23);
-            this.ActiveScriptLabel.StretchToFitForm = false;
-            this.ActiveScriptLabel.TabIndex = 0;
-            this.ActiveScriptLabel.Text = "Selected Script: none selected";
+            this.ScriptStatusLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
+            this.ScriptStatusLabel.ForeColor = System.Drawing.Color.Gold;
+            this.ScriptStatusLabel.IsSeparatorLine = false;
+            this.ScriptStatusLabel.Location = new System.Drawing.Point(8, 158);
+            this.ScriptStatusLabel.Name = "ActiveScriptLabel";
+            this.ScriptStatusLabel.Size = new System.Drawing.Size(521, 23);
+            this.ScriptStatusLabel.StretchToFitForm = false;
+            this.ScriptStatusLabel.TabIndex = 0;
+            this.ScriptStatusLabel.Text = "Selected Script: none selected";
             // 
             // Main
             // 
@@ -337,12 +320,11 @@ namespace weapon_data
             this.Controls.Add(this.PropertiesPanel);
             this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.bleghBtn);
-            this.Controls.Add(this.debugShowAllBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.MinimizeBtn);
-            this.Controls.Add(this.ActiveScriptLabel);
+            this.Controls.Add(this.ScriptStatusLabel);
             this.Controls.Add(this.BinPathBrowseBtn);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -365,13 +347,12 @@ namespace weapon_data
         private Button BinPathBrowseBtn;
         private RichTextBox PropertiesWindowRichTextBox;
         private Button optionsMenuDropdownBtn;
-        private Label ActiveScriptLabel;
+        private Label ScriptStatusLabel;
         private Button ExitBtn;
         private Button MinimizeBtn;
         private Button AbortOrCloseBtn;
         private Button ReloadScriptBtn;
         private Label label1;
-        private Button debugShowAllBtn;
         #endregion
 
         private Button bleghBtn;

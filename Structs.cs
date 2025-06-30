@@ -117,14 +117,17 @@ namespace weapon_data
                 //#
                 //## Parse header content table
                 //#
-                ActiveLabel = binName + "; Reading Script...";
     #if false
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
     #endif
 
 
                 PrintNL($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-                Venat?.CTUpdateLabel(ActiveLabel);
+
+                LabelTextBuffer = "Reading Script...";
+                Venat?.CTUpdateLabel(LabelTextBuffer);
+                
+
                 Venat?.InitializeDcStructListsByScriptName(binName);
 
                 var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;

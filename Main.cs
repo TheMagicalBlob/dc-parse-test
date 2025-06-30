@@ -20,7 +20,9 @@ namespace weapon_data
             Azem = new OptionsPage();
             Emmet = PropertiesPanel;
             Update(); Refresh();
+
             
+
 
             if (File.Exists($"{Directory.GetCurrentDirectory()}\\sidbase.bin"))
             {
@@ -39,7 +41,9 @@ namespace weapon_data
             
             VersionLabel.Text = "Ver." + Version;
 
-            activeScriptLabel = ActiveScriptLabel;
+            ActiveFileName = "No Script Selected";
+
+            scriptStatusLabel = ScriptStatusLabel;
             abortBtn = AbortOrCloseBtn;
             OutputWindow = PropertiesWindowRichTextBox;
 
@@ -57,11 +61,57 @@ namespace weapon_data
         //======================================\\
         #region [Event Handler Declarations]
 
-        private void FormArrowInitialInputHandler(bool topStart)
+        private void FormKeyboardInputHandler(Keys arg, bool ctrl, bool shift)
         {
-            HeaderButtons[topStart ? 0 : 1].Focus();
+            switch (arg)
+            {
+                case Keys.Down:
+                    if ((int)selection.Tag == HeaderButtons.Count - 1)
+                    {
+                        HeaderButtons[0].Focus();
+                    }
+                    else {
+                        HeaderButtons[(int)selection.Tag + 1].Focus();
+                    }
+                break;
 
-            Venat.KeyDown -= (sender, arg) => FormArrowInitialInputHandler(arg.KeyData == Keys.Down);
+                case Keys.Up:
+                    if ((int)selection.Tag == 0)
+                    {
+                        HeaderButtons[HeaderButtons.Count - 1].Focus();
+                    }
+                    else {
+                        HeaderButtons[(int)selection.Tag - 1].Focus();
+                    }
+                break;
+
+
+                #if DEBUG
+                default:
+                    echo($"Input Recieved: [{arg}]");
+                break;
+                #endif
+            }
+            if (selection == null && (HeaderButtons?.Any() ?? false))
+            {
+                HeaderButtons[arg == Keys.Down ? 0 : HeaderButtons.Count - 1].Focus();
+            }
+            else {
+                if (arg == Keys.Down)
+                {
+       
+                }
+                else if (arg == Keys.Up)
+                {
+                    if ((int)selection.Tag == 0)
+                    {
+                        HeaderButtons[HeaderButtons.Count - 1].Focus();
+                    }
+                    else {
+                        HeaderButtons[(int)selection.Tag - 1].Focus();
+                    }
+                }
+            }
         }
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
@@ -183,12 +233,6 @@ namespace weapon_data
             }
         }
 
-        private void redirectCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            #if DEBUG
-            redirect = ((CheckBox)sender).Checked;
-            #endif
-        }
 
         private void bleghBtn_Click(object sender, EventArgs e)
         {
@@ -230,8 +274,8 @@ namespace weapon_data
         private void ParseBinFile(object pathObj)
         {
             var binPath = pathObj?.ToString() ?? "null";
-            try
-            {
+            
+            try {
                 //#
                 //## Load provided DC file.
                 //#
@@ -249,14 +293,13 @@ namespace weapon_data
 
                 var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
 
-                for (int tableIndex = 0, addr = 0x28; tableIndex < DCHeader.HeaderItems.Length; tableIndex++, addr += 24)
+                for (int fuck = 0, sake = 0x28; fuck < DCHeader.HeaderItems.Length; fuck++, sake += 24)
                 {
-                    Venat?.CTUpdateLabel(ActiveLabel + $" ({tableIndex} / {DCHeader.TableLength})");
+                    Venat?.CTUpdateLabel($" ({fuck} / {DCHeader.TableLength})");
 
-                    PrintLL($"Item #{tableIndex}: {DCHeader.HeaderItems[tableIndex].Name}", outputLine);
-                    echo($"Item #{tableIndex}: [ Label: {DCHeader.HeaderItems[tableIndex].Name} Type: {DCHeader.HeaderItems[tableIndex].Type} Data Address: {DCHeader.HeaderItems[tableIndex].StructAddress:X} ]");
+                    echo($"Item #{fuck}: [ Label: {DCHeader.HeaderItems[fuck].Name} Type: {DCHeader.HeaderItems[fuck].Type} Data Address: {DCHeader.HeaderItems[fuck].StructAddress:X} ]");
 
-                    DCEntries[tableIndex] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[tableIndex].Type, (int)DCHeader.HeaderItems[tableIndex].StructAddress, DCHeader.HeaderItems[tableIndex].Name);
+                    DCEntries[fuck] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[fuck].Type, (int)DCHeader.HeaderItems[fuck].StructAddress, DCHeader.HeaderItems[fuck].Name);
                 }
 
 
@@ -367,9 +410,11 @@ namespace weapon_data
 
         private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
         {
+            #if DEBUG
             noDraw ^= true;
             CreateGraphics().Clear(BackColor);
             Refresh();
+            #endif
         }
         #endregion
     }

@@ -41,7 +41,7 @@ namespace weapon_data
                 {
                     Font = MainFont,
 
-                    BackColor = Color.Black,
+                    BackColor = Color.FromArgb(255, 20, 20, 20),
                     ForeColor = Color.White,
 
                     FlatStyle = 0
@@ -68,21 +68,20 @@ namespace weapon_data
                 return btn;
             }
 
-            void selectHeaderButton(Button sender)
+            void highlightHeaderButton(Button sender)
             {
-                
-                    if (selection != null)
-                    {
-                        selection.Font = new Font(selection.Font.FontFamily, selection.Font.Size, (FontStyle) 0);
-                    }
+                if (selection != null)
+                {
+                    selection.Font = new Font(selection.Font.FontFamily, selection.Font.Size, (FontStyle) 0);
+                }
                     
-                    (selection = sender)
-                    .Font = new Font(selection.Font.FontFamily, selection.Font.Size, selection.Font.Style ^ FontStyle.Underline);
+                (selection = sender)
+                .Font = new Font(selection.Font.FontFamily, selection.Font.Size, selection.Font.Style ^ FontStyle.Underline);
             }
 
             Button currentButton;
             HeaderButtons = new List<Button>(dcEntries.Length);
-            Venat.KeyDown += (sender, arg) => FormArrowInitialInputHandler(arg.KeyData == Keys.Down);
+
 
             for (int i = 0; i < dcEntries.Length; i++)
             {
@@ -98,8 +97,8 @@ namespace weapon_data
                 currentButton.Width = currentButton.Parent.Width - 2;
 
                 currentButton.Tag = i;
-                currentButton.GotFocus += (button, @event) => selectHeaderButton(button as Button);
-                currentButton.Click += (button, @event) => selectHeaderButton(button as Button);
+                currentButton.GotFocus += (button, _) => highlightHeaderButton(button as Button);
+                currentButton.Click += (button, _) => highlightHeaderButton(button as Button);
 
                 currentButton.KeyDown += (sender, arg) =>
                 {
