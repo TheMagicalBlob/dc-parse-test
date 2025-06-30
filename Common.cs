@@ -350,12 +350,20 @@ namespace weapon_data
                     if (item.Size.Width > item.Size.Height)
                     {
                         // Horizontal Lines
-                        hSeparatorLines.Add(new Point[2] { new Point(((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7), new Point(((weapon_data.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7) });
+                        hSeparatorLines.Add(new Point[2] { 
+                            new Point(((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7),
+                            new Point(((weapon_data.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7)
+                        });
+
                         Controls.Remove(item);
                     }
                     else {
                         // Vertical Lines
-                        vSeparatorLines.Add(new [] { new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y), new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height) });
+                        vSeparatorLines.Add(new [] {
+                            new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y),
+                            new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height)
+                        });
+
                         Controls.Remove(item);
                     }
                 }
@@ -378,6 +386,15 @@ namespace weapon_data
                 {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
                     item.KeyDown += (sender, arg) => FormKeyboardInputHandler(arg.KeyData, arg.Control, arg.Shift);
+                }
+                else {
+                    item.KeyDown += (sender, arg) =>
+                    {
+                        if (arg.KeyData == Keys.Escape)
+                        {
+                            Venat?.Focus();
+                        }
+                    };
                 }
             }
             

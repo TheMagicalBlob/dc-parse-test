@@ -63,6 +63,8 @@ namespace weapon_data
 
         private void FormKeyboardInputHandler(Keys arg, bool ctrl, bool shift)
         {
+                    echo($"Input Recieved: [{arg}]");
+
             switch (arg)
             {
                 case Keys.Down:
@@ -88,7 +90,7 @@ namespace weapon_data
 
                 #if DEBUG
                 default:
-                    echo($"Input Recieved: [{arg}]");
+                    echo($"Misc Input Recieved: [{arg}]");
                 break;
                 #endif
             }
@@ -237,6 +239,28 @@ namespace weapon_data
         private void bleghBtn_Click(object sender, EventArgs e)
         {
             AbortButtonMammet(!abortBtn.Enabled);
+        }
+
+        private void debugShowAllBtn_Click_1(object sender, EventArgs e)
+        {
+            #if DEBUG
+            foreach (Control control in Controls)
+            {
+                control.Enabled = control.Visible = true;
+                
+                if (control.Font.Underline)
+                    control.Font = new Font(control.Font.FontFamily, control.Font.Size, control.Font.Style ^ FontStyle.Underline);
+            }
+            #endif
+        }
+        
+        private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
+        {
+            #if DEBUG
+            noDraw ^= true;
+            CreateGraphics().Clear(BackColor);
+            Refresh();
+            #endif
         }
         #endregion
 
@@ -399,6 +423,7 @@ namespace weapon_data
         {
             DCFile = null;
             Emmet.Controls.Clear();
+            OutputWindow.Clear();
 
             if (Venat != null)
             {
@@ -406,15 +431,6 @@ namespace weapon_data
                 Venat.HeaderButtons = null;
                 Venat.selection = null;
             }
-        }
-
-        private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
-        {
-            #if DEBUG
-            noDraw ^= true;
-            CreateGraphics().Clear(BackColor);
-            Refresh();
-            #endif
         }
         #endregion
     }
