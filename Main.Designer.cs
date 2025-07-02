@@ -341,7 +341,7 @@ namespace weapon_data
             this.debugShowAllBtn.Text = "showAll";
             this.debugShowAllBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.debugShowAllBtn.UseVisualStyleBackColor = false;
-            this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click_1);
+            this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click);
             // 
             // Main
             // 

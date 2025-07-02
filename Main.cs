@@ -180,10 +180,12 @@ namespace weapon_data
             ReloadButtonMammet(false);
         }
 
-        
+        #if DEBUG
         private List<object[]> shownControls;
+        #endif
         private void debugShowAllBtn_Click(object sender, EventArgs e)
         {
+            #if DEBUG
             if (shownControls == null)
             {
                 shownControls = new List<object[]>();
@@ -227,12 +229,13 @@ namespace weapon_data
             else {
                 for (int i = 0; i < shownControls.Count; i++)
                 {
-                    ((Control)shownControls[i][0]).Visible = (shownControls[1][1] as bool[])[0];
-                    ((Control)shownControls[i][0]).Enabled = (shownControls[1][1] as bool[])[1];
+                    ((Control)shownControls[i][0]).Visible = (shownControls[i][1] as bool[])[0];
+                    ((Control)shownControls[i][0]).Enabled = (shownControls[i][1] as bool[])[1];
                 }
 
                 shownControls = null;
             }
+            #endif
         }
 
 
@@ -241,18 +244,6 @@ namespace weapon_data
             AbortButtonMammet(!abortBtn.Enabled);
         }
 
-        private void debugShowAllBtn_Click_1(object sender, EventArgs e)
-        {
-            #if DEBUG
-            foreach (Control control in Controls)
-            {
-                control.Enabled = control.Visible = true;
-                
-                if (control.Font.Underline)
-                    control.Font = new Font(control.Font.FontFamily, control.Font.Size, control.Font.Style ^ FontStyle.Underline);
-            }
-            #endif
-        }
         
         private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
         {

@@ -382,7 +382,7 @@ namespace weapon_data
                 });
                 
                 // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)
-                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                if (item.GetType() != typeof(weapon_data.TextBox) && item.GetType() != typeof(weapon_data.RichTextBox))
                 {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
                     item.KeyDown += (sender, arg) => FormKeyboardInputHandler(arg.KeyData, arg.Control, arg.Shift);
@@ -392,7 +392,8 @@ namespace weapon_data
                     {
                         if (arg.KeyData == Keys.Escape)
                         {
-                            Venat?.Focus();
+                            Focus();
+                            item.FindForm().Focus();
                         }
                     };
                 }
