@@ -135,7 +135,7 @@ namespace weapon_data
                             var message = reply.Content.ReadAsStringAsync().Result;
                             var tag = message.Remove(message.IndexOf(',') - 1).Substring(message.IndexOf(':') + 2);
     #if DEBUG
-                            PrintNL($"Newest Tag: [{tag}]");
+                            echo($"Newest Tag: [{tag}]");
     #endif
 
                             if (tag != Main.Version) {
@@ -147,10 +147,10 @@ namespace weapon_data
                                 if (checkedVersion.Length != currentVersion.Length)
                                 {
                                     if (checkedVersion.Length < currentVersion.Length) {
-                                        PrintNL("Application Up-to-Date");
+                                        echo("Application Up-to-Date");
                                     }
                                     else
-                                        PrintNL($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/releases");
+                                        echo($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/releases");
                                     return;
                                 }
 
@@ -160,21 +160,21 @@ namespace weapon_data
                                     var newnum = checkedVersion[i];
 
                                     if (int.Parse(currnum) < int.Parse(newnum)) {
-                                        PrintNL($"New Version Available. (//! print link or prompt to open in browser)");
+                                        echo($"New Version Available. (//! print link or prompt to open in browser)");
                                         return;
                                     }
                                 }
                             
-                                PrintNL("Application Up-to-Date");
+                                echo("Application Up-to-Date");
                             }
                         }
                         else
-                            PrintNL($"Error checking for newest tag (Status: {reply.StatusCode})");
+                            echo($"Error checking for newest tag (Status: {reply.StatusCode})");
                     }
                 }
             }
             catch (Exception dang) {
-                PrintNL($"Unable to connect to api.github");
+                echo($"Unable to connect to api.github");
             }
         }
 
@@ -182,7 +182,7 @@ namespace weapon_data
         // Prompt user to open their default browser and download the latest source code
         private void DownloadSourceBtn_Click(object sender, EventArgs e)
         {
-            PrintNL($"Download Latest Source: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
+            echo($"Download Latest Source: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
             
             if (MessageBox.Show(
                     "Download the latest source code through this system's default browser?\n\n(Download Will Start Automatically)",

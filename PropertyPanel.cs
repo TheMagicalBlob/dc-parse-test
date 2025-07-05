@@ -18,7 +18,18 @@ namespace weapon_data
         private List<Button> HeaderButtons;
         private List<Button> StructButtons;
 
-        private Button selection;
+        private Button Selection
+        {
+            get => _selection;
+
+            set {
+                if (value != null)
+                    DisplayHItemContents(value.TabIndex);
+                _selection = value;
+            }
+        }
+
+        private Button _selection;
 
         public delegate void PropertiesPanelWand(string dcFileName, object[] dcEntries);
 
@@ -32,6 +43,12 @@ namespace weapon_data
         //--|   Function Delcarations   |--\\
         //=================================\\
         #region [Function Delcarations]
+
+        private void DisplayHItemContents(int itemIndex)
+        {
+
+        }
+
 
         private void PopulatePropertiesPanel(string dcFileName, object[] dcEntries)
         {
@@ -70,33 +87,62 @@ namespace weapon_data
 
             void highlightHeaderButton(Button sender)
             {
-                if (selection != null)
+                if (Selection != null)
                 {
-                    selection.Font = new Font(selection.Font.FontFamily, selection.Font.Size, (FontStyle) 0);
+                    Selection.Font = new Font(Selection.Font.FontFamily, Selection.Font.Size, (FontStyle) 0);
                 }
                     
-                (selection = sender)
-                .Font = new Font(selection.Font.FontFamily, selection.Font.Size, selection.Font.Style ^ FontStyle.Underline);
+                (Selection = sender)
+                .Font = new Font(Selection.Font.FontFamily, Selection.Font.Size, Selection.Font.Style ^ FontStyle.Underline);
             }
 
             Button currentButton;
             HeaderButtons = new List<Button>(dcEntries.Length);
 
+            var dcLen = dcEntries.Length;
+            var tabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
+            char[] name = null;
 
-            for (int i = 0; i < dcEntries.Length; i++)
+            for (int i = 0; i < dcLen; i++, name = null)
             {
                 var dcEntry = dcEntries[i];
-
                 currentButton = newButton();
                 PropertiesPanel.Controls.Add(currentButton);
-
+                
                 currentButton.Location = new Point(1, 7 + currentButton.Height * i);
-                currentButton.Text = ((dynamic)dcEntry).Name;
+
+
+
+                name = (((dynamic)dcEntry).Name as string).ToArray();
+                var tmp = 0;
+
+                for(;tmp < name.Length && name[tmp] < 123 && name[tmp] > 96; ++tmp);
+
+                name[tmp + 1] = $"{name[tmp + 1]}".ToUpper()[0];
+
+
+                for (var j = tmp + 1; j < name.Length;)
+                {
+                    if (name[j] == '-')
+                    {
+                        while (name[++j] == '-' && j < name.Length);
+                            
+                        name[j - 1] = ' ';
+                        name[j] = $"{name[j]}".ToUpper()[0];
+                        //  eat--my-ass
+                        //  go---bite-a-dick
+                    }
+
+                    j++;
+                }
+                currentButton.Text = new string(name);
+
+                currentButton.Name = ((dynamic)dcEntry).Name;
 
                 currentButton.FlatAppearance.BorderSize = 0;
                 currentButton.Width = currentButton.Parent.Width - 2;
 
-                currentButton.Tag = i;
+                currentButton.TabIndex = tabIndexBase + i;
                 currentButton.GotFocus += (button, _) => highlightHeaderButton(button as Button);
                 currentButton.Click += (button, _) => highlightHeaderButton(button as Button);
 
@@ -126,6 +172,10 @@ namespace weapon_data
 
                 HeaderButtons.Add(currentButton);
             }
+
+            optionsMenuDropdownBtn.TabIndex += dcLen;
+            MinimizeBtn.TabIndex += dcLen;
+            ExitBtn.TabIndex += dcLen;
         }
         #endregion
     }

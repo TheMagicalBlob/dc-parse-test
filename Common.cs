@@ -516,7 +516,7 @@ namespace weapon_data
         public static void echo(object message = null)
         {
             # if DEBUG
-            var str = message.ToString();
+            var str = message?.ToString() ?? string.Empty;
             
             Console.WriteLine(str);
 
@@ -578,11 +578,11 @@ namespace weapon_data
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
             try {
-                Venat?.Invoke(Venat.outputMammet, new [] { new object [] { str.ToString() } });
+                Venat?.Invoke(Venat.outputMammet, new [] { new[] { str.ToString() } });
             }
             catch (Exception dang)
             {
-                var err = $"Missed PrintNL Invokation due to a {dang.GetType()}";
+                var err = $"Missed echo Invokation due to a {dang.GetType()}";
                 if (!Console.IsOutputRedirected)
                     Console.WriteLine(err);
                 else

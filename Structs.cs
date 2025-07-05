@@ -122,7 +122,7 @@ namespace weapon_data
     #endif
 
 
-                PrintNL($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
+                echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
 
                 LabelTextBuffer = "Reading Script...";
                 Venat?.CTUpdateLabel(LabelTextBuffer);
@@ -130,13 +130,12 @@ namespace weapon_data
 
                 Venat?.InitializeDcStructListsByScriptName(binName);
 
-                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
                     HeaderItems[tableIndex] = new DCHeaderItem(binFile, addr);
-                    Venat?.PrintLL($"{(tableIndex < TableLength - 1 ? $"  # Structure {tableIndex} Loaded Without Error..." : "All DC Entries Loaded Successfully.")}", outputLine);
+                    echo($"{(tableIndex < TableLength - 1 ? $"  # Structure {tableIndex} Loaded Without Error..." : "All DC Entries Loaded Successfully.")}");
                 }
-                PrintNL();
+                echo();
             
     #if false
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
@@ -210,28 +209,26 @@ namespace weapon_data
                 long mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
 
-                var outputLine = Venat?.GetOutputWindowLines().Length ?? 0;
-
                 if (mapLength < 1)
                 {
-                    Venat?.PrintLL($"  # Empty Map Structures.", outputLine);
+                    echo($"  # Empty Map Structures.");
                     return;
                 }
                 Items[0] = new object[2];
 
                     
 
-                PrintNL();
+                echo();
 
                 for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
-                    Venat?.PrintLL($"  # Parsing Map Structures... {arrayIndex + 1} / {mapLength}", outputLine);
+                    echo($"  # Parsing Map Structures... {arrayIndex + 1} / {mapLength}");
                     
                     var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
                     var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
                     var structName = DecodeSIDHash(GetSubArray(binFile, (int)mapNamesArrayPtr));
 
-                    Venat?.PrintLL($"    - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}", outputLine + 1);
+                    echo($"    - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}" + 1);
 
 
                     Items[arrayIndex] = new object[2];
@@ -239,7 +236,7 @@ namespace weapon_data
                     Items[arrayIndex][0] = structType;
                     Items[arrayIndex][1] = LoadDCStructByType(binFile, structType, structAddr, structName);
                 }
-                Venat?.PrintLL($"  # Finished Parsing All Map Structures.", outputLine);
+                echo($"  # Finished Parsing All Map Structures.");
             }
 
             
@@ -306,17 +303,15 @@ namespace weapon_data
                 var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
                 var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
 
-                var outputLine = Venat?.GetOutputWindowLines().Length ?? 0;
-
-                PrintNL("\n");
+                echo("\n");
                 for (int i = 0; i < arrayLen; arrayAddr += 16, i++)
                 {
-                    Venat?.PrintLL($"  # Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}", outputLine);
+                    echo($"  # Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}");
 
                     hashes.Add(new[] { GetSubArray(binFile, (int)arrayAddr + 8), GetSubArray(binFile, (int)arrayAddr) });
                     symbols.Add(new[] { DecodeSIDHash(hashes.Last()[0]), DecodeSIDHash(hashes.Last()[1]) });
                 }
-                Venat?.PrintLL($"  # Finished Parsing Ammo-to-Weapon Structures.", outputLine);
+                echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
 
                 Symbols = symbols.ToArray();
                 Hashes = hashes.ToArray();

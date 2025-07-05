@@ -39,7 +39,7 @@ namespace weapon_data
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.AbortOrCloseBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
-            this.bleghBtn = new System.Windows.Forms.Button();
+            this.debugMiscBtn = new System.Windows.Forms.Button();
             this.PropertiesPanel = new System.Windows.Forms.GroupBox();
             this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
             this.binPathTextBox = new weapon_data.TextBox();
@@ -55,6 +55,7 @@ namespace weapon_data
             this.dummy0 = new System.Windows.Forms.Button();
             this.dummy1 = new System.Windows.Forms.Button();
             this.debugShowAllBtn = new System.Windows.Forms.Button();
+            this.debugTabCheckBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -77,7 +78,7 @@ namespace weapon_data
             this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 44);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
             this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
-            this.optionsMenuDropdownBtn.TabIndex = 5;
+            this.optionsMenuDropdownBtn.TabIndex = 6;
             this.optionsMenuDropdownBtn.Text = "Options...";
             this.optionsMenuDropdownBtn.UseVisualStyleBackColor = false;
             this.optionsMenuDropdownBtn.Click += new System.EventHandler(this.OptionsMenuDropdownBtn_Click);
@@ -138,21 +139,21 @@ namespace weapon_data
             this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             this.ReloadScriptBtn.Click += new System.EventHandler(this.ReloadBinFile);
             // 
-            // bleghBtn
+            // debugMiscBtn
             // 
-            this.bleghBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.bleghBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.bleghBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.bleghBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.bleghBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.bleghBtn.Location = new System.Drawing.Point(545, 7);
-            this.bleghBtn.Name = "bleghBtn";
-            this.bleghBtn.Size = new System.Drawing.Size(43, 21);
-            this.bleghBtn.TabIndex = 17;
-            this.bleghBtn.Text = "Misc.";
-            this.bleghBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.bleghBtn.UseVisualStyleBackColor = false;
-            this.bleghBtn.Click += new System.EventHandler(this.bleghBtn_Click);
+            this.debugMiscBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugMiscBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugMiscBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.debugMiscBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugMiscBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugMiscBtn.Location = new System.Drawing.Point(545, 7);
+            this.debugMiscBtn.Name = "debugMiscBtn";
+            this.debugMiscBtn.Size = new System.Drawing.Size(43, 21);
+            this.debugMiscBtn.TabIndex = 17;
+            this.debugMiscBtn.Text = "Misc.";
+            this.debugMiscBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugMiscBtn.UseVisualStyleBackColor = false;
+            this.debugMiscBtn.Click += new System.EventHandler(this.debugMiscBtn_Click);
             // 
             // PropertiesPanel
             // 
@@ -166,7 +167,7 @@ namespace weapon_data
             // debugDisableLinesBtn
             // 
             this.debugDisableLinesBtn.AutoSize = true;
-            this.debugDisableLinesBtn.Location = new System.Drawing.Point(644, 10);
+            this.debugDisableLinesBtn.Location = new System.Drawing.Point(703, 10);
             this.debugDisableLinesBtn.Name = "debugDisableLinesBtn";
             this.debugDisableLinesBtn.Size = new System.Drawing.Size(54, 17);
             this.debugDisableLinesBtn.TabIndex = 29;
@@ -182,7 +183,7 @@ namespace weapon_data
             this.binPathTextBox.Location = new System.Drawing.Point(4, 34);
             this.binPathTextBox.Name = "binPathTextBox";
             this.binPathTextBox.Size = new System.Drawing.Size(530, 24);
-            this.binPathTextBox.TabIndex = 2;
+            this.binPathTextBox.TabIndex = 5;
             this.binPathTextBox.Text = "Browse for/Paste in a dc file path";
             this.binPathTextBox.TextChanged += new System.EventHandler(this.CheckbinPathBoxText);
             // 
@@ -343,12 +344,29 @@ namespace weapon_data
             this.debugShowAllBtn.UseVisualStyleBackColor = false;
             this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click);
             // 
+            // debugTabCheckBtn
+            // 
+            this.debugTabCheckBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugTabCheckBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugTabCheckBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugTabCheckBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugTabCheckBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugTabCheckBtn.Location = new System.Drawing.Point(638, 8);
+            this.debugTabCheckBtn.Name = "debugTabCheckBtn";
+            this.debugTabCheckBtn.Size = new System.Drawing.Size(45, 19);
+            this.debugTabCheckBtn.TabIndex = 43;
+            this.debugTabCheckBtn.Text = "tabcheck";
+            this.debugTabCheckBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugTabCheckBtn.UseVisualStyleBackColor = false;
+            this.debugTabCheckBtn.Click += new System.EventHandler(this.debugTabCheckBtn_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(834, 572);
+            this.Controls.Add(this.debugTabCheckBtn);
             this.Controls.Add(this.debugShowAllBtn);
             this.Controls.Add(this.dummy1);
             this.Controls.Add(this.dummy0);
@@ -364,7 +382,7 @@ namespace weapon_data
             this.Controls.Add(this.SeperatorLine2);
             this.Controls.Add(this.PropertiesPanel);
             this.Controls.Add(this.VersionLabel);
-            this.Controls.Add(this.bleghBtn);
+            this.Controls.Add(this.debugMiscBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.ExitBtn);
@@ -400,7 +418,7 @@ namespace weapon_data
         private Label label1;
         #endregion
 
-        private Button bleghBtn;
+        private Button debugMiscBtn;
         private Label VersionLabel;
         private GroupBox PropertiesPanel;
         private Label label2;
@@ -412,6 +430,7 @@ namespace weapon_data
         private Button dummy0;
         private Button dummy1;
         private Button debugShowAllBtn;
+        private Button debugTabCheckBtn;
     }
 }
 

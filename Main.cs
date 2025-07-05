@@ -68,22 +68,22 @@ namespace weapon_data
             switch (arg)
             {
                 case Keys.Down:
-                    if ((int)selection.Tag == HeaderButtons.Count - 1)
+                    if ((int)Selection.Tag == HeaderButtons.Count - 1)
                     {
                         HeaderButtons[0].Focus();
                     }
                     else {
-                        HeaderButtons[(int)selection.Tag + 1].Focus();
+                        HeaderButtons[(int)Selection.Tag + 1].Focus();
                     }
                 break;
 
                 case Keys.Up:
-                    if ((int)selection.Tag == 0)
+                    if ((int)Selection.Tag == 0)
                     {
                         HeaderButtons[HeaderButtons.Count - 1].Focus();
                     }
                     else {
-                        HeaderButtons[(int)selection.Tag - 1].Focus();
+                        HeaderButtons[(int)Selection.Tag - 1].Focus();
                     }
                 break;
 
@@ -94,7 +94,7 @@ namespace weapon_data
                 break;
                 #endif
             }
-            if (selection == null && (HeaderButtons?.Any() ?? false))
+            if (Selection == null && (HeaderButtons?.Any() ?? false))
             {
                 HeaderButtons[arg == Keys.Down ? 0 : HeaderButtons.Count - 1].Focus();
             }
@@ -105,12 +105,12 @@ namespace weapon_data
                 }
                 else if (arg == Keys.Up)
                 {
-                    if ((int)selection.Tag == 0)
+                    if ((int)Selection.Tag == 0)
                     {
                         HeaderButtons[HeaderButtons.Count - 1].Focus();
                     }
                     else {
-                        HeaderButtons[(int)selection.Tag - 1].Focus();
+                        HeaderButtons[(int)Selection.Tag - 1].Focus();
                     }
                 }
             }
@@ -239,9 +239,19 @@ namespace weapon_data
         }
 
 
-        private void bleghBtn_Click(object sender, EventArgs e)
+        private void debugMiscBtn_Click(object sender, EventArgs e)
         {
-            AbortButtonMammet(!abortBtn.Enabled);
+            var ffs = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+            foreach (var item in ffs)
+            {
+                echo($"[{item}]: {(byte) item} => {(byte) item.ToString().ToUpper() [0]}");
+            }
+
+            for(byte beh = 90; beh < 98; beh++)
+            {
+                echo($"{(char)beh}");
+            }
+            echo((char)123);
         }
 
         
@@ -252,6 +262,25 @@ namespace weapon_data
             CreateGraphics().Clear(BackColor);
             Refresh();
             #endif
+        }
+        
+
+        private void debugTabCheckBtn_Click(object sender, EventArgs e)
+        {
+            void eh(System.Windows.Forms.Control.ControlCollection controls)
+            {
+                foreach (Control cunt in controls)
+                {
+                    if (cunt.HasChildren)
+                    {
+                        eh (cunt.Controls);
+                    }
+                    PrintNL($"# [{cunt.Name}: {cunt.TabIndex}]");
+                }
+
+            }
+
+            eh(this.Controls);
         }
         #endregion
 
@@ -306,8 +335,6 @@ namespace weapon_data
                 DCHeader = new DCFileHeader(DCFile, ActiveFileName);
                 DCEntries = new object[DCHeader.TableLength];
 
-                var outputLine = Venat?.GetOutputWindowLines().Length - 1 ?? 0;
-
                 for (int fuck = 0, sake = 0x28; fuck < DCHeader.HeaderItems.Length; fuck++, sake += 24)
                 {
                     Venat?.CTUpdateLabel($" ({fuck} / {DCHeader.TableLength})");
@@ -324,7 +351,7 @@ namespace weapon_data
                 //## Setup Form
                 //#
 
-                PrintNL("\nFinished!");
+                echo("\nFinished!");
                 CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
 
                 ReloadButtonMammet(true);
@@ -333,8 +360,9 @@ namespace weapon_data
 
                 PropertiesPanelMammet(ActiveFileName, DCEntries);
             }
+            // File in 
             catch (IOException) {
-                PrintNL($"\nERROR: Selected File is Being Used by Another Process.");
+                echo($"\nERROR: Selected File is Being Used by Another Process.");
                 CTUpdateLabel(ActiveFileName + " Error Loading dc File!!!");
                 AbortButtonMammet(false, 0);
             }
@@ -343,7 +371,7 @@ namespace weapon_data
             }
             # if !DEBUG
             catch (Exception fuck) {
-                PrintNL($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
+                echo($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
                 MessageBox.Show($"An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file");
                 AbortButtonMammet(false, 0);
             }
@@ -395,21 +423,6 @@ namespace weapon_data
             }
         }
 
-        public static void ReloadButtonMammet(bool enabled)
-        {
-            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
-        }
-
-        public static void AbortButtonMammet(params object[] args)
-        {
-            Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
-        }
-
-        public static void PropertiesPanelMammet(string dcFileName, object[] dcEntries)
-        {
-            Venat?.Invoke(Venat.propertiesPanelMammet, new object [] { dcFileName, dcEntries });
-        }
-
         private static void CloseBinFile()
         {
             DCFile = null;
@@ -420,9 +433,38 @@ namespace weapon_data
             {
                 Venat.HeaderButtons?.Clear();
                 Venat.HeaderButtons = null;
-                Venat.selection = null;
+                Venat.Selection = null;
+
+                Venat.optionsMenuDropdownBtn.TabIndex -= DCEntries.Length;
+                Venat.MinimizeBtn.TabIndex -= DCEntries.Length;
+                Venat.ExitBtn.TabIndex -= DCEntries.Length;
             }
         }
+
+
+
+
+        //#
+        //## Mammet Shorthand Function Declarations
+        //#
+        #region [mammet shorthand function declarations]
+
+        public static void ReloadButtonMammet(bool enabled)
+        {
+            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
+        }
+
+        public static void AbortButtonMammet(params object[] args)
+        {
+            Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
+        }
+
+        public static void PropertiesPanelMammet(object dcFileName, object[] dcEntries)
+        {
+            Venat?.Invoke(Venat.propertiesPanelMammet, new[] { dcFileName, dcEntries });
+        }
         #endregion
+
+        #endregion [Function Declarations]
     }
 }
