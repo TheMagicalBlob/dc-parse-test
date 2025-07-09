@@ -174,7 +174,7 @@ namespace weapon_data
                 }
             }
             catch (Exception dang) {
-                echo($"Unable to connect to api.github");
+                echo($"Unable to connect to api.github ({dang.GetType()})");
             }
         }
 

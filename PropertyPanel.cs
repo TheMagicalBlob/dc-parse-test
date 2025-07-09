@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using System.Windows.Forms;
 
 namespace weapon_data
@@ -15,7 +13,7 @@ namespace weapon_data
         //=================================\\
         #region [Variable Declarations]
 
-        private List<Button> HeaderButtons;
+        private List<Button> HeaderItemButtons;
         private List<Button> StructButtons;
 
         private Button Selection
@@ -24,11 +22,13 @@ namespace weapon_data
 
             set {
                 if (value != null)
+                {
                     DisplayHItemContents(value.TabIndex);
+                }
+
                 _selection = value;
             }
         }
-
         private Button _selection;
 
         public delegate void PropertiesPanelWand(string dcFileName, object[] dcEntries);
@@ -44,6 +44,11 @@ namespace weapon_data
         //=================================\\
         #region [Function Delcarations]
 
+
+        /// <summary>
+        /// Populate the output window with details about the highlighted header item
+        /// </summary>
+        /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHItemContents(int itemIndex)
         {
 
@@ -97,7 +102,7 @@ namespace weapon_data
             }
 
             Button currentButton;
-            HeaderButtons = new List<Button>(dcEntries.Length);
+            HeaderItemButtons = new List<Button>(dcEntries.Length);
 
             var dcLen = dcEntries.Length;
             var tabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
@@ -150,27 +155,27 @@ namespace weapon_data
                 {
                     if (arg.KeyData == Keys.Down)
                     {
-                        if ((int)currentButton.Tag == HeaderButtons.Count - 1)
+                        if ((int)currentButton.Tag == HeaderItemButtons.Count - 1)
                         {
-                            HeaderButtons[0].Focus();
+                            HeaderItemButtons[0].Focus();
                         }
                         else {
-                            HeaderButtons[(int)currentButton.Tag + 1].Focus();
+                            HeaderItemButtons[(int)currentButton.Tag + 1].Focus();
                         }
                     }
                     else if (arg.KeyData == Keys.Up)
                     {
                         if ((int)currentButton.Tag == 0)
                         {
-                            HeaderButtons[HeaderButtons.Count - 1].Focus();
+                            HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
                         }
                         else {
-                            HeaderButtons[(int)currentButton.Tag - 1].Focus();
+                            HeaderItemButtons[(int)currentButton.Tag - 1].Focus();
                         }
                     }
                 };
 
-                HeaderButtons.Add(currentButton);
+                HeaderItemButtons.Add(currentButton);
             }
 
             optionsMenuDropdownBtn.TabIndex += dcLen;

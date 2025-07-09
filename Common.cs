@@ -149,11 +149,6 @@ namespace weapon_data
         /// <summary> The name of the . </summary>
         public static string ActiveFileName;
 
-        /// <summary>
-        /// Constant prefix for repeated Label edits.
-        /// </summary>
-        public static string LabelTextBuffer;
-
 
         /// <summary> The difference in size (horizontally, in pixels) of the Abort/Close File button when it changes from one to the other. </summary>
         private static readonly int AbortButtonWidthDifference = 20; //! Lazy
@@ -163,8 +158,30 @@ namespace weapon_data
 
         
         public static Label scriptStatusLabel;
+        public static Label scriptSelectionLabel;
         public static Button abortBtn;
 
+
+        public static string[] StatusDetails
+        {
+            get => _statusDetails;
+
+            private set {
+                _statusDetails = value;
+            }
+        }
+        public static string[] _statusDetails = new [] { "", string.Empty, string.Empty, string.Empty };
+
+
+        public static string[] SelectionDetails
+        {
+            get => _selectionDetails;
+
+            private set {
+                _selectionDetails = value;
+            }
+        }
+        public static string[] _selectionDetails = new [] { "", string.Empty, string.Empty, string.Empty };
 
 
         
@@ -176,15 +193,20 @@ namespace weapon_data
         public delegate void binThreadFormWandArray(string msg, int? line);
         public delegate string[] binThreadFormWandOutputRead();
 
+        public binThreadFormWandArray outputMammetSpecificLine = new binThreadFormWandArray((msg, line) =>
+        {
+            OutputWindow.UpdateLine(msg, line ?? 1 - 1);
+            OutputWindow.Update();
+        });
 
-        public binThreadFormWand outputMammet = new binThreadFormWand((args) =>
+        public binThreadFormWand propertiesWindowMammet = new binThreadFormWand((args) =>
         {
             OutputWindow.AppendLine(args[0].ToString());
         });
 
-        public binThreadFormWand labelMammet = new binThreadFormWand((args) =>
+        public binThreadFormWand statusLabelMammet = new binThreadFormWand((args) =>
         {
-            UpdateLabel(LabelTextBuffer ?? string.Empty + args[0].ToString());
+            UpdateStatusLabel($"Status: {args?.First() ?? string.Empty}");
         });
 
         private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
@@ -224,14 +246,6 @@ namespace weapon_data
 
             Venat.ReloadScriptBtn.Enabled ^= true;
             Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
-        });
-
-        public binThreadFormWandOutputRead outputMammetReadLines = new binThreadFormWandOutputRead(() => OutputWindow.Lines);
-            
-        public binThreadFormWandArray outputMammetSpecificLine = new binThreadFormWandArray((msg, line) =>
-        {
-            OutputWindow.UpdateLine(msg, line ?? 1 - 1);
-            OutputWindow.Update();
         });
 
 
@@ -385,7 +399,7 @@ namespace weapon_data
                 if (item.GetType() != typeof(weapon_data.TextBox) && item.GetType() != typeof(weapon_data.RichTextBox))
                 {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-                    item.KeyDown += (sender, arg) => FormKeyboardInputHandler(arg.KeyData, arg.Control, arg.Shift);
+                    item.KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control)sender).Name, arg.KeyData, arg.Control, arg.Shift);
                 }
                 else {
                     item.KeyDown += (sender, arg) =>
@@ -433,7 +447,7 @@ namespace weapon_data
 
             MouseMove += new MouseEventHandler((sender, e) => MoveForm());
             
-            KeyDown += (sender, arg) => FormKeyboardInputHandler(arg.KeyData, arg.Control, arg.Shift);
+            KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control)sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
             Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
         }
@@ -509,9 +523,9 @@ namespace weapon_data
 
 
         //#
-        //## Logging functionaliy
+        //## Logging/Output functionaliy
         //#
-        #region [Logging Functionality]
+        #region [Logging/Output Functionality]
 
         public static void echo(object message = null)
         {
@@ -524,21 +538,6 @@ namespace weapon_data
                 Debug.WriteLine(str);
             }
             #endif
-        }
-
-        /// <summary>
-        /// Update the yellow status/info label from a different thread through <paramref name="labelMammet"/>
-        /// </summary>
-        /// <param name="str"> The string to update the label's text with. </param>
-        public void CTUpdateLabel(object str)
-        {
-            Venat?.Invoke(labelMammet, new [] { new[] { str } });
-        }
-
-        
-        public static void UpdateLabel(string str)
-        {
-            scriptStatusLabel.Text = $"Selected Script: {ActiveFileName} {str}";
         }
 
 
@@ -554,7 +553,7 @@ namespace weapon_data
                 Debug.WriteLine(str ?? "null");
 
 #endif
-            Venat?.Invoke(outputMammetSpecificLine, str, line < 1 ? 1 : line);
+            Venat.Invoke(outputMammetSpecificLine, str, line < 1 ? 1 : line);
         }
 
 
@@ -578,7 +577,7 @@ namespace weapon_data
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
             try {
-                Venat?.Invoke(Venat.outputMammet, new [] { new[] { str.ToString() } });
+                Venat?.Invoke(Venat.propertiesWindowMammet, new [] { new[] { str.ToString() } });
             }
             catch (Exception dang)
             {
@@ -589,8 +588,6 @@ namespace weapon_data
                     Debug.WriteLine(err);
             }
         }
-
-        public string[] GetOutputWindowLines() => (string[]) Venat?.Invoke(outputMammetReadLines);
         #endregion
 
 
@@ -725,7 +722,6 @@ namespace weapon_data
         public TextBox()
         {
             TextChanged += SetDefaultText; // Save the first Text assignment as the DefaultText
-            Font = Main.DefaultTextFont;
 
             GotFocus += (sender, args) => ReadyControl();
             LostFocus += (sender, args) => ResetControl(false); // Reset control if nothing was entered, or the text is a portion of the default text
@@ -757,7 +753,6 @@ namespace weapon_data
         private void SetDefaultText(object _, EventArgs __)
         {
             DefaultText = Text;
-            Font = Main.DefaultTextFont;
 
             TextChanged -= SetDefaultText;
         }
@@ -779,7 +774,6 @@ namespace weapon_data
             if(Text.Length < 1 || DefaultText.Contains(Text) || forceReset)
             {
                 Text = DefaultText;
-                Font = Main.DefaultTextFont;
             }
 
         }
@@ -793,7 +787,6 @@ namespace weapon_data
             if (text != string.Empty && !DefaultText.Contains(text))
             {   
                 Text = text;
-                Font = Main.TextFont;
             }
         }
     }

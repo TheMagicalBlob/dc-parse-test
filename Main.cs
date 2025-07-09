@@ -14,6 +14,14 @@ namespace weapon_data
         {
             InitializeComponent();
             InitializeAdditionalEventHandlers();
+            OutputWindow.KeyDown += (sender, arg) => //!
+            {
+                if (arg.KeyData == Keys.Escape)
+                {
+                    Focus();
+                }
+            };
+
 
             Update(); Refresh();
             Venat = this;
@@ -21,7 +29,6 @@ namespace weapon_data
             Emmet = PropertiesPanel;
             Update(); Refresh();
 
-            
 
 
             if (File.Exists($"{Directory.GetCurrentDirectory()}\\sidbase.bin"))
@@ -44,6 +51,7 @@ namespace weapon_data
             ActiveFileName = "No Script Selected";
 
             scriptStatusLabel = ScriptStatusLabel;
+            scriptSelectionLabel = ScriptSelectionLabel;
             abortBtn = AbortOrCloseBtn;
             OutputWindow = PropertiesWindowRichTextBox;
 
@@ -61,29 +69,29 @@ namespace weapon_data
         //======================================\\
         #region [Event Handler Declarations]
 
-        private void FormKeyboardInputHandler(Keys arg, bool ctrl, bool shift)
+        private void FormKeyboardInputHandler(string sender, Keys arg, bool ctrl, bool shift)
         {
-                    echo($"Input Recieved: [{arg}]");
+            echo($"Input [{arg}] Recieved by Control [{sender}]");
 
             switch (arg)
             {
                 case Keys.Down:
-                    if ((int)Selection.Tag == HeaderButtons.Count - 1)
+                    if ((int)Selection.Tag == HeaderItemButtons.Count - 1)
                     {
-                        HeaderButtons[0].Focus();
+                        HeaderItemButtons[0].Focus();
                     }
                     else {
-                        HeaderButtons[(int)Selection.Tag + 1].Focus();
+                        HeaderItemButtons[(int)Selection.Tag + 1].Focus();
                     }
                 break;
 
                 case Keys.Up:
                     if ((int)Selection.Tag == 0)
                     {
-                        HeaderButtons[HeaderButtons.Count - 1].Focus();
+                        HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
                     }
                     else {
-                        HeaderButtons[(int)Selection.Tag - 1].Focus();
+                        HeaderItemButtons[(int)Selection.Tag - 1].Focus();
                     }
                 break;
 
@@ -94,9 +102,9 @@ namespace weapon_data
                 break;
                 #endif
             }
-            if (Selection == null && (HeaderButtons?.Any() ?? false))
+            if (Selection == null && (HeaderItemButtons?.Any() ?? false))
             {
-                HeaderButtons[arg == Keys.Down ? 0 : HeaderButtons.Count - 1].Focus();
+                HeaderItemButtons[arg == Keys.Down ? 0 : HeaderItemButtons.Count - 1].Focus();
             }
             else {
                 if (arg == Keys.Down)
@@ -107,10 +115,10 @@ namespace weapon_data
                 {
                     if ((int)Selection.Tag == 0)
                     {
-                        HeaderButtons[HeaderButtons.Count - 1].Focus();
+                        HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
                     }
                     else {
-                        HeaderButtons[(int)Selection.Tag - 1].Focus();
+                        HeaderItemButtons[(int)Selection.Tag - 1].Focus();
                     }
                 }
             }
@@ -282,6 +290,11 @@ namespace weapon_data
 
             eh(this.Controls);
         }
+
+        private void debugLineTestBtn_Click(object sender, EventArgs e)
+        {
+            PrintLL(debugLineTestTextBox.Text, (int)debugLineTestIntBox.Value);
+        }
         #endregion
 
 
@@ -337,7 +350,7 @@ namespace weapon_data
 
                 for (int fuck = 0, sake = 0x28; fuck < DCHeader.HeaderItems.Length; fuck++, sake += 24)
                 {
-                    Venat?.CTUpdateLabel($" ({fuck} / {DCHeader.TableLength})");
+                    Venat?.CTUpdateStatusLabel($" ({fuck} / {DCHeader.TableLength})");
 
                     echo($"Item #{fuck}: [ Label: {DCHeader.HeaderItems[fuck].Name} Type: {DCHeader.HeaderItems[fuck].Type} Data Address: {DCHeader.HeaderItems[fuck].StructAddress:X} ]");
 
@@ -352,7 +365,7 @@ namespace weapon_data
                 //#
 
                 echo("\nFinished!");
-                CTUpdateLabel(ActiveFileName + " Finished Loading dc File");
+                CTUpdateStatusLabel(ActiveFileName + " Finished Loading dc File");
 
                 ReloadButtonMammet(true);
                 AbortButtonMammet(1);
@@ -363,7 +376,7 @@ namespace weapon_data
             // File in 
             catch (IOException) {
                 echo($"\nERROR: Selected File is Being Used by Another Process.");
-                CTUpdateLabel(ActiveFileName + " Error Loading dc File!!!");
+                CTUpdateStatusLabel(ActiveFileName + " Error Loading dc File!!!");
                 AbortButtonMammet(false, 0);
             }
             catch (ThreadAbortException) {
@@ -431,8 +444,8 @@ namespace weapon_data
 
             if (Venat != null)
             {
-                Venat.HeaderButtons?.Clear();
-                Venat.HeaderButtons = null;
+                Venat.HeaderItemButtons?.Clear();
+                Venat.HeaderItemButtons = null;
                 Venat.Selection = null;
 
                 Venat.optionsMenuDropdownBtn.TabIndex -= DCEntries.Length;
@@ -462,6 +475,50 @@ namespace weapon_data
         public static void PropertiesPanelMammet(object dcFileName, object[] dcEntries)
         {
             Venat?.Invoke(Venat.propertiesPanelMammet, new[] { dcFileName, dcEntries });
+        }
+        
+        
+        /// <summary>
+        /// Update the yellow status/info label from a different thread through the statusLabelMammet
+        /// </summary>
+        /// <param name="status">  </param>
+        /// <param name="subStatus1">  </param>
+        /// <param name="subStatus2">  </param>
+        public void CTUpdateStatusLabel(object status = null, object subStatus1 = null, object subStatus2 = null)
+        {
+            Venat.Invoke(statusLabelMammet, new [] { new object[] { status, subStatus1, subStatus2 } });
+        }
+
+        
+        /// <summary>
+        /// Update the yellow status/info label with the provided string
+        /// </summary>
+        /// <param name="str"> The string to update the label's text with. </param>
+        public static void UpdateStatusLabel(string str)
+        {
+            scriptStatusLabel.Text = $"Selected Script: {ActiveFileName} {str}";
+        }
+
+
+        /// <summary>
+        /// Update the yellow status/info label from a different thread through the statusLabelMammet
+        /// </summary>
+        /// <param name="status">  </param>
+        /// <param name="subStatus1">  </param>
+        /// <param name="subStatus2">  </param>
+        public void CTUpdateSelectionLabel(object status = null, object subStatus1 = null, object subStatus2 = null)
+        {
+            //Venat.Invoke(selectionLabelMammet, new [] { new object[] { status, subStatus1, subStatus2 } });
+        }
+
+        
+        /// <summary>
+        /// Update the yellow status/info label with the provided string
+        /// </summary>
+        /// <param name="str"> The string to update the label's text with. </param>
+        public static void UpdateSelectionLabel(string str)
+        {
+            scriptSelectionLabel.Text = $"Selected Script: {ActiveFileName}{str}";
         }
         #endregion
 

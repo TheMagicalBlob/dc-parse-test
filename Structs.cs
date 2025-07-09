@@ -124,8 +124,8 @@ namespace weapon_data
 
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
 
-                LabelTextBuffer = "Reading Script...";
-                Venat?.CTUpdateLabel(LabelTextBuffer);
+
+                Venat?.CTUpdateStatusLabel("Reading Script...");
                 
 
                 Venat?.InitializeDcStructListsByScriptName(binName);

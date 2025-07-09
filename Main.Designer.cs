@@ -42,20 +42,28 @@ namespace weapon_data
             this.debugMiscBtn = new System.Windows.Forms.Button();
             this.PropertiesPanel = new System.Windows.Forms.GroupBox();
             this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
+            this.dummy0 = new System.Windows.Forms.Button();
+            this.dummy1 = new System.Windows.Forms.Button();
+            this.debugShowAllBtn = new System.Windows.Forms.Button();
+            this.debugTabCheckBtn = new System.Windows.Forms.Button();
+            this.debugStatusLabelBtn1 = new System.Windows.Forms.Button();
+            this.debugStatusLabelBtn3 = new System.Windows.Forms.Button();
+            this.debugLineTestBtn = new System.Windows.Forms.Button();
+            this.debugStatusLabelBtn2 = new System.Windows.Forms.Button();
+            this.debugLineTestIntBox = new System.Windows.Forms.NumericUpDown();
+            this.debugStatusLabelTextTextBox = new weapon_data.TextBox();
+            this.debugLineTestTextBox = new weapon_data.TextBox();
             this.binPathTextBox = new weapon_data.TextBox();
             this.label4 = new weapon_data.Label();
             this.label5 = new weapon_data.Label();
             this.label3 = new weapon_data.Label();
             this.PropertiesWindowRichTextBox = new weapon_data.RichTextBox();
-            this.label2 = new weapon_data.Label();
+            this.ScriptSelectionLabel = new weapon_data.Label();
             this.SeperatorLine2 = new weapon_data.Label();
             this.VersionLabel = new weapon_data.Label();
             this.label1 = new weapon_data.Label();
             this.ScriptStatusLabel = new weapon_data.Label();
-            this.dummy0 = new System.Windows.Forms.Button();
-            this.dummy1 = new System.Windows.Forms.Button();
-            this.debugShowAllBtn = new System.Windows.Forms.Button();
-            this.debugTabCheckBtn = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.debugLineTestIntBox)).BeginInit();
             this.SuspendLayout();
             // 
             // BinPathBrowseBtn
@@ -175,6 +183,148 @@ namespace weapon_data
             this.debugDisableLinesBtn.UseVisualStyleBackColor = true;
             this.debugDisableLinesBtn.CheckedChanged += new System.EventHandler(this.debugDisableLinesBtn_CheckedChanged);
             // 
+            // dummy0
+            // 
+            this.dummy0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.dummy0.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.dummy0.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dummy0.Location = new System.Drawing.Point(0, 0);
+            this.dummy0.Name = "dummy0";
+            this.dummy0.Size = new System.Drawing.Size(0, 0);
+            this.dummy0.TabIndex = 0;
+            this.dummy0.UseVisualStyleBackColor = false;
+            // 
+            // dummy1
+            // 
+            this.dummy1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.dummy1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.dummy1.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dummy1.Location = new System.Drawing.Point(1, 0);
+            this.dummy1.Name = "dummy1";
+            this.dummy1.Size = new System.Drawing.Size(0, 0);
+            this.dummy1.TabIndex = 1;
+            this.dummy1.UseVisualStyleBackColor = false;
+            // 
+            // debugShowAllBtn
+            // 
+            this.debugShowAllBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugShowAllBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugShowAllBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugShowAllBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugShowAllBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugShowAllBtn.Location = new System.Drawing.Point(589, 8);
+            this.debugShowAllBtn.Name = "debugShowAllBtn";
+            this.debugShowAllBtn.Size = new System.Drawing.Size(45, 19);
+            this.debugShowAllBtn.TabIndex = 42;
+            this.debugShowAllBtn.Text = "showAll";
+            this.debugShowAllBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugShowAllBtn.UseVisualStyleBackColor = false;
+            this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click);
+            // 
+            // debugTabCheckBtn
+            // 
+            this.debugTabCheckBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugTabCheckBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugTabCheckBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugTabCheckBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugTabCheckBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugTabCheckBtn.Location = new System.Drawing.Point(635, 8);
+            this.debugTabCheckBtn.Name = "debugTabCheckBtn";
+            this.debugTabCheckBtn.Size = new System.Drawing.Size(49, 19);
+            this.debugTabCheckBtn.TabIndex = 43;
+            this.debugTabCheckBtn.Text = "tabcheck";
+            this.debugTabCheckBtn.UseVisualStyleBackColor = false;
+            this.debugTabCheckBtn.Click += new System.EventHandler(this.debugTabCheckBtn_Click);
+            // 
+            // debugStatusLabelBtn1
+            // 
+            this.debugStatusLabelBtn1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugStatusLabelBtn1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugStatusLabelBtn1.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugStatusLabelBtn1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugStatusLabelBtn1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugStatusLabelBtn1.Location = new System.Drawing.Point(546, 61);
+            this.debugStatusLabelBtn1.Name = "debugStatusLabelBtn1";
+            this.debugStatusLabelBtn1.Size = new System.Drawing.Size(45, 19);
+            this.debugStatusLabelBtn1.TabIndex = 44;
+            this.debugStatusLabelBtn1.Text = "+ | - | -";
+            this.debugStatusLabelBtn1.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugStatusLabelBtn1.UseVisualStyleBackColor = false;
+            // 
+            // debugStatusLabelBtn3
+            // 
+            this.debugStatusLabelBtn3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugStatusLabelBtn3.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugStatusLabelBtn3.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugStatusLabelBtn3.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugStatusLabelBtn3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugStatusLabelBtn3.Location = new System.Drawing.Point(659, 61);
+            this.debugStatusLabelBtn3.Name = "debugStatusLabelBtn3";
+            this.debugStatusLabelBtn3.Size = new System.Drawing.Size(45, 19);
+            this.debugStatusLabelBtn3.TabIndex = 45;
+            this.debugStatusLabelBtn3.Text = "- | - | +";
+            this.debugStatusLabelBtn3.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugStatusLabelBtn3.UseVisualStyleBackColor = false;
+            // 
+            // debugLineTestBtn
+            // 
+            this.debugLineTestBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugLineTestBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugLineTestBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugLineTestBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugLineTestBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugLineTestBtn.Location = new System.Drawing.Point(546, 113);
+            this.debugLineTestBtn.Name = "debugLineTestBtn";
+            this.debugLineTestBtn.Size = new System.Drawing.Size(122, 19);
+            this.debugLineTestBtn.TabIndex = 47;
+            this.debugLineTestBtn.Text = "lineTest";
+            this.debugLineTestBtn.UseVisualStyleBackColor = false;
+            this.debugLineTestBtn.Click += new System.EventHandler(this.debugLineTestBtn_Click);
+            // 
+            // debugStatusLabelBtn2
+            // 
+            this.debugStatusLabelBtn2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.debugStatusLabelBtn2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.debugStatusLabelBtn2.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.debugStatusLabelBtn2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.debugStatusLabelBtn2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.debugStatusLabelBtn2.Location = new System.Drawing.Point(602, 61);
+            this.debugStatusLabelBtn2.Name = "debugStatusLabelBtn2";
+            this.debugStatusLabelBtn2.Size = new System.Drawing.Size(45, 19);
+            this.debugStatusLabelBtn2.TabIndex = 46;
+            this.debugStatusLabelBtn2.Text = "- | + | -";
+            this.debugStatusLabelBtn2.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.debugStatusLabelBtn2.UseVisualStyleBackColor = false;
+            // 
+            // debugLineTestIntBox
+            // 
+            this.debugLineTestIntBox.Location = new System.Drawing.Point(671, 113);
+            this.debugLineTestIntBox.Name = "debugLineTestIntBox";
+            this.debugLineTestIntBox.Size = new System.Drawing.Size(33, 20);
+            this.debugLineTestIntBox.TabIndex = 48;
+            // 
+            // debugStatusLabelTextTextBox
+            // 
+            this.debugStatusLabelTextTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.debugStatusLabelTextTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Italic);
+            this.debugStatusLabelTextTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.debugStatusLabelTextTextBox.Location = new System.Drawing.Point(546, 40);
+            this.debugStatusLabelTextTextBox.Name = "debugStatusLabelTextTextBox";
+            this.debugStatusLabelTextTextBox.Size = new System.Drawing.Size(158, 18);
+            this.debugStatusLabelTextTextBox.TabIndex = 50;
+            this.debugStatusLabelTextTextBox.Text = "Line Test";
+            // 
+            // debugLineTestTextBox
+            // 
+            this.debugLineTestTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.debugLineTestTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 6F, System.Drawing.FontStyle.Italic);
+            this.debugLineTestTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.debugLineTestTextBox.Location = new System.Drawing.Point(546, 91);
+            this.debugLineTestTextBox.Name = "debugLineTestTextBox";
+            this.debugLineTestTextBox.Size = new System.Drawing.Size(158, 18);
+            this.debugLineTestTextBox.TabIndex = 49;
+            this.debugLineTestTextBox.Text = "Line Test";
+            // 
             // binPathTextBox
             // 
             this.binPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -242,18 +392,18 @@ namespace weapon_data
             this.PropertiesWindowRichTextBox.TabStop = false;
             this.PropertiesWindowRichTextBox.Text = "";
             // 
-            // label2
+            // ScriptSelectionLabel
             // 
-            this.label2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
-            this.label2.ForeColor = System.Drawing.Color.Gold;
-            this.label2.IsSeparatorLine = false;
-            this.label2.Location = new System.Drawing.Point(9, 189);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(526, 19);
-            this.label2.StretchToFitForm = false;
-            this.label2.TabIndex = 20;
-            this.label2.Text = "abcdefghijklmnopqrstuvwxyz!?";
+            this.ScriptSelectionLabel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ScriptSelectionLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.ScriptSelectionLabel.ForeColor = System.Drawing.Color.Gold;
+            this.ScriptSelectionLabel.IsSeparatorLine = false;
+            this.ScriptSelectionLabel.Location = new System.Drawing.Point(9, 190);
+            this.ScriptSelectionLabel.Name = "ScriptSelectionLabel";
+            this.ScriptSelectionLabel.Size = new System.Drawing.Size(526, 19);
+            this.ScriptSelectionLabel.StretchToFitForm = false;
+            this.ScriptSelectionLabel.TabIndex = 20;
+            this.ScriptSelectionLabel.Text = "Selected Script: [None]";
             // 
             // SeperatorLine2
             // 
@@ -299,66 +449,12 @@ namespace weapon_data
             this.ScriptStatusLabel.Font = new System.Drawing.Font("Segoe UI", 10.25F, System.Drawing.FontStyle.Bold);
             this.ScriptStatusLabel.ForeColor = System.Drawing.Color.Gold;
             this.ScriptStatusLabel.IsSeparatorLine = false;
-            this.ScriptStatusLabel.Location = new System.Drawing.Point(8, 158);
+            this.ScriptStatusLabel.Location = new System.Drawing.Point(7, 158);
             this.ScriptStatusLabel.Name = "ScriptStatusLabel";
-            this.ScriptStatusLabel.Size = new System.Drawing.Size(521, 23);
+            this.ScriptStatusLabel.Size = new System.Drawing.Size(523, 23);
             this.ScriptStatusLabel.StretchToFitForm = false;
             this.ScriptStatusLabel.TabIndex = 0;
-            this.ScriptStatusLabel.Text = "Selected Script: none selected";
-            // 
-            // dummy0
-            // 
-            this.dummy0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.dummy0.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.dummy0.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dummy0.Location = new System.Drawing.Point(0, 0);
-            this.dummy0.Name = "dummy0";
-            this.dummy0.Size = new System.Drawing.Size(0, 0);
-            this.dummy0.TabIndex = 0;
-            this.dummy0.UseVisualStyleBackColor = false;
-            // 
-            // dummy1
-            // 
-            this.dummy1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.dummy1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.dummy1.Font = new System.Drawing.Font("Microsoft Tai Le", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dummy1.Location = new System.Drawing.Point(1, 0);
-            this.dummy1.Name = "dummy1";
-            this.dummy1.Size = new System.Drawing.Size(0, 0);
-            this.dummy1.TabIndex = 1;
-            this.dummy1.UseVisualStyleBackColor = false;
-            // 
-            // debugShowAllBtn
-            // 
-            this.debugShowAllBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.debugShowAllBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.debugShowAllBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
-            this.debugShowAllBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.debugShowAllBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugShowAllBtn.Location = new System.Drawing.Point(591, 8);
-            this.debugShowAllBtn.Name = "debugShowAllBtn";
-            this.debugShowAllBtn.Size = new System.Drawing.Size(45, 19);
-            this.debugShowAllBtn.TabIndex = 42;
-            this.debugShowAllBtn.Text = "showAll";
-            this.debugShowAllBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.debugShowAllBtn.UseVisualStyleBackColor = false;
-            this.debugShowAllBtn.Click += new System.EventHandler(this.debugShowAllBtn_Click);
-            // 
-            // debugTabCheckBtn
-            // 
-            this.debugTabCheckBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.debugTabCheckBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.debugTabCheckBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
-            this.debugTabCheckBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.debugTabCheckBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugTabCheckBtn.Location = new System.Drawing.Point(638, 8);
-            this.debugTabCheckBtn.Name = "debugTabCheckBtn";
-            this.debugTabCheckBtn.Size = new System.Drawing.Size(45, 19);
-            this.debugTabCheckBtn.TabIndex = 43;
-            this.debugTabCheckBtn.Text = "tabcheck";
-            this.debugTabCheckBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.debugTabCheckBtn.UseVisualStyleBackColor = false;
-            this.debugTabCheckBtn.Click += new System.EventHandler(this.debugTabCheckBtn_Click);
+            this.ScriptStatusLabel.Text = "Status: Inactive";
             // 
             // Main
             // 
@@ -366,6 +462,13 @@ namespace weapon_data
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(834, 572);
+            this.Controls.Add(this.debugStatusLabelTextTextBox);
+            this.Controls.Add(this.debugLineTestTextBox);
+            this.Controls.Add(this.debugLineTestIntBox);
+            this.Controls.Add(this.debugLineTestBtn);
+            this.Controls.Add(this.debugStatusLabelBtn2);
+            this.Controls.Add(this.debugStatusLabelBtn3);
+            this.Controls.Add(this.debugStatusLabelBtn1);
             this.Controls.Add(this.debugTabCheckBtn);
             this.Controls.Add(this.debugShowAllBtn);
             this.Controls.Add(this.dummy1);
@@ -378,7 +481,7 @@ namespace weapon_data
             this.Controls.Add(this.AbortOrCloseBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.PropertiesWindowRichTextBox);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.ScriptSelectionLabel);
             this.Controls.Add(this.SeperatorLine2);
             this.Controls.Add(this.PropertiesPanel);
             this.Controls.Add(this.VersionLabel);
@@ -392,6 +495,7 @@ namespace weapon_data
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Main";
+            ((System.ComponentModel.ISupportInitialize)(this.debugLineTestIntBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -421,7 +525,7 @@ namespace weapon_data
         private Button debugMiscBtn;
         private Label VersionLabel;
         private GroupBox PropertiesPanel;
-        private Label label2;
+        private Label ScriptSelectionLabel;
         private Label SeperatorLine2;
         private Label label3;
         private Label label5;
@@ -431,6 +535,13 @@ namespace weapon_data
         private Button dummy1;
         private Button debugShowAllBtn;
         private Button debugTabCheckBtn;
+        private Button debugStatusLabelBtn1;
+        private Button debugStatusLabelBtn3;
+        private Button debugLineTestBtn;
+        private Button debugStatusLabelBtn2;
+        private NumericUpDown debugLineTestIntBox;
+        private TextBox debugLineTestTextBox;
+        private TextBox debugStatusLabelTextTextBox;
     }
 }
 
