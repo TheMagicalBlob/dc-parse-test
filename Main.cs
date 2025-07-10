@@ -453,6 +453,26 @@ namespace weapon_data
                 Venat.ExitBtn.TabIndex -= DCEntries.Length;
             }
         }
+        
+        
+        /// <summary>
+        /// Update the yellow status/info label with the provided string
+        /// </summary>
+        /// <param name="details"> The string[] to update the label's text with. </param>
+        public static void UpdateStatusLabel(string[] details)
+        {
+            scriptStatusLabel.Text = $"Status: {details}";
+        }
+
+        
+        /// <summary>
+        /// Update the yellow status/info label with the provided string
+        /// </summary>
+        /// <param name="details"> The string to update the label's text with. </param>
+        public static void UpdateSelectionLabel(string[] details)
+        {
+            scriptSelectionLabel.Text = $"Selected Script: {ActiveFileName}{details}";
+        }
 
 
 
@@ -489,36 +509,16 @@ namespace weapon_data
             Venat.Invoke(statusLabelMammet, new [] { new object[] { status, subStatus1, subStatus2 } });
         }
 
-        
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="str"> The string to update the label's text with. </param>
-        public static void UpdateStatusLabel(string str)
-        {
-            scriptStatusLabel.Text = $"Selected Script: {ActiveFileName} {str}";
-        }
-
 
         /// <summary>
         /// Update the yellow status/info label from a different thread through the statusLabelMammet
         /// </summary>
         /// <param name="status">  </param>
-        /// <param name="subStatus1">  </param>
-        /// <param name="subStatus2">  </param>
-        public void CTUpdateSelectionLabel(object status = null, object subStatus1 = null, object subStatus2 = null)
+        /// <param name="subSelection1">  </param>
+        /// <param name="subSelection2">  </param>
+        public void CTUpdateSelectionLabel(object subSelection1 = null, object subSelection2 = null)
         {
-            //Venat.Invoke(selectionLabelMammet, new [] { new object[] { status, subStatus1, subStatus2 } });
-        }
-
-        
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="str"> The string to update the label's text with. </param>
-        public static void UpdateSelectionLabel(string str)
-        {
-            scriptSelectionLabel.Text = $"Selected Script: {ActiveFileName}{str}";
+            Venat.Invoke(selectionLabelMammet, new [] { new object[] { subSelection1, subSelection2 } });
         }
         #endregion
 

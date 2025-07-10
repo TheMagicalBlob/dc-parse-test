@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace weapon_data
 {
@@ -166,22 +167,60 @@ namespace weapon_data
         {
             get => _statusDetails;
 
-            private set {
-                _statusDetails = value;
+            private set
+            {
+                if (value == null || value.Length < 1)
+                {
+                    _selectionDetails = Array.Empty<string>();
+                    scriptSelectionLabel.Text = string.Empty;
+                    return;
+                }
+
+
+
+                // Update changed array members only
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i] != null)
+                    {
+                        _statusDetails[i] = value[i];
+                    }
+                }
+
+                UpdateStatusLabel(_statusDetails);
             }
         }
-        public static string[] _statusDetails = new [] { "", string.Empty, string.Empty, string.Empty };
+        public static string[] _statusDetails = new [] { string.Empty, string.Empty, string.Empty };
+
 
 
         public static string[] SelectionDetails
         {
             get => _selectionDetails;
 
-            private set {
-                _selectionDetails = value;
+            private set
+            {
+                if (value == null || value.Length < 1)
+                {
+                    _selectionDetails = Array.Empty<string>();
+                    scriptSelectionLabel.Text = string.Empty;
+                    return;
+                }
+
+
+                // Update changed array members only
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i] != null)
+                    {
+                        _selectionDetails[i] = value[i];
+                    }
+                }
+
+                UpdateSelectionLabel(_selectionDetails);
             }
         }
-        public static string[] _selectionDetails = new [] { "", string.Empty, string.Empty, string.Empty };
+        public static string[] _selectionDetails = new [] { string.Empty, string.Empty };
 
 
         
@@ -190,8 +229,10 @@ namespace weapon_data
         //#
         private static Thread binThread;
         public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
+        private delegate void binThreadLabelWand(string[] details);
         public delegate void binThreadFormWandArray(string msg, int? line);
         public delegate string[] binThreadFormWandOutputRead();
+
 
         public binThreadFormWandArray outputMammetSpecificLine = new binThreadFormWandArray((msg, line) =>
         {
@@ -199,15 +240,25 @@ namespace weapon_data
             OutputWindow.Update();
         });
 
+        
+        
+        private binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
+        {
+            StatusDetails = details;
+        });
+
+
+        private binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
+        {
+            SelectionDetails = details;
+        });
+
+
         public binThreadFormWand propertiesWindowMammet = new binThreadFormWand((args) =>
         {
             OutputWindow.AppendLine(args[0].ToString());
         });
 
-        public binThreadFormWand statusLabelMammet = new binThreadFormWand((args) =>
-        {
-            UpdateStatusLabel($"Status: {args?.First() ?? string.Empty}");
-        });
 
         private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
