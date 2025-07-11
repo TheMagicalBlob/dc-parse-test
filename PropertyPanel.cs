@@ -51,7 +51,9 @@ namespace weapon_data
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHItemContents(int itemIndex)
         {
+            OutputWindow.Clear();
 
+            PrintNL();
         }
 
 

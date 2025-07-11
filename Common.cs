@@ -228,19 +228,26 @@ namespace weapon_data
         //## Threading-Related Variables
         //#
         private static Thread binThread;
+
         public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
         private delegate void binThreadLabelWand(string[] details);
-        public delegate void binThreadFormWandArray(string msg, int? line);
+        public delegate void binThreadOutputWand(string msg, int line = 0);
         public delegate string[] binThreadFormWandOutputRead();
 
+        
 
-        public binThreadFormWandArray outputMammetSpecificLine = new binThreadFormWandArray((msg, line) =>
+        public binThreadOutputWand propertiesWindowNewLineMammet = new binThreadOutputWand((args, _) =>
         {
-            OutputWindow.UpdateLine(msg, line ?? 1 - 1);
+            OutputWindow.AppendLine(args[0].ToString());
             OutputWindow.Update();
         });
 
-        
+        public binThreadOutputWand propertiesWindowSpecificLineMammet = new binThreadOutputWand((msg, line) =>
+        {
+            OutputWindow.UpdateLine(msg, line);
+            OutputWindow.Update();
+        });
+
         
         private binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
         {
@@ -251,12 +258,6 @@ namespace weapon_data
         private binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
         {
             SelectionDetails = details;
-        });
-
-
-        public binThreadFormWand propertiesWindowMammet = new binThreadFormWand((args) =>
-        {
-            OutputWindow.AppendLine(args[0].ToString());
         });
 
 
@@ -578,65 +579,76 @@ namespace weapon_data
         //#
         #region [Logging/Output Functionality]
 
+        /// <summary>
+        /// Echo a provided string (or string representation of an object) to the standard console output.
+        /// <br/> Appends an empty new line if no message is provided.
+        /// </summary>
+        #pragma warning disable IDE1006 // bug off, this one's lowercase
         public static void echo(object message = null)
         {
             # if DEBUG
-            var str = message?.ToString() ?? string.Empty;
-            
-            Console.WriteLine(str);
+            string str;
 
-            if (!Console.IsInputRedirected) {
+            Console.WriteLine(str = message?.ToString() ?? "null");
+
+            if (Console.IsInputRedirected)
+            {
                 Debug.WriteLine(str);
             }
             #endif
         }
+#pragma warning restore IDE1006
 
-
-        public void PrintLL(string str, int line = 1)
-        {
-#if DEBUG
-            // Debug Output
-            if (!Console.IsOutputRedirected)
-            {
-                Console.WriteLine(str);
-            }
-            else
-                Debug.WriteLine(str ?? "null");
-
-#endif
-            Venat.Invoke(outputMammetSpecificLine, str, line < 1 ? 1 : line);
-        }
-
+        
 
         /// <summary>
-        /// Output Misc. Messages to the Main Output Window (the big-ass richtext box).
+        /// Overrite a specific line in the properties output window with the provided <paramref name="message"/>
+        /// <br/> Appends an empty new line if no message is provided.
         /// </summary>
-        public static void PrintNL(object str = null)
+        public void PrintLL(object message = null, int line = 0)
         {
-            if (str == null)
-                str = string.Empty;
+            if (message == null)
+                message = string.Empty;
 
 #if DEBUG
             // Debug Output
-            if (!Console.IsOutputRedirected)
-            {
-                Debug.WriteLine(str);
-            }
-            else
-                Console.WriteLine(str ?? "null");
+            echo(message);
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
             try {
-                Venat?.Invoke(Venat.propertiesWindowMammet, new [] { new[] { str.ToString() } });
+                Venat?.Invoke(propertiesWindowSpecificLineMammet, message, line < 0 ? 0 : line);
             }
             catch (Exception dang)
             {
                 var err = $"Missed echo Invokation due to a {dang.GetType()}";
-                if (!Console.IsOutputRedirected)
-                    Console.WriteLine(err);
-                else
-                    Debug.WriteLine(err);
+                echo(err);
+            }
+        }
+
+
+        /// <summary>
+        /// Append a <paramref name="message"/> to the properties output window.
+        /// <br/> Appends an empty new line if no message is provided.
+        /// </summary>
+        public static void PrintNL(object message = null)
+        {
+            if (message == null)
+                message = string.Empty;
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(Venat.propertiesWindowNewLineMammet, new [] { new object [] { message.ToString() } });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed echo Invokation due to a {dang.GetType()}";
+                echo(err);
             }
         }
         #endregion
@@ -742,6 +754,7 @@ namespace weapon_data
         public void AppendLine(string str = "", bool scroll = true)
         {
             AppendText(str + '\n');
+            Update();
                 
             if (scroll) {
                 ScrollToCaret();
@@ -750,19 +763,22 @@ namespace weapon_data
 
 
 
-        public void UpdateLine(string newMsg, int line)
+        public void UpdateLine(string newMsg, int line, bool scroll = true)
         {
             while (line >= Lines.Length)
             {
-                Text += '\n';
+                AppendText("\n");
             }
+
             var lines = Lines;
-            
-
-
             lines[line] = newMsg ?? " ";
+
             Lines = lines;
             Update();
+
+            if (scroll) {
+                ScrollToCaret();
+            }
         }
     }
 
