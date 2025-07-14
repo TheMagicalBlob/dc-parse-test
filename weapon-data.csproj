@@ -49,6 +49,12 @@
     <Compile Include="Debug.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="DebugPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DebugPanel.Designer.cs">
+      <DependentUpon>DebugPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="PropertyPanel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -75,6 +81,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DebugPanel.resx">
+      <DependentUpon>DebugPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

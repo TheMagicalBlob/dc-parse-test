@@ -53,7 +53,7 @@ namespace weapon_data
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHItemContents(int itemIndex)
         {
-            OutputWindow.Clear();
+            PropertiesWindow.Clear();
             UpdateSelectionLabel(new[] { null, DCHeader.HeaderItems[itemIndex - TabIndexBase].Name, null });
 
             // Update Properties Window

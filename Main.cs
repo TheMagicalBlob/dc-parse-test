@@ -19,7 +19,10 @@ namespace weapon_data
             Update(); Refresh();
             Venat = this;
             Azem = new OptionsPage();
-            Emmet = PropertiesPanel;
+            Bingus = new DebugPanel();
+
+            PropertiesPanel = propertiesPanel;
+            PropertiesWindow = propertiesWindow;
             Update(); Refresh();
 
 
@@ -47,7 +50,7 @@ namespace weapon_data
             abortBtn = AbortOrCloseBtn;
 
 
-            (OutputWindow = PropertiesWindowRichTextBox).KeyDown += (sender, arg) => //!
+            (PropertiesWindow = propertiesWindow).KeyDown += (sender, arg) => //!
             {
                 if (arg.KeyData == Keys.Escape)
                 {
@@ -140,22 +143,21 @@ namespace weapon_data
         
         private void ChoosePropertyBtn_Click(object sender, EventArgs e)
         {
-            if (Emmet != null)
+            if (PropertiesPanel != null)
             {
-                Emmet.Visible ^= true;
-		        Emmet.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
-                Emmet.Update();
+                PropertiesPanel.Visible ^= true;
+		        PropertiesPanel.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+                PropertiesPanel.Update();
             }
         }
 
         private void OptionsMenuDropdownBtn_Click(object sender, EventArgs e)
         {
-            if (Emmet != null)
-            {
-                Azem.Visible ^= true;
-		        Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
-                Azem.Update();
-            }
+            return;
+
+            Azem.Visible ^= true;
+            Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+            Azem.Update();
         }
         
         private void ReloadBinFile(object sender, EventArgs e)
@@ -323,8 +325,8 @@ namespace weapon_data
         private static void CloseBinFile()
         {
             DCFile = null;
-            Emmet.Controls.Clear();
-            OutputWindow.Clear();
+            PropertiesPanel.Controls.Clear();
+            PropertiesWindow.Clear();
 
             if (Venat != null)
             {
@@ -390,5 +392,12 @@ namespace weapon_data
             }
         }
         #endregion [Function Declarations]
+
+        private void debugPanelBtn_Click(object sender, EventArgs e)
+        {
+            Bingus.Visible ^= true;
+		    Bingus.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+            Bingus.Update();
+        }
     }
 }

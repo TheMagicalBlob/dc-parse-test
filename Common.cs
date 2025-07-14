@@ -122,10 +122,10 @@ namespace weapon_data
         public static Point MouseDif;
 
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private static Point[][] HSeparatorLines;
+        private Point[][] HSeparatorLines;
         
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private static Point[][] VSeparatorLines;
+        private Point[][] VSeparatorLines;
 
 
 
@@ -135,11 +135,13 @@ namespace weapon_data
         /// <summary> OptionsPage Form Pointer/Refference. </summary>
         public static OptionsPage Azem;
 
-        /// <summary> Properties Panel Form Pointer/Refference. </summary>
-        public static GroupBox Emmet;
+        /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
+        public static GroupBox PropertiesPanel;
+        
+        /// <summary> Output Window Pointer/Ref Because I'm Lazy. </summary>
+        public static RichTextBox PropertiesWindow;
 
-        /// <summary> OutputWindow Pointer/Ref Because I'm Lazy. </summary>
-        public static RichTextBox OutputWindow;
+        public static DebugPanel Bingus;
 
 
         
@@ -273,14 +275,14 @@ namespace weapon_data
 
         public binThreadOutputWand propertiesWindowNewLineMammet = new binThreadOutputWand((args, _) =>
         {
-            OutputWindow.AppendLine(args[0].ToString());
-            OutputWindow.Update();
+            PropertiesWindow.AppendLine(args[0].ToString());
+            PropertiesWindow.Update();
         });
 
         public binThreadOutputWand propertiesWindowSpecificLineMammet = new binThreadOutputWand((msg, line) =>
         {
-            OutputWindow.UpdateLine(msg, line);
-            OutputWindow.Update();
+            PropertiesWindow.UpdateLine(msg, line);
+            PropertiesWindow.Update();
         });
 
         
@@ -413,13 +415,13 @@ namespace weapon_data
 
             
             //## Draw Vertical Lines
-            foreach (var line in VSeparatorLines ?? Array.Empty<Point[]>())
+            foreach (var line in (venat as dynamic).VSeparatorLines ?? Array.Empty<Point[]>())
             {
                 yoshiP?.Graphics.DrawLine(pen, line[0], line[1]);
             }
 
             //## Draw Horizontal Lines
-            foreach (var line in HSeparatorLines ?? Array.Empty<Point[]>())
+            foreach (var line in (venat as dynamic).HSeparatorLines ?? Array.Empty<Point[]>())
             {
                 yoshiP?.Graphics.DrawLine(pen, line[0], line[1]);
             }
