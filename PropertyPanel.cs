@@ -25,7 +25,7 @@ namespace weapon_data
             set {
                 if (value != null)
                 {
-                    DisplayHItemContents(value.TabIndex);
+                    DisplayHeaderItemDetails(value.TabIndex);
                 }
 
                 _selection = value;
@@ -51,13 +51,37 @@ namespace weapon_data
         /// Populate the output window with details about the highlighted header item
         /// </summary>
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
-        private void DisplayHItemContents(int itemIndex)
+        private void DisplayHeaderItemDetails(int itemIndex)
         {
             PropertiesWindow.Clear();
-            UpdateSelectionLabel(new[] { null, DCHeader.HeaderItems[itemIndex - TabIndexBase].Name, null });
+            var item = DCHeader.HeaderItems[itemIndex - TabIndexBase];
+            var itemType = item.Type;
+
+            UpdateSelectionLabel(new[] { null, item.Name, null });
 
             // Update Properties Window
-            PrintNL();
+            PrintNL(itemType + (item.Name.Length > 0 ? $" {item.Name}" : string.Empty));
+            PrintNL($"Address: {item.StructAddress:X}\n");
+
+            switch (item.Type)
+            {
+                case "map":
+                    switch (item.Name) //!
+                    {
+                        case "*weapon-gameplay-defs*":
+                            break;
+
+                            
+                        default:
+                            echo($"unhandled map \"{item.Name}\".");
+                    break;
+                    }
+                    break;
+
+                default:
+                    echo($"unhandled struct type \"{itemType}\".");
+                    break;
+            }
         }
 
 

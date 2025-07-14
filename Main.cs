@@ -186,6 +186,14 @@ namespace weapon_data
             AbortButtonMammet(0, false);
             ReloadButtonMammet(false);
         }
+        
+
+        private void debugPanelBtn_Click(object sender, EventArgs e)
+        {
+            Bingus.Visible ^= true;
+		    Bingus.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+            Bingus.Update();
+        }
         #endregion
 
 
@@ -321,83 +329,6 @@ namespace weapon_data
                 default: return new UnknownStruct(Type, Address, Name);
             }
         }
-
-        private static void CloseBinFile()
-        {
-            DCFile = null;
-            PropertiesPanel.Controls.Clear();
-            PropertiesWindow.Clear();
-
-            if (Venat != null)
-            {
-                Venat.HeaderItemButtons?.Clear();
-                Venat.HeaderItemButtons = null;
-                Venat.Selection = null;
-
-                Venat.optionsMenuDropdownBtn.TabIndex -= DCEntries.Length;
-                Venat.MinimizeBtn.TabIndex -= DCEntries.Length;
-                Venat.ExitBtn.TabIndex -= DCEntries.Length;
-            }
-        }
-        
-        
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="details"> The string[] to update the label's text with. </param>
-        public static void UpdateStatusLabel(string[] details)
-        {
-            if ((details?.Length ?? 0) < 3)
-            {
-                echo($"ERROR: Invalid length for details array provided to StatusLabel; must be [3], but is [{details?.Length ?? 0}]." );
-                return;
-            }
-
-            scriptStatusLabel.Text = $"Status: {details[0]} ";
-            
-            if ((details[1]?.Length ?? 0) > 0)
-            {
-                scriptStatusLabel.Text += " | " + details[1];
-            }
-            if ((details[2]?.Length ?? 0) > 0)
-            {
-                scriptStatusLabel.Text += " | " + details[2];
-            }
-            Venat?.Update();
-        }
-
-        
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="details"> The string to update the label's text with. </param>
-        public static void UpdateSelectionLabel(string[] details)
-        {
-            if ((details?.Length ?? 0) < 3)
-            {
-                echo($"ERROR: Invalid length for details array provided to SelectionLabel; must be [3], but is [{details?.Length ?? 0}]." );
-                return;
-            }
-
-
-            scriptSelectionLabel.Text = $"Selected Script: {details[0]}";
-            
-            if (details[1] != null)
-            {
-                scriptSelectionLabel.Text += " | " + details[1];
-            }
-            if (details[2] != null)
-            {
-                scriptSelectionLabel.Text += " | " + details[2];
-            }
-        }
         #endregion [Function Declarations]
-
-        private void debugPanelBtn_Click(object sender, EventArgs e)
-        {
-            Bingus.Visible ^= true;
-		    Bingus.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
-            Bingus.Update();
-        }
     }
 }

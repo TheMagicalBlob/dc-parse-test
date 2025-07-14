@@ -267,7 +267,7 @@ namespace weapon_data
         /// <summary> . </summary>
         private delegate void binThreadLabelWand(string[] details);
         /// <summary> . </summary>
-        public delegate void binThreadOutputWand(string msg, int line = 0);
+        public delegate void binThreadOutputWand(string msg, int line);
         /// <summary> . </summary>
         public delegate string[] binThreadFormWandOutputRead();
         
@@ -275,7 +275,7 @@ namespace weapon_data
 
         public binThreadOutputWand propertiesWindowNewLineMammet = new binThreadOutputWand((args, _) =>
         {
-            PropertiesWindow.AppendLine(args[0].ToString());
+            PropertiesWindow.AppendLine(args);
             PropertiesWindow.Update();
         });
 
@@ -370,6 +370,7 @@ namespace weapon_data
         
 
         
+
         //==========================================\\
         //---|   Global Function Delcarations   |---\\
         //==========================================\\
@@ -663,12 +664,13 @@ namespace weapon_data
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
+                Venat?.Invoke(Venat.propertiesWindowSpecificLineMammet, new object[] { "ass", 2 });
+                Venat?.Invoke(Venat.propertiesWindowSpecificLineMammet, new object[] { message, line < 0 ? 0 : line });
             try {
-                Venat?.Invoke(propertiesWindowSpecificLineMammet, message, line < 0 ? 0 : line);
             }
             catch (Exception dang)
             {
-                var err = $"Missed echo Invokation due to a {dang.GetType()}";
+                var err = $"Missed PrintLL Invokation due to a {dang.GetType()}";
                 echo(err);
             }
         }
@@ -689,19 +691,96 @@ namespace weapon_data
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
+                Venat?.Invoke(Venat.propertiesWindowNewLineMammet, new object[] { message.ToString(), null });
             try {
-                Venat?.Invoke(Venat.propertiesWindowNewLineMammet, new [] { new object [] { message.ToString() } });
             }
             catch (Exception dang)
             {
-                var err = $"Missed echo Invokation due to a {dang.GetType()}";
+                var err = $"Missed PrintNL Invokation due to a {dang.GetType()}";
                 echo(err);
+            }
+        }
+        
+        
+        /// <summary>
+        /// Update the yellow status/info label with the provided string
+        /// </summary>
+        /// <param name="details"> The string[] to update the label's text with. </param>
+        public static void UpdateStatusLabel(string[] details)
+        {
+            if ((details?.Length ?? 0) < 3)
+            {
+                echo($"ERROR: Invalid length for details array provided to StatusLabel; must be [3], but is [{details?.Length ?? 0}]." );
+                return;
+            }
+
+            scriptStatusLabel.Text = $"Status: {details[0]} ";
+            
+            if ((details[1]?.Length ?? 0) > 0)
+            {
+                scriptStatusLabel.Text += " | " + details[1];
+            }
+            if ((details[2]?.Length ?? 0) > 0)
+            {
+                scriptStatusLabel.Text += " | " + details[2];
+            }
+            Venat?.Update();
+        }
+
+        
+        /// <summary>
+        /// Update the yellow status/info label with the provided string
+        /// </summary>
+        /// <param name="details"> The string to update the label's text with. </param>
+        public static void UpdateSelectionLabel(string[] details)
+        {
+            if ((details?.Length ?? 0) < 3)
+            {
+                echo($"ERROR: Invalid length for details array provided to SelectionLabel; must be [3], but is [{details?.Length ?? 0}]." );
+                return;
+            }
+
+
+            scriptSelectionLabel.Text = $"Selected Script: {details[0]}";
+            
+            if (details[1] != null)
+            {
+                scriptSelectionLabel.Text += " | " + details[1];
+            }
+            if (details[2] != null)
+            {
+                scriptSelectionLabel.Text += " | " + details[2];
             }
         }
         #endregion
 
 
+
+
+        //#
+        //## Miscellaneous Functions
+        //#
+        #region [Miscellaneous Functions]
         
+        private static void CloseBinFile()
+        {
+            DCFile = null;
+            PropertiesPanel.Controls.Clear();
+            PropertiesWindow.Clear();
+
+            if (Venat != null)
+            {
+                Venat.HeaderItemButtons?.Clear();
+                Venat.HeaderItemButtons = null;
+                Venat.Selection = null;
+
+                Venat.optionsMenuDropdownBtn.TabIndex -= DCEntries.Length;
+                Venat.MinimizeBtn.TabIndex -= DCEntries.Length;
+                Venat.ExitBtn.TabIndex -= DCEntries.Length;
+            }
+        }
+
+
         /// <summary>
         /// Use the Buffer class to copy and return a smaller sub-array from a provided <paramref name="array"/>.
         /// </summary>
@@ -716,8 +795,6 @@ namespace weapon_data
 
             return ret;
         }
-
-        
 
 
         /// <summary>
@@ -777,13 +854,14 @@ namespace weapon_data
                 return "INVALID_SID_64";
             }
         }
+        #endregion [miscellaneous functions]
 
 
-        
+
         //#
-        //## Mammet Shorthand Function Declarations
+        //## Mammet Shorthand Functions
         //#
-        #region [mammet shorthand function declarations]
+        #region [Mammet Shorthand Functions]
 
         public static void ReloadButtonMammet(bool enabled)
         {
@@ -824,10 +902,10 @@ namespace weapon_data
         {
             Venat?.Invoke(Venat.selectionLabelMammet, new [] { details ?? new[] { string.Empty, string.Empty, string.Empty } });
         }
-        #endregion
-        #endregion
-    }
+        #endregion [mammet shorthand functions]
 
+        #endregion [Global Functions]
+    }
 
 
     
@@ -923,8 +1001,6 @@ namespace weapon_data
         {
             if(IsDefault()) {
                 Clear();
-
-                Font = Main.TextFont;
             }
         }
 

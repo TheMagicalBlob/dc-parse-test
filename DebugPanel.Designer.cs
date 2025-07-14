@@ -36,13 +36,14 @@ namespace weapon_data
         {
             this.CloseBtn = new System.Windows.Forms.Button();
             this.dummy = new System.Windows.Forms.Button();
-            this.label1 = new weapon_data.Label();
-            this.label2 = new weapon_data.Label();
-            this.SeperatorLine0 = new weapon_data.Label();
-            this.Title = new weapon_data.Label();
             this.debugTabCheckBtn = new System.Windows.Forms.Button();
             this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
             this.debugMiscBtn = new System.Windows.Forms.Button();
+            this.label1 = new weapon_data.Label();
+            this.label2 = new weapon_data.Label();
+            this.Title = new weapon_data.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // CloseBtn
@@ -71,58 +72,6 @@ namespace weapon_data
             this.dummy.Size = new System.Drawing.Size(0, 0);
             this.dummy.TabIndex = 0;
             this.dummy.UseVisualStyleBackColor = false;
-            // 
-            // label1
-            // 
-            this.label1.Font = new System.Drawing.Font("Cambria", 8F);
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.label1.IsSeparatorLine = true;
-            this.label1.Location = new System.Drawing.Point(2, 19);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(411, 17);
-            this.label1.StretchToFitForm = true;
-            this.label1.TabIndex = 23;
-            this.label1.Text = "---------------------------------------------------------------------------------" +
-    "";
-            // 
-            // label2
-            // 
-            this.label2.Font = new System.Drawing.Font("Cambria", 8F);
-            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.label2.IsSeparatorLine = true;
-            this.label2.Location = new System.Drawing.Point(2, 169);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(411, 17);
-            this.label2.StretchToFitForm = true;
-            this.label2.TabIndex = 22;
-            this.label2.Text = "---------------------------------------------------------------------------------" +
-    "";
-            // 
-            // SeperatorLine0
-            // 
-            this.SeperatorLine0.Font = new System.Drawing.Font("Cambria", 8F);
-            this.SeperatorLine0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine0.IsSeparatorLine = true;
-            this.SeperatorLine0.Location = new System.Drawing.Point(2, 55);
-            this.SeperatorLine0.Name = "SeperatorLine0";
-            this.SeperatorLine0.Size = new System.Drawing.Size(411, 17);
-            this.SeperatorLine0.StretchToFitForm = true;
-            this.SeperatorLine0.TabIndex = 20;
-            this.SeperatorLine0.Text = "---------------------------------------------------------------------------------" +
-    "";
-            // 
-            // Title
-            // 
-            this.Title.AutoSize = true;
-            this.Title.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
-            this.Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.Title.IsSeparatorLine = false;
-            this.Title.Location = new System.Drawing.Point(151, 3);
-            this.Title.Name = "Title";
-            this.Title.Size = new System.Drawing.Size(102, 17);
-            this.Title.StretchToFitForm = false;
-            this.Title.TabIndex = 0;
-            this.Title.Text = "Debug Options";
             // 
             // debugTabCheckBtn
             // 
@@ -163,18 +112,87 @@ namespace weapon_data
             this.debugMiscBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.debugMiscBtn.UseVisualStyleBackColor = false;
             // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label1.IsSeparatorLine = true;
+            this.label1.Location = new System.Drawing.Point(2, 19);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(411, 17);
+            this.label1.StretchToFitForm = true;
+            this.label1.TabIndex = 23;
+            this.label1.Text = "---------------------------------------------------------------------------------" +
+    "";
+            // 
+            // label2
+            // 
+            this.label2.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label2.IsSeparatorLine = true;
+            this.label2.Location = new System.Drawing.Point(2, 151);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(411, 17);
+            this.label2.StretchToFitForm = true;
+            this.label2.TabIndex = 22;
+            this.label2.Text = "---------------------------------------------------------------------------------" +
+    "";
+            // 
+            // Title
+            // 
+            this.Title.AutoSize = true;
+            this.Title.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
+            this.Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.Title.IsSeparatorLine = false;
+            this.Title.Location = new System.Drawing.Point(151, 3);
+            this.Title.Name = "Title";
+            this.Title.Size = new System.Drawing.Size(102, 17);
+            this.Title.StretchToFitForm = false;
+            this.Title.TabIndex = 0;
+            this.Title.Text = "Debug Options";
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.button1.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.button1.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.button1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.button1.Location = new System.Drawing.Point(12, 70);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(43, 21);
+            this.button1.TabIndex = 47;
+            this.button1.Text = "Misc.";
+            this.button1.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.button1.UseVisualStyleBackColor = false;
+            // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.button2.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
+            this.button2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.button2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.button2.Location = new System.Drawing.Point(61, 72);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(49, 19);
+            this.button2.TabIndex = 48;
+            this.button2.Text = "tabcheck";
+            this.button2.UseVisualStyleBackColor = false;
+            // 
             // DebugPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
-            this.ClientSize = new System.Drawing.Size(415, 237);
+            this.ClientSize = new System.Drawing.Size(415, 179);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.debugTabCheckBtn);
             this.Controls.Add(this.debugDisableLinesBtn);
             this.Controls.Add(this.debugMiscBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.SeperatorLine0);
             this.Controls.Add(this.dummy);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.Title);
@@ -303,12 +321,12 @@ namespace weapon_data
 
         private Button dummy;
         #endregion
-
-        private Label SeperatorLine0;
         private Label label2;
         private Label label1;
         private Button debugTabCheckBtn;
         private CheckBox debugDisableLinesBtn;
         private Button debugMiscBtn;
+        private Button button1;
+        private Button button2;
     }
 }
