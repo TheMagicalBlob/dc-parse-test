@@ -19,6 +19,7 @@ namespace weapon_data
         #region [Variable Declarations]
 
 
+
         //#
         //## Script Parsing Globals
         //#
@@ -147,8 +148,38 @@ namespace weapon_data
 
 
 
-        /// <summary> The name of the . </summary>
-        public static string ActiveFileName;
+        /// <summary> The name of the provided DC file. </summary>
+        public static string ActiveFileName
+        {
+            get => _activeFileName;
+
+            set {
+                _activeFileName = value;
+
+                SelectionDetails = new[] { ActiveFileName, null, null };
+            }
+        }
+        private static string _activeFileName = "No Script Selected";
+
+
+        /// <summary> The absolute path to the provided DC file. </summary>
+        public static string ActiveFilePath
+        {
+            get => _activeFilePath;
+
+            set {
+                _activeFilePath = value ?? "null";
+
+                if (System.IO.File.Exists(ActiveFilePath))
+                {
+                    Venat?.LoadBinFile(ActiveFilePath);
+
+                    ActiveFileName = value.Substring(value.LastIndexOf('\\') + 1);
+                    SelectionDetails = new[] { ActiveFileName, null, null };
+                }
+            }
+        }
+        private static string _activeFilePath = "No Script Selected";
 
 
         /// <summary> The difference in size (horizontally, in pixels) of the Abort/Close File button when it changes from one to the other. </summary>
@@ -190,7 +221,7 @@ namespace weapon_data
                 UpdateStatusLabel(_statusDetails);
             }
         }
-        public static string[] _statusDetails = new [] { string.Empty, string.Empty, string.Empty };
+        public static string[] _statusDetails = new string [] { null, null, null };
 
 
 
@@ -220,21 +251,25 @@ namespace weapon_data
                 UpdateSelectionLabel(_selectionDetails);
             }
         }
-        public static string[] _selectionDetails = new [] { string.Empty, string.Empty };
+        public static string[] _selectionDetails = new string [] { null, null, null };
 
 
         
         //#
-        //## Threading-Related Variables
+        //## Threading-Related Variables (threads, delegates, and mammets)
         //#
         private static Thread binThread;
 
+        /// <summary> Cross-thread form interaction delegate. </summary>
         public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
+        /// <summary> . </summary>
         private delegate void binThreadLabelWand(string[] details);
+        /// <summary> . </summary>
         public delegate void binThreadOutputWand(string msg, int line = 0);
+        /// <summary> . </summary>
         public delegate string[] binThreadFormWandOutputRead();
-
         
+
 
         public binThreadOutputWand propertiesWindowNewLineMammet = new binThreadOutputWand((args, _) =>
         {
@@ -249,16 +284,17 @@ namespace weapon_data
         });
 
         
+
         private binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
         {
             StatusDetails = details;
         });
 
-
         private binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
         {
             SelectionDetails = details;
         });
+
 
 
         private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
@@ -272,9 +308,14 @@ namespace weapon_data
             {
                 if (obj == null || obj.GetType() == typeof(int))
                 {
-                    int newIndex;
+                    var newIndex = (int) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0));
 
-                    abortBtn.Text = new[] { "Abort", "Close File" } [newIndex = (int) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0))];
+                    if (newIndex > 1) { //! make sure this check is unnecessary, then remove it
+                        echo($"ERROR: abortButtonMammet was provided an invalid index of \"{newIndex}\" for the button mode. Button has been defaulted to Abort.");
+                        newIndex = 0;
+                    }
+
+                    abortBtn.Text = new[] { "Abort", "Close File" } [newIndex];
                 
                     abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
                     abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
@@ -361,10 +402,12 @@ namespace weapon_data
         ///</summary>
         public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
         {
+            # if DEBUG
             if (noDraw)
             {
                 return;
             }
+            #endif
 
             yoshiP.Graphics.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
 
@@ -476,7 +519,9 @@ namespace weapon_data
             MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
             MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
             MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
+#if DEBUG
             ExitBtn.Click          += new EventHandler((sender, e) => { noDraw = true;  Environment.Exit(          0           );});
+#endif
             ExitBtn.MouseEnter     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(230, 100, 100 ));
             ExitBtn.MouseLeave     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0  , 0  , 0   ));
 
@@ -731,6 +776,53 @@ namespace weapon_data
             }
         }
 
+
+        
+        //#
+        //## Mammet Shorthand Function Declarations
+        //#
+        #region [mammet shorthand function declarations]
+
+        public static void ReloadButtonMammet(bool enabled)
+        {
+            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
+        }
+
+        public static void AbortButtonMammet(params object[] args)
+        {
+            Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
+        }
+
+        public static void PropertiesPanelMammet(object dcFileName, object[] dcEntries)
+        {
+            Venat?.Invoke(Venat.propertiesPanelMammet, new[] { dcFileName, dcEntries });
+        }
+        
+        
+        /// <summary>
+        /// Update the yellow status/info label from a different thread through the statusLabelMammet
+        /// </summary>
+        /// <param name="details">
+        /// A string[3] containing the details for the status label.
+        /// <br/> 
+        /// </param>
+        public static void StatusLabelMammet(string[] details = null)
+        {
+            Venat?.Invoke(Venat.statusLabelMammet, new [] { details ?? new[] { string.Empty, string.Empty, string.Empty } });
+        }
+
+
+        /// <summary>
+        /// Update the yellow status/info label from a different thread through the statusLabelMammet
+        /// </summary>
+        /// <param name="details">
+        /// A string[3] containing the details for the slection label.
+        /// <br/> 
+        public static void SelectionLabelMammet(string[] details = null)
+        {
+            Venat?.Invoke(Venat.selectionLabelMammet, new [] { details ?? new[] { string.Empty, string.Empty, string.Empty } });
+        }
+        #endregion
         #endregion
     }
 

@@ -58,7 +58,7 @@ namespace weapon_data
         #region [Structure Definitions]
 
         /// <summary>
-        /// 
+        /// Details on the initial header array for the provided DC file, as well as an array of any present HeaderItems.
         /// </summary>
         public struct DCFileHeader
         {
@@ -125,7 +125,7 @@ namespace weapon_data
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
 
 
-                Venat?.CTUpdateStatusLabel("Reading Script...");
+                StatusLabelMammet(new[] { "Reading Script...", string.Empty, string.Empty });
                 
 
                 Venat?.InitializeDcStructListsByScriptName(binName);
@@ -133,9 +133,7 @@ namespace weapon_data
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
                     HeaderItems[tableIndex] = new DCHeaderItem(binFile, addr);
-                    echo($"{(tableIndex < TableLength - 1 ? $"  # Structure {tableIndex} Loaded Without Error..." : "All DC Entries Loaded Successfully.")}");
                 }
-                echo();
             
     #if false
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
@@ -146,12 +144,13 @@ namespace weapon_data
             //#
             //## Variable Declarations
             //#
-            private readonly int unkInt0;
-            private readonly long unkInt1;
+            public readonly int unkInt0;
+            public readonly long unkInt1;
 
             public long BinFileLength;
             public int TableLength;
 
+            /// <summary> An array of the DCHeaderItems parsed from the provided DC file. </summary>
             public DCHeaderItem[] HeaderItems;
         }
 
@@ -220,16 +219,15 @@ namespace weapon_data
 
                 echo();
 
+                echo($"  # Parsing {mapLength} Map Structures...");
                 for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
-                    echo($"  # Parsing Map Structures... {arrayIndex + 1} / {mapLength}");
-                    
                     var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
                     var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
                     var structName = DecodeSIDHash(GetSubArray(binFile, (int)mapNamesArrayPtr));
-
+                    
                     echo($"    - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}" + 1);
-
+                    StatusLabelMammet(new[] { null, null, $"Map Entry: {arrayIndex + 1} / {mapLength}" });
 
                     Items[arrayIndex] = new object[2];
 
@@ -237,6 +235,7 @@ namespace weapon_data
                     Items[arrayIndex][1] = LoadDCStructByType(binFile, structType, structAddr, structName);
                 }
                 echo($"  # Finished Parsing All Map Structures.");
+                StatusLabelMammet(new[] { null, null, string.Empty });
             }
 
             
@@ -303,15 +302,16 @@ namespace weapon_data
                 var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
                 var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
 
-                echo("\n");
+                echo($"\n  # Parsing Ammo-to-Weapon Structures...");
                 for (int i = 0; i < arrayLen; arrayAddr += 16, i++)
                 {
-                    echo($"  # Parsing Ammo-to-Weapon Structures... {i} / {arrayLen - 1}");
+                    StatusLabelMammet(new[] { null, null, $"Ammo-to-Weapon Entry: {i} / {arrayLen - 1}" });
 
                     hashes.Add(new[] { GetSubArray(binFile, (int)arrayAddr + 8), GetSubArray(binFile, (int)arrayAddr) });
                     symbols.Add(new[] { DecodeSIDHash(hashes.Last()[0]), DecodeSIDHash(hashes.Last()[1]) });
                 }
                 echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
+                StatusLabelMammet(new[] { null, null, string.Empty });
 
                 Symbols = symbols.ToArray();
                 Hashes = hashes.ToArray();
@@ -415,9 +415,12 @@ namespace weapon_data
 				#endregion [offsets]
 			;
 
+
             
-            //# Public Members (heh)
+            // ## Public Members (heh)
+            /// <summary> The name for the weapon this WeaponGameplayDefinition belongs to. </summary>
             public string Name;
+            /// <summary> The address of the WeaponGameplayDefinition struct in the provided DC file. </summary>
             public long Address;
 
             
@@ -608,7 +611,6 @@ namespace weapon_data
             
             //# Private Members
             /// <summary>  Firearm Gameplay Definition structure offset. </summary>
-            
 			private const int
 				# region [offsets]
 				ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
@@ -698,7 +700,9 @@ namespace weapon_data
 
 
             //# Public Members
+            /// <summary> The name for the weapon this FirearmGameplayDefinition belongs to. </summary>
             public string Name;
+            /// <summary> The address of the FirearmGameplayDefinition struct in the provided DC file. </summary>
             public long Address;
 
             #region [variable declarations]

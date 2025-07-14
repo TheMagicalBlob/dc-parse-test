@@ -14,13 +14,6 @@ namespace weapon_data
         {
             InitializeComponent();
             InitializeAdditionalEventHandlers();
-            OutputWindow.KeyDown += (sender, arg) => //!
-            {
-                if (arg.KeyData == Keys.Escape)
-                {
-                    Focus();
-                }
-            };
 
 
             Update(); Refresh();
@@ -48,12 +41,19 @@ namespace weapon_data
             
             VersionLabel.Text = "Ver." + Version;
 
-            ActiveFileName = "No Script Selected";
 
             scriptStatusLabel = ScriptStatusLabel;
             scriptSelectionLabel = ScriptSelectionLabel;
             abortBtn = AbortOrCloseBtn;
-            OutputWindow = PropertiesWindowRichTextBox;
+
+
+            (OutputWindow = PropertiesWindowRichTextBox).KeyDown += (sender, arg) => //!
+            {
+                if (arg.KeyData == Keys.Escape)
+                {
+                    BinPathBrowseBtn.Focus();
+                }
+            };
 
             BaseAbortButtonWidth = abortBtn.Size.Width;
             
@@ -124,6 +124,8 @@ namespace weapon_data
             }
         }
 
+
+
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
             using (var Browser = new OpenFileDialog
@@ -132,11 +134,10 @@ namespace weapon_data
             })
             if (Browser.ShowDialog() == DialogResult.OK)
             {
-                binPathTextBox.Set(Browser.FileName);
+                ActiveFilePath = Browser.FileName;
             }
         }
         
-
         private void ChoosePropertyBtn_Click(object sender, EventArgs e)
         {
             if (Emmet != null)
@@ -159,18 +160,14 @@ namespace weapon_data
         
         private void ReloadBinFile(object sender, EventArgs e)
         {
-            if (File.Exists(binPathTextBox.Text))
+            if (File.Exists(ActiveFilePath))
             {
-                LoadBinFile(binPathTextBox.Text);
+                LoadBinFile(ActiveFilePath);
             }
-        }
-        
-        private void CheckbinPathBoxText(object sender, EventArgs _)
-        {
-            var boxText = ((TextBox)sender).Text;
-            if (File.Exists(boxText))
-            {
-                LoadBinFile(boxText);
+            else {
+                UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", string.Empty, string.Empty });
+                UpdateSelectionLabel(new[] { string.Empty, string.Empty, string.Empty });
+                CloseBinFile();
             }
         }
         
@@ -186,114 +183,6 @@ namespace weapon_data
 
             AbortButtonMammet(0, false);
             ReloadButtonMammet(false);
-        }
-
-        #if DEBUG
-        private List<object[]> shownControls;
-        #endif
-        private void debugShowAllBtn_Click(object sender, EventArgs e)
-        {
-            #if DEBUG
-            if (shownControls == null)
-            {
-                shownControls = new List<object[]>();
-                
-                foreach (Control control in Controls)
-                {
-                    if (!control.Visible || !control.Enabled)
-                    {
-                        shownControls.Add(new object[] { control, new[] { control.Visible, control.Enabled } });
-                    }
-                    control.Visible = true;
-                    control.Enabled = true;
-                }
-
-                if (Azem != null)
-                {
-                    foreach (Control control in Azem.Controls)
-                    {
-                        if (!control.Visible || !control.Enabled)
-                        {
-                            shownControls.Add(new object[] { control, new[] { control.Visible, control.Enabled } });
-                        }
-                        control.Visible = true;
-                        control.Enabled = true;
-                    }
-                }
-
-                if (Emmet != null)
-                {
-                    foreach (Control control in Emmet.Controls)
-                    {
-                        if (!control.Visible || !control.Enabled)
-                        {
-                            shownControls.Add(new object[] { control, new[] { control.Visible, control.Enabled } });
-                        }
-                        control.Visible = true;
-                        control.Enabled = true;
-                    }
-                }
-            }
-            else {
-                for (int i = 0; i < shownControls.Count; i++)
-                {
-                    ((Control)shownControls[i][0]).Visible = (shownControls[i][1] as bool[])[0];
-                    ((Control)shownControls[i][0]).Enabled = (shownControls[i][1] as bool[])[1];
-                }
-
-                shownControls = null;
-            }
-            #endif
-        }
-
-
-        private void debugMiscBtn_Click(object sender, EventArgs e)
-        {
-            var ffs = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-            foreach (var item in ffs)
-            {
-                echo($"[{item}]: {(byte) item} => {(byte) item.ToString().ToUpper() [0]}");
-            }
-
-            for(byte beh = 90; beh < 98; beh++)
-            {
-                echo($"{(char)beh}");
-            }
-            echo((char)123);
-        }
-
-        
-        private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
-        {
-            #if DEBUG
-            noDraw ^= true;
-            CreateGraphics().Clear(BackColor);
-            Refresh();
-            #endif
-        }
-        
-
-        private void debugTabCheckBtn_Click(object sender, EventArgs e)
-        {
-            void eh(System.Windows.Forms.Control.ControlCollection controls)
-            {
-                foreach (Control cunt in controls)
-                {
-                    if (cunt.HasChildren)
-                    {
-                        eh (cunt.Controls);
-                    }
-                    PrintNL($"# [{cunt.Name}: {cunt.TabIndex}]");
-                }
-
-            }
-
-            eh(this.Controls);
-        }
-
-        private void debugLineTestBtn_Click(object sender, EventArgs e)
-        {
-            PrintLL(debugLineTestTextBox.Text, (int)debugLineTestIntBox.Value);
         }
         #endregion
 
@@ -334,25 +223,20 @@ namespace weapon_data
             
             try {
                 //#
-                //## Load provided DC file.
+                //## Load & Parse provided DC file.
                 //#
                 DCFile = File.ReadAllBytes(binPath);
-                ActiveFileName = binPath.Substring(binPath.LastIndexOf('\\') + 1);
-
-
-                //#
-                //## Parse provided DC file.
-                //#
                 AbortButtonMammet(true);
+
 
                 DCHeader = new DCFileHeader(DCFile, ActiveFileName);
                 DCEntries = new object[DCHeader.TableLength];
 
                 for (int fuck = 0, sake = 0x28; fuck < DCHeader.HeaderItems.Length; fuck++, sake += 24)
                 {
-                    Venat?.CTUpdateStatusLabel($" ({fuck} / {DCHeader.TableLength})");
+                    StatusLabelMammet(new[] { null, $" ({fuck} / {DCHeader.TableLength})", null });
 
-                    echo($"Item #{fuck}: [ Label: {DCHeader.HeaderItems[fuck].Name} Type: {DCHeader.HeaderItems[fuck].Type} Data Address: {DCHeader.HeaderItems[fuck].StructAddress:X} ]");
+                    //echo($"Item #{fuck}: [ Label: {DCHeader.HeaderItems[fuck].Name} Type: {DCHeader.HeaderItems[fuck].Type} Data Address: {DCHeader.HeaderItems[fuck].StructAddress:X} ]");
 
                     DCEntries[fuck] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[fuck].Type, (int)DCHeader.HeaderItems[fuck].StructAddress, DCHeader.HeaderItems[fuck].Name);
                 }
@@ -365,7 +249,7 @@ namespace weapon_data
                 //#
 
                 echo("\nFinished!");
-                CTUpdateStatusLabel(ActiveFileName + " Finished Loading dc File");
+                StatusLabelMammet(new[] { "Finished Loading dc File", string.Empty, string.Empty });
 
                 ReloadButtonMammet(true);
                 AbortButtonMammet(1);
@@ -376,16 +260,17 @@ namespace weapon_data
             // File in 
             catch (IOException) {
                 echo($"\nERROR: Selected File is Being Used by Another Process.");
-                CTUpdateStatusLabel(ActiveFileName + " Error Loading dc File!!!");
+                StatusLabelMammet(new[] { "Error Loading dc File!!!", string.Empty, string.Empty });
                 AbortButtonMammet(false, 0);
             }
             catch (ThreadAbortException) {
+                StatusLabelMammet(new[] { "DC Parse Aborted", string.Empty, string.Empty });
                 AbortButtonMammet(false, 0);
             }
             # if !DEBUG
             catch (Exception fuck) {
-                echo($"\nAn Unexpected {fuck.GetType()} Occured While Attempting to Parse the DC File.");
-                MessageBox.Show($"An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file");
+                echo($"\nERROR: An unexpected {fuck.GetType()} occured while attempting to parse the DC file.");
+                MessageBox.Show($"An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file.", "Unhandled Error Parsing DC File!!!");
                 AbortButtonMammet(false, 0);
             }
             #endif
@@ -407,7 +292,6 @@ namespace weapon_data
             {
                 Name = "unnamed";
             }
-
 
 
 
@@ -461,7 +345,23 @@ namespace weapon_data
         /// <param name="details"> The string[] to update the label's text with. </param>
         public static void UpdateStatusLabel(string[] details)
         {
-            scriptStatusLabel.Text = $"Status: {details}";
+            if ((details?.Length ?? 0) < 3)
+            {
+                echo($"ERROR: Invalid length for details array provided to StatusLabel; must be [3], but is [{details?.Length ?? 0}]." );
+                return;
+            }
+
+            scriptStatusLabel.Text = $"Status: {details[0]} ";
+            
+            if ((details[1]?.Length ?? 0) > 0)
+            {
+                scriptStatusLabel.Text += " | " + details[1];
+            }
+            if ((details[2]?.Length ?? 0) > 0)
+            {
+                scriptStatusLabel.Text += " | " + details[2];
+            }
+            Venat?.Update();
         }
 
         
@@ -471,57 +371,24 @@ namespace weapon_data
         /// <param name="details"> The string to update the label's text with. </param>
         public static void UpdateSelectionLabel(string[] details)
         {
-            scriptSelectionLabel.Text = $"Selected Script: {ActiveFileName}{details}";
+            if ((details?.Length ?? 0) < 3)
+            {
+                echo($"ERROR: Invalid length for details array provided to SelectionLabel; must be [3], but is [{details?.Length ?? 0}]." );
+                return;
+            }
+
+
+            scriptSelectionLabel.Text = $"Selected Script: {details[0]}";
+            
+            if (details[1] != null)
+            {
+                scriptSelectionLabel.Text += " | " + details[1];
+            }
+            if (details[2] != null)
+            {
+                scriptSelectionLabel.Text += " | " + details[2];
+            }
         }
-
-
-
-
-        //#
-        //## Mammet Shorthand Function Declarations
-        //#
-        #region [mammet shorthand function declarations]
-
-        public static void ReloadButtonMammet(bool enabled)
-        {
-            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
-        }
-
-        public static void AbortButtonMammet(params object[] args)
-        {
-            Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
-        }
-
-        public static void PropertiesPanelMammet(object dcFileName, object[] dcEntries)
-        {
-            Venat?.Invoke(Venat.propertiesPanelMammet, new[] { dcFileName, dcEntries });
-        }
-        
-        
-        /// <summary>
-        /// Update the yellow status/info label from a different thread through the statusLabelMammet
-        /// </summary>
-        /// <param name="status">  </param>
-        /// <param name="subStatus1">  </param>
-        /// <param name="subStatus2">  </param>
-        public void CTUpdateStatusLabel(object status = null, object subStatus1 = null, object subStatus2 = null)
-        {
-            Venat.Invoke(statusLabelMammet, new [] { new object[] { status, subStatus1, subStatus2 } });
-        }
-
-
-        /// <summary>
-        /// Update the yellow status/info label from a different thread through the statusLabelMammet
-        /// </summary>
-        /// <param name="status">  </param>
-        /// <param name="subSelection1">  </param>
-        /// <param name="subSelection2">  </param>
-        public void CTUpdateSelectionLabel(object subSelection1 = null, object subSelection2 = null)
-        {
-            Venat.Invoke(selectionLabelMammet, new [] { new object[] { subSelection1, subSelection2 } });
-        }
-        #endregion
-
         #endregion [Function Declarations]
     }
 }

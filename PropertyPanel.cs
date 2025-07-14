@@ -16,6 +16,8 @@ namespace weapon_data
         private List<Button> HeaderItemButtons;
         private List<Button> StructButtons;
 
+        private int TabIndexBase;
+
         private Button Selection
         {
             get => _selection;
@@ -52,11 +54,19 @@ namespace weapon_data
         private void DisplayHItemContents(int itemIndex)
         {
             OutputWindow.Clear();
+            UpdateSelectionLabel(new[] { null, DCHeader.HeaderItems[itemIndex - TabIndexBase].Name, null });
 
+            // Update Properties Window
             PrintNL();
         }
 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dcFileName"></param>
+        /// <param name="dcEntries"></param>
         private void PopulatePropertiesPanel(string dcFileName, object[] dcEntries)
         {
             Button newButton()
@@ -107,7 +117,7 @@ namespace weapon_data
             HeaderItemButtons = new List<Button>(dcEntries.Length);
 
             var dcLen = dcEntries.Length;
-            var tabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
+            TabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
             char[] name = null;
 
             for (int i = 0; i < dcLen; i++, name = null)
@@ -136,8 +146,6 @@ namespace weapon_data
                             
                         name[j - 1] = ' ';
                         name[j] = $"{name[j]}".ToUpper()[0];
-                        //  eat--my-ass
-                        //  go---bite-a-dick
                     }
 
                     j++;
@@ -149,7 +157,9 @@ namespace weapon_data
                 currentButton.FlatAppearance.BorderSize = 0;
                 currentButton.Width = currentButton.Parent.Width - 2;
 
-                currentButton.TabIndex = tabIndexBase + i;
+                currentButton.TabIndex = TabIndexBase + i;
+                echo ($"Button {currentButton.Name} has tab index of [{currentButton.TabIndex}]");
+
                 currentButton.GotFocus += (button, _) => highlightHeaderButton(button as Button);
                 currentButton.Click += (button, _) => highlightHeaderButton(button as Button);
 
@@ -157,22 +167,22 @@ namespace weapon_data
                 {
                     if (arg.KeyData == Keys.Down)
                     {
-                        if ((int)currentButton.Tag == HeaderItemButtons.Count - 1)
+                        if (currentButton.TabIndex == HeaderItemButtons.Count - 1)
                         {
                             HeaderItemButtons[0].Focus();
                         }
                         else {
-                            HeaderItemButtons[(int)currentButton.Tag + 1].Focus();
+                            HeaderItemButtons[currentButton.TabIndex + 1].Focus();
                         }
                     }
                     else if (arg.KeyData == Keys.Up)
                     {
-                        if ((int)currentButton.Tag == 0)
+                        if (currentButton.TabIndex == 0)
                         {
                             HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
                         }
                         else {
-                            HeaderItemButtons[(int)currentButton.Tag - 1].Focus();
+                            HeaderItemButtons[currentButton.TabIndex - 1].Focus();
                         }
                     }
                 };
