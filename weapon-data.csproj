@@ -46,9 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debug.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="DebugPanel.cs">
       <SubType>Form</SubType>
     </Compile>
