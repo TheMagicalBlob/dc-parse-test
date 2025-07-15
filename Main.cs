@@ -181,9 +181,9 @@ namespace weapon_data
             }
             else {
                 CloseBinFile();
+                AbortButtonMammet(0, false);
             }
 
-            AbortButtonMammet(0, false);
             ReloadButtonMammet(false);
         }
         
@@ -275,7 +275,6 @@ namespace weapon_data
             }
             catch (ThreadAbortException) {
                 StatusLabelMammet(new[] { "DC Parse Aborted", string.Empty, string.Empty });
-                AbortButtonMammet(false, 0);
             }
             # if !DEBUG
             catch (Exception fuck) {

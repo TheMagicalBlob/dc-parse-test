@@ -86,5 +86,10 @@ namespace weapon_data
             Venat?.Update();
         }
         #endregion
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            AbortButtonMammet(null, true);
+        }
     }
 }

@@ -320,6 +320,7 @@ namespace weapon_data
                     abortBtn.Text = new[] { "Abort", "Close File" } [newIndex];
                 
                     abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
+
                     abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
                     return;
                 }
@@ -863,14 +864,14 @@ namespace weapon_data
         //#
         #region [Mammet Shorthand Functions]
 
-        public static void ReloadButtonMammet(bool enabled)
-        {
-            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
-        }
-
         public static void AbortButtonMammet(params object[] args)
         {
             Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
+        }
+        
+        public static void ReloadButtonMammet(bool enabled)
+        {
+            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
         }
 
         public static void PropertiesPanelMammet(object dcFileName, object[] dcEntries)
