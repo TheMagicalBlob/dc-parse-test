@@ -271,7 +271,6 @@ namespace weapon_data
             catch (IOException) {
                 echo($"\nERROR: Selected File is Being Used by Another Process.");
                 StatusLabelMammet(new[] { "Error Loading dc File!!!", string.Empty, string.Empty });
-                AbortButtonMammet(false, 0);
             }
             catch (ThreadAbortException) {
                 StatusLabelMammet(new[] { "DC Parse Aborted", string.Empty, string.Empty });
