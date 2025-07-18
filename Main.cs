@@ -13,9 +13,15 @@ namespace weapon_data
         public Main()
         {
             InitializeComponent();
-            InitializeAdditionalEventHandlers();
+            InitializeAdditionalEventHandlers_Main();
+
+            VersionLabel.Text += Version;
+            logWindow.Clear();
+            propertiesWindow.Clear();
 
 
+
+            // Set global object refs used in various static functions (maybe change that...)
             Update(); Refresh();
             Venat = this;
             Azem = new OptionsPage();
@@ -23,45 +29,40 @@ namespace weapon_data
 
             PropertiesPanel = propertiesPanel;
             PropertiesWindow = propertiesWindow;
+            
+            ScriptStatusLabel = scriptStatusLabel;
+            ScriptSelectionLabel = scriptSelectionLabel;
+            AbortOrCloseBtn = abortOrCloseBtn;
+            LogWindow = logWindow;
             Update(); Refresh();
 
 
 
-            if (File.Exists($"{Directory.GetCurrentDirectory()}\\sidbase.bin"))
+            // Check various expected paths for the required sidbase.bin file
+            var workingDirectory = Directory.GetCurrentDirectory();
+            if (!new[] { $@"{workingDirectory}\sidbase.bin", $@"{workingDirectory}\sid\sidbase.bin", $@"{workingDirectory}\dis1\sidbase.bin" }
+            .Any(path =>
             {
-                SIDBase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sidbase.bin");
-            }
-            else if (File.Exists($"{Directory.GetCurrentDirectory()}\\sid\\sidbase.bin"))
-            {
-                SIDBase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sid\\sidbase.bin");
-            }
-            
-            else if (File.Exists($"{Directory.GetCurrentDirectory()}\\sid1\\sidbase.bin"))
-            {
-                SIDBase = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}\\sid1\\sidbase.bin");
-            }
-
-            
-            VersionLabel.Text = "Ver." + Version;
-
-
-            scriptStatusLabel = ScriptStatusLabel;
-            scriptSelectionLabel = ScriptSelectionLabel;
-            abortBtn = AbortOrCloseBtn;
-
-
-            (PropertiesWindow = propertiesWindow).KeyDown += (sender, arg) => //!
-            {
-                if (arg.KeyData == Keys.Escape)
+                if (File.Exists(path))
                 {
-                    BinPathBrowseBtn.Focus();
+                    SIDBase = File.ReadAllBytes(path);
+                    return true;
                 }
-            };
+                return false;
+            }))
+            {
+                echo("No valid sidbase.bin file was provided");
+                //! handle missing sidbase, since you've hardcoded the decoded strings, dumbass
+                UpdateStatusLabel(new[] { null, "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
+            }
 
-            BaseAbortButtonWidth = abortBtn.Size.Width;
+
+
+            BaseAbortButtonWidth = AbortOrCloseBtn.Size.Width;
             
             propertiesPanelMammet = new PropertiesPanelWand(PopulatePropertiesPanel);
         }
+
 
 
         
@@ -79,22 +80,22 @@ namespace weapon_data
             switch (arg)
             {
                 case Keys.Down:
-                    if ((int)Selection.Tag == HeaderItemButtons.Count - 1)
+                    if ((int)HeaderSelection.Tag == HeaderItemButtons.Length - 1)
                     {
                         HeaderItemButtons[0].Focus();
                     }
                     else {
-                        HeaderItemButtons[(int)Selection.Tag + 1].Focus();
+                        HeaderItemButtons[(int)HeaderSelection.Tag + 1].Focus();
                     }
                 break;
 
                 case Keys.Up:
-                    if ((int)Selection.Tag == 0)
+                    if ((int)HeaderSelection.Tag == 0)
                     {
-                        HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
+                        HeaderItemButtons[HeaderItemButtons.Length - 1].Focus();
                     }
                     else {
-                        HeaderItemButtons[(int)Selection.Tag - 1].Focus();
+                        HeaderItemButtons[(int)HeaderSelection.Tag - 1].Focus();
                     }
                 break;
 
@@ -105,23 +106,31 @@ namespace weapon_data
                 break;
                 #endif
             }
-            if (Selection == null && (HeaderItemButtons?.Any() ?? false))
+
+
+            if (HeaderSelection == null && (HeaderItemButtons?.Any() ?? false))
             {
-                HeaderItemButtons[arg == Keys.Down ? 0 : HeaderItemButtons.Count - 1].Focus();
+                HeaderItemButtons[arg == Keys.Down ? 0 : HeaderItemButtons.Length - 1].Focus();
             }
             else {
                 if (arg == Keys.Down)
                 {
-       
+                    if ((int)HeaderSelection.TabIndex == HeaderItemButtons.Length - 1)
+                    {
+                        HeaderItemButtons[0].Focus();
+                    }
+                    else {
+                        HeaderItemButtons[(int)HeaderSelection.TabIndex - 1].Focus();
+                    }
                 }
                 else if (arg == Keys.Up)
                 {
-                    if ((int)Selection.Tag == 0)
+                    if ((int)HeaderSelection.TabIndex == 0)
                     {
-                        HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
+                        HeaderItemButtons[HeaderItemButtons.Length - 1].Focus();
                     }
                     else {
-                        HeaderItemButtons[(int)Selection.Tag - 1].Focus();
+                        HeaderItemButtons[(int)HeaderSelection.TabIndex - 1].Focus();
                     }
                 }
             }
@@ -140,20 +149,16 @@ namespace weapon_data
                 ActiveFilePath = Browser.FileName;
             }
         }
-        
-        private void ChoosePropertyBtn_Click(object sender, EventArgs e)
+
+        private void SidBaseBrowseBtn_Click(object sender, EventArgs e)
         {
-            if (PropertiesPanel != null)
-            {
-                PropertiesPanel.Visible ^= true;
-		        PropertiesPanel.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
-                PropertiesPanel.Update();
-            }
+
         }
+
 
         private void OptionsMenuDropdownBtn_Click(object sender, EventArgs e)
         {
-            return;
+            return; // disabled until i've actually implemented the thing
 
             Azem.Visible ^= true;
             Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
@@ -162,17 +167,18 @@ namespace weapon_data
         
         private void ReloadBinFile(object sender, EventArgs e)
         {
+            CloseBinFile();
+
             if (File.Exists(ActiveFilePath))
             {
                 LoadBinFile(ActiveFilePath);
             }
             else {
                 UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", string.Empty, string.Empty });
-                UpdateSelectionLabel(new[] { string.Empty, string.Empty, string.Empty });
-                CloseBinFile();
             }
         }
         
+
         private void AbortOrCloseBtn_Click(object sender, EventArgs e)
         {
             if (((Button)sender).Text == "Abort")
@@ -211,10 +217,12 @@ namespace weapon_data
             if (binThread != null && binThread.ThreadState != ThreadState.Unstarted)
             {
                 try {
+                    echo("Bin thread already active, killing thread.");
                     binThread.Abort();
                 }
-                catch (ThreadAbortException) { echo("Bin Thread Killed\n"); }
-                catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting binThread.\n"); }
+                catch (ThreadAbortException) { echo("Bin thread killed."); }
+                catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting bin thread."); }
+                echo();
             }
 
 
@@ -231,33 +239,28 @@ namespace weapon_data
         {
             var binPath = pathObj?.ToString() ?? "null";
             
-            try {
+            try
+            {
                 //#
                 //## Load & Parse provided DC file.
                 //#
                 DCFile = File.ReadAllBytes(binPath);
                 AbortButtonMammet(true);
 
-
                 DCHeader = new DCFileHeader(DCFile, ActiveFileName);
                 DCEntries = new object[DCHeader.TableLength];
 
-                for (int fuck = 0, sake = 0x28; fuck < DCHeader.HeaderItems.Length; fuck++, sake += 24)
+                for (int headerItemIndex = 0, sake = 0x28; headerItemIndex < DCHeader.HeaderItems.Length; headerItemIndex++, sake += 24)
                 {
-                    StatusLabelMammet(new[] { null, $" ({fuck} / {DCHeader.TableLength})", null });
-
-                    //echo($"Item #{fuck}: [ Label: {DCHeader.HeaderItems[fuck].Name} Type: {DCHeader.HeaderItems[fuck].Type} Data Address: {DCHeader.HeaderItems[fuck].StructAddress:X} ]");
-
-                    DCEntries[fuck] = LoadDCStructByType(DCFile, DCHeader.HeaderItems[fuck].Type, (int)DCHeader.HeaderItems[fuck].StructAddress, DCHeader.HeaderItems[fuck].Name);
+                    StatusLabelMammet(new[] { null, $" ({headerItemIndex} / {DCHeader.TableLength})", null });
+                    echo($"Item #{headerItemIndex}: [ Label: {DCHeader.HeaderItems[headerItemIndex].Name} Type: {DCHeader.HeaderItems[headerItemIndex].Type} Data Address: {DCHeader.HeaderItems[headerItemIndex].StructAddress:X} ]");
                 }
-
 
 
 
                 //#
                 //## Setup Form
                 //#
-
                 echo("\nFinished!");
                 StatusLabelMammet(new[] { "Finished Loading dc File", string.Empty, string.Empty });
 

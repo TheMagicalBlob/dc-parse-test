@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace weapon_data
 {
@@ -19,10 +19,10 @@ namespace weapon_data
         #region [Variable Declarations]
 
 
-
         //#
         //## Script Parsing Globals
         //#
+
         /// <summary>
         /// An array of bytes containing the entire provided sidbase.bin file.<br/>
         /// Used for decoding any read SID's that haven't already been decoded and chached.
@@ -38,8 +38,14 @@ namespace weapon_data
                 {
                     SIDBaseTableLength = BitConverter.ToInt64(SIDBase, 0) * 16;
                 }
-                else {
+                else
+                {
                     //! Implement an error, since the file would obviously be corrupted.
+#if DEBUG
+                    echo("ERROR: Invalid length for sidbase.bin (< 0x19- is it corrupted?)");
+#else
+                    MessageBox.Show("ERROR: Invalid length for sidbase.bin (< 0x19- is it corrupted?)", "The provided sidbase was unable to be loaded.");
+#endif
                 }
             }
         }
@@ -60,13 +66,13 @@ namespace weapon_data
             get => _dcFile;
 
             set {
-                _dcFile = value;
+                _dcFile = value == Array.Empty<byte>() ? null : value; // array.empty for intentional resets of the array, just avoid oops
 
                 if (value?.Length > 0x2C)
                 {
                     DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
                 }
-                else if ((value ?? null) != Array.Empty<byte>()){
+                else if ((value ?? null) != Array.Empty<byte>()) {
                     //! Implement an error, since the file would obviously be corrupted.
                 }
             }
@@ -110,6 +116,10 @@ namespace weapon_data
         /// <summary> Return the current state of the options page. </summary>
         public static bool OptionsPageIsOpen { get => Azem?.Visible ?? false; }
 
+        #if DEBUG
+        public static bool DebugPanelIsOpen { get => Bingus?.Visible ?? false; }
+        #endif
+
         /// <summary> Boolean global for keeping track of the current mouse state. </summary>
         public static bool MouseIsDown = false;
 
@@ -141,8 +151,14 @@ namespace weapon_data
         /// <summary> Output Window Pointer/Ref Because I'm Lazy. </summary>
         public static RichTextBox PropertiesWindow;
 
-        public static DebugPanel Bingus;
+        /// <summary> Log Window Pointer/Ref. </summary>
+        public static RichTextBox LogWindow;
 
+        public static DebugPanel Bingus;
+        
+        public static Label ScriptStatusLabel;
+        public static Label ScriptSelectionLabel;
+        public static Button AbortOrCloseBtn;
 
         
         /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
@@ -155,10 +171,10 @@ namespace weapon_data
         {
             get => _activeFileName;
 
-            set {
-                _activeFileName = value;
+            private set {
+                _activeFileName = value ?? "null";
 
-                SelectionDetails = new[] { ActiveFileName, null, null };
+                UpdateSelectionLabel(new[] { ActiveFileName, null, null });
             }
         }
         private static string _activeFileName = "No Script Selected";
@@ -177,7 +193,6 @@ namespace weapon_data
                     Venat?.LoadBinFile(ActiveFilePath);
 
                     ActiveFileName = value.Substring(value.LastIndexOf('\\') + 1);
-                    SelectionDetails = new[] { ActiveFileName, null, null };
                 }
             }
         }
@@ -190,22 +205,16 @@ namespace weapon_data
         /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
         private static int BaseAbortButtonWidth;
 
-        
-        public static Label scriptStatusLabel;
-        public static Label scriptSelectionLabel;
-        public static Button abortBtn;
 
-
-        public static string[] StatusDetails
+        private static string[] StatusDetails
         {
             get => _statusDetails;
 
-            private set
-            {
+            set {
                 if (value == null || value.Length < 1)
                 {
                     _selectionDetails = Array.Empty<string>();
-                    scriptSelectionLabel.Text = string.Empty;
+                    ScriptSelectionLabel.Text = "Selection: [None]";
                     return;
                 }
 
@@ -220,23 +229,33 @@ namespace weapon_data
                     }
                 }
 
-                UpdateStatusLabel(_statusDetails);
+                
+
+                ScriptStatusLabel.Text = $"Status: {StatusDetails[0]} ";
+            
+                for (int i = 0; i < StatusDetails.Length; i++)
+                {
+                    if ((StatusDetails[i]?.Length ?? 0) > 0)
+                    {
+                        ScriptStatusLabel.Text += " | " + StatusDetails[i];
+                        Venat?.Update();
+                    }
+                }
             }
         }
-        public static string[] _statusDetails = new string [] { null, null, null };
+        private static string[] _statusDetails = new string [] { null, null, null };
 
 
 
-        public static string[] SelectionDetails
+        private static string[] SelectionDetails
         {
             get => _selectionDetails;
 
-            private set
-            {
+            set {
                 if (value == null || value.Length < 1)
                 {
                     _selectionDetails = Array.Empty<string>();
-                    scriptSelectionLabel.Text = string.Empty;
+                    ScriptSelectionLabel.Text = "Status: [Inactive]";
                     return;
                 }
 
@@ -250,10 +269,19 @@ namespace weapon_data
                     }
                 }
 
-                UpdateSelectionLabel(_selectionDetails);
+                ScriptSelectionLabel.Text = $"Status: {SelectionDetails[0]} ";
+            
+                for (int i = 0; i < SelectionDetails.Length; i++)
+                {
+                    if ((SelectionDetails[i]?.Length ?? 0) > 0)
+                    {
+                        ScriptSelectionLabel.Text += " | " + SelectionDetails[i];
+                        Venat?.Update();
+                    }
+                }
             }
         }
-        public static string[] _selectionDetails = new string [] { null, null, null };
+        private static string[] _selectionDetails = new string [] { null, null, null };
 
 
         
@@ -301,7 +329,7 @@ namespace weapon_data
 
         private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
-            if (args == null || args.Length < 1 || abortBtn == null)
+            if (args == null || args.Length < 1 || AbortOrCloseBtn == null)
             {
                 return;
             }
@@ -310,24 +338,24 @@ namespace weapon_data
             {
                 if (obj == null || obj.GetType() == typeof(int))
                 {
-                    var newIndex = (int) (obj ?? (abortBtn.Text == "Abort" ? 1 : 0));
+                    var newIndex = (int) (obj ?? (AbortOrCloseBtn.Text == "Abort" ? 1 : 0));
 
                     if (newIndex > 1) { //! make sure this check is unnecessary, then remove it
                         echo($"ERROR: abortButtonMammet was provided an invalid index of \"{newIndex}\" for the button mode. Button has been defaulted to Abort.");
                         newIndex = 0;
                     }
 
-                    abortBtn.Text = new[] { "Abort", "Close File" } [newIndex];
+                    AbortOrCloseBtn.Text = new[] { "Abort", "Close File" } [newIndex];
                 
-                    abortBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, abortBtn.Size.Height);
+                    AbortOrCloseBtn.Size = new Size(BaseAbortButtonWidth + AbortButtonWidthDifference * newIndex, AbortOrCloseBtn.Size.Height);
 
-                    abortBtn.Location = new Point(abortBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), abortBtn.Location.Y);
+                    AbortOrCloseBtn.Location = new Point(AbortOrCloseBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), AbortOrCloseBtn.Location.Y);
                     return;
                 }
                 else if (obj.GetType() == typeof(bool))
                 {
-                    abortBtn.Enabled = (bool)obj;
-                    abortBtn.Font = new Font(abortBtn.Font.FontFamily, abortBtn.Font.Size, (FontStyle)(((bool) obj ? 0 : 8)));
+                    AbortOrCloseBtn.Enabled = (bool)obj;
+                    AbortOrCloseBtn.Font = new Font(AbortOrCloseBtn.Font.FontFamily, AbortOrCloseBtn.Font.Size, (FontStyle)(((bool) obj ? 0 : 8)));
                 }
                 else
                     echo($"ERROR: Unexpected argument type of \"{obj.GetType()}\" provided to abortButtonMammet");
@@ -371,6 +399,8 @@ namespace weapon_data
         
 
         
+
+
 
         //==========================================\\
         //---|   Global Function Delcarations   |---\\
@@ -444,10 +474,10 @@ namespace weapon_data
         /// Post-InitializeComponent Configuration. <br/><br/>
         /// Create Assign Anonomous Event Handlers to Parent and Children.
         /// </summary>
-        public void InitializeAdditionalEventHandlers()
+        public void InitializeAdditionalEventHandlers_Main()
         {
-            var hSeparatorLines = new List<Point[]>();
-            var vSeparatorLines = new List<Point[]>();
+            var hSeparatorLineScanner = new List<Point[]>();
+            var vSeparatorLineScanner = new List<Point[]>();
 
 
             // Set appropriate event handlers for the controls on the form as well
@@ -463,7 +493,7 @@ namespace weapon_data
                     if (item.Size.Width > item.Size.Height)
                     {
                         // Horizontal Lines
-                        hSeparatorLines.Add(new Point[2] { 
+                        hSeparatorLineScanner.Add(new Point[2] { 
                             new Point(((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7),
                             new Point(((weapon_data.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7)
                         });
@@ -472,7 +502,7 @@ namespace weapon_data
                     }
                     else {
                         // Vertical Lines
-                        vSeparatorLines.Add(new [] {
+                        vSeparatorLineScanner.Add(new [] {
                             new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y),
                             new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height)
                         });
@@ -512,11 +542,11 @@ namespace weapon_data
                 }
             }
             
-            if (hSeparatorLines.Count > 0) {
-                HSeparatorLines = hSeparatorLines.ToArray();
+            if (hSeparatorLineScanner.Count > 0) {
+                HSeparatorLines = hSeparatorLineScanner.ToArray();
             }
-            if (vSeparatorLines.Count > 0) {
-                VSeparatorLines = vSeparatorLines.ToArray();
+            if (vSeparatorLineScanner.Count > 0) {
+                VSeparatorLines = vSeparatorLineScanner.ToArray();
             }
             
             
@@ -551,6 +581,15 @@ namespace weapon_data
             KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control)sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
             Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
+
+            
+            propertiesWindow.KeyDown += (sender, arg) => //!
+            {
+                if (arg.KeyData == Keys.Escape)
+                {
+                    BinFileBrowseBtn.Focus();
+                }
+            };
         }
 
 
@@ -560,10 +599,10 @@ namespace weapon_data
         /// </summary>
         private void CreateBrowseModeDropdownMenu()
         {
-            var extalignment = BinPathBrowseBtn.Size.Height;
-            var alignment = BinPathBrowseBtn.Location;
+            var extalignment = BinFileBrowseBtn.Size.Height;
+            var alignment = BinFileBrowseBtn.Location;
 
-            var ButtonSize = new Size(BinPathBrowseBtn.Size.Width + optionsMenuDropdownBtn.Size.Width, 25);
+            var ButtonSize = new Size(BinFileBrowseBtn.Size.Width + optionsMenuDropdownBtn.Size.Width, 25);
 
             DropdownMenu[0] = new Button() {
                 Font = new Font("Gadugi", 7.25f, FontStyle.Bold),
@@ -632,13 +671,13 @@ namespace weapon_data
         /// Echo a provided string (or string representation of an object) to the standard console output.
         /// <br/> Appends an empty new line if no message is provided.
         /// </summary>
-        #pragma warning disable IDE1006 // bug off, this one's lowercase
+#pragma warning disable IDE1006 // bug off, this one's lowercase
         public static void echo(object message = null)
         {
             # if DEBUG
             string str;
 
-            Console.WriteLine(str = message?.ToString() ?? "null");
+            Console.WriteLine(str = message?.ToString() ?? string.Empty);
 
             if (Console.IsInputRedirected)
             {
@@ -654,7 +693,7 @@ namespace weapon_data
         /// Overrite a specific line in the properties output window with the provided <paramref name="message"/>
         /// <br/> Appends an empty new line if no message is provided.
         /// </summary>
-        public void PrintLL(object message = null, int line = 0)
+        public void PrintPropertyDetailSL(object message = null, int line = 0)
         {
             if (message == null)
                 message = string.Empty;
@@ -665,23 +704,22 @@ namespace weapon_data
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
-                Venat?.Invoke(Venat.propertiesWindowSpecificLineMammet, new object[] { "ass", 2 });
-                Venat?.Invoke(Venat.propertiesWindowSpecificLineMammet, new object[] { message, line < 0 ? 0 : line });
             try {
+                Venat?.Invoke(Venat.propertiesWindowSpecificLineMammet, new object[] { message?.ToString() ?? "null", line < 0 ? 0 : line });
             }
             catch (Exception dang)
             {
-                var err = $"Missed PrintLL Invokation due to a {dang.GetType()}";
+                var err = $"Missed PrintPropertyDetailSL Invokation due to a(n) {dang.GetType()}.";
                 echo(err);
             }
         }
 
 
         /// <summary>
-        /// Append a <paramref name="message"/> to the properties output window.
-        /// <br/> Appends an empty new line if no message is provided.
+        /// Replace a specified line in the properties output window with <paramref name="message"/>.
+        /// <br/> Clears the line if no message is provided.
         /// </summary>
-        public static void PrintNL(object message = null)
+        public static void PrintPropertyDetailNL(object message = null)
         {
             if (message == null)
                 message = string.Empty;
@@ -692,12 +730,12 @@ namespace weapon_data
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
-                Venat?.Invoke(Venat.propertiesWindowNewLineMammet, new object[] { message.ToString(), null });
             try {
+                Venat?.Invoke(Venat.propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null", null });
             }
             catch (Exception dang)
             {
-                var err = $"Missed PrintNL Invokation due to a {dang.GetType()}";
+                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
                 echo(err);
             }
         }
@@ -709,24 +747,23 @@ namespace weapon_data
         /// <param name="details"> The string[] to update the label's text with. </param>
         public static void UpdateStatusLabel(string[] details)
         {
-            if ((details?.Length ?? 0) < 3)
+            if ((details?.Length ?? 0) < 1)
             {
-                echo($"ERROR: Invalid length for details array provided to StatusLabel; must be [3], but is [{details?.Length ?? 0}]." );
+                echo($"ERROR: Empty or null string array provided for status label details." );
                 return;
             }
 
-            scriptStatusLabel.Text = $"Status: {details[0]} ";
-            
-            if ((details[1]?.Length ?? 0) > 0)
-            {
-                scriptStatusLabel.Text += " | " + details[1];
-            }
-            if ((details[2]?.Length ?? 0) > 0)
-            {
-                scriptStatusLabel.Text += " | " + details[2];
-            }
-            Venat?.Update();
+            StatusDetails = details;
         }
+
+        /// <summary>
+        /// Reset the ScriptStatusLabel to it's default value.
+        /// </summary>
+        public static void ResetStatusLabel()
+        {
+            StatusDetails = null;
+        }
+
 
         
         /// <summary>
@@ -735,23 +772,21 @@ namespace weapon_data
         /// <param name="details"> The string to update the label's text with. </param>
         public static void UpdateSelectionLabel(string[] details)
         {
-            if ((details?.Length ?? 0) < 3)
+            if ((details?.Length ?? 0) < 1)
             {
-                echo($"ERROR: Invalid length for details array provided to SelectionLabel; must be [3], but is [{details?.Length ?? 0}]." );
+                echo($"ERROR: Empty or null string array provided for selection label details." );
                 return;
             }
 
+            SelectionDetails = details;
+        }
 
-            scriptSelectionLabel.Text = $"Selected Script: {details[0]}";
-            
-            if (details[1] != null)
-            {
-                scriptSelectionLabel.Text += " | " + details[1];
-            }
-            if (details[2] != null)
-            {
-                scriptSelectionLabel.Text += " | " + details[2];
-            }
+        /// <summary>
+        /// Reset the ScriptSelectionLabel to it's default value.
+        /// </summary>
+        public static void ResetSelectionLabel()
+        {
+            SelectionDetails = null;
         }
         #endregion
 
@@ -765,15 +800,18 @@ namespace weapon_data
         
         private static void CloseBinFile()
         {
-            DCFile = null;
+            DCFile = Array.Empty<byte>();
             PropertiesPanel.Controls.Clear();
             PropertiesWindow.Clear();
+            LogWindow.Clear();
+            ResetSelectionLabel();
+            ResetStatusLabel();
 
             if (Venat != null)
             {
-                Venat.HeaderItemButtons?.Clear();
                 Venat.HeaderItemButtons = null;
-                Venat.Selection = null;
+                Venat.SubItemButtons = null;
+                Venat.HeaderSelection = null;
 
                 Venat.optionsMenuDropdownBtn.TabIndex -= DCEntries.Length;
                 Venat.MinimizeBtn.TabIndex -= DCEntries.Length;

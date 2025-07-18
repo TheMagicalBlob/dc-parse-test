@@ -38,12 +38,10 @@ namespace weapon_data
             this.dummy = new System.Windows.Forms.Button();
             this.debugTabCheckBtn = new System.Windows.Forms.Button();
             this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
-            this.debugMiscBtn = new System.Windows.Forms.Button();
             this.label1 = new weapon_data.Label();
             this.label2 = new weapon_data.Label();
             this.Title = new weapon_data.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // CloseBtn
@@ -52,14 +50,13 @@ namespace weapon_data
             this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.CloseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
             this.CloseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.CloseBtn.Location = new System.Drawing.Point(391, 2);
+            this.CloseBtn.Location = new System.Drawing.Point(303, 2);
             this.CloseBtn.Name = "CloseBtn";
             this.CloseBtn.Size = new System.Drawing.Size(22, 22);
             this.CloseBtn.TabIndex = 7;
             this.CloseBtn.Text = "X";
             this.CloseBtn.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CloseBtn.UseVisualStyleBackColor = false;
-            this.CloseBtn.Click += new System.EventHandler(this.CloseBtn_Click);
             // 
             // dummy
             // 
@@ -80,7 +77,7 @@ namespace weapon_data
             this.debugTabCheckBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
             this.debugTabCheckBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.debugTabCheckBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugTabCheckBtn.Location = new System.Drawing.Point(49, 34);
+            this.debugTabCheckBtn.Location = new System.Drawing.Point(8, 34);
             this.debugTabCheckBtn.Name = "debugTabCheckBtn";
             this.debugTabCheckBtn.Size = new System.Drawing.Size(49, 19);
             this.debugTabCheckBtn.TabIndex = 46;
@@ -90,27 +87,12 @@ namespace weapon_data
             // debugDisableLinesBtn
             // 
             this.debugDisableLinesBtn.AutoSize = true;
-            this.debugDisableLinesBtn.Location = new System.Drawing.Point(104, 36);
+            this.debugDisableLinesBtn.Location = new System.Drawing.Point(63, 36);
             this.debugDisableLinesBtn.Name = "debugDisableLinesBtn";
             this.debugDisableLinesBtn.Size = new System.Drawing.Size(54, 17);
             this.debugDisableLinesBtn.TabIndex = 45;
             this.debugDisableLinesBtn.Text = "noline";
             this.debugDisableLinesBtn.UseVisualStyleBackColor = true;
-            // 
-            // debugMiscBtn
-            // 
-            this.debugMiscBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.debugMiscBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.debugMiscBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.debugMiscBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.debugMiscBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.debugMiscBtn.Location = new System.Drawing.Point(4, 33);
-            this.debugMiscBtn.Name = "debugMiscBtn";
-            this.debugMiscBtn.Size = new System.Drawing.Size(43, 21);
-            this.debugMiscBtn.TabIndex = 44;
-            this.debugMiscBtn.Text = "Misc.";
-            this.debugMiscBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.debugMiscBtn.UseVisualStyleBackColor = false;
             // 
             // label1
             // 
@@ -144,7 +126,7 @@ namespace weapon_data
             this.Title.Font = new System.Drawing.Font("Gadugi", 9.25F, System.Drawing.FontStyle.Bold);
             this.Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.Title.IsSeparatorLine = false;
-            this.Title.Location = new System.Drawing.Point(151, 3);
+            this.Title.Location = new System.Drawing.Point(113, 3);
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(102, 17);
             this.Title.StretchToFitForm = false;
@@ -158,40 +140,23 @@ namespace weapon_data
             this.button1.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.button1.ForeColor = System.Drawing.SystemColors.WindowText;
             this.button1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button1.Location = new System.Drawing.Point(12, 70);
+            this.button1.Location = new System.Drawing.Point(11, 60);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(43, 21);
+            this.button1.Size = new System.Drawing.Size(54, 21);
             this.button1.TabIndex = 47;
             this.button1.Text = "Misc.";
-            this.button1.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button2.Font = new System.Drawing.Font("Segoe UI Semibold", 6.5F);
-            this.button2.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.button2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button2.Location = new System.Drawing.Point(61, 72);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(49, 19);
-            this.button2.TabIndex = 48;
-            this.button2.Text = "tabcheck";
-            this.button2.UseVisualStyleBackColor = false;
             // 
             // DebugPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
-            this.ClientSize = new System.Drawing.Size(415, 179);
-            this.Controls.Add(this.button2);
+            this.ClientSize = new System.Drawing.Size(335, 170);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.debugTabCheckBtn);
             this.Controls.Add(this.debugDisableLinesBtn);
-            this.Controls.Add(this.debugMiscBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dummy);
@@ -214,7 +179,7 @@ namespace weapon_data
         /// Post-InitializeComponent Configuration. <br/><br/>
         /// Create Assign Anonomous Event Handlers to Parent and Children.
         /// </summary>
-        public void InitializeAdditionalEventHandlers()
+        public void InitializeAdditionalEventHandlers_DebugPanel()
         {
             var hSeparatorLines = new List<Point[]>();
             var vSeparatorLines = new List<Point[]>();
@@ -326,8 +291,6 @@ namespace weapon_data
         private Label label1;
         private Button debugTabCheckBtn;
         private CheckBox debugDisableLinesBtn;
-        private Button debugMiscBtn;
         private Button button1;
-        private Button button2;
     }
 }

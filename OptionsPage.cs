@@ -12,7 +12,7 @@ namespace weapon_data
     {
         public OptionsPage() {
             InitializeComponent();
-            InitializeAdditionalEventHandlers(); // Set Event Handlers and Other Form-Related Crap
+            InitializeAdditionalEventHandlers_OptionsPage(); // Set Event Handlers and Other Form-Related Crap
             
 
             sidbasePathTextBox.TextChanged += (sender, _) =>
@@ -35,7 +35,7 @@ namespace weapon_data
         /// <summary>
         /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
         /// </summary>
-        public void InitializeAdditionalEventHandlers()
+        public void InitializeAdditionalEventHandlers_OptionsPage()
         {
             // Anonomously Create and Set CloseBtn Event Handler
             CloseBtn.Click += new EventHandler((sender, e) =>

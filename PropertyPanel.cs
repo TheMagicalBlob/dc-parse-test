@@ -13,14 +13,15 @@ namespace weapon_data
         //=================================\\
         #region [Variable Declarations]
 
-        private List<Button> HeaderItemButtons;
-        private List<Button> StructButtons;
+        private Button[] HeaderItemButtons;
+        private List<Button> SubItemButtons;
 
+        /// <summary> Offset used for adjusting the tab index of buttons after the property buttons, as well as get the item index from the button's tab index. </summary>
         private int TabIndexBase;
-
-        private Button Selection
+        
+        private Button HeaderSelection
         {
-            get => _selection;
+            get => _headerSelection;
 
             set {
                 if (value != null)
@@ -28,10 +29,26 @@ namespace weapon_data
                     DisplayHeaderItemDetails(value.TabIndex);
                 }
 
-                _selection = value;
+                _headerSelection = value;
             }
         }
-        private Button _selection;
+        private Button _headerSelection;
+
+        private Button SubItemSelection
+        {
+            get => _subItemSelection;
+
+            set {
+                if (value != null)
+                {
+                    DisplayHeaderItemDetails(value.TabIndex);
+                }
+
+                _subItemSelection = value;
+            }
+        }
+        private Button _subItemSelection;
+
 
         public delegate void PropertiesPanelWand(string dcFileName, object[] dcEntries);
 
@@ -57,11 +74,11 @@ namespace weapon_data
             var item = DCHeader.HeaderItems[itemIndex - TabIndexBase];
             var itemType = item.Type;
 
-            UpdateSelectionLabel(new[] { null, item.Name, null });
+            UpdateSelectionLabel(new[] { null, item.Name });
 
             // Update Properties Window
-            PrintNL(itemType + (item.Name.Length > 0 ? $" {item.Name}" : string.Empty));
-            PrintNL($"Address: {item.StructAddress:X}\n");
+            PrintPropertyDetailNL(itemType + (item.Name.Length > 0 ? $" {item.Name}" : string.Empty));
+            PrintPropertyDetailNL($"Address: {item.StructAddress:X}\n");
 
             switch (item.Type)
             {
@@ -82,6 +99,33 @@ namespace weapon_data
                     echo($"unhandled struct type \"{itemType}\".");
                     break;
             }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void LoadHeaderItemContents(int headerItemIndex)
+        {
+            if (DCHeader.HeaderItems[headerItemIndex].Struct == null)
+            {
+                headerItemIndex -= TabIndexBase;
+
+                DCHeader.HeaderItems[headerItemIndex].Struct = LoadDCStructByType(DCFile, DCHeader.HeaderItems[headerItemIndex].Type, (int)DCHeader.HeaderItems[headerItemIndex].StructAddress, DCHeader.HeaderItems[headerItemIndex].Name);
+            }
+        }
+
+        
+
+        private void HighlightHeaderButton(Button sender)
+        {
+            if (HeaderSelection != null)
+            {
+                HeaderSelection.Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, (FontStyle) 0);
+            }
+                    
+            (HeaderSelection = sender)
+            .Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, FontStyle.Underline);
         }
 
 
@@ -126,19 +170,8 @@ namespace weapon_data
                 return btn;
             }
 
-            void highlightHeaderButton(Button sender)
-            {
-                if (Selection != null)
-                {
-                    Selection.Font = new Font(Selection.Font.FontFamily, Selection.Font.Size, (FontStyle) 0);
-                }
-                    
-                (Selection = sender)
-                .Font = new Font(Selection.Font.FontFamily, Selection.Font.Size, Selection.Font.Style ^ FontStyle.Underline);
-            }
-
             Button currentButton;
-            HeaderItemButtons = new List<Button>(dcEntries.Length);
+            HeaderItemButtons = new Button[dcEntries.Length];
 
             var dcLen = dcEntries.Length;
             TabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
@@ -153,7 +186,7 @@ namespace weapon_data
                 currentButton.Location = new Point(1, 7 + currentButton.Height * i);
 
 
-
+                // Format struct name for use in button text
                 name = (((dynamic)dcEntry).Name as string).ToArray();
                 var tmp = 0;
 
@@ -174,6 +207,8 @@ namespace weapon_data
 
                     j++;
                 }
+
+                // Apply formatted name as button text
                 currentButton.Text = new string(name);
 
                 currentButton.Name = ((dynamic)dcEntry).Name;
@@ -182,16 +217,15 @@ namespace weapon_data
                 currentButton.Width = currentButton.Parent.Width - 2;
 
                 currentButton.TabIndex = TabIndexBase + i;
-                echo ($"Button {currentButton.Name} has tab index of [{currentButton.TabIndex}]");
 
-                currentButton.GotFocus += (button, _) => highlightHeaderButton(button as Button);
-                currentButton.Click += (button, _) => highlightHeaderButton(button as Button);
+                currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
+                currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
 
                 currentButton.KeyDown += (sender, arg) =>
                 {
                     if (arg.KeyData == Keys.Down)
                     {
-                        if (currentButton.TabIndex == HeaderItemButtons.Count - 1)
+                        if (currentButton.TabIndex == HeaderItemButtons.Length - 1)
                         {
                             HeaderItemButtons[0].Focus();
                         }
@@ -203,7 +237,7 @@ namespace weapon_data
                     {
                         if (currentButton.TabIndex == 0)
                         {
-                            HeaderItemButtons[HeaderItemButtons.Count - 1].Focus();
+                            HeaderItemButtons[HeaderItemButtons.Length - 1].Focus();
                         }
                         else {
                             HeaderItemButtons[currentButton.TabIndex - 1].Focus();
@@ -211,7 +245,7 @@ namespace weapon_data
                     }
                 };
 
-                HeaderItemButtons.Add(currentButton);
+                HeaderItemButtons[i] = currentButton;
             }
 
             optionsMenuDropdownBtn.TabIndex += dcLen;

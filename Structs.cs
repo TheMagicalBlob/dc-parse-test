@@ -11,47 +11,6 @@ namespace weapon_data
 {
     public partial class Main
     {
-
-        /// <summary>
-        /// Initialize Lists for the expected structures in a loaded script, or all if they changed the file name more than I could be bothered to account for.
-        /// <br/> (I should probably just hash that data at the bottom or some shit, needs checking)
-        /// </summary>
-        /// <param name="scriptName"> The file name of the loaded script </param> //! TODO: find some bit you can scan to determine the script without forcing an expected file name 
-        public void InitializeDcStructListsByScriptName(string scriptName)
-        {
-            UnknownDefinitions = new List<string>();
-
-            switch (scriptName)
-            {
-                case var _ when scriptName.ToLower().Replace("_", "-").Contains("weapon-gameplay"):
-                    WeaponDefinitions = new List<WeaponGameplayDef>();
-                    AmmoToWeaponDefinitions = new List<AmmoToWeaponArray>();
-                    SymbolDefinitions = new List<SymbolArrayDef>();
-                    break;
-
-                
-
-                case var _ when scriptName.ToLower().Contains("characters") && !scriptName.ToLower().Replace("_", "-").Contains("collision-settings"):
-
-
-
-                // Unknown Script; Initialize all
-                default:
-                    WeaponDefinitions = new List<WeaponGameplayDef>();
-                    AmmoToWeaponDefinitions = new List<AmmoToWeaponArray>();
-                    SymbolDefinitions = new List<SymbolArrayDef>();
-                    break;
-            }
-        }
-
-
-        public List<WeaponGameplayDef> WeaponDefinitions;
-        public List<AmmoToWeaponArray> AmmoToWeaponDefinitions;
-        public List<SymbolArrayDef> SymbolDefinitions;
-
-        public List<string> UnknownDefinitions;
-
-        
         //=================================\\
         //--|   Structure Definitions   |--\\
         //=================================\\
@@ -128,7 +87,6 @@ namespace weapon_data
                 StatusLabelMammet(new[] { "Reading Script...", string.Empty, string.Empty });
                 
 
-                Venat?.InitializeDcStructListsByScriptName(binName);
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
@@ -167,6 +125,8 @@ namespace weapon_data
                 Type = DecodeSIDHash(GetSubArray(binFile, address + 8));
 
                 StructAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
+
+                Struct = null;
             }
 
 
@@ -189,6 +149,11 @@ namespace weapon_data
             /// The address of the struct pointed to by tbe current dc header entry.
             /// </summary>
             public long StructAddress;
+
+            /// <summary>
+            /// The actual mapped structure object.
+            /// </summary>
+            public object Struct;
         }
 
 

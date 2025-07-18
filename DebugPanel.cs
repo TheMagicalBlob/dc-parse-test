@@ -14,7 +14,12 @@ namespace weapon_data
         public DebugPanel()
         {
             InitializeComponent();
-            InitializeAdditionalEventHandlers();
+            InitializeAdditionalEventHandlers_DebugPanel();
+
+            CloseBtn.Click += (a, b) => {
+                Bingus.Visible = false;
+                Venat?.Update();
+            };
         }
 
         
@@ -34,8 +39,7 @@ namespace weapon_data
         //#
         //## Debug Function Declarations
         //#
-        #region [debug function declarations]
-        
+
         private void debugMiscBtn_Click(object sender, EventArgs e)
         {
             var ffs = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
@@ -72,7 +76,7 @@ namespace weapon_data
                     {
                         eh (cunt.Controls);
                     }
-                    PrintNL($"# [{cunt.Name}: {cunt.TabIndex}]");
+                    PrintPropertyDetailNL($"# [{cunt.Name}: {cunt.TabIndex}]");
                 }
 
             }
@@ -80,16 +84,10 @@ namespace weapon_data
             eh(this.Controls);
         }
 
-        private void CloseBtn_Click(object sender, EventArgs e)
-        {
-            Bingus.Visible = false;
-            Venat?.Update();
-        }
-        #endregion
-
         private void button1_Click(object sender, EventArgs e)
         {
             AbortButtonMammet(null, true);
+                UpdateStatusLabel(new[] { null, "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
         }
     }
 }
