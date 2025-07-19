@@ -247,13 +247,14 @@ namespace weapon_data
                 DCFile = File.ReadAllBytes(binPath);
                 AbortButtonMammet(true);
 
-                DCHeader = new DCFileHeader(DCFile, ActiveFileName);
-                DCEntries = new object[DCHeader.TableLength];
+                DCScript = new DCFileHeader(DCFile, ActiveFileName);
+                DCEntries = new DCHeaderItem[DCScript.TableLength];
 
-                for (int headerItemIndex = 0, sake = 0x28; headerItemIndex < DCHeader.HeaderItems.Length; headerItemIndex++, sake += 24)
+                for (int headerItemIndex = 0, sake = 0x28; headerItemIndex < DCScript.Items.Length; headerItemIndex++, sake += 24)
                 {
-                    StatusLabelMammet(new[] { null, $" ({headerItemIndex} / {DCHeader.TableLength})", null });
-                    echo($"Item #{headerItemIndex}: [ Label: {DCHeader.HeaderItems[headerItemIndex].Name} Type: {DCHeader.HeaderItems[headerItemIndex].Type} Data Address: {DCHeader.HeaderItems[headerItemIndex].StructAddress:X} ]");
+                    StatusLabelMammet(new[] { null, $" ({headerItemIndex} / {DCScript.TableLength})", null });
+                    echo($"Item #{headerItemIndex}: [ Label: {DCScript.Items[headerItemIndex].Name} Type: {DCScript.Items[headerItemIndex].Type} Data Address: {DCScript.Items[headerItemIndex].StructAddress:X} ]");
+                    DCEntries[headerItemIndex] = LoadBasicDCEntry();
                 }
 
 
@@ -329,6 +330,11 @@ namespace weapon_data
                 //#
                 default: return new UnknownStruct(Type, Address, Name);
             }
+        }
+
+        private static object LoadBasicDCEntry()
+        {
+            return null;
         }
         #endregion [Function Declarations]
     }

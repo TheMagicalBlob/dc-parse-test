@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Xml.Linq;
 using static weapon_data.Main;
 
@@ -31,7 +32,7 @@ namespace weapon_data
                 BinFileLength = 0;
                 TableLength = 0;
 
-                HeaderItems = null;
+                Items = null;
 
                 //#
                 //## Read file magic from header
@@ -46,8 +47,8 @@ namespace weapon_data
                 //#
                 //## Run a few basic integrity checks
                 //#
-                var integrityCheck  = DecodeSIDHash(GetSubArray(binFile, 0x20));
-                if (integrityCheck != "array")
+                var integrityCheck  = new SID(GetSubArray(binFile, 0x20));
+                if (integrityCheck.EncodedID != "array")
                 {
                     echo($"ERROR; Unexpected SID \"{integrityCheck}\" at 0x20, aborting.");
                     return;
@@ -70,7 +71,7 @@ namespace weapon_data
                 //#
                 BinFileLength = BitConverter.ToInt64(binFile, 0x8);
                 TableLength = BitConverter.ToInt32(binFile, 0x14);
-                HeaderItems = new DCHeaderItem[TableLength];
+                Items = new DCHeaderItem[TableLength];
 
 
                 //#
@@ -90,7 +91,7 @@ namespace weapon_data
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    HeaderItems[tableIndex] = new DCHeaderItem(binFile, addr);
+                    Items[tableIndex] = new DCHeaderItem(binFile, addr);
                 }
             
     #if false
@@ -109,7 +110,7 @@ namespace weapon_data
             public int TableLength;
 
             /// <summary> An array of the DCHeaderItems parsed from the provided DC file. </summary>
-            public DCHeaderItem[] HeaderItems;
+            public DCHeaderItem[] Items;
         }
 
 
@@ -121,8 +122,8 @@ namespace weapon_data
             public DCHeaderItem(byte[] binFile, int address)
             {
                 Address = address;
-                Name = DecodeSIDHash(GetSubArray(binFile, address));
-                Type = DecodeSIDHash(GetSubArray(binFile, address + 8));
+                Name = new SID(GetSubArray(binFile, address));
+                Type = new SID(GetSubArray(binFile, address + 8));
 
                 StructAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
@@ -138,12 +139,12 @@ namespace weapon_data
             /// <summary>
             /// The name of the current entry in the DC file header.
             /// </summary>
-            public string Name;
+            public SID Name;
             
             /// <summary>
             /// The struct type of the current entry in the DC file header.
             /// </summary>
-            public string Type;
+            public SID Type;
             
             /// <summary>
             /// The address of the struct pointed to by tbe current dc header entry.
@@ -153,7 +154,17 @@ namespace weapon_data
             /// <summary>
             /// The actual mapped structure object.
             /// </summary>
-            public object Struct;
+            public object Struct { get; private set; }
+
+
+
+            /// <summary>
+            /// Begin loading the header item's structure. //! write something more verbose lmao
+            /// </summary>
+            public void LoadItemStruct()
+            {
+                Struct = LoadDCStructByType(DCFile, Type, StructAddress, Name);
+            }
         }
 
 
@@ -1080,6 +1091,57 @@ namespace weapon_data
 
             public string Name;
             public long Address;
+        }
+
+        public struct SID
+        {
+            public SID(byte[] EncodedSIDArray)
+            {
+                DecodedID = DecodeSIDHash(EncodedSIDArray);
+                EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
+
+                Venat?.DecodedSIDs.Add(this);
+            }
+            public SID(ulong EncodedSID)
+            {
+                DecodedID = DecodeSIDHash(EncodedSID);
+                EncodedID = EncodedSID.ToString("X");
+
+                Venat?.DecodedSIDs.Add(this);
+            }
+            public SID(string decodedSID, byte[] encodedSID)
+            {
+                DecodedID = decodedSID;
+                EncodedID = BitConverter.ToString(encodedSID).Replace("-", string.Empty);
+
+                Venat?.DecodedSIDs.Add(this);
+            }
+            public SID(string decodedSID, ulong encodedSID)
+            {
+                DecodedID = decodedSID;
+                EncodedID = encodedSID.ToString("X");
+
+                Venat?.DecodedSIDs.Add(this);
+            }
+
+
+
+            /// <summary> The decoded string id. </summary>
+            public string DecodedID;
+
+            /// <summary> The encoded string id. </summary>
+            public string EncodedID;
+
+            
+
+            /// <summary>
+            /// Lazy way of checking the unsigned long values of SID's in case of a missing sidbase.bin, while still being verbose in the code.
+            /// </summary>
+            /// <returns> True if the encoded value of the current SID matches the provided id. </returns>
+            public bool Is(SID id)
+            {
+                return id.EncodedID == this.EncodedID;
+            }
         }
         #endregion
     }

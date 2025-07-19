@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace weapon_data
 {
@@ -86,11 +85,9 @@ namespace weapon_data
 
 
         
-        public static DCFileHeader DCHeader;
+        public static DCFileHeader DCScript;
 
-        public static object[] DCEntries;
-
-        public List<object[]> DecodedIDS = new List<object[]>(1000);
+        public List<SID> DecodedSIDs = new List<SID>();
 
         public static bool Abort
         {
@@ -123,7 +120,8 @@ namespace weapon_data
         /// <summary> Boolean global for keeping track of the current mouse state. </summary>
         public static bool MouseIsDown = false;
 
-
+        /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
+        public static bool LegacyFolderSelectionDialogue = true;
 
         /// <summary> Store Expected Options Form Offset. </summary>
         public static Point OptionsFormLocation;
@@ -136,33 +134,12 @@ namespace weapon_data
         
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
         private Point[][] VSeparatorLines;
-
-
-
-        /// <summary> MainPage Form Pointer/Refference. </summary>
-        public static Main Venat;
-
-        /// <summary> OptionsPage Form Pointer/Refference. </summary>
-        public static OptionsPage Azem;
-
-        /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
-        public static GroupBox PropertiesPanel;
         
-        /// <summary> Output Window Pointer/Ref Because I'm Lazy. </summary>
-        public static RichTextBox PropertiesWindow;
+        /// <summary> The difference in size (horizontally, in pixels) of the Abort/Close File button when it changes from one to the other. </summary>
+        private static readonly int AbortButtonWidthDifference = 20; //! Lazy
 
-        /// <summary> Log Window Pointer/Ref. </summary>
-        public static RichTextBox LogWindow;
-
-        public static DebugPanel Bingus;
-        
-        public static Label ScriptStatusLabel;
-        public static Label ScriptSelectionLabel;
-        public static Button AbortOrCloseBtn;
-
-        
-        /// <summary> Boolean global to set the type of dialogue to use for the GamedataFolder path box's browse button. </summary>
-        public static bool LegacyFolderSelectionDialogue = true;
+        /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
+        private static int BaseAbortButtonWidth;
 
 
 
@@ -199,13 +176,7 @@ namespace weapon_data
         private static string _activeFilePath = "No Script Selected";
 
 
-        /// <summary> The difference in size (horizontally, in pixels) of the Abort/Close File button when it changes from one to the other. </summary>
-        private static readonly int AbortButtonWidthDifference = 20; //! Lazy
-
-        /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
-        private static int BaseAbortButtonWidth;
-
-
+        /// <summary> //! </summary>
         private static string[] StatusDetails
         {
             get => _statusDetails;
@@ -245,8 +216,8 @@ namespace weapon_data
         }
         private static string[] _statusDetails = new string [] { null, null, null };
 
-
-
+        
+        /// <summary> //! </summary>
         private static string[] SelectionDetails
         {
             get => _selectionDetails;
@@ -282,9 +253,52 @@ namespace weapon_data
             }
         }
         private static string[] _selectionDetails = new string [] { null, null, null };
-
-
         
+
+
+        /// <summary> MainPage Form Pointer/Refference. </summary>
+        public static Main Venat;
+
+        /// <summary> OptionsPage Form Pointer/Refference. </summary>
+        public static OptionsPage Azem;
+
+        /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
+        public static GroupBox PropertiesPanel;
+        
+        /// <summary> Output Window Pointer/Ref Because I'm Lazy. </summary>
+        public static RichTextBox PropertiesWindow;
+
+        /// <summary> Log Window Pointer/Ref. </summary>
+        public static RichTextBox LogWindow;
+
+        public static DebugPanel Bingus;
+        
+        public static Label ScriptStatusLabel;
+        public static Label ScriptSelectionLabel;
+        public static Button AbortOrCloseBtn;
+        
+
+
+        /// <summary> A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file. </summary>
+        public static class KnownSIDs
+        {
+            public static SID UNKNOWN_SID_64 = new SID("UNKNOWN_SID_64", 0x910ADC74DA2A5F6D);
+
+            public static SID array = new SID("array", 0x26B0C634B6149E4F);
+            public static SID symbol_array = new SID("symbol_array", 0x89D47927F949F7C8);
+            public static SID ammo_to_weapon_array = new SID("ammo_to_weapon_array", 0x3EE1E0C4D0A7F114);
+
+            public static SID weapon_gameplay_defs = new SID("*weapon-gameplay-defs*", 0x4756B520DDA68BD5);
+
+            /// <summary> bingus. </summary>
+            public static SID map = new SID("map", 0x912D6D1719590F08);
+        }
+        
+
+
+
+
+
         //#
         //## Threading-Related Variables (threads, delegates, and mammets)
         //#
@@ -292,11 +306,11 @@ namespace weapon_data
 
         /// <summary> Cross-thread form interaction delegate. </summary>
         public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
-        /// <summary> . </summary>
+        /// <summary> //! </summary>
         private delegate void binThreadLabelWand(string[] details);
-        /// <summary> . </summary>
+        /// <summary> //! </summary>
         public delegate void binThreadOutputWand(string msg, int line);
-        /// <summary> . </summary>
+        /// <summary> //! </summary>
         public delegate string[] binThreadFormWandOutputRead();
         
 
@@ -804,8 +818,6 @@ namespace weapon_data
             PropertiesPanel.Controls.Clear();
             PropertiesWindow.Clear();
             LogWindow.Clear();
-            ResetSelectionLabel();
-            ResetStatusLabel();
 
             if (Venat != null)
             {
@@ -813,10 +825,13 @@ namespace weapon_data
                 Venat.SubItemButtons = null;
                 Venat.HeaderSelection = null;
 
-                Venat.optionsMenuDropdownBtn.TabIndex -= DCEntries.Length;
-                Venat.MinimizeBtn.TabIndex -= DCEntries.Length;
-                Venat.ExitBtn.TabIndex -= DCEntries.Length;
+                Venat.optionsMenuDropdownBtn.TabIndex -= DCScript.Items.Length;
+                Venat.MinimizeBtn.TabIndex -= DCScript.Items.Length;
+                Venat.ExitBtn.TabIndex -= DCScript.Items.Length;
             }
+
+            ResetSelectionLabel();
+            ResetStatusLabel();
         }
 
 
@@ -841,20 +856,22 @@ namespace weapon_data
         /// </summary>
         /// <param name="bytesToDecode"> The 8-byte array of bytes to decode. </param>
         /// <returns> Either the decoded version of the provided hash, or the string representation of said SID if it could not be decoded. </returns>
-        public static string DecodeSIDHash(byte[] bytesToDecode)
+        private static string DecodeSIDHash(byte[] bytesToDecode)
         {            
             if (bytesToDecode.Length == 8)
             {
+                var encodedSIDString = BitConverter.ToString(bytesToDecode).Replace("-", string.Empty);
+
                 for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < SIDBaseTableLength; subArrayIndex = 0, mainArrayIndex+=8)
                 {
-                    if (SIDBase[mainArrayIndex] != (byte)bytesToDecode[subArrayIndex])
+                    if (SIDBase[mainArrayIndex] != bytesToDecode[subArrayIndex])
                     {
                         continue;
                     }
 
 
                     // Scan for the rest of the bytes
-                    while ((subArrayIndex < 8 && mainArrayIndex < SIDBase.Length) && SIDBase[mainArrayIndex + subArrayIndex] == (byte)bytesToDecode[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
+                    while ((subArrayIndex < 8 && mainArrayIndex < SIDBase.Length) && SIDBase[mainArrayIndex + subArrayIndex] == bytesToDecode[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
                     {
                         subArrayIndex++;
                     }
@@ -885,14 +902,18 @@ namespace weapon_data
                 
                     return stringBuffer;
                 }
-
-                return BitConverter.ToString(bytesToDecode).Replace("-", string.Empty);
+                
+                return "UNKNOWN_SID_64";
             }
+
+            // Invalid Length for encoded id array
             else {
                 echo($"Invalid SID provided; unexpected length of \"{bytesToDecode?.Length ?? 0}\". Must be 8 bytes.");
                 return "INVALID_SID_64";
             }
         }
+
+        private static string DecodeSIDHash(ulong EncodedSID) => DecodeSIDHash(BitConverter.GetBytes(EncodedSID));
         #endregion [miscellaneous functions]
 
 
