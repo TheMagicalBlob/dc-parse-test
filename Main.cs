@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -248,13 +249,11 @@ namespace weapon_data
                 AbortButtonMammet(true);
 
                 DCScript = new DCFileHeader(DCFile, ActiveFileName);
-                DCEntries = new DCHeaderItem[DCScript.TableLength];
 
                 for (int headerItemIndex = 0, sake = 0x28; headerItemIndex < DCScript.Items.Length; headerItemIndex++, sake += 24)
                 {
                     StatusLabelMammet(new[] { null, $" ({headerItemIndex} / {DCScript.TableLength})", null });
                     echo($"Item #{headerItemIndex}: [ Label: {DCScript.Items[headerItemIndex].Name} Type: {DCScript.Items[headerItemIndex].Type} Data Address: {DCScript.Items[headerItemIndex].StructAddress:X} ]");
-                    DCEntries[headerItemIndex] = LoadBasicDCEntry();
                 }
 
 
@@ -269,7 +268,7 @@ namespace weapon_data
                 AbortButtonMammet(1);
 
 
-                PropertiesPanelMammet(ActiveFileName, DCEntries);
+                PropertiesPanelMammet(ActiveFileName, DCScript);
             }
             // File in 
             catch (IOException) {
@@ -298,30 +297,25 @@ namespace weapon_data
         /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
         /// <param name="silent"></param>
         /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
-        private static object LoadDCStructByType(byte[] binFile, string Type, long Address, string Name = null)
+        private static object LoadDCStructByType(byte[] binFile, SID Type, long Address, object NameObj = null)
         {
-            if (Name == null || Name.Length < 1)
-            {
-                Name = "unnamed";
-            }
+            var Name = (SID) (NameObj ?? SID.Empty);
 
-
-
-            switch (Type)
+            switch (Type.RawID)
             {
                 //#
                 //## Mapped Structures
                 //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case "map":                         return new DCMapDef(binFile, Address, Name);
-
-                case "weapon-gameplay-def":         return new WeaponGameplayDef(binFile, Address, Name);
-
-                case "melee-weapon-gameplay-def":   return new MeleeWeaponGameplayDef(binFile, Address, Name);
-
-                case "symbol-array":                return new SymbolArrayDef(binFile, Address, Name);
-
-                case "ammo-to-weapon-array":        return new AmmoToWeaponArray(binFile, Address, Name);
+                case KnownSIDs.map:                       return new DCMapDef(binFile, Address, Name);
+                
+                case KnownSIDs.weapon_gameplay_defs:      return new WeaponGameplayDef(binFile, Address, Name);
+                
+                case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(binFile, Address, Name);
+                
+                case KnownSIDs.symbol_array:              return new SymbolArrayDef(binFile, Address, Name);
+                
+                case KnownSIDs.ammo_to_weapon_array:      return new AmmoToWeaponArray(binFile, Address, Name);
 
 
                     

@@ -280,18 +280,19 @@ namespace weapon_data
 
 
         /// <summary> A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file. </summary>
-        public static class KnownSIDs
+        public enum KnownSIDs : ulong
         {
-            public static SID UNKNOWN_SID_64 = new SID("UNKNOWN_SID_64", 0x910ADC74DA2A5F6D);
+            UNKNOWN_SID_64 =       0x910ADC74DA2A5F6D,
+            array =                0x4F9E14B634C6B026,
+            symbol_array =         0xDFD21E68AC12C54B,
+            ammo_to_weapon_array = 0xEF3BE7EF6F790D34,
+            weapon_gameplay_defs = 0x8B099027E05B4597,
+            map =                  0x080F5919176D2D91,
 
-            public static SID array = new SID("array", 0x26B0C634B6149E4F);
-            public static SID symbol_array = new SID("symbol_array", 0x89D47927F949F7C8);
-            public static SID ammo_to_weapon_array = new SID("ammo_to_weapon_array", 0x3EE1E0C4D0A7F114);
+            melee_weapon_gameplay_def = 0x730ADC6EDAF0A96D,
 
-            public static SID weapon_gameplay_defs = new SID("*weapon-gameplay-defs*", 0x4756B520DDA68BD5);
 
-            /// <summary> bingus. </summary>
-            public static SID map = new SID("map", 0x912D6D1719590F08);
+            placeholder =          0xDEADBEEFDADDEAD2,
         }
         
 
@@ -693,7 +694,7 @@ namespace weapon_data
 
             Console.WriteLine(str = message?.ToString() ?? string.Empty);
 
-            if (Console.IsInputRedirected)
+            if (!Console.IsInputRedirected)
             {
                 Debug.WriteLine(str);
             }
@@ -854,24 +855,24 @@ namespace weapon_data
         /// <summary>
         /// Parse the current sidbase.bin for the string representation of the provided 64-bit fnv1a hash.
         /// </summary>
-        /// <param name="bytesToDecode"> The 8-byte array of bytes to decode. </param>
+        /// <param name="EncodedSIDArray"> The 8-byte array of bytes to decode. </param>
         /// <returns> Either the decoded version of the provided hash, or the string representation of said SID if it could not be decoded. </returns>
-        private static string DecodeSIDHash(byte[] bytesToDecode)
+        private static string DecodeSIDHash(byte[] EncodedSIDArray)
         {            
-            if (bytesToDecode.Length == 8)
+            if (EncodedSIDArray.Length == 8)
             {
-                var encodedSIDString = BitConverter.ToString(bytesToDecode).Replace("-", string.Empty);
+                var encodedSIDString = BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
 
                 for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < SIDBaseTableLength; subArrayIndex = 0, mainArrayIndex+=8)
                 {
-                    if (SIDBase[mainArrayIndex] != bytesToDecode[subArrayIndex])
+                    if (SIDBase[mainArrayIndex] != EncodedSIDArray[subArrayIndex])
                     {
                         continue;
                     }
 
 
                     // Scan for the rest of the bytes
-                    while ((subArrayIndex < 8 && mainArrayIndex < SIDBase.Length) && SIDBase[mainArrayIndex + subArrayIndex] == bytesToDecode[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
+                    while ((subArrayIndex < 8 && mainArrayIndex < SIDBase.Length) && SIDBase[mainArrayIndex + subArrayIndex] == EncodedSIDArray[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
                     {
                         subArrayIndex++;
                     }
@@ -903,12 +904,12 @@ namespace weapon_data
                     return stringBuffer;
                 }
                 
-                return "UNKNOWN_SID_64";
+                return "0x" + BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
             }
 
             // Invalid Length for encoded id array
             else {
-                echo($"Invalid SID provided; unexpected length of \"{bytesToDecode?.Length ?? 0}\". Must be 8 bytes.");
+                echo($"Invalid SID provided; unexpected length of \"{EncodedSIDArray?.Length ?? 0}\". Must be 8 bytes.");
                 return "INVALID_SID_64";
             }
         }
@@ -933,7 +934,7 @@ namespace weapon_data
             Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
         }
 
-        public static void PropertiesPanelMammet(object dcFileName, object[] dcEntries)
+        public static void PropertiesPanelMammet(object dcFileName, DCFileHeader dcEntries)
         {
             Venat?.Invoke(Venat.propertiesPanelMammet, new[] { dcFileName, dcEntries });
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace weapon_data
@@ -50,7 +51,7 @@ namespace weapon_data
         private Button _subItemSelection;
 
 
-        public delegate void PropertiesPanelWand(string dcFileName, object[] dcEntries);
+        public delegate void PropertiesPanelWand(string dcFileName, DCFileHeader dcEntries);
 
         public PropertiesPanelWand propertiesPanelMammet;
         #endregion
@@ -71,28 +72,38 @@ namespace weapon_data
         private void DisplayHeaderItemDetails(int itemIndex)
         {
             PropertiesWindow.Clear();
-            var item = DCScript.Items[itemIndex - TabIndexBase];
+            var item = DCScript.Items[itemIndex];
             var itemType = item.Type;
 
             UpdateSelectionLabel(new[] { null, item.Name.DecodedID == "UNKNOWN_SID_64" ? item.Name.EncodedID : item.Name.DecodedID });
 
             // Update Properties Window
-            PrintPropertyDetailNL(itemType + (item.Name.Length > 0 ? $" {item.Name}" : string.Empty));
+            PrintPropertyDetailNL(itemType.DecodedID);
             PrintPropertyDetailNL($"Address: {item.StructAddress:X}\n");
 
-            switch (itemType)
+            var children = item.GetType().GetFields();
+            foreach (var f in children)
             {
-                case var id when id.Is(KnownSIDs.map):
-                    switch (item.Name) //!
+                PrintPropertyDetailNL($"# {f.Name} | {f}");
+            }
+            return;
+
+            switch (itemType.RawID)
+            {
+                case KnownSIDs.map:
+                    switch (item.Name.RawID) //!
                     {
-                        case "*weapon-gameplay-defs*":
+                        case KnownSIDs.weapon_gameplay_defs:
                             break;
 
                             
                         default:
                             echo($"unhandled map \"{item.Name}\".");
-                    break;
+                            break;
                     }
+                    break;
+
+                case KnownSIDs.array:
                     break;
 
                 default:
@@ -130,7 +141,7 @@ namespace weapon_data
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcEntries"></param>
-        private void PopulatePropertiesPanel(string dcFileName, object[] dcEntries)
+        private void PopulatePropertiesPanel(string dcFileName, DCFileHeader dcScript)
         {
             Button newButton()
             {
@@ -143,7 +154,6 @@ namespace weapon_data
 
                     FlatStyle = 0
                 };
-                
 
                                 
                 btn.MouseDown += new MouseEventHandler((sender, e) =>
@@ -151,12 +161,14 @@ namespace weapon_data
                     MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                     MouseIsDown = true;
                 });
+
                 btn.MouseUp   += new MouseEventHandler((sender, e) =>
                 {
                     MouseIsDown = false;
                     if (OptionsPageIsOpen) {
                         Azem.BringToFront();
                     }
+                
                 });
                 
                 btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
@@ -165,56 +177,59 @@ namespace weapon_data
                 return btn;
             }
 
+
             Button currentButton;
+            var dcEntries = dcScript.Items;
+            var dcLen = dcEntries.Length;
 
             HeaderItemButtons = new Button[dcEntries.Length];
             TabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
 
 
-            var dcLen = dcEntries.Length;
-            char[] name = null;
-
-            for (int i = 0; i < dcLen; i++, name = null)
+            for (var i = 0; i < dcLen; ++i)
             {
+                string label;
                 var dcEntry = dcEntries[i];
-                currentButton = newButton();
-                PropertiesPanel.Controls.Add(currentButton);
-                
+                PropertiesPanel.Controls.Add(currentButton = newButton());
                 currentButton.Location = new Point(1, 7 + currentButton.Height * i);
 
 
-                // Format struct name for use in button text
-                name = (((dynamic)dcEntry).Name as string).ToArray();
-                var tmp = 0;
-
-                for(;tmp < name.Length && name[tmp] < 123 && name[tmp] > 96; ++tmp);
-
-                name[tmp + 1] = $"{name[tmp + 1]}".ToUpper()[0];
-
-
-                for (var j = tmp + 1; j < name.Length;)
+                // Apply header item name as button text
+                label = dcEntry.Name.DecodedID;
+                if (label == "UNKNOWN_SID_64"
+            #if DEBUG
+                || label == "INVALID_SID_64"
+            #endif
+                    )
                 {
-                    if (name[j] == '-')
-                    {
-                        while (name[++j] == '-' && j < name.Length);
-                            
-                        name[j - 1] = ' ';
-                        name[j] = $"{name[j]}".ToUpper()[0];
-                    }
-
-                    j++;
+                    label = dcEntry.Name.EncodedID;
                 }
+                currentButton.Text = label;
 
-                // Apply formatted name as button text
-                currentButton.Text = new string(name);
 
-                currentButton.Name = ((dynamic)dcEntry).Name;
+                // Apply header item type id as button name
+                label = dcEntry.Type.DecodedID;
+                if (label == "UNKNOWN_SID_64"
+            #if DEBUG
+                || label == "INVALID_SID_64"
+            #endif
+                    )
+                {
+                    label = dcEntry.Type.EncodedID;
+                }
+                currentButton.Name = label;
 
+
+                // Style the control
                 currentButton.FlatAppearance.BorderSize = 0;
                 currentButton.Width = currentButton.Parent.Width - 2;
 
+
+                // Save the index of the header item tied to the control via the button's Tag property
                 currentButton.Tag = i;
 
+
+                // Apply event handlers to the control
                 currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
                 currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
 

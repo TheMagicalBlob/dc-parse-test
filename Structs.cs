@@ -48,9 +48,9 @@ namespace weapon_data
                 //## Run a few basic integrity checks
                 //#
                 var integrityCheck  = new SID(GetSubArray(binFile, 0x20));
-                if (integrityCheck.EncodedID != "array")
+                if (integrityCheck.RawID != KnownSIDs.array)
                 {
-                    echo($"ERROR; Unexpected SID \"{integrityCheck}\" at 0x20, aborting.");
+                    echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20, aborting.");
                     return;
                 }
                 if ((unkInt0 = BitConverter.ToInt32(binFile, 0x10)) != 1)
@@ -175,20 +175,21 @@ namespace weapon_data
         /// </summary>
         public struct DCMapDef
         {
-            public DCMapDef(byte[] binFile, long Address, string Name)
+            public DCMapDef(byte[] binFile, long Address, SID Name)
             {
-                long mapLength;
                 this.Name = Name;
-                Items = new object[mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0)][];
-                var mapNamesArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
-                long mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
-
-
+                this.Address= Address;
+                var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 if (mapLength < 1)
                 {
                     echo($"  # Empty Map Structures.");
+                    Items = Array.Empty<object[]>();
                     return;
                 }
+                var mapNamesArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
+                var mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
+
+                Items = new object[mapLength][];
                 Items[0] = new object[2];
 
                     
@@ -198,17 +199,18 @@ namespace weapon_data
                 echo($"  # Parsing {mapLength} Map Structures...");
                 for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
-                    var structAddr = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
-                    var structType = DecodeSIDHash(GetSubArray(binFile, structAddr - 8));
-                    var structName = DecodeSIDHash(GetSubArray(binFile, (int)mapNamesArrayPtr));
+                    var structAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
+
+                    var structTypeID = new SID(GetSubArray(binFile, structAddress - 8));
+                    var structName = new SID(GetSubArray(binFile, (int)mapNamesArrayPtr));
                     
-                    echo($"    - 0x{structAddr.ToString("X").PadLeft(6, '0')} Type: {structType} Name: {structName}" + 1);
+                    echo($"    - 0x{structAddress.ToString("X").PadLeft(6, '0')} Type: {structTypeID} Name: {structName}" + 1);
                     StatusLabelMammet(new[] { null, null, $"Map Entry: {arrayIndex + 1} / {mapLength}" });
 
                     Items[arrayIndex] = new object[2];
 
-                    Items[arrayIndex][0] = structType;
-                    Items[arrayIndex][1] = LoadDCStructByType(binFile, structType, structAddr, structName);
+                    Items[arrayIndex][0] = structTypeID;
+                    Items[arrayIndex][1] = LoadDCStructByType(binFile, structTypeID, structAddress, structName);
                 }
                 echo($"  # Finished Parsing All Map Structures.");
                 StatusLabelMammet(new[] { null, null, string.Empty });
@@ -218,7 +220,9 @@ namespace weapon_data
             /// <summary>
             /// The name of the map item.
             /// </summary>
-            public string Name;
+            public SID Name;
+
+            public long Address;
 
             /// <summary>
             /// An array of object arrays with the first element being the map item's struct type, and the other being the struct itself
@@ -233,7 +237,7 @@ namespace weapon_data
         /// </summary>
         public struct SymbolArrayDef
         {
-            public SymbolArrayDef(byte[] binFile, long Address, string Name)
+            public SymbolArrayDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
@@ -255,7 +259,7 @@ namespace weapon_data
             }
 
 
-            public string Name;
+            public SID Name;
             public long Address;
 
             public List<string> Symbols;
@@ -269,7 +273,7 @@ namespace weapon_data
         /// </summary>
         public struct AmmoToWeaponArray
         {
-            public AmmoToWeaponArray(byte[] binFile, long address, string Name)
+            public AmmoToWeaponArray(byte[] binFile, long address, SID Name)
             {
                 var symbols = new List<string[]>();
                 var hashes  = new List<byte[][]>();
@@ -293,7 +297,7 @@ namespace weapon_data
                 Hashes = hashes.ToArray();
             }
 
-            public string Name;
+            public SID Name;
 
 
             public string[][] Symbols;
@@ -307,7 +311,7 @@ namespace weapon_data
         /// </summary>
         public struct WeaponGameplayDef
         {
-            public WeaponGameplayDef(byte[] binFile, long Address, string Name)
+            public WeaponGameplayDef(byte[] binFile, long Address, SID Name)
             {
                 //#
                 //## Variable Initializations
@@ -395,7 +399,7 @@ namespace weapon_data
             
             // ## Public Members (heh)
             /// <summary> The name for the weapon this WeaponGameplayDefinition belongs to. </summary>
-            public string Name;
+            public SID Name;
             /// <summary> The address of the WeaponGameplayDefinition struct in the provided DC file. </summary>
             public long Address;
 
@@ -475,7 +479,7 @@ namespace weapon_data
         /// </summary>
         public struct FirearmGameplayDef
         {
-            public FirearmGameplayDef(byte[] binFile, long Address, string Name)
+            public FirearmGameplayDef(byte[] binFile, long Address, SID Name)
             {
                 //#
                 //## Variable Initializations
@@ -677,7 +681,7 @@ namespace weapon_data
 
             //# Public Members
             /// <summary> The name for the weapon this FirearmGameplayDefinition belongs to. </summary>
-            public string Name;
+            public SID Name;
             /// <summary> The address of the FirearmGameplayDefinition struct in the provided DC file. </summary>
             public long Address;
 
@@ -917,13 +921,13 @@ namespace weapon_data
         /// </summary>
         public struct MeleeWeaponGameplayDef
         {
-            public MeleeWeaponGameplayDef(byte[] binFile, long Address, string Name)
+            public MeleeWeaponGameplayDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -934,13 +938,13 @@ namespace weapon_data
         /// </summary>
         public struct GrenadeGameplayDef
         {
-            public GrenadeGameplayDef(byte[] binFile, long Address, string Name)
+            public GrenadeGameplayDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -951,13 +955,13 @@ namespace weapon_data
         /// </summary>
         public struct BlindfireAutoTargetDef
         {
-            public BlindfireAutoTargetDef(byte[] binFile, long Address, string Name)
+            public BlindfireAutoTargetDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -968,13 +972,13 @@ namespace weapon_data
         /// </summary>
         public struct FirearmDamageMovementDef
         {
-            public FirearmDamageMovementDef(byte[] binFile, long Address, string Name)
+            public FirearmDamageMovementDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -985,13 +989,13 @@ namespace weapon_data
         /// </summary>
         public struct FirearmStatBarDef
         {
-            public FirearmStatBarDef(byte[] binFile, long Address, string Name)
+            public FirearmStatBarDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -1001,7 +1005,7 @@ namespace weapon_data
         /// </summary>
         public struct Hud2ReticleDef
         {
-            public Hud2ReticleDef(byte[] binFile, long Address, string Name = "unnamed")
+            public Hud2ReticleDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
@@ -1022,7 +1026,7 @@ namespace weapon_data
                 }
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
 
             
@@ -1046,13 +1050,13 @@ namespace weapon_data
         /// </summary>
         public struct Look2Def
         {
-            public Look2Def(byte[] binFile, long Address, string Name = "unnamed")
+            public Look2Def(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -1063,7 +1067,7 @@ namespace weapon_data
         /// </summary>
         private struct UnknownStruct
         {
-            public UnknownStruct(string Type, long Address, string Name)
+            public UnknownStruct(SID Type, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
@@ -1071,7 +1075,7 @@ namespace weapon_data
                 Message = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
             }
 
-            public string Name;
+            public SID Name;
             public string Message;
             public long Address;
         }
@@ -1083,13 +1087,13 @@ namespace weapon_data
         /// </summary>
         private struct StructTemplate
         {
-            public StructTemplate(byte[] binFile, long Address, string Name)
+            public StructTemplate(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
             }
 
-            public string Name;
+            public SID Name;
             public long Address;
         }
 
@@ -1099,6 +1103,7 @@ namespace weapon_data
             {
                 DecodedID = DecodeSIDHash(EncodedSIDArray);
                 EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
+                RawID = (KnownSIDs) BitConverter.ToUInt64(EncodedSIDArray, 0);
 
                 Venat?.DecodedSIDs.Add(this);
             }
@@ -1106,6 +1111,7 @@ namespace weapon_data
             {
                 DecodedID = DecodeSIDHash(EncodedSID);
                 EncodedID = EncodedSID.ToString("X");
+                RawID = (KnownSIDs) EncodedSID;
 
                 Venat?.DecodedSIDs.Add(this);
             }
@@ -1113,6 +1119,7 @@ namespace weapon_data
             {
                 DecodedID = decodedSID;
                 EncodedID = BitConverter.ToString(encodedSID).Replace("-", string.Empty);
+                RawID = (KnownSIDs) BitConverter.ToUInt64(encodedSID, 0);
 
                 Venat?.DecodedSIDs.Add(this);
             }
@@ -1120,10 +1127,12 @@ namespace weapon_data
             {
                 DecodedID = decodedSID;
                 EncodedID = encodedSID.ToString("X");
+                RawID = (KnownSIDs)encodedSID;
 
                 Venat?.DecodedSIDs.Add(this);
             }
 
+            public static SID Empty = new SID("unnamed", 0x5FE267C3F96ADB8C);
 
 
             /// <summary> The decoded string id. </summary>
@@ -1132,16 +1141,8 @@ namespace weapon_data
             /// <summary> The encoded string id. </summary>
             public string EncodedID;
 
-            
-
-            /// <summary>
-            /// Lazy way of checking the unsigned long values of SID's in case of a missing sidbase.bin, while still being verbose in the code.
-            /// </summary>
-            /// <returns> True if the encoded value of the current SID matches the provided id. </returns>
-            public bool Is(SID id)
-            {
-                return id.EncodedID == this.EncodedID;
-            }
+            /// <summary> The unaltered version of the encoded string id. </summary>
+            public KnownSIDs RawID;
         }
         #endregion
     }
