@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -71,45 +72,79 @@ namespace weapon_data
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHeaderItemDetails(int itemIndex)
         {
-            PropertiesWindow.Clear();
-            var item = DCScript.Items[itemIndex];
-            var itemType = item.Type;
+            object formatPropertyValue(object value)
+            {
+                if (value == null) return "null";
 
-            UpdateSelectionLabel(new[] { null, item.Name.DecodedID == "UNKNOWN_SID_64" ? item.Name.EncodedID : item.Name.DecodedID });
+                switch (value.GetType())
+                {
+                    case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
+                        return $"0x{value:X}";
+
+                    case var type when type == typeof(SID):
+                        var id = ((SID)value).DecodedID;
+                        if (id == "UNKNOWN_SID_64"
+                            #if DEBUG
+                            || id == "INVALID_SID_64"
+                            #endif
+                            )
+                        id = ((SID)value).EncodedID;
+
+
+                        return id;
+
+
+                    default: return value.ToString();
+                }
+            }
+
+
+            // Prepend a space to any capitalized letter that follows a lowercase one
+            string spaceOutName(string name)
+            {
+                var str = string.Empty;
+
+                for (var i = 0; i < name.Length; i++) {
+
+                    if (name[i] <= 122u && name[i] >= 97u) {
+
+                        if (i + 1 != name.Length) {
+
+                            if (name[i + 1] >= 65u && name[i + 1] <= 90u)
+                            {
+                                str += $"{name[i]} ";
+                                continue;
+                            }
+                        }
+                    }
+
+                    str += name[i];
+                }
+
+                return str;
+            }
+
+
+            PropertiesWindow.Clear();
+            var dcEntry = DCScript.Entries[itemIndex];
+            var structType = dcEntry.Type;
+
+            UpdateSelectionLabel(new[] { null, dcEntry.Name.DecodedID == "UNKNOWN_SID_64" ? dcEntry.Name.EncodedID : dcEntry.Name.DecodedID });
 
             // Update Properties Window
-            PrintPropertyDetailNL(itemType.DecodedID);
-            PrintPropertyDetailNL($"Address: {item.StructAddress:X}\n");
+            PrintPropertyDetailNL($"{structType}");
 
-            var children = item.GetType().GetFields();
-            foreach (var f in children)
+            if (dcEntry.Struct != null)
             {
-                PrintPropertyDetailNL($"# {f.Name} | {f}");
+                foreach (var property in dcEntry.Struct.GetType().GetProperties())
+                {
+                    PrintPropertyDetailNL($"# {spaceOutName(property.Name)}: {formatPropertyValue(property.GetValue(dcEntry))}");
+                }
+            }
+            else {
+                PrintPropertyDetailNL("Press Enter or Double-Click Entry to Load Struct");
             }
             return;
-
-            switch (itemType.RawID)
-            {
-                case KnownSIDs.map:
-                    switch (item.Name.RawID) //!
-                    {
-                        case KnownSIDs.weapon_gameplay_defs:
-                            break;
-
-                            
-                        default:
-                            echo($"unhandled map \"{item.Name}\".");
-                            break;
-                    }
-                    break;
-
-                case KnownSIDs.array:
-                    break;
-
-                default:
-                    echo($"unhandled struct type \"{itemType}\".");
-                    break;
-            }
         }
 
 
@@ -118,20 +153,20 @@ namespace weapon_data
         /// </summary>
         private void LoadHeaderItemContents(int headerItemIndex)
         {
-            
+            DCScript.Entries[headerItemIndex].LoadItemStruct();
         }
 
         
 
         private void HighlightHeaderButton(Button sender)
         {
-            if (HeaderSelection != null)
+            if (HeaderSelection != null) // "Reset" the previous button if applicable
             {
-                HeaderSelection.Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, (FontStyle) 0);
+                HeaderSelection.Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, HeaderSelection.Font.Style ^ FontStyle.Underline);
             }
-                    
+
             (HeaderSelection = sender)
-            .Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, FontStyle.Underline);
+            .Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, HeaderSelection.Font.Style | FontStyle.Underline);
         }
 
 
@@ -140,7 +175,7 @@ namespace weapon_data
         /// 
         /// </summary>
         /// <param name="dcFileName"></param>
-        /// <param name="dcEntries"></param>
+        /// <param name="dcScript"></param>
         private void PopulatePropertiesPanel(string dcFileName, DCFileHeader dcScript)
         {
             Button newButton()
@@ -155,23 +190,12 @@ namespace weapon_data
                     FlatStyle = 0
                 };
 
-                                
-                btn.MouseDown += new MouseEventHandler((sender, e) =>
-                {
-                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                    MouseIsDown = true;
-                });
-
-                btn.MouseUp   += new MouseEventHandler((sender, e) =>
-                {
-                    MouseIsDown = false;
-                    if (OptionsPageIsOpen) {
-                        Azem.BringToFront();
-                    }
-                
-                });
-                
+                // Assign basic form functionality event handlers
+                btn.MouseDown += MouseDownFunc;
+                btn.MouseUp   += MouseUpFunc;
                 btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+                btn.DoubleClick += new EventHandler((sender, e) => { });
 
 
                 return btn;
@@ -179,7 +203,7 @@ namespace weapon_data
 
 
             Button currentButton;
-            var dcEntries = dcScript.Items;
+            var dcEntries = dcScript.Entries;
             var dcLen = dcEntries.Length;
 
             HeaderItemButtons = new Button[dcEntries.Length];
@@ -233,28 +257,10 @@ namespace weapon_data
                 currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
                 currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
 
-                currentButton.KeyDown += (sender, arg) =>
+
+                currentButton.KeyPress += (sender, eugh) =>
                 {
-                    if (arg.KeyData == Keys.Down)
-                    {
-                        if ((int)currentButton.Tag == HeaderItemButtons.Length - 1)
-                        {
-                            HeaderItemButtons[0].Focus();
-                        }
-                        else {
-                            HeaderItemButtons[(int)currentButton.Tag + 1].Focus();
-                        }
-                    }
-                    else if (arg.KeyData == Keys.Up)
-                    {
-                        if ((int)currentButton.Tag == 0)
-                        {
-                            HeaderItemButtons[HeaderItemButtons.Length - 1].Focus();
-                        }
-                        else {
-                            HeaderItemButtons[(int)currentButton.Tag - 1].Focus();
-                        }
-                    }
+                    echo($"keychar: {eugh.KeyChar}");
                 };
 
                 HeaderItemButtons[i] = currentButton;

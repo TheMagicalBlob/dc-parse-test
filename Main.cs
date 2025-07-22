@@ -77,7 +77,7 @@ namespace weapon_data
         private void FormKeyboardInputHandler(string sender, Keys arg, bool ctrl, bool shift)
         {
             echo($"Input [{arg}] Recieved by Control [{sender}]");
-
+            return;
             switch (arg)
             {
                 case Keys.Down:
@@ -250,10 +250,10 @@ namespace weapon_data
 
                 DCScript = new DCFileHeader(DCFile, ActiveFileName);
 
-                for (int headerItemIndex = 0, sake = 0x28; headerItemIndex < DCScript.Items.Length; headerItemIndex++, sake += 24)
+                for (int headerItemIndex = 0, sake = 0x28; headerItemIndex < DCScript.Entries.Length; headerItemIndex++, sake += 24)
                 {
                     StatusLabelMammet(new[] { null, $" ({headerItemIndex} / {DCScript.TableLength})", null });
-                    echo($"Item #{headerItemIndex}: [ Label: {DCScript.Items[headerItemIndex].Name} Type: {DCScript.Items[headerItemIndex].Type} Data Address: {DCScript.Items[headerItemIndex].StructAddress:X} ]");
+                    echo($"Item #{headerItemIndex}: [ Label: {DCScript.Entries[headerItemIndex].Name} Type: {DCScript.Entries[headerItemIndex].Type} Data Address: {DCScript.Entries[headerItemIndex].StructAddress:X} ]");
                 }
 
 

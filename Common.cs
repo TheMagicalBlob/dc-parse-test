@@ -443,6 +443,23 @@ namespace weapon_data
             }
         }
 
+        public static void MouseDownFunc(object sender = null, EventArgs e = null)
+        {
+            if (Venat != null)
+            {
+                MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                MouseIsDown = true;
+            }
+        }
+        
+        public static void MouseUpFunc(object sender = null, EventArgs e = null)
+        {
+            MouseIsDown = false;
+
+            if (OptionsPageIsOpen)
+                Azem?.BringToFront();
+        }
+
 
         
         /// <summary>
@@ -543,7 +560,6 @@ namespace weapon_data
                 if (item.GetType() != typeof(weapon_data.TextBox) && item.GetType() != typeof(weapon_data.RichTextBox))
                 {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-                    item.KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control)sender).Name, arg.KeyData, arg.Control, arg.Shift);
                 }
                 else {
                     item.KeyDown += (sender, arg) =>
@@ -826,9 +842,9 @@ namespace weapon_data
                 Venat.SubItemButtons = null;
                 Venat.HeaderSelection = null;
 
-                Venat.optionsMenuDropdownBtn.TabIndex -= DCScript.Items.Length;
-                Venat.MinimizeBtn.TabIndex -= DCScript.Items.Length;
-                Venat.ExitBtn.TabIndex -= DCScript.Items.Length;
+                Venat.optionsMenuDropdownBtn.TabIndex -= DCScript.Entries.Length;
+                Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
+                Venat.ExitBtn.TabIndex -= DCScript.Entries.Length;
             }
 
             ResetSelectionLabel();

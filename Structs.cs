@@ -32,7 +32,7 @@ namespace weapon_data
                 BinFileLength = 0;
                 TableLength = 0;
 
-                Items = null;
+                Entries = null;
 
                 //#
                 //## Read file magic from header
@@ -71,7 +71,7 @@ namespace weapon_data
                 //#
                 BinFileLength = BitConverter.ToInt64(binFile, 0x8);
                 TableLength = BitConverter.ToInt32(binFile, 0x14);
-                Items = new DCHeaderItem[TableLength];
+                Entries = new DCHeaderItem[TableLength];
 
 
                 //#
@@ -91,7 +91,7 @@ namespace weapon_data
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    Items[tableIndex] = new DCHeaderItem(binFile, addr);
+                    Entries[tableIndex] = new DCHeaderItem(binFile, addr);
                 }
             
     #if false
@@ -110,7 +110,7 @@ namespace weapon_data
             public int TableLength;
 
             /// <summary> An array of the DCHeaderItems parsed from the provided DC file. </summary>
-            public DCHeaderItem[] Items;
+            public DCHeaderItem[] Entries;
         }
 
 
@@ -178,7 +178,9 @@ namespace weapon_data
             public DCMapDef(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
-                this.Address= Address;
+                this.Address = Address;
+                this.BingusForFuckSake = "ERP";
+
                 var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 if (mapLength < 1)
                 {
@@ -194,9 +196,7 @@ namespace weapon_data
 
                     
 
-                echo();
-
-                echo($"  # Parsing {mapLength} Map Structures...");
+                echo($"\n  # Parsing {mapLength} Map Structures...");
                 for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
                     var structAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
@@ -220,14 +220,17 @@ namespace weapon_data
             /// <summary>
             /// The name of the map item.
             /// </summary>
-            public SID Name;
+            public SID Name { get; set; }
 
-            public long Address;
+            public long Address { get; set; }
+
+            public string BingusForFuckSake { get; set; }
+            public long BingusForFuckDrake  { get => 69; }
 
             /// <summary>
             /// An array of object arrays with the first element being the map item's struct type, and the other being the struct itself
             /// </summary>
-            public object[][] Items;
+            public object[][] Items { get; set; }
         }
 
 
@@ -259,11 +262,11 @@ namespace weapon_data
             }
 
 
-            public SID Name;
-            public long Address;
+            public SID Name { get; set; }
+            public long Address { get; set; }
 
-            public List<string> Symbols;
-            public List<long> Hashes;
+            public List<string> Symbols { get; set; }
+            public List<long> Hashes { get; set; }
         }
 
 
@@ -297,11 +300,11 @@ namespace weapon_data
                 Hashes = hashes.ToArray();
             }
 
-            public SID Name;
+            public SID Name { get; set; }
 
 
-            public string[][] Symbols;
-            public byte[][][] Hashes;
+            public string[][] Symbols { get; set; }
+            public byte[][][] Hashes { get; set; }
         }
 
     
@@ -339,6 +342,7 @@ namespace weapon_data
 				ScreenEffectSettings = 0;
 				#endregion [variable initializations]
 
+                echo("bingus");
 
                 
 
@@ -399,77 +403,77 @@ namespace weapon_data
             
             // ## Public Members (heh)
             /// <summary> The name for the weapon this WeaponGameplayDefinition belongs to. </summary>
-            public SID Name;
+            public SID Name { get; set; }
             /// <summary> The address of the WeaponGameplayDefinition struct in the provided DC file. </summary>
-            public long Address;
+            public long Address { get; set; }
 
             
 			#region [variable declarations]
 			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_at0x00;
+			public uint UnknownInt_at0x00 { get; set; }
 
 			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_at0x04;
+			public uint UnknownInt_at0x04 { get; set; }
 
 			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_at0x08;
+			public uint UnknownInt_at0x08 { get; set; }
 
 			
 			/// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
-			public float UnknownFloat_at0x0C;
+			public float UnknownFloat_at0x0C { get; set; }
 
 			/// <summary> firearm-gameplay-def* <summary/>
-			public FirearmGameplayDef FirearmGameplayDefinition;
+			public FirearmGameplayDef FirearmGameplayDefinition { get; set; }
 
 			/// <summary> blindfire-auto-target-def* <summary/>
-			public BlindfireAutoTargetDef BlindfireAutoTargetDefinition;
+			public BlindfireAutoTargetDef BlindfireAutoTargetDefinition { get; set; }
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x20;
+			public ulong UnknownLong_at0x20 { get; set; }
 
 			/// <summary> grenade-gameplay-def* <summary/>
-			public GrenadeGameplayDef GrenadeGameplayDefinition;
+			public GrenadeGameplayDef GrenadeGameplayDefinition { get; set; }
 
 			
 			/// <summary> melee-gameplay-def* <summary/>
-			public MeleeWeaponGameplayDef MeleeWeaponGameplayDefinition;
+			public MeleeWeaponGameplayDef MeleeWeaponGameplayDefinition { get; set; }
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x38;
+			public ulong UnknownLong_at0x38 { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x40;
+			public ulong UnknownLong_at0x40 { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x48;
+			public ulong UnknownLong_at0x48 { get; set; }
 
 			/// <summary> unknown byte[] <summary/>
-			public byte[] UnknownByteArray_at0x50;
+			public byte[] UnknownByteArray_at0x50 { get; set; }
 
 			
 			/// <summary> hud2-reticle-def* <summary/>
-			public Hud2ReticleDef Hud2ReticleDefinition;
+			public Hud2ReticleDef Hud2ReticleDefinition { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x60;
+			public ulong UnknownLong_at0x60 { get; set; }
 
 			/// <summary> *zoom-camera-dof-settings-sp* <summary/>
-			public ulong ZoomCameraDoFSettingsSP;
+			public ulong ZoomCameraDoFSettingsSP { get; set; }
 
 			/// <summary> *zoom-sniper-camera-dof-settings-sp* <summary/>
-			public ulong ZoomSniperCameraDoFSettingsSP;
+			public ulong ZoomSniperCameraDoFSettingsSP { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x78;
+			public ulong UnknownLong_at0x78 { get; set; }
 
 			/// <summary> screen-effect-settings* <summary/>
-			public ulong ScreenEffectSettings;
+			public ulong ScreenEffectSettings { get; set; }
 
 			/// <summary> unknown byte[] <summary/>
-			public byte[] UnknownByteArray_at0x88;
-			#endregion [varaible declarations]
+			public byte[] UnknownByteArray_at0x88 { get; set; }
+			#endregion [variable declarations]
         }
 
 
@@ -681,237 +685,237 @@ namespace weapon_data
 
             //# Public Members
             /// <summary> The name for the weapon this FirearmGameplayDefinition belongs to. </summary>
-            public SID Name;
+            public SID Name { get; set; }
             /// <summary> The address of the FirearmGameplayDefinition struct in the provided DC file. </summary>
-            public long Address;
+            public long Address { get; set; }
 
             #region [variable declarations]
 			/// <summary> symbol-array containing ammo type names <summary/>
-			public ulong AmmoTypes;
+			public ulong AmmoTypes { get; set; }
 
 			
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x14;
+			public float UnknownFloat_at0x14 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x18;
+			public float UnknownFloat_at0x18 { get; set; }
 
 			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x20;
+			public int UnknownInt_at0x20 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x24;
+			public float UnknownFloat_at0x24 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x28;
+			public float UnknownFloat_at0x28 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x2C;
+			public float UnknownFloat_at0x2C { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x30;
+			public float UnknownFloat_at0x30 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x48;
+			public float UnknownFloat_at0x48 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x50;
+			public float UnknownFloat_at0x50 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x54;
+			public float UnknownFloat_at0x54 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x60;
+			public float UnknownFloat_at0x60 { get; set; }
 
 			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x68;
+			public int UnknownInt_at0x68 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x6C;
+			public float UnknownFloat_at0x6C { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x70;
+			public float UnknownFloat_at0x70 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x74;
+			public float UnknownFloat_at0x74 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x78;
+			public float UnknownFloat_at0x78 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x7C;
+			public float UnknownFloat_at0x7C { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x80;
+			public float UnknownFloat_at0x80 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x84;
+			public float UnknownFloat_at0x84 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x88;
+			public float UnknownFloat_at0x88 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x8C;
+			public float UnknownFloat_at0x8C { get; set; }
 
 			/// <summary> integer (long or int?) amount of base ammo <summary/>
-			public long BaseAmmoCount;
+			public long BaseAmmoCount { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xA0;
+			public float UnknownFloat_at0xA0 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xA4;
+			public float UnknownFloat_at0xA4 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xA8;
+			public float UnknownFloat_at0xA8 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xAC;
+			public float UnknownFloat_at0xAC { get; set; }
 
 			
 			/// <summary> scoped-lag-settings* <summary/>
-			public ulong ScopedLagSettings;
+			public ulong ScopedLagSettings { get; set; }
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong ProneAim0SID;
+			public ulong ProneAim0SID { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xC0;
+			public float UnknownFloat_at0xC0 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xC4;
+			public float UnknownFloat_at0xC4 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xC8;
+			public float UnknownFloat_at0xC8 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xCC;
+			public float UnknownFloat_at0xCC { get; set; }
 
 			
 			/// <summary> firearm-aim-deviation-def* <summary/>
-			public ulong FirearmAimDeviationDef0;
+			public ulong FirearmAimDeviationDef0 { get; set; }
 
 			/// <summary> firearm-aim-deviation-def* <summary/>
-			public ulong FirearmAimDeviationDef1;
+			public ulong FirearmAimDeviationDef1 { get; set; }
 
 			
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xE0;
+			public float UnknownFloat_at0xE0 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xE4;
+			public float UnknownFloat_at0xE4 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xE8;
+			public float UnknownFloat_at0xE8 { get; set; }
 
 			
 			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef0;
+			public ulong FirearmKickbackDef0 { get; set; }
 
 			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef1;
+			public ulong FirearmKickbackDef1 { get; set; }
 
 			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef2;
+			public ulong FirearmKickbackDef2 { get; set; }
 
 			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef3;
+			public ulong FirearmKickbackDef3 { get; set; }
 
 			
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x118;
+			public float UnknownFloat_at0x118 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x120;
+			public float UnknownFloat_at0x120 { get; set; }
 
 			
 			/// <summary> lerp-aim-sway-settings* <summary/>
-			public ulong LerpAimSwaySettings0;
+			public ulong LerpAimSwaySettings0 { get; set; }
 
 			/// <summary> lerp-aim-sway-settings* <summary/>
-			public ulong LerpAimSwaySettings1;
+			public ulong LerpAimSwaySettings1 { get; set; }
 
 			/// <summary> lerp-aim-sway-settings* <summary/>
-			public ulong LerpAimSwaySettings2;
+			public ulong LerpAimSwaySettings2 { get; set; }
 
 			/// <summary> sway-hold-breath-settings* <summary/>
-			public ulong SwayHoldBreathSettings0;
+			public ulong SwayHoldBreathSettings0 { get; set; }
 
 			/// <summary> sway-hold-breath-settings* <summary/>
-			public ulong SwayHoldBreathSettings1;
+			public ulong SwayHoldBreathSettings1 { get; set; }
 
 			
 			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x158;
+			public int UnknownInt_at0x158 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x15C;
+			public float UnknownFloat_at0x15C { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x160;
+			public float UnknownFloat_at0x160 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x164;
+			public float UnknownFloat_at0x164 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x168;
+			public float UnknownFloat_at0x168 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x16C;
+			public float UnknownFloat_at0x16C { get; set; }
 
 			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x194;
+			public int UnknownInt_at0x194 { get; set; }
 
 			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x19C;
+			public float UnknownFloat_at0x19C { get; set; }
 
 			
 			/// <summary> unknown ulong <summary/>
-			public ulong UnknownAimSID;
+			public ulong UnknownAimSID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong HorseAimSID;
+			public ulong HorseAimSID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong ProneAim1SID;
+			public ulong ProneAim1SID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong AimAssistSID;
+			public ulong AimAssistSID { get; set; }
 
 			/// <summary> firearm-damage-movement-def* <summary/>
-			public FirearmDamageMovementDef FirearmDamageMovementDefinition;
+			public FirearmDamageMovementDef FirearmDamageMovementDefinition { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong HapticSettingsSID;
+			public ulong HapticSettingsSID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong RumbleSettingsSID;
+			public ulong RumbleSettingsSID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong CameraShakeRightSID;
+			public ulong CameraShakeRightSID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong CameraShakeLeftSID;
+			public ulong CameraShakeLeftSID { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong PointCurve0;
+			public ulong PointCurve0 { get; set; }
 
 			/// <summary> gunmove-ik-settings* <summary/>
-			public ulong GunmoveIkSettings;
+			public ulong GunmoveIkSettings { get; set; }
 
 			/// <summary> firearm-stat-bar-def* <summary/>
-			public FirearmStatBarDef FirearmStatBarDefinition;
+			public FirearmStatBarDef FirearmStatBarDefinition { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong PointCurve1;
+			public ulong PointCurve1 { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong PointCurve2;
+			public ulong PointCurve2 { get; set; }
 
 			/// <summary> unknown ulong <summary/>
-			public ulong DamageLinksSID;
-			#endregion [varaible declarations]
+			public ulong DamageLinksSID { get; set; }
+			#endregion [variable declarations]
         }
 
 
@@ -925,10 +929,16 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
+
+                //Size = ?
+                //RawData = GetSubArray(binFile, Address, Size);
             }
 
-            public SID Name;
-            public long Address;
+            public SID Name { get; set; }
+            public long Address { get; set; }
+
+            //public uint Size { get; set; }
+            //public byte[] RawData { get; set; }
         }
 
 
@@ -942,10 +952,16 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
+
+                //Size = ?
+                //RawData = GetSubArray(binFile, Address, Size);
             }
 
-            public SID Name;
-            public long Address;
+            public SID Name { get; set; }
+            public long Address { get; set; }
+
+            //public uint Size { get; set; }
+            //public byte[] RawData { get; set; }
         }
 
 
@@ -959,10 +975,16 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
+
+                //Size = ?
+                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
+
+            //public uint Size { get; set; }
+            //public byte[] RawData { get; set; }
         }
 
 
@@ -976,10 +998,16 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
+
+                //Size = ?
+                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
+
+            //public uint Size { get; set; }
+            //public byte[] RawData { get; set; }
         }
 
 
@@ -993,10 +1021,16 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
+
+                //Size = ?
+                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
+
+            //public uint Size { get; set; }
+            //public byte[] RawData { get; set; }
         }
 
 
@@ -1025,22 +1059,20 @@ namespace weapon_data
                     ReticleSimpleName += (char)binFile[i++];
                 }
             }
-
-            public SID Name;
-            public long Address;
-
             
-            /// <summary>
-            /// HUD2 Reticle Definition structure offset.
-            /// </summary>
+            /// <summary> HUD2 Reticle Definition structure offset. </summary>
             private const byte
                 reticleDefNameOffset = 0x8,
                 reticleDefSimpleNameOffset = 0x18
             ;
 
+
+
+            public SID Name { get; set; }
+            public long Address { get; set; }
             
-            public long ReticleName;
-            public long ReticleSimpleName;
+            public long ReticleName { get; set; }
+            public long ReticleSimpleName { get; set; }
         }
 
 
@@ -1056,8 +1088,8 @@ namespace weapon_data
                 this.Address = Address;
             }
 
-            public SID Name;
-            public long Address;
+            public SID Name { get; set; }
+            public long Address { get; set; }
         }
 
 
@@ -1075,9 +1107,10 @@ namespace weapon_data
                 Message = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
             }
 
-            public SID Name;
-            public string Message;
-            public long Address;
+            public SID Name { get; set; }
+            public long Address { get; set; }
+
+            public string Message { get; set; }
         }
 
 
@@ -1089,13 +1122,52 @@ namespace weapon_data
         {
             public StructTemplate(byte[] binFile, long Address, SID Name)
             {
+                //#
+                //## Variable Initializations
+                //#
+                // TODO:
+                // - Remove the initializations for variables once code to read said variable has been added
                 this.Name = Name;
                 this.Address = Address;
+
+                #region [variable initializations]
+
+                //Size = ?
+                //RawData = GetSubArray(binFile, Address, Size);
+                #endregion
             }
 
-            public SID Name;
-            public long Address;
+
+            //#
+            //## Offset Declarations
+            //#
+            #region [Offset Declarations]
+
+            #endregion [offset declarations]
+
+
+
+            //#
+            //## Variable Declarations
+            //#
+            #region [Variable Declarations]
+
+            //# Private Members
+            // none
+
+            //# Public Members
+            public SID Name { get; set; }
+            public long Address { get; set; }
+
+            //public uint Size { get; set; }
+            //public byte[] RawData { get; set; }
+			#endregion [variable declarations]
         }
+        
+
+
+
+
 
         public struct SID
         {
@@ -1136,13 +1208,13 @@ namespace weapon_data
 
 
             /// <summary> The decoded string id. </summary>
-            public string DecodedID;
+            public string DecodedID { get; set; }
 
             /// <summary> The encoded string id. </summary>
-            public string EncodedID;
+            public string EncodedID { get; set; }
 
             /// <summary> The unaltered version of the encoded string id. </summary>
-            public KnownSIDs RawID;
+            public KnownSIDs RawID { get; set; }
         }
         #endregion
     }
