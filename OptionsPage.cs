@@ -27,94 +27,17 @@ namespace weapon_data
         }
 
         
-        //=====================================\\
-        //--|   Options-Related Functions   |--\\
-        //=====================================\\
-        #region [Options-Related Functions]
-        
-        /// <summary>
-        /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
-        /// </summary>
-        public void InitializeAdditionalEventHandlers_OptionsPage()
-        {
-            // Anonomously Create and Set CloseBtn Event Handler
-            CloseBtn.Click += new EventHandler((sender, e) =>
-            {
-                // Hide OptionsPage Form
-                Azem.Visible = false;    
-                SaveOptions();
-            });
+        //======================================\\
+        //--|   Event Handler Declarations   |--\\
+        //======================================\\
+        #region [Event Handler Declarations]
 
-
-            // Set Event Handlers for Form Dragging
-            MouseDown += new MouseEventHandler((sender, e) =>
-            {
-                MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                MouseIsDown = true;
-
-                //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
-
-            });
-            MouseUp += new MouseEventHandler((sender, e) => 
-                MouseIsDown = false
-            );
-            MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
-            
-            foreach(Control item in Controls)
-            {
-                item.MouseDown += new MouseEventHandler((sender, e) =>
-                {
-                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                    MouseIsDown = true;
-
-                    //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
-                });
-                item.MouseUp   += new MouseEventHandler((sender, e) => 
-                    MouseIsDown = false
-                );
-                
-                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
-                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
-                {
-                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-                }
-            }
-
-            //Paint += (azem, yoshiP) => DrawFormDecorations(((Form)azem), yoshiP);
-        }
+        private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e) => ShowUnresolvedSIDs = ((CheckBox)sender).Checked;
 
 
         /// <summary>
-        /// Mirror Any Non-Default Options to local dc.blb file.
+        /// Check for new app version by comparing newest tag to version text
         /// </summary>
-        public void SaveOptions()
-        {
-            using (var settings = File.Open($"{Directory.GetCurrentDirectory()}\\dc.blb", FileMode.OpenOrCreate, FileAccess.Write))
-            {
-
-            }
-        }
-
-        
-
-        /// <summary>
-        /// Load any saved options from the local dc.blb file.
-        /// </summary>
-        private void LoadOptions()
-        {
-            if (File.Exists($@"{Directory.GetCurrentDirectory()}\dc.blb"))
-            {
-                using (var settings = File.Open($@"{Directory.GetCurrentDirectory()}\dc.blb", FileMode.OpenOrCreate, FileAccess.Read))
-                {
-
-                }
-            }
-        }
-
-
-
-        // Check for new app version by comparing newest tag to version text
         private async void VersionCheckBtn_Click(object sender, EventArgs e)
         {
             try {
@@ -240,6 +163,92 @@ namespace weapon_data
                 if (Browser.ShowDialog() == DialogResult.OK)
                 {
                     sidbasePathTextBox.Set(Browser.FileName);
+                }
+            }
+        }
+        #endregion
+        
+        //=====================================\\
+        //--|   Options-Related Functions   |--\\
+        //=====================================\\
+        #region [Options-Related Functions]
+        
+        /// <summary>
+        /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
+        /// </summary>
+        public void InitializeAdditionalEventHandlers_OptionsPage()
+        {
+            // Anonomously Create and Set CloseBtn Event Handler
+            CloseBtn.Click += new EventHandler((sender, e) =>
+            {
+                // Hide OptionsPage Form
+                Azem.Visible = false;    
+                SaveOptions();
+            });
+
+
+            // Set Event Handlers for Form Dragging
+            MouseDown += new MouseEventHandler((sender, e) =>
+            {
+                MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                MouseIsDown = true;
+
+                //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
+
+            });
+            MouseUp += new MouseEventHandler((sender, e) => 
+                MouseIsDown = false
+            );
+            MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            
+            foreach(Control item in Controls)
+            {
+                item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                    MouseIsDown = true;
+
+                    //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
+                });
+                item.MouseUp   += new MouseEventHandler((sender, e) => 
+                    MouseIsDown = false
+                );
+                
+                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
+                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                {
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                }
+            }
+
+            //Paint += (azem, yoshiP) => DrawFormDecorations(((Form)azem), yoshiP);
+        }
+
+
+        /// <summary>
+        /// Mirror Any Non-Default Options to local dc.blb file.
+        /// </summary>
+        public void SaveOptions()
+        {
+            using (var settings = File.Open($"{Directory.GetCurrentDirectory()}\\dc.blb", FileMode.OpenOrCreate, FileAccess.Write))
+            {
+
+            }
+        }
+
+        
+
+        /// <summary>
+        /// Load any saved options from the local dc.blb file.
+        /// </summary>
+        private void LoadOptions()
+        {
+            if (File.Exists($@"{Directory.GetCurrentDirectory()}\dc.blb"))
+            {
+                using (var settings = File.Open($@"{Directory.GetCurrentDirectory()}\dc.blb", FileMode.OpenOrCreate, FileAccess.Read))
+                {
+
                 }
             }
         }

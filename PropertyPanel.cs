@@ -72,14 +72,16 @@ namespace weapon_data
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHeaderItemDetails(int itemIndex)
         {
-            object formatPropertyValue(object value)
+            string formatPropertyValue(object value, int indentation = 0)
             {
                 if (value == null) return "null";
+                
+                var indent = new string(' ', 8 * indentation);
 
                 switch (value.GetType())
                 {
                     case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
-                        return $"0x{value:X}";
+                        return $"{indent}0x{value:X}";
 
                     case var type when type == typeof(SID):
                         var id = ((SID)value).DecodedID;
@@ -91,10 +93,18 @@ namespace weapon_data
                         id = ((SID)value).EncodedID;
 
 
-                        return id;
+                        return indent + id;
 
+                    case var type when type.ToString().Contains("[]"):
+                        var str = $"{type}: {{\n";
+                        foreach (var item in (Array)value)
+                        {
+                            str += $"        {indent}{formatPropertyValue(item, 1)},\n";
+                        }
+                        str += indent + '}';
+                        return str;
 
-                    default: return value.ToString();
+                    default: return indent + value.ToString();
                 }
             }
 
@@ -138,7 +148,7 @@ namespace weapon_data
             {
                 foreach (var property in dcEntry.Struct.GetType().GetProperties())
                 {
-                    PrintPropertyDetailNL($"# {spaceOutName(property.Name)}: {formatPropertyValue(property.GetValue(dcEntry))}");
+                    PrintPropertyDetailNL($"# {spaceOutName(property.Name)}: {formatPropertyValue(property.GetValue(dcEntry.Struct))}");
                 }
             }
             else {
@@ -153,7 +163,13 @@ namespace weapon_data
         /// </summary>
         private void LoadHeaderItemContents(int headerItemIndex)
         {
-            DCScript.Entries[headerItemIndex].LoadItemStruct();
+            UpdateStatusLabel(new[] { null, "Loading Struct Contents..." });
+            if (DCScript.Entries[headerItemIndex].Struct == null)
+            {
+                DCScript.Entries[headerItemIndex].LoadItemStruct();
+            }
+
+            UpdateStatusLabel(new[] { null, $"{DCScript.Entries[headerItemIndex].Name.DecodedID} Loaded" });
         }
 
         
@@ -254,13 +270,20 @@ namespace weapon_data
 
 
                 // Apply event handlers to the control
+                //currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
                 currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
-                currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
 
-
-                currentButton.KeyPress += (sender, eugh) =>
+                currentButton.PreviewKeyDown += (sender, eugh) =>
                 {
-                    echo($"keychar: {eugh.KeyChar}");
+                    if (eugh.KeyCode == Keys.Return)
+                    {
+                        LoadHeaderItemContents((int) ((Control)sender).Tag);
+                    }
+                };
+
+                currentButton.DoubleClick += (sender, args) =>
+                {
+                    LoadHeaderItemContents((int) ((Control)sender).Tag);
                 };
 
                 HeaderItemButtons[i] = currentButton;

@@ -141,14 +141,18 @@ namespace weapon_data
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
+        #if DEBUG
+            ActiveFilePath = @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin";
+        #else
             using (var Browser = new OpenFileDialog
             {
-                Title = "Please select a non-state-script from \"bin/dc1\"."
+                Title = "Please select a script from \"bin/dc1\"."
             })
             if (Browser.ShowDialog() == DialogResult.OK)
             {
                 ActiveFilePath = Browser.FileName;
             }
+        #endif
         }
 
         private void SidBaseBrowseBtn_Click(object sender, EventArgs e)

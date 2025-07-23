@@ -42,6 +42,7 @@ namespace weapon_data
             this.label2 = new weapon_data.Label();
             this.Title = new weapon_data.Label();
             this.button1 = new System.Windows.Forms.Button();
+            this.debugShowInvalidSIDsCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // CloseBtn
@@ -148,12 +149,24 @@ namespace weapon_data
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // debugShowInvalidSIDsCheckBox
+            // 
+            this.debugShowInvalidSIDsCheckBox.AutoSize = true;
+            this.debugShowInvalidSIDsCheckBox.Location = new System.Drawing.Point(123, 36);
+            this.debugShowInvalidSIDsCheckBox.Name = "debugShowInvalidSIDsCheckBox";
+            this.debugShowInvalidSIDsCheckBox.Size = new System.Drawing.Size(113, 17);
+            this.debugShowInvalidSIDsCheckBox.TabIndex = 48;
+            this.debugShowInvalidSIDsCheckBox.Text = "Show Invalid SIDs";
+            this.debugShowInvalidSIDsCheckBox.UseVisualStyleBackColor = true;
+            this.debugShowInvalidSIDsCheckBox.CheckedChanged += new System.EventHandler(this.debugShowInvalidSIDsCheckBox_CheckedChanged);
+            // 
             // DebugPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(335, 170);
+            this.Controls.Add(this.debugShowInvalidSIDsCheckBox);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.debugTabCheckBtn);
             this.Controls.Add(this.debugDisableLinesBtn);
@@ -292,5 +305,6 @@ namespace weapon_data
         private Button debugTabCheckBtn;
         private CheckBox debugDisableLinesBtn;
         private Button button1;
+        private CheckBox debugShowInvalidSIDsCheckBox;
     }
 }

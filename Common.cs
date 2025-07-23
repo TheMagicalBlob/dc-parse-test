@@ -117,6 +117,15 @@ namespace weapon_data
         public static bool DebugPanelIsOpen { get => Bingus?.Visible ?? false; }
         #endif
 
+        /// <summary> If true, show the string representation of the raw SID's instead of UNKNOWN_SID_64 when an id can not be decoded. </summary>
+        public static bool ShowUnresolvedSIDs = true;
+
+        # if DEBUG
+        /// <summary> If true, show the string representation of the raw SID's instead of INVALID_SID_64 when an invalid sid has been provided. </summary>
+        public static bool ShowInvalidSIDs = true;
+        #endif
+
+
         /// <summary> Boolean global for keeping track of the current mouse state. </summary>
         public static bool MouseIsDown = false;
 
@@ -185,7 +194,7 @@ namespace weapon_data
                 if (value == null || value.Length < 1)
                 {
                     _selectionDetails = Array.Empty<string>();
-                    ScriptSelectionLabel.Text = "Selection: [None]";
+                    ScriptSelectionLabel.Text = "Status: [None]";
                     return;
                 }
 
@@ -204,7 +213,7 @@ namespace weapon_data
 
                 ScriptStatusLabel.Text = $"Status: {StatusDetails[0]} ";
             
-                for (int i = 0; i < StatusDetails.Length; i++)
+                for (int i = 1; i < StatusDetails.Length; i++)
                 {
                     if ((StatusDetails[i]?.Length ?? 0) > 0)
                     {
@@ -226,7 +235,7 @@ namespace weapon_data
                 if (value == null || value.Length < 1)
                 {
                     _selectionDetails = Array.Empty<string>();
-                    ScriptSelectionLabel.Text = "Status: [Inactive]";
+                    ScriptSelectionLabel.Text = "Selection: [None]";
                     return;
                 }
 
@@ -240,9 +249,9 @@ namespace weapon_data
                     }
                 }
 
-                ScriptSelectionLabel.Text = $"Status: {SelectionDetails[0]} ";
+                ScriptSelectionLabel.Text = $"Selection: {SelectionDetails[0]} ";
             
-                for (int i = 0; i < SelectionDetails.Length; i++)
+                for (int i = 1; i < SelectionDetails.Length; i++)
                 {
                     if ((SelectionDetails[i]?.Length ?? 0) > 0)
                     {
@@ -318,13 +327,13 @@ namespace weapon_data
 
         public binThreadOutputWand propertiesWindowNewLineMammet = new binThreadOutputWand((args, _) =>
         {
-            PropertiesWindow.AppendLine(args);
+            PropertiesWindow.AppendLine(args, false);
             PropertiesWindow.Update();
         });
 
         public binThreadOutputWand propertiesWindowSpecificLineMammet = new binThreadOutputWand((msg, line) =>
         {
-            PropertiesWindow.UpdateLine(msg, line);
+            PropertiesWindow.UpdateLine(msg, line, false);
             PropertiesWindow.Update();
         });
 

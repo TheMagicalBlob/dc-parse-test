@@ -34,7 +34,7 @@ namespace weapon_data
             this.CloseBtn = new System.Windows.Forms.Button();
             this.SidbasePathBrowseBtn = new System.Windows.Forms.Button();
             this.UnusedBrowseBtn = new System.Windows.Forms.Button();
-            this.UnusedCheckBox = new System.Windows.Forms.CheckBox();
+            this.ShowUnresolvedSIDsCheckBox = new System.Windows.Forms.CheckBox();
             this.dummy = new System.Windows.Forms.Button();
             this.SeperatorLine1 = new weapon_data.Label();
             this.DownloadSourceBtn = new System.Windows.Forms.Button();
@@ -100,17 +100,18 @@ namespace weapon_data
             this.UnusedBrowseBtn.UseVisualStyleBackColor = false;
             this.UnusedBrowseBtn.Click += new System.EventHandler(this.BasePackagePathBrowseBtn_Click);
             // 
-            // UnusedCheckBox
+            // ShowUnresolvedSIDsCheckBox
             // 
-            this.UnusedCheckBox.AutoSize = true;
-            this.UnusedCheckBox.Font = new System.Drawing.Font("Gadugi", 9.25F);
-            this.UnusedCheckBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.UnusedCheckBox.Location = new System.Drawing.Point(10, 30);
-            this.UnusedCheckBox.Name = "UnusedCheckBox";
-            this.UnusedCheckBox.Size = new System.Drawing.Size(95, 20);
-            this.UnusedCheckBox.TabIndex = 12;
-            this.UnusedCheckBox.Text = "placeholder";
-            this.UnusedCheckBox.UseVisualStyleBackColor = true;
+            this.ShowUnresolvedSIDsCheckBox.AutoSize = true;
+            this.ShowUnresolvedSIDsCheckBox.Font = new System.Drawing.Font("Gadugi", 9.25F);
+            this.ShowUnresolvedSIDsCheckBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.ShowUnresolvedSIDsCheckBox.Location = new System.Drawing.Point(10, 30);
+            this.ShowUnresolvedSIDsCheckBox.Name = "ShowUnresolvedSIDsCheckBox";
+            this.ShowUnresolvedSIDsCheckBox.Size = new System.Drawing.Size(156, 20);
+            this.ShowUnresolvedSIDsCheckBox.TabIndex = 12;
+            this.ShowUnresolvedSIDsCheckBox.Text = "Show Unresolved SIDs";
+            this.ShowUnresolvedSIDsCheckBox.UseVisualStyleBackColor = true;
+            this.ShowUnresolvedSIDsCheckBox.CheckedChanged += new System.EventHandler(this.ShowUnresolvedSIDsCheckBox_CheckedChanged);
             // 
             // dummy
             // 
@@ -228,7 +229,7 @@ namespace weapon_data
             this.Controls.Add(this.DownloadSourceBtn);
             this.Controls.Add(this.SeperatorLine1);
             this.Controls.Add(this.dummy);
-            this.Controls.Add(this.UnusedCheckBox);
+            this.Controls.Add(this.ShowUnresolvedSIDsCheckBox);
             this.Controls.Add(this.UnusedBrowseBtn);
             this.Controls.Add(this.SidbasePathBrowseBtn);
             this.Controls.Add(this.CloseBtn);
@@ -254,7 +255,7 @@ namespace weapon_data
         private Button CloseBtn;
         private Button SidbasePathBrowseBtn;
         private Button UnusedBrowseBtn;
-        private CheckBox UnusedCheckBox;
+        private CheckBox ShowUnresolvedSIDsCheckBox;
         private Label SeperatorLine1;
         private Button DownloadSourceBtn;
         private Label Title2;

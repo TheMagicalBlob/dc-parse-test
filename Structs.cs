@@ -163,6 +163,7 @@ namespace weapon_data
             /// </summary>
             public void LoadItemStruct()
             {
+                echo("Loading Item Struct...");
                 Struct = LoadDCStructByType(DCFile, Type, StructAddress, Name);
             }
         }
@@ -205,7 +206,7 @@ namespace weapon_data
                     var structName = new SID(GetSubArray(binFile, (int)mapNamesArrayPtr));
                     
                     echo($"    - 0x{structAddress.ToString("X").PadLeft(6, '0')} Type: {structTypeID} Name: {structName}" + 1);
-                    StatusLabelMammet(new[] { null, null, $"Map Entry: {arrayIndex + 1} / {mapLength}" });
+                    StatusLabelMammet(new[] { null, null, $"Loading Map Entry {arrayIndex + 1} / {mapLength}" });
 
                     Items[arrayIndex] = new object[2];
 
@@ -1169,7 +1170,7 @@ namespace weapon_data
 
 
 
-        public struct SID
+        public class SID
         {
             public SID(byte[] EncodedSIDArray)
             {
@@ -1208,7 +1209,23 @@ namespace weapon_data
 
 
             /// <summary> The decoded string id. </summary>
-            public string DecodedID { get; set; }
+            public string DecodedID
+            {
+                get {
+                    if (_decodedID == "UNKNOWN_SID_64" && ShowUnresolvedSIDs)
+                    {
+                        return EncodedID;
+                    }
+                    else if (_decodedID == "INVALID_SID_64" && ShowInvalidSIDs)
+                    {
+                        return EncodedID;
+                    }
+                    return _decodedID;
+                }
+
+                set => _decodedID = value;
+            }
+            private string _decodedID;
 
             /// <summary> The encoded string id. </summary>
             public string EncodedID { get; set; }
