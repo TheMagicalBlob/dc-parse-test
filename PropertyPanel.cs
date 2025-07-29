@@ -110,7 +110,7 @@ namespace weapon_data
 
 
             // Prepend a space to any capitalized letter that follows a lowercase one
-            string spaceOutName(string name)
+            string spaceOutStructName(string name)
             {
                 var str = string.Empty;
 
@@ -148,7 +148,7 @@ namespace weapon_data
             {
                 foreach (var property in dcEntry.Struct.GetType().GetProperties())
                 {
-                    PrintPropertyDetailNL($"# {spaceOutName(property.Name)}: {formatPropertyValue(property.GetValue(dcEntry.Struct))}");
+                    PrintPropertyDetailNL($"# {spaceOutStructName(property.Name)}: {formatPropertyValue(property.GetValue(dcEntry.Struct))}");
                 }
             }
             else {

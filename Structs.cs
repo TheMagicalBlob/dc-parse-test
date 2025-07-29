@@ -1117,10 +1117,16 @@ namespace weapon_data
 
 
         /// <summary>
-        /// 
+        /// [Description Unavailable]
         /// </summary>
         private struct StructTemplate
         {
+            /// <summary>
+            /// Create a new instance of the StructTemplate struct.
+            /// </summary>
+            /// <param name="binFile"> The DC file this StructTemplate instance is being read from. </param>
+            /// <param name="Address"> The start address of the structure in the DC file. </param>
+            /// <param name="Name"> The name associated with the current StructTemplate instance. </param>
             public StructTemplate(byte[] binFile, long Address, SID Name)
             {
                 //#
@@ -1128,13 +1134,12 @@ namespace weapon_data
                 //#
                 // TODO:
                 // - Remove the initializations for variables once code to read said variable has been added
+                #region [variable initializations]
                 this.Name = Name;
                 this.Address = Address;
-
-                #region [variable initializations]
-
-                //Size = ?
                 //RawData = GetSubArray(binFile, Address, Size);
+
+                // _VARIABLE_DECLARATIONS_HERE_
                 #endregion
             }
 
@@ -1143,7 +1148,7 @@ namespace weapon_data
             //## Offset Declarations
             //#
             #region [Offset Declarations]
-
+            // _OFFSET_DECLARATIONS_HERE_
             #endregion [offset declarations]
 
 
@@ -1153,16 +1158,22 @@ namespace weapon_data
             //#
             #region [Variable Declarations]
 
-            //# Private Members
-            // none
+            //# #|Private Members|#
+            // _PRIVATE_MEMBERS_HERE_
 
-            //# Public Members
+            //# #|Public Members|#
+            /// <summary> The name associated with the current StructTemplate instance. </summary>
             public SID Name { get; set; }
+            /// <summary> The start address of the structure in the DC file. </summary>
             public long Address { get; set; }
-
-            //public uint Size { get; set; }
+            /// <summary> Size of the current structure type. </summary>
+            //public const uint Size = 0xDEADBEEF;
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
             //public byte[] RawData { get; set; }
-			#endregion [variable declarations]
+
+            // _PRIVATE_MEMBERS_HERE_
+
+            #endregion [variable declarations]
         }
         
 
