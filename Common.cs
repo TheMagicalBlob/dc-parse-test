@@ -239,11 +239,24 @@ namespace weapon_data
                     return;
                 }
 
+                if ((SelectionDetails?.Length ?? 0) < 1)
+                {
+                    _selectionDetails = value;
+                }
+
+                else if (value.Length > _selectionDetails.Length)
+                {
+                    var buff = new string[value.Length];
+                    Buffer.BlockCopy(SelectionDetails, 0, buff, 0, SelectionDetails.Length);
+
+                    _selectionDetails = buff;
+                }
+
 
                 // Update changed array members only
                 for (int i = 0; i < value.Length; i++)
                 {
-                    if (value[i] != null)
+                    if (i < value.Length && value[i] != null)
                     {
                         _selectionDetails[i] = value[i];
                     }
@@ -826,7 +839,7 @@ namespace weapon_data
         /// </summary>
         public static void ResetSelectionLabel()
         {
-            SelectionDetails = null;
+            SelectionDetails = Array.Empty<string>();
         }
         #endregion
 
