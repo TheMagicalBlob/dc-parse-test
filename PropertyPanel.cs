@@ -59,19 +59,54 @@ namespace weapon_data
 
 
 
-        
+
         //=================================\\
         //--|   Function Delcarations   |--\\
         //=================================\\
         #region [Function Delcarations]
 
+        //#
+        //## Event Handler Declarations
+        //#
+        #region [event handlers]
+        private void LoadHeaderItemContentsOnEnterIfUnloaded(object sender, PreviewKeyDownEventArgs args)
+        {
+            if (args.KeyCode == Keys.Return)
+            {
+                LoadHeaderItemContents((int) ((Control)sender).Tag);
+
+                // Unsubscribe from the event
+                ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
+            }
+        }
+        
+        private void LoadHeaderItemContentsOnEnterIfUnloaded(object sender, EventArgs args)
+        {
+            LoadHeaderItemContents((int) ((Control)sender).Tag);
+
+            // Unsubscribe from the event
+            ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
+        }
+        #endregion [event handlers]
+
+
+
+
+
+
+        //#
+        //## Non event-related property panel function declarations
+        //#
 
         /// <summary>
-        /// Populate the output window with details about the highlighted header item
+        /// Populate the property window with details about the highlighted header item
         /// </summary>
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHeaderItemDetails(int itemIndex)
         {
+            //#
+            //## Miscellaneous local function declarations
+            //#
             string formatPropertyValue(object value, int indentation = 0)
             {
                 if (value == null) return "null";
@@ -108,13 +143,12 @@ namespace weapon_data
                 }
             }
 
-
-            // Prepend a space to any capitalized letter that follows a lowercase one
+            // Prepend a space to any capitalized letter that follows a lowercase one.
             string spaceOutStructName(string name)
             {
                 var str = string.Empty;
 
-                for (var i = 0; i < name.Length; i++) {
+                for (var i = 0; i < name.Length;) {
 
                     if (name[i] <= 122u && name[i] >= 97u) {
 
@@ -128,21 +162,30 @@ namespace weapon_data
                         }
                     }
 
-                    str += name[i];
+                    str += name[i++];
                 }
 
                 return str;
             }
 
 
+
+
+            //#
+            //## Clear the current properties window contents and grab basic data about the current item
+            //#
             PropertiesWindow.Clear();
+
             var dcEntry = DCScript.Entries[itemIndex];
             var structType = dcEntry.Type;
+
+
+
 
             UpdateSelectionLabel(new[] { null, dcEntry.Name.DecodedID == "UNKNOWN_SID_64" ? dcEntry.Name.EncodedID : dcEntry.Name.DecodedID });
 
             // Update Properties Window
-            PrintPropertyDetailNL($"{structType}");
+            PrintPropertyDetailNL($"{structType.DecodedID}");
 
             if (dcEntry.Struct != null)
             {
@@ -156,23 +199,8 @@ namespace weapon_data
             }
             return;
         }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void LoadHeaderItemContents(int headerItemIndex)
-        {
-            UpdateStatusLabel(new[] { null, "Loading Struct Contents..." });
-            if (DCScript.Entries[headerItemIndex].Struct == null)
-            {
-                DCScript.Entries[headerItemIndex].LoadItemStruct();
-            }
-
-            UpdateStatusLabel(new[] { null, $"{DCScript.Entries[headerItemIndex].Name.DecodedID} Loaded" });
-        }
-
         
+
 
         private void HighlightHeaderButton(Button sender)
         {
@@ -183,6 +211,25 @@ namespace weapon_data
 
             (HeaderSelection = sender)
             .Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, HeaderSelection.Font.Style | FontStyle.Underline);
+        }
+
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private void LoadHeaderItemContents(int headerItemIndex)
+        {
+            if (DCScript.Entries[headerItemIndex].Struct == null)
+            {
+                UpdateStatusLabel(new[] { null, "Loading Struct Contents..." });
+                DCScript.Entries[headerItemIndex].LoadItemStruct();
+
+                UpdateStatusLabel(new[] { null, $"{DCScript.Entries[headerItemIndex].Name.DecodedID} Loaded" });
+
+                // Update the properties window's displayed contents with the newly loaded struct properties
+                DisplayHeaderItemDetails(headerItemIndex);
+            }
         }
 
 
@@ -273,19 +320,9 @@ namespace weapon_data
                 //currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
                 currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
 
-                currentButton.PreviewKeyDown += (sender, eugh) =>
-                {
-                    if (eugh.KeyCode == Keys.Return)
-                    {
-                        LoadHeaderItemContents((int) ((Control)sender).Tag);
-                    }
-                };
-
-                currentButton.DoubleClick += (sender, args) =>
-                {
-                    LoadHeaderItemContents((int) ((Control)sender).Tag);
-                };
-
+                currentButton.PreviewKeyDown += LoadHeaderItemContentsOnEnterIfUnloaded;
+                currentButton.DoubleClick += LoadHeaderItemContentsOnEnterIfUnloaded;
+                
                 HeaderItemButtons[i] = currentButton;
             }
 

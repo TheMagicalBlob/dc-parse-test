@@ -14,7 +14,7 @@ namespace weapon_data
         public Main()
         {
             InitializeComponent();
-            InitializeAdditionalEventHandlers_Main();
+            InitializeAdditionalEventHandlers_Main(this);
 
             VersionLabel.Text += Version;
             logWindow.Clear();

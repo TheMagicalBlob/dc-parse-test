@@ -134,22 +134,22 @@ namespace weapon_data
             /// <summary>
             /// The Address of this Header Item in the DC file.
             /// </summary>
-            public long Address;
+            public long Address { get; set; }
 
             /// <summary>
             /// The name of the current entry in the DC file header.
             /// </summary>
-            public SID Name;
+            public SID Name { get; set; }
             
             /// <summary>
             /// The struct type of the current entry in the DC file header.
             /// </summary>
-            public SID Type;
+            public SID Type { get; set; }
             
             /// <summary>
             /// The address of the struct pointed to by tbe current dc header entry.
             /// </summary>
-            public long StructAddress;
+            public long StructAddress { get; set; }
 
             /// <summary>
             /// The actual mapped structure object.
@@ -1105,7 +1105,7 @@ namespace weapon_data
                 this.Name = Name;
                 this.Address = Address;
 
-                Message = $"Unknown Structure: {Type}\n    Struct Addr: 0x{Address.ToString("X").PadLeft(8, '0')}\n    Struct Name: {Name}";
+                Message = $"Unknown Structure \"{Type.DecodedID}\"\n    Name: {Name.DecodedID}\n    Address: 0x{Address.ToString("X").PadLeft(8, '0')}";
             }
 
             public SID Name { get; set; }
@@ -1227,10 +1227,12 @@ namespace weapon_data
                     {
                         return EncodedID;
                     }
+                    #if DEBUG
                     else if (_decodedID == "INVALID_SID_64" && ShowInvalidSIDs)
                     {
                         return EncodedID;
                     }
+                    #endif
                     return _decodedID;
                 }
 

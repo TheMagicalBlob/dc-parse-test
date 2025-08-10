@@ -90,6 +90,11 @@ namespace weapon_data
                 UpdateStatusLabel(new[] { null, "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
         }
 
-        private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)  => ShowInvalidSIDs = ((CheckBox)sender).Checked;
+        private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            #if DEBUG
+            ShowInvalidSIDs = ((CheckBox)sender).Checked;
+            #endif
+        }
     }
 }

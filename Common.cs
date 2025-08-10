@@ -528,43 +528,57 @@ namespace weapon_data
         /// Post-InitializeComponent Configuration. <br/><br/>
         /// Create Assign Anonomous Event Handlers to Parent and Children.
         /// </summary>
-        public void InitializeAdditionalEventHandlers_Main()
+        public void InitializeAdditionalEventHandlers_Main(Main Venat)
         {
+            var controls = Venat.Controls.Cast<Control>().ToArray();
             var hSeparatorLineScanner = new List<Point[]>();
             var vSeparatorLineScanner = new List<Point[]>();
 
 
+            // Apply the seperator drawing function to any seperator lines
+            foreach (var line in controls.OfType<weapon_data.Label>())
+            {
+                if (line.IsSeparatorLine)
+                {
+                    if (line.Size.Width > line.Size.Height)
+                    {
+                        // Horizontal Lines
+                        hSeparatorLineScanner.Add(new Point[2] { 
+                            new Point(((weapon_data.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+                            new Point(((weapon_data.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                        });
+
+                        Controls.Remove(line);
+                    }
+                    else {
+                        // Vertical Lines (the + 3 is to center the line with the displayed lines in the editor)
+                        vSeparatorLineScanner.Add(new [] {
+                            new Point(line.Location.X + 3, ((weapon_data.Label)line).StretchToFitForm ? 1 : line.Location.Y),
+                            new Point(line.Location.X + 3, ((weapon_data.Label)line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
+                        });
+
+                        Controls.Remove(line);
+                    }
+                }
+            }
+
+            if (hSeparatorLineScanner.Count > 0) {
+                HSeparatorLines = hSeparatorLineScanner.ToArray();
+            }
+            if (vSeparatorLineScanner.Count > 0) {
+                VSeparatorLines = vSeparatorLineScanner.ToArray();
+            }
+
+
+            
+            
             // Set appropriate event handlers for the controls on the form as well
-            foreach (Control item in Controls)
+            foreach (var item in controls)
             {
                 if (item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
                     continue;
 
-                
-                // Apply the seperator drawing function to any seperator lines
-                if (item.GetType() == typeof(weapon_data.Label) && ((weapon_data.Label)item).IsSeparatorLine)
-                {
-                    if (item.Size.Width > item.Size.Height)
-                    {
-                        // Horizontal Lines
-                        hSeparatorLineScanner.Add(new Point[2] { 
-                            new Point(((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7),
-                            new Point(((weapon_data.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7)
-                        });
-
-                        Controls.Remove(item);
-                    }
-                    else {
-                        // Vertical Lines
-                        vSeparatorLineScanner.Add(new [] {
-                            new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y),
-                            new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height)
-                        });
-
-                        Controls.Remove(item);
-                    }
-                }
-                
+     
                 item.MouseDown += new MouseEventHandler((sender, e) =>
                 {
                     MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
@@ -578,37 +592,32 @@ namespace weapon_data
                     }
                 });
                 
+
                 // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)
-                if (item.GetType() != typeof(weapon_data.TextBox) && item.GetType() != typeof(weapon_data.RichTextBox))
+                if (item.GetType() == typeof(weapon_data.TextBox) || item.GetType() == typeof(weapon_data.RichTextBox))
                 {
-                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-                }
-                else {
                     item.KeyDown += (sender, arg) =>
                     {
                         if (arg.KeyData == Keys.Escape)
                         {
+                            BinFileBrowseBtn.Focus();
                             Focus();
-                            item.FindForm().Focus();
                         }
                     };
                 }
+                // Add the event handler to everything that's not a text container
+                else {
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                }
             }
-            
-            if (hSeparatorLineScanner.Count > 0) {
-                HSeparatorLines = hSeparatorLineScanner.ToArray();
-            }
-            if (vSeparatorLineScanner.Count > 0) {
-                VSeparatorLines = vSeparatorLineScanner.ToArray();
-            }
-            
-            
+
+
+
+
             MinimizeBtn.Click      += new EventHandler((sender, e) => Venat.WindowState           = FormWindowState.Minimized     );
             MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(90, 100, 255  ));
             MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0 , 0  , 0    ));
-#if DEBUG
-            ExitBtn.Click          += new EventHandler((sender, e) => { noDraw = true;  Environment.Exit(          0           );});
-#endif
+            ExitBtn.Click          += new EventHandler((sender, e) => Environment.Exit(                            0             ));
             ExitBtn.MouseEnter     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(230, 100, 100 ));
             ExitBtn.MouseLeave     += new EventHandler((sender, e) => ((Control)sender).ForeColor = Color.FromArgb(0  , 0  , 0   ));
 
@@ -634,15 +643,6 @@ namespace weapon_data
             KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control)sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
             Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
-
-            
-            propertiesWindow.KeyDown += (sender, arg) => //!
-            {
-                if (arg.KeyData == Keys.Escape)
-                {
-                    BinFileBrowseBtn.Focus();
-                }
-            };
         }
 
 
@@ -851,14 +851,17 @@ namespace weapon_data
         //#
         #region [Miscellaneous Functions]
         
+        /// <summary>
+        /// (//! Ideally...) Reset the GUI and all relevant globals to their original states.
+        /// </summary>
         private static void CloseBinFile()
         {
-            DCFile = Array.Empty<byte>();
+            DCFile = null;
             PropertiesPanel.Controls.Clear();
             PropertiesWindow.Clear();
             LogWindow.Clear();
 
-            if (Venat != null)
+            if (Venat == null)
             {
                 Venat.HeaderItemButtons = null;
                 Venat.SubItemButtons = null;
