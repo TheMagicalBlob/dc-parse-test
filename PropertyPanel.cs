@@ -118,6 +118,7 @@ namespace weapon_data
                     case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
                         return $"{indent}0x{value:X}";
 
+                    // ## SID
                     case var type when type == typeof(SID):
                         var id = ((SID)value).DecodedID;
                         if (id == "UNKNOWN_SID_64"
@@ -130,6 +131,7 @@ namespace weapon_data
 
                         return indent + id;
 
+                    // ## Arrays
                     case var type when type.ToString().Contains("[]"):
                         var str = $"{type}: {{\n";
                         foreach (var item in (Array)value)
@@ -138,6 +140,10 @@ namespace weapon_data
                         }
                         str += indent + '}';
                         return str;
+                        
+                    // ## Unknown Struct
+                    case var type when type == typeof(UnknownStruct):
+                        return $"{((dynamic)value).Message}";
 
                     default: return indent + value.ToString();
                 }

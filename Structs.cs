@@ -180,8 +180,7 @@ namespace weapon_data
             {
                 this.Name = Name;
                 this.Address = Address;
-                this.BingusForFuckSake = "ERP";
-
+                
                 var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 if (mapLength < 1)
                 {
@@ -195,7 +194,7 @@ namespace weapon_data
                 Items = new object[mapLength][];
                 Items[0] = new object[2];
 
-                    
+
 
                 echo($"\n  # Parsing {mapLength} Map Structures...");
                 for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
@@ -204,8 +203,8 @@ namespace weapon_data
 
                     var structTypeID = new SID(GetSubArray(binFile, structAddress - 8));
                     var structName = new SID(GetSubArray(binFile, (int)mapNamesArrayPtr));
-                    
-                    echo($"    - 0x{structAddress.ToString("X").PadLeft(6, '0')} Type: {structTypeID} Name: {structName}" + 1);
+
+                    echo($"    - 0x{structAddress.ToString("X").PadLeft(6, '0')} Type: {structTypeID} Name: {structName.DecodedID}" + 1);
                     StatusLabelMammet(new[] { null, null, $"Loading Map Entry {arrayIndex + 1} / {mapLength}" });
 
                     Items[arrayIndex] = new object[2];
@@ -214,6 +213,7 @@ namespace weapon_data
                     Items[arrayIndex][1] = LoadDCStructByType(binFile, structTypeID, structAddress, structName);
                 }
                 echo($"  # Finished Parsing All Map Structures.");
+
                 StatusLabelMammet(new[] { null, null, string.Empty });
             }
 
@@ -224,9 +224,6 @@ namespace weapon_data
             public SID Name { get; set; }
 
             public long Address { get; set; }
-
-            public string BingusForFuckSake { get; set; }
-            public long BingusForFuckDrake  { get => 69; }
 
             /// <summary>
             /// An array of object arrays with the first element being the map item's struct type, and the other being the struct itself

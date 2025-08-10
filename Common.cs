@@ -193,8 +193,8 @@ namespace weapon_data
             set {
                 if (value == null || value.Length < 1)
                 {
-                    _selectionDetails = Array.Empty<string>();
-                    ScriptSelectionLabel.Text = "Status: [None]";
+                    _statusDetails = Array.Empty<string>();
+                    ScriptStatusLabel.Text = "Status: [None]";
                     return;
                 }
 
