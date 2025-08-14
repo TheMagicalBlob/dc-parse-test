@@ -1,31 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using static weapon_data.Main;
 
 namespace weapon_data
 {
-    public class StructBSIdkNameItLater
+    public class PropertiesHandler
     {
-        public StructBSIdkNameItLater()
+        
+        //================================\\
+        //--|   Class Initialization   |--\\
+        //================================\\
+        /// <summary>
+        /// Initialize a new instance of the PropertiesHandler class.<br/><br/>
+        /// 
+        /// Used for management of the PropertiesPanel and PropertiesWindow (struct buttons & details display).
+        /// </summary>
+        public PropertiesHandler()
         {
+            IndentationDepth = 0;
+
             
-            
-            propertiesPanelMammet = new PropertiesPanelWand(PopulatePropertiesPanel);
+            propertiesPanelMammet = PopulatePropertiesPanel;
+            propertiesWindowSameLineMammet = _printPropertyDetailSL;
+            propertiesWindowNewLineMammet = _printPropertyDetailNL;
+            propertiesWindowSpecificLineMammet = _printPropertyDetailSpL;
         }
+
+
+
+
+
 
         //=================================\\
         //--|   Variable Declarations   |--\\
         //=================================\\
         #region [Variable Declarations]
 
+
+        //#
+        //## Properties Panels Functionality Variables
+        //#
         private Button[] HeaderItemButtons;
         private List<Button> SubItemButtons;
-
-        /// <summary> Offset used for adjusting the tab index of buttons after the property buttons, as well as get the item index from the button's tab index. </summary>
-        private int TabIndexBase;
-        private int Indentation = 0;
 
 
         private Button HeaderSelection
@@ -59,7 +78,41 @@ namespace weapon_data
         private Button _subItemSelection;
 
 
+
+        private int IndentationDepth
+        {
+            get {
+                if (Indentation.Length < 8)
+                {
+                    return 0;
+                }
+
+                return Indentation.Length / 8;
+            }
+            set {
+                Indentation = new string(' ', value * 8);
+            }
+        }
+
+        private string Indentation = string.Empty;
+
+
+
+        
+        //#
+        //## Threading-Related Variables (threads, delegates, and mammets)
+        //#
+        
+        /// <summary> //! </summary>
+        public delegate void PropertiesWindowOutputWand(string msg, int line);
+        
+        /// <summary> //! </summary>
         public delegate void PropertiesPanelWand(string dcFileName, DCFileHeader dcEntries);
+
+
+        private PropertiesWindowOutputWand propertiesWindowSameLineMammet;
+        private PropertiesWindowOutputWand propertiesWindowNewLineMammet;
+        private PropertiesWindowOutputWand propertiesWindowSpecificLineMammet;
 
         public PropertiesPanelWand propertiesPanelMammet;
         #endregion
@@ -82,7 +135,7 @@ namespace weapon_data
             {
                 LoadHeaderItemContents((int) ((Control)sender).Tag);
 
-                // Unsubscribe from the event
+                // Unsubscribe from the event once the struct's been loaded
                 ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
             }
         }
@@ -105,7 +158,106 @@ namespace weapon_data
         //## Properties Window-related funtion declarations
         //#
         
-        private void PrintToPW(string message = emptyStr, int? indentationOverride = null)
+
+        /// <summary>
+        /// Overrite a specific line in the properties output window with the provided <paramref name="message"/>
+        /// <br/> Appends an empty new line if no message is provided.
+        /// </summary>
+        public void PrintPropertyDetailSpL(object message = null, int line = 0)
+        {
+            if (message == null)
+                message = string.Empty;
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(propertiesWindowSpecificLineMammet, new object[] { message?.ToString() ?? "null", line < 0 ? 0 : line });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed PrintPropertyDetailSL Invokation due to a(n) {dang.GetType()}.";
+                echo(err);
+            }
+        }
+        private void _printPropertyDetailSpL(string message, int line = 0)
+        {
+            PropertiesWindow.UpdateLine(Indentation + message, line);
+            PropertiesWindow.Update();
+        }
+       
+        
+        
+        /// <summary>
+        /// Replace a specified line in the properties output window with <paramref name="message"/>.
+        /// <br/> Clears the line if no message is provided.
+        /// </summary>
+        public void PrintPropertyDetailSL(object message)
+        {
+            if (message == null)
+                message = " ";
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(propertiesWindowSameLineMammet, new object[] { message?.ToString() ?? "null", null });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
+                echo(err);
+            }
+        }
+        private void _printPropertyDetailSL(string message, int _ = 0)
+        {
+            //! This is a bit of a lazy way of maintaining the indent...
+            PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message, PropertiesWindow.Lines.Length - 1);
+            PropertiesWindow.Update();
+        }
+
+
+
+        /// <summary>
+        /// Replace a specified line in the properties output window with <paramref name="message"/>.
+        /// <br/> Clears the line if no message is provided.
+        /// </summary>
+        public void PrintPropertyDetailNL(object message = null, int indentationOverride = 0)
+        {
+            if (message == null)
+                message = string.Empty;
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null", null });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
+                echo(err);
+            }
+        }
+
+        private void _printPropertyDetailNL(string args, int _ = 0)
+        {
+            PropertiesWindow.AppendLine(args, false);
+            PropertiesWindow.Update();
+        }
+
+
+
+        private void PrintToPW()
         {
 
         }
@@ -126,7 +278,7 @@ namespace weapon_data
         {
             var str = string.Empty;
 
-            for (var i = 0; i < name.Length;) {
+            for (var i = 0; i < name.Length; i++) {
 
                 if (name[i] <= 122u && name[i] >= 97u) {
 
@@ -140,20 +292,31 @@ namespace weapon_data
                     }
                 }
 
-                str += name[i++];
+                str += name[i];
             }
 
             return str;
         }
 
 
+        private Type[] beep = new []
+        {
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+            typeof(byte),
+            typeof(sbyte),
+        };
+
+
         /// <summary>
-        /// 
+        /// //!
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="indentation"></param>
+        /// <param name="indentationOverride"></param>
         /// <returns></returns>
-        private string FormatPropertyValue(object value, int indentation = 0)
+        private string FormatPropertyValue(object value, int? indentationOverride = null)
         {
             if (value == null)
             {
@@ -161,30 +324,35 @@ namespace weapon_data
             }
 
                 
-            var indent = new string(' ', 8 * indentation);
+            //var indent = new string(' ', 8 * indentationOverride ?? Indentation);
 
             switch (value.GetType())
             {
+                // ## Basic Numerical Values
                 case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
-                    return $"{indent}0x{value:X}";
+                    return $"0x{value:X}";
+
+                // ## Booleans
+                case var val when val == typeof(bool):
+                    return val.ToString();
 
 
                 // ## String ID's
                 case var type when type == typeof(SID):
                     var id = ((SID)value).DecodedID;
 
-                    if (id == "UNKNOWN_SID_64")
+                    if (id == "UNKNOWN_SID_64" && ShowUnresolvedSIDs)
                     {
                         id = ((SID)value).EncodedID;
                     }
                     #if DEBUG
-                    else if (id == "INVALID_SID_64")
+                    else if (id == "INVALID_SID_64" && ShowInvalidSIDs)
                     {
                         id = ((SID)value).EncodedID;
                     }
                     #endif
 
-                    return indent + id;
+                    return id;
 
 
 
@@ -193,18 +361,19 @@ namespace weapon_data
                     var str = $"{type}: {{\n";
                     foreach (var item in (Array) value)
                     {
-                        str += $"        {indent}{FormatPropertyValue(item, 1)},\n";
+                        str += $"        {FormatPropertyValue(item, 1)},\n";
                     }
-                    str += indent + '}';
+                    str += '}';
                     return str;
 
                         
 
                 // ## Unknown Struct
                 case var type when type == typeof(UnknownStruct):
-                    return $"{indent}{((UnknownStruct)value).Message.Replace("\n", "\n" + indent)}";
+                    return $"{((UnknownStruct)value).Message.Replace("\n", "\n" + new string(' ', IndentationDepth * 8))}";
 
-                default: return indent + value.ToString();
+
+                default: return value.ToString();
             }
         }
 
@@ -232,11 +401,17 @@ namespace weapon_data
             if (dcEntry.Struct != null)
             {
                 echo("Stuct Has been initialized...");
-                echo($"    Iterating through \"{dcEntry.Name}\".");
+                echo($"    Iterating through \"{dcEntry.Name.DecodedID}\".");
                 foreach (var property in dcEntry.Struct.GetType().GetProperties())
                 {
-                    echo("PROPERTY: " + property);
-                    PrintPropertyDetailNL($"# {SpaceOutStructName(property.Name)}: {FormatPropertyValue(property.GetValue(dcEntry.Struct))}");
+                    echo("Property: " + property);
+                    PrintPropertyDetailSL($"# {SpaceOutStructName(property.Name)}: ");
+
+                    
+                    echo ("Getting property value...");
+                    
+                    var val = property.GetValue(dcEntry.Struct);
+                    PrintPropertyDetailNL($"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}");
                 }
             }
             else {
@@ -322,7 +497,6 @@ namespace weapon_data
             var dcLen = dcEntries.Length;
 
             HeaderItemButtons = new Button[dcEntries.Length];
-            TabIndexBase = Venat.optionsMenuDropdownBtn.TabIndex - 1;
 
 
             for (var i = 0; i < dcLen; ++i)
@@ -380,8 +554,8 @@ namespace weapon_data
 
             // Adjust the tab indexes of buttons intended to be after the property buttons
             Venat.optionsMenuDropdownBtn.TabIndex += dcLen;
-            //Venat.MinimizeBtn.TabIndex += dcLen;
-            //Venat.ExitBtn.TabIndex += dcLen;
+            Venat.MinimizeBtn.TabIndex += dcLen;
+            Venat.ExitBtn.TabIndex += dcLen;
         }
         #endregion
     }

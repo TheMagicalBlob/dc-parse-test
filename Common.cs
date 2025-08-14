@@ -153,7 +153,11 @@ namespace weapon_data
         public const string emptyStr = "";
 
 
-        /// <summary> The name of the provided DC file. </summary>
+
+
+        /// <summary>
+        /// The name of the provided DC file.
+        /// </summary>
         public static string ActiveFileName
         {
             get => _activeFileName;
@@ -167,7 +171,11 @@ namespace weapon_data
         private static string _activeFileName = "No Script Selected";
 
 
-        /// <summary> The absolute path to the provided DC file. </summary>
+
+
+        /// <summary>
+        /// The absolute path to the provided DC file.
+        /// </summary>
         public static string ActiveFilePath
         {
             get => _activeFilePath;
@@ -186,7 +194,11 @@ namespace weapon_data
         private static string _activeFilePath = "No Script Selected";
 
 
-        /// <summary> //! </summary>
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
         private static string[] StatusDetails
         {
             get => _statusDetails;
@@ -227,7 +239,11 @@ namespace weapon_data
         private static string[] _statusDetails = new string [] { null, null, null };
 
         
-        /// <summary> //! </summary>
+
+        
+        /// <summary>
+        /// //!
+        /// </summary>
         private static string[] SelectionDetails
         {
             get => _selectionDetails;
@@ -286,7 +302,7 @@ namespace weapon_data
         public static OptionsPage Azem;
 
         /// <summary> StructBSIdkNameItLater Class Pointer/Refference. </summary>
-        public static StructBSIdkNameItLater Panels;
+        public static PropertiesHandler Panels;
 
         /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
         public static GroupBox PropertiesPanel;
@@ -336,23 +352,8 @@ namespace weapon_data
         /// <summary> //! </summary>
         private delegate void binThreadLabelWand(string[] details);
         /// <summary> //! </summary>
-        public delegate void binThreadOutputWand(string msg, int line);
-        /// <summary> //! </summary>
         public delegate string[] binThreadFormWandOutputRead();
-        
 
-
-        public binThreadOutputWand propertiesWindowNewLineMammet = new binThreadOutputWand((args, _) =>
-        {
-            PropertiesWindow.AppendLine(args, false);
-            PropertiesWindow.Update();
-        });
-
-        public binThreadOutputWand propertiesWindowSpecificLineMammet = new binThreadOutputWand((msg, line) =>
-        {
-            PropertiesWindow.UpdateLine(msg, line, false);
-            PropertiesWindow.Update();
-        });
 
         
 
@@ -743,59 +744,6 @@ namespace weapon_data
             #endif
         }
 #pragma warning restore IDE1006
-
-        
-
-        /// <summary>
-        /// Overrite a specific line in the properties output window with the provided <paramref name="message"/>
-        /// <br/> Appends an empty new line if no message is provided.
-        /// </summary>
-        public void PrintPropertyDetailSL(object message = null, int line = 0)
-        {
-            if (message == null)
-                message = string.Empty;
-
-#if DEBUG
-            // Debug Output
-            echo(message);
-#endif
-
-            // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
-                Venat?.Invoke(Venat.propertiesWindowSpecificLineMammet, new object[] { message?.ToString() ?? "null", line < 0 ? 0 : line });
-            }
-            catch (Exception dang)
-            {
-                var err = $"Missed PrintPropertyDetailSL Invokation due to a(n) {dang.GetType()}.";
-                echo(err);
-            }
-        }
-
-
-        /// <summary>
-        /// Replace a specified line in the properties output window with <paramref name="message"/>.
-        /// <br/> Clears the line if no message is provided.
-        /// </summary>
-        public static void PrintPropertyDetailNL(object message = null)
-        {
-            if (message == null)
-                message = string.Empty;
-
-#if DEBUG
-            // Debug Output
-            echo(message);
-#endif
-
-            // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
-                Venat?.Invoke(Venat.propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null", null });
-            }
-            catch (Exception dang)
-            {
-                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
-                echo(err);
-            }
-        }
         
         
         /// <summary>

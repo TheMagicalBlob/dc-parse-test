@@ -76,7 +76,7 @@ namespace weapon_data
                     {
                         eh (cunt.Controls);
                     }
-                    PrintPropertyDetailNL($"# [{cunt.Name}: {cunt.TabIndex}]");
+                    echo($"# [{cunt.Name}: {cunt.TabIndex}]");
                 }
 
             }

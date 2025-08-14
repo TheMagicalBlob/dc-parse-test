@@ -26,7 +26,7 @@ namespace weapon_data
             Update(); Refresh();
             Venat = this;
             Azem = new OptionsPage();
-            Panels = new StructBSIdkNameItLater();
+            Panels = new PropertiesHandler();
             Bingus = new DebugPanel();
 
             PropertiesPanel = propertiesPanel;

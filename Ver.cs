@@ -2,6 +2,6 @@
 {
     public partial class Main
     {
-        public const string Version = "0.106.511 "
+        public const string Version = "0.107.517 "
    ;}
 }

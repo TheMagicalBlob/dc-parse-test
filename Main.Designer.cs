@@ -430,8 +430,6 @@ namespace weapon_data
         private Button BinFileBrowseBtn;
         private RichTextBox propertiesWindow;
         private Label scriptStatusLabel;
-        private Button ExitBtn;
-        private Button MinimizeBtn;
         private Button abortOrCloseBtn;
         private Button ReloadScriptBtn;
         private Label label1;
@@ -453,6 +451,8 @@ namespace weapon_data
         private Button button1;
         private Button button2;
         public Button optionsMenuDropdownBtn;
+        public Button ExitBtn;
+        public Button MinimizeBtn;
     }
 }
 
