@@ -1,15 +1,20 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
+using static weapon_data.Main;
 
 namespace weapon_data
 {
-    public partial class Main
+    public class StructBSIdkNameItLater
     {
+        public StructBSIdkNameItLater()
+        {
+            
+            
+            propertiesPanelMammet = new PropertiesPanelWand(PopulatePropertiesPanel);
+        }
+
         //=================================\\
         //--|   Variable Declarations   |--\\
         //=================================\\
@@ -20,7 +25,9 @@ namespace weapon_data
 
         /// <summary> Offset used for adjusting the tab index of buttons after the property buttons, as well as get the item index from the button's tab index. </summary>
         private int TabIndexBase;
-        
+        private int Indentation = 0;
+
+
         private Button HeaderSelection
         {
             get => _headerSelection;
@@ -95,8 +102,112 @@ namespace weapon_data
 
 
         //#
-        //## Non event-related property panel function declarations
+        //## Properties Window-related funtion declarations
         //#
+        
+        private void PrintToPW(string message = emptyStr, int? indentationOverride = null)
+        {
+
+        }
+
+        public void Reset()
+        {
+            HeaderItemButtons = null;
+            SubItemButtons = null;
+            HeaderSelection = null;
+        }
+
+
+        /// <summary>
+        /// Prepend a space to any capitalized letter that follows a lowercase one.
+        /// </summary>
+        /// <returns> The provided <paramref name="name">, now spaced out rather than camel/pascal-case. </returns>
+        private string SpaceOutStructName(string name)
+        {
+            var str = string.Empty;
+
+            for (var i = 0; i < name.Length;) {
+
+                if (name[i] <= 122u && name[i] >= 97u) {
+
+                    if (i + 1 != name.Length) {
+
+                        if (name[i + 1] >= 65u && name[i + 1] <= 90u)
+                        {
+                            str += $"{name[i]} ";
+                            continue;
+                        }
+                    }
+                }
+
+                str += name[i++];
+            }
+
+            return str;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="indentation"></param>
+        /// <returns></returns>
+        private string FormatPropertyValue(object value, int indentation = 0)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+                
+            var indent = new string(' ', 8 * indentation);
+
+            switch (value.GetType())
+            {
+                case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
+                    return $"{indent}0x{value:X}";
+
+
+                // ## String ID's
+                case var type when type == typeof(SID):
+                    var id = ((SID)value).DecodedID;
+
+                    if (id == "UNKNOWN_SID_64")
+                    {
+                        id = ((SID)value).EncodedID;
+                    }
+                    #if DEBUG
+                    else if (id == "INVALID_SID_64")
+                    {
+                        id = ((SID)value).EncodedID;
+                    }
+                    #endif
+
+                    return indent + id;
+
+
+
+                // ## Arrays
+                case var type when type.ToString().Contains("[]"):
+                    var str = $"{type}: {{\n";
+                    foreach (var item in (Array) value)
+                    {
+                        str += $"        {indent}{FormatPropertyValue(item, 1)},\n";
+                    }
+                    str += indent + '}';
+                    return str;
+
+                        
+
+                // ## Unknown Struct
+                case var type when type == typeof(UnknownStruct):
+                    return $"{indent}{((UnknownStruct)value).Message.Replace("\n", "\n" + indent)}";
+
+                default: return indent + value.ToString();
+            }
+        }
+
 
         /// <summary>
         /// Populate the property window with details about the highlighted header item
@@ -104,79 +215,6 @@ namespace weapon_data
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
         private void DisplayHeaderItemDetails(int itemIndex)
         {
-            //#
-            //## Miscellaneous local function declarations
-            //#
-            string formatPropertyValue(object value, int indentation = 0)
-            {
-                if (value == null) return "null";
-                
-                var indent = new string(' ', 8 * indentation);
-
-                switch (value.GetType())
-                {
-                    case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
-                        return $"{indent}0x{value:X}";
-
-                    // ## SID
-                    case var type when type == typeof(SID):
-                        var id = ((SID)value).DecodedID;
-                        if (id == "UNKNOWN_SID_64"
-                            #if DEBUG
-                            || id == "INVALID_SID_64"
-                            #endif
-                            )
-                        id = ((SID)value).EncodedID;
-
-
-                        return indent + id;
-
-                    // ## Arrays
-                    case var type when type.ToString().Contains("[]"):
-                        var str = $"{type}: {{\n";
-                        foreach (var item in (Array)value)
-                        {
-                            str += $"        {indent}{formatPropertyValue(item, 1)},\n";
-                        }
-                        str += indent + '}';
-                        return str;
-                        
-                    // ## Unknown Struct
-                    case var type when type == typeof(UnknownStruct):
-                        return $"{((dynamic)value).Message}";
-
-                    default: return indent + value.ToString();
-                }
-            }
-
-            // Prepend a space to any capitalized letter that follows a lowercase one.
-            string spaceOutStructName(string name)
-            {
-                var str = string.Empty;
-
-                for (var i = 0; i < name.Length;) {
-
-                    if (name[i] <= 122u && name[i] >= 97u) {
-
-                        if (i + 1 != name.Length) {
-
-                            if (name[i + 1] >= 65u && name[i + 1] <= 90u)
-                            {
-                                str += $"{name[i]} ";
-                                continue;
-                            }
-                        }
-                    }
-
-                    str += name[i++];
-                }
-
-                return str;
-            }
-
-
-
-
             //#
             //## Clear the current properties window contents and grab basic data about the current item
             //#
@@ -186,8 +224,6 @@ namespace weapon_data
             var structType = dcEntry.Type;
 
 
-
-
             UpdateSelectionLabel(new[] { null, dcEntry.Name.DecodedID == "UNKNOWN_SID_64" ? dcEntry.Name.EncodedID : dcEntry.Name.DecodedID });
 
             // Update Properties Window
@@ -195,9 +231,12 @@ namespace weapon_data
 
             if (dcEntry.Struct != null)
             {
+                echo("Stuct Has been initialized...");
+                echo($"    Iterating through \"{dcEntry.Name}\".");
                 foreach (var property in dcEntry.Struct.GetType().GetProperties())
                 {
-                    PrintPropertyDetailNL($"# {spaceOutStructName(property.Name)}: {formatPropertyValue(property.GetValue(dcEntry.Struct))}");
+                    echo("PROPERTY: " + property);
+                    PrintPropertyDetailNL($"# {SpaceOutStructName(property.Name)}: {FormatPropertyValue(property.GetValue(dcEntry.Struct))}");
                 }
             }
             else {
@@ -205,8 +244,15 @@ namespace weapon_data
             }
             return;
         }
-        
 
+
+
+
+
+
+        //#
+        //## Properties Panel-related funtion declarations
+        //#
 
         private void HighlightHeaderButton(Button sender)
         {
@@ -276,7 +322,7 @@ namespace weapon_data
             var dcLen = dcEntries.Length;
 
             HeaderItemButtons = new Button[dcEntries.Length];
-            TabIndexBase = optionsMenuDropdownBtn.TabIndex - 1;
+            TabIndexBase = Venat.optionsMenuDropdownBtn.TabIndex - 1;
 
 
             for (var i = 0; i < dcLen; ++i)
@@ -333,9 +379,9 @@ namespace weapon_data
             }
 
             // Adjust the tab indexes of buttons intended to be after the property buttons
-            optionsMenuDropdownBtn.TabIndex += dcLen;
-            MinimizeBtn.TabIndex += dcLen;
-            ExitBtn.TabIndex += dcLen;
+            Venat.optionsMenuDropdownBtn.TabIndex += dcLen;
+            //Venat.MinimizeBtn.TabIndex += dcLen;
+            //Venat.ExitBtn.TabIndex += dcLen;
         }
         #endregion
     }

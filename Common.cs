@@ -150,6 +150,7 @@ namespace weapon_data
         /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
         private static int BaseAbortButtonWidth;
 
+        public const string emptyStr = "";
 
 
         /// <summary> The name of the provided DC file. </summary>
@@ -283,6 +284,9 @@ namespace weapon_data
 
         /// <summary> OptionsPage Form Pointer/Refference. </summary>
         public static OptionsPage Azem;
+
+        /// <summary> StructBSIdkNameItLater Class Pointer/Refference. </summary>
+        public static StructBSIdkNameItLater Panels;
 
         /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
         public static GroupBox PropertiesPanel;
@@ -863,9 +867,7 @@ namespace weapon_data
 
             if (Venat == null)
             {
-                Venat.HeaderItemButtons = null;
-                Venat.SubItemButtons = null;
-                Venat.HeaderSelection = null;
+                Panels.Reset();
 
                 Venat.optionsMenuDropdownBtn.TabIndex -= DCScript.Entries.Length;
                 Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
@@ -977,7 +979,7 @@ namespace weapon_data
 
         public static void PropertiesPanelMammet(object dcFileName, DCFileHeader dcEntries)
         {
-            Venat?.Invoke(Venat.propertiesPanelMammet, new[] { dcFileName, dcEntries });
+            Venat?.Invoke(Panels.propertiesPanelMammet, new[] { dcFileName, dcEntries });
         }
         
         

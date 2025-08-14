@@ -26,6 +26,7 @@ namespace weapon_data
             Update(); Refresh();
             Venat = this;
             Azem = new OptionsPage();
+            Panels = new StructBSIdkNameItLater();
             Bingus = new DebugPanel();
 
             PropertiesPanel = propertiesPanel;
@@ -58,10 +59,7 @@ namespace weapon_data
             }
 
 
-
             BaseAbortButtonWidth = AbortOrCloseBtn.Size.Width;
-            
-            propertiesPanelMammet = new PropertiesPanelWand(PopulatePropertiesPanel);
         }
 
 
@@ -77,7 +75,11 @@ namespace weapon_data
         private void FormKeyboardInputHandler(string sender, Keys arg, bool ctrl, bool shift)
         {
             echo($"Input [{arg}] Recieved by Control [{sender}]");
+            
+            
             return;
+
+            /*
             switch (arg)
             {
                 case Keys.Down:
@@ -135,6 +137,7 @@ namespace weapon_data
                     }
                 }
             }
+            */
         }
 
 

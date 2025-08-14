@@ -1095,7 +1095,7 @@ namespace weapon_data
         /// <summary>
         /// 
         /// </summary>
-        private struct UnknownStruct
+        public struct UnknownStruct
         {
             public UnknownStruct(SID Type, long Address, SID Name)
             {
@@ -1116,7 +1116,7 @@ namespace weapon_data
         /// <summary>
         /// [Description Unavailable]
         /// </summary>
-        private struct StructTemplate
+        public struct StructTemplate
         {
             /// <summary>
             /// Create a new instance of the StructTemplate struct.
