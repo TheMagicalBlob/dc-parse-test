@@ -42,7 +42,7 @@ namespace weapon_data
 
             // Check various expected paths for the required sidbase.bin file
             var workingDirectory = Directory.GetCurrentDirectory();
-            if (!new[] { $@"{workingDirectory}\sidbase.bin", $@"{workingDirectory}\sid\sidbase.bin", $@"{workingDirectory}\dis1\sidbase.bin" }
+            if (!new[] { $@"{workingDirectory}\sidbase.bin", $@"{workingDirectory}\sid\sidbase.bin", $@"{workingDirectory}\sid1\sidbase.bin" }
             .Any(path =>
             {
                 if (File.Exists(path))

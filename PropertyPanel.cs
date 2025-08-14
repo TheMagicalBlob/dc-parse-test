@@ -256,12 +256,6 @@ namespace weapon_data
         }
 
 
-
-        private void PrintToPW()
-        {
-
-        }
-
         public void Reset()
         {
             HeaderItemButtons = null;
