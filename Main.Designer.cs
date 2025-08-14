@@ -46,30 +46,18 @@ namespace weapon_data
             this.SidBaseBrowseBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.BinFileBrowseBtn = new System.Windows.Forms.Button();
-            this.propertiesWindow = new weapon_data.RichTextBox();
-            this.scriptStatusLabel = new weapon_data.Label();
-            this.ExitBtn = new System.Windows.Forms.Button();
-            this.MinimizeBtn = new System.Windows.Forms.Button();
-            this.abortOrCloseBtn = new System.Windows.Forms.Button();
-            this.ReloadScriptBtn = new System.Windows.Forms.Button();
+            this.label5 = new weapon_data.Label();
+            this.label6 = new weapon_data.Label();
+            this.label4 = new weapon_data.Label();
+            this.logWindow = new weapon_data.RichTextBox();
             this.label1 = new weapon_data.Label();
-            this.VersionLabel = new weapon_data.Label();
-            this.propertiesPanel = new System.Windows.Forms.GroupBox();
+            this.label2 = new weapon_data.Label();
+            this.label3 = new weapon_data.Label();
+            this.propertiesWindow = new weapon_data.RichTextBox();
             this.scriptSelectionLabel = new weapon_data.Label();
             this.SeperatorLine2 = new weapon_data.Label();
-            this.label3 = new weapon_data.Label();
-            this.dummy0 = new System.Windows.Forms.Button();
-            this.dummy1 = new System.Windows.Forms.Button();
-            this.label2 = new weapon_data.Label();
-            this.debugPanelBtn = new System.Windows.Forms.Button();
-            this.logWindow = new weapon_data.RichTextBox();
-            this.label4 = new weapon_data.Label();
-            this.SidBaseBrowseBtn = new System.Windows.Forms.Button();
-            this.label6 = new weapon_data.Label();
-            this.label5 = new weapon_data.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.VersionLabel = new weapon_data.Label();
+            this.scriptStatusLabel = new weapon_data.Label();
             this.SuspendLayout();
             // 
             // BinFileBrowseBtn
@@ -232,36 +220,197 @@ namespace weapon_data
             this.button2.TabIndex = 53;
             this.button2.UseVisualStyleBackColor = false;
             // 
+            // label5
+            // 
+            this.label5.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label5.IsSeparatorLine = true;
+            this.label5.Location = new System.Drawing.Point(537, 1);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(8, 34);
+            this.label5.StretchToFitForm = false;
+            this.label5.TabIndex = 51;
+            this.label5.Tag = "";
+            this.label5.Text = "---------------------------------------------------------------------------------" +
+    "-----------------------------------------------------------------------------";
+            // 
+            // label6
+            // 
+            this.label6.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label6.IsSeparatorLine = true;
+            this.label6.Location = new System.Drawing.Point(1, 96);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(539, 10);
+            this.label6.StretchToFitForm = true;
+            this.label6.TabIndex = 50;
+            this.label6.Text = "---------------------------------------------------------------------------------" +
+    "----------------------------------------------";
+            // 
+            // label4
+            // 
+            this.label4.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label4.IsSeparatorLine = true;
+            this.label4.Location = new System.Drawing.Point(1, 63);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(539, 10);
+            this.label4.StretchToFitForm = true;
+            this.label4.TabIndex = 47;
+            this.label4.Tag = "True";
+            this.label4.Text = "---------------------------------------------------------------------------------" +
+    "----------------------------------------------";
+            // 
+            // logWindow
+            // 
+            this.logWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.logWindow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
+            this.logWindow.ForeColor = System.Drawing.SystemColors.Window;
+            this.logWindow.Location = new System.Drawing.Point(5, 108);
+            this.logWindow.Name = "logWindow";
+            this.logWindow.ReadOnly = true;
+            this.logWindow.ShortcutsEnabled = false;
+            this.logWindow.Size = new System.Drawing.Size(531, 119);
+            this.logWindow.TabIndex = 46;
+            this.logWindow.TabStop = false;
+            this.logWindow.Text = "dead hands feel no  B r e a d";
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.label1.ForeColor = System.Drawing.Color.Gold;
+            this.label1.IsSeparatorLine = false;
+            this.label1.Location = new System.Drawing.Point(4, 4);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(208, 30);
+            this.label1.StretchToFitForm = false;
+            this.label1.TabIndex = 12;
+            this.label1.Text = "NaughtyDog DC Editor";
+            // 
+            // label2
+            // 
+            this.label2.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label2.IsSeparatorLine = true;
+            this.label2.Location = new System.Drawing.Point(7, 28);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(644, 13);
+            this.label2.StretchToFitForm = true;
+            this.label2.TabIndex = 44;
+            this.label2.Tag = "";
+            this.label2.Text = "---------------------------------------------------------------------------------" +
+    "-----------------------------------------------------------------------------";
+            // 
+            // label3
+            // 
+            this.label3.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label3.IsSeparatorLine = true;
+            this.label3.Location = new System.Drawing.Point(537, 104);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(8, 521);
+            this.label3.StretchToFitForm = false;
+            this.label3.TabIndex = 22;
+            this.label3.Tag = "";
+            this.label3.Text = "---------------------------------------------------------------------------------" +
+    "-----------------------------------------------------------------------------";
+            // 
+            // propertiesWindow
+            // 
+            this.propertiesWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.propertiesWindow.ForeColor = System.Drawing.SystemColors.Window;
+            this.propertiesWindow.Location = new System.Drawing.Point(545, 236);
+            this.propertiesWindow.Name = "propertiesWindow";
+            this.propertiesWindow.ReadOnly = true;
+            this.propertiesWindow.ShortcutsEnabled = false;
+            this.propertiesWindow.Size = new System.Drawing.Size(338, 385);
+            this.propertiesWindow.TabIndex = 10;
+            this.propertiesWindow.TabStop = false;
+            this.propertiesWindow.Text = "recto verso";
+            // 
+            // scriptSelectionLabel
+            // 
+            this.scriptSelectionLabel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.scriptSelectionLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.scriptSelectionLabel.ForeColor = System.Drawing.Color.Gold;
+            this.scriptSelectionLabel.IsSeparatorLine = false;
+            this.scriptSelectionLabel.Location = new System.Drawing.Point(7, 240);
+            this.scriptSelectionLabel.Name = "scriptSelectionLabel";
+            this.scriptSelectionLabel.Size = new System.Drawing.Size(526, 19);
+            this.scriptSelectionLabel.StretchToFitForm = false;
+            this.scriptSelectionLabel.TabIndex = 20;
+            this.scriptSelectionLabel.Text = "Selected Script: [None]";
+            // 
+            // SeperatorLine2
+            // 
+            this.SeperatorLine2.Font = new System.Drawing.Font("Cambria", 8F);
+            this.SeperatorLine2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.SeperatorLine2.IsSeparatorLine = true;
+            this.SeperatorLine2.Location = new System.Drawing.Point(1, 224);
+            this.SeperatorLine2.Name = "SeperatorLine2";
+            this.SeperatorLine2.Size = new System.Drawing.Size(539, 10);
+            this.SeperatorLine2.StretchToFitForm = true;
+            this.SeperatorLine2.TabIndex = 21;
+            this.SeperatorLine2.Tag = "True";
+            this.SeperatorLine2.Text = "---------------------------------------------------------------------------------" +
+    "----------------------------------------------";
+            // 
+            // VersionLabel
+            // 
+            this.VersionLabel.Font = new System.Drawing.Font("Segoe UI", 6.5F);
+            this.VersionLabel.ForeColor = System.Drawing.Color.Gold;
+            this.VersionLabel.IsSeparatorLine = false;
+            this.VersionLabel.Location = new System.Drawing.Point(214, 3);
+            this.VersionLabel.Name = "VersionLabel";
+            this.VersionLabel.Size = new System.Drawing.Size(58, 13);
+            this.VersionLabel.StretchToFitForm = false;
+            this.VersionLabel.TabIndex = 18;
+            this.VersionLabel.Text = "Ver.";
+            this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // scriptStatusLabel
+            // 
+            this.scriptStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.scriptStatusLabel.ForeColor = System.Drawing.Color.Gold;
+            this.scriptStatusLabel.IsSeparatorLine = false;
+            this.scriptStatusLabel.Location = new System.Drawing.Point(4, 75);
+            this.scriptStatusLabel.Name = "scriptStatusLabel";
+            this.scriptStatusLabel.Size = new System.Drawing.Size(877, 23);
+            this.scriptStatusLabel.StretchToFitForm = false;
+            this.scriptStatusLabel.TabIndex = 0;
+            this.scriptStatusLabel.Text = "Status: [Inactive]";
+            // 
             // Main
             // 
-            this.Controls.Add(BinFileBrowseBtn);
-            this.Controls.Add(propertiesWindow);
-            this.Controls.Add(scriptStatusLabel);
-            this.Controls.Add(ExitBtn);
-            this.Controls.Add(MinimizeBtn);
-            this.Controls.Add(abortOrCloseBtn);
-            this.Controls.Add(ReloadScriptBtn);
-            this.Controls.Add(label1);
-            this.Controls.Add(VersionLabel);
-            this.Controls.Add(propertiesPanel);
-            this.Controls.Add(scriptSelectionLabel);
-            this.Controls.Add(SeperatorLine2);
-            this.Controls.Add(label3);
-            this.Controls.Add(dummy0);
-            this.Controls.Add(dummy1);
-            this.Controls.Add(label2);
-            this.Controls.Add(debugPanelBtn);
-            this.Controls.Add(logWindow);
-            this.Controls.Add(label4);
-            this.Controls.Add(SidBaseBrowseBtn);
-            this.Controls.Add(label6);
-            this.Controls.Add(label5);
-            this.Controls.Add(button1);
-            this.Controls.Add(button2);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(888, 626);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.SidBaseBrowseBtn);
+            this.Controls.Add(this.abortOrCloseBtn);
+            this.Controls.Add(this.ReloadScriptBtn);
+            this.Controls.Add(this.BinFileBrowseBtn);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.logWindow);
+            this.Controls.Add(this.debugPanelBtn);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.dummy1);
+            this.Controls.Add(this.dummy0);
+            this.Controls.Add(this.optionsMenuDropdownBtn);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.propertiesWindow);
+            this.Controls.Add(this.scriptSelectionLabel);
+            this.Controls.Add(this.SeperatorLine2);
+            this.Controls.Add(this.propertiesPanel);
+            this.Controls.Add(this.VersionLabel);
+            this.Controls.Add(this.ExitBtn);
+            this.Controls.Add(this.MinimizeBtn);
+            this.Controls.Add(this.scriptStatusLabel);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Main";
@@ -280,7 +429,6 @@ namespace weapon_data
         public Button[] DropdownMenu = new Button[2];
         private Button BinFileBrowseBtn;
         private RichTextBox propertiesWindow;
-        public Button optionsMenuDropdownBtn;
         private Label scriptStatusLabel;
         private Button ExitBtn;
         private Button MinimizeBtn;
@@ -304,6 +452,7 @@ namespace weapon_data
         private Label label5;
         private Button button1;
         private Button button2;
+        public Button optionsMenuDropdownBtn;
     }
 }
 
