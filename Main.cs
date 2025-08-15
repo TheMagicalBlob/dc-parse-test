@@ -182,7 +182,7 @@ namespace weapon_data
                 LoadBinFile(ActiveFilePath);
             }
             else {
-                UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", string.Empty, string.Empty });
+                UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", emptyStr, emptyStr });
             }
         }
         
@@ -269,7 +269,7 @@ namespace weapon_data
                 //## Setup Form
                 //#
                 echo("\nFinished!");
-                StatusLabelMammet(new[] { "Finished Loading dc File", string.Empty, string.Empty });
+                StatusLabelMammet(new[] { "Finished Loading dc File", emptyStr, emptyStr });
 
                 ReloadButtonMammet(true);
                 AbortButtonMammet(1);
@@ -280,10 +280,10 @@ namespace weapon_data
             // File in 
             catch (IOException) {
                 echo($"\nERROR: Selected File is Being Used by Another Process.");
-                StatusLabelMammet(new[] { "Error Loading dc File!!!", string.Empty, string.Empty });
+                StatusLabelMammet(new[] { "Error Loading dc File!!!", emptyStr, emptyStr });
             }
             catch (ThreadAbortException) {
-                StatusLabelMammet(new[] { "DC Parse Aborted", string.Empty, string.Empty });
+                StatusLabelMammet(new[] { "DC Parse Aborted", emptyStr, emptyStr });
             }
             # if !DEBUG
             catch (Exception fuck) {

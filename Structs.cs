@@ -85,7 +85,7 @@ namespace weapon_data
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
 
 
-                StatusLabelMammet(new[] { "Reading Script...", string.Empty, string.Empty });
+                StatusLabelMammet(new[] { "Reading Script...", emptyStr, emptyStr });
                 
 
 
@@ -214,7 +214,7 @@ namespace weapon_data
                 }
                 echo($"  # Finished Parsing All Map Structures.");
 
-                StatusLabelMammet(new[] { null, null, string.Empty });
+                StatusLabelMammet(new[] { null, null, emptyStr });
             }
 
             
@@ -292,7 +292,7 @@ namespace weapon_data
                     symbols.Add(new[] { DecodeSIDHash(hashes.Last()[0]), DecodeSIDHash(hashes.Last()[1]) });
                 }
                 echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
-                StatusLabelMammet(new[] { null, null, string.Empty });
+                StatusLabelMammet(new[] { null, null, emptyStr });
 
                 Symbols = symbols.ToArray();
                 Hashes = hashes.ToArray();
@@ -1102,7 +1102,7 @@ namespace weapon_data
                 this.Name = Name;
                 this.Address = Address;
 
-                Message = $"Unknown Structure \"{Type.DecodedID}\"\n    Name: {Name.DecodedID}\n    Address: 0x{Address.ToString("X").PadLeft(8, '0')}";
+                Message = $"Unknown Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
             }
 
             public SID Name { get; set; }
@@ -1183,7 +1183,7 @@ namespace weapon_data
             public SID(byte[] EncodedSIDArray)
             {
                 DecodedID = DecodeSIDHash(EncodedSIDArray);
-                EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
+                EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
                 RawID = (KnownSIDs) BitConverter.ToUInt64(EncodedSIDArray, 0);
 
                 Venat?.DecodedSIDs.Add(this);
@@ -1199,7 +1199,7 @@ namespace weapon_data
             public SID(string decodedSID, byte[] encodedSID)
             {
                 DecodedID = decodedSID;
-                EncodedID = BitConverter.ToString(encodedSID).Replace("-", string.Empty);
+                EncodedID = BitConverter.ToString(encodedSID).Replace("-", emptyStr);
                 RawID = (KnownSIDs) BitConverter.ToUInt64(encodedSID, 0);
 
                 Venat?.DecodedSIDs.Add(this);

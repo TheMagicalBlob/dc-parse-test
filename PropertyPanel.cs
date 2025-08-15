@@ -47,6 +47,7 @@ namespace weapon_data
         private List<Button> SubItemButtons;
 
 
+
         private Button HeaderSelection
         {
             get => _headerSelection;
@@ -79,6 +80,7 @@ namespace weapon_data
 
 
 
+
         private int IndentationDepth
         {
             get {
@@ -94,11 +96,25 @@ namespace weapon_data
             }
         }
 
-        private string Indentation = string.Empty;
+        private string Indentation = emptyStr;
 
 
 
         
+        private readonly Type[] NumericalTypes = new []
+        {
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+            typeof(byte),
+            typeof(sbyte),
+        };
+
+
+        
+
+
         //#
         //## Threading-Related Variables (threads, delegates, and mammets)
         //#
@@ -166,7 +182,7 @@ namespace weapon_data
         public void PrintPropertyDetailSpL(object message = null, int line = 0)
         {
             if (message == null)
-                message = string.Empty;
+                message = emptyStr;
 
 #if DEBUG
             // Debug Output
@@ -185,7 +201,7 @@ namespace weapon_data
         }
         private void _printPropertyDetailSpL(string message, int line = 0)
         {
-            PropertiesWindow.UpdateLine(Indentation + message, line);
+            PropertiesWindow.UpdateLine(Indentation + message.Replace("\n", "\n" + Indentation), line);
             PropertiesWindow.Update();
         }
        
@@ -218,7 +234,7 @@ namespace weapon_data
         private void _printPropertyDetailSL(string message, int _ = 0)
         {
             //! This is a bit of a lazy way of maintaining the indent...
-            PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message, PropertiesWindow.Lines.Length - 1);
+            PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
             PropertiesWindow.Update();
         }
 
@@ -231,7 +247,7 @@ namespace weapon_data
         public void PrintPropertyDetailNL(object message = null, int indentationOverride = 0)
         {
             if (message == null)
-                message = string.Empty;
+                message = emptyStr;
 
 #if DEBUG
             // Debug Output
@@ -249,9 +265,9 @@ namespace weapon_data
             }
         }
 
-        private void _printPropertyDetailNL(string args, int _ = 0)
+        private void _printPropertyDetailNL(string message, int _ = 0)
         {
-            PropertiesWindow.AppendLine(args, false);
+            PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation), false);
             PropertiesWindow.Update();
         }
 
@@ -270,7 +286,7 @@ namespace weapon_data
         /// <returns> The provided <paramref name="name">, now spaced out rather than camel/pascal-case. </returns>
         private string SpaceOutStructName(string name)
         {
-            var str = string.Empty;
+            var str = emptyStr;
 
             for (var i = 0; i < name.Length; i++) {
 
@@ -293,15 +309,6 @@ namespace weapon_data
         }
 
 
-        private Type[] beep = new []
-        {
-            typeof(int),
-            typeof(uint),
-            typeof(long),
-            typeof(ulong),
-            typeof(byte),
-            typeof(sbyte),
-        };
 
 
         /// <summary>
@@ -323,7 +330,7 @@ namespace weapon_data
             switch (value.GetType())
             {
                 // ## Basic Numerical Values
-                case var val when val == typeof(long) || val == typeof(ulong) || val == typeof(byte):
+                case var val when NumericalTypes.Contains(val):
                     return $"0x{value:X}";
 
                 // ## Booleans
@@ -352,7 +359,7 @@ namespace weapon_data
 
                 // ## Arrays
                 case var type when type.ToString().Contains("[]"):
-                    var str = $"{type}: {{\n";
+                    var str = $"{type.ToString().Replace("System.", emptyStr)}: {{\n";
                     foreach (var item in (Array) value)
                     {
                         str += $"        {FormatPropertyValue(item, 1)},\n";
@@ -364,7 +371,7 @@ namespace weapon_data
 
                 // ## Unknown Struct
                 case var type when type == typeof(UnknownStruct):
-                    return $"{((UnknownStruct)value).Message.Replace("\n", "\n" + new string(' ', IndentationDepth * 8))}";
+                    return $"{((UnknownStruct)value).Message.Replace("\n", "\n        ")}";
 
 
                 default: return value.ToString();

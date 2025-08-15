@@ -735,7 +735,7 @@ namespace weapon_data
             # if DEBUG
             string str;
 
-            Console.WriteLine(str = message?.ToString() ?? string.Empty);
+            Console.WriteLine(str = message?.ToString() ?? emptyStr);
 
             if (!Console.IsInputRedirected)
             {
@@ -852,7 +852,7 @@ namespace weapon_data
         {            
             if (EncodedSIDArray.Length == 8)
             {
-                var encodedSIDString = BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
+                var encodedSIDString = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
 
                 for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < SIDBaseTableLength; subArrayIndex = 0, mainArrayIndex+=8)
                 {
@@ -884,7 +884,7 @@ namespace weapon_data
 
 
                     // Parse and add the string to the array
-                    var stringBuffer = string.Empty;
+                    var stringBuffer = emptyStr;
 
                     while (SIDBase[stringPtr] != 0)
                     {
@@ -895,7 +895,7 @@ namespace weapon_data
                     return stringBuffer;
                 }
                 
-                return "0x" + BitConverter.ToString(EncodedSIDArray).Replace("-", string.Empty);
+                return "0x" + BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
             }
 
             // Invalid Length for encoded id array
@@ -940,7 +940,7 @@ namespace weapon_data
         /// </param>
         public static void StatusLabelMammet(string[] details = null)
         {
-            Venat?.Invoke(Venat.statusLabelMammet, new [] { details ?? new[] { string.Empty, string.Empty, string.Empty } });
+            Venat?.Invoke(Venat.statusLabelMammet, new [] { details ?? new[] { emptyStr, emptyStr, emptyStr } });
         }
 
 
@@ -952,7 +952,7 @@ namespace weapon_data
         /// <br/> 
         public static void SelectionLabelMammet(string[] details = null)
         {
-            Venat?.Invoke(Venat.selectionLabelMammet, new [] { details ?? new[] { string.Empty, string.Empty, string.Empty } });
+            Venat?.Invoke(Venat.selectionLabelMammet, new [] { details ?? new[] { emptyStr, emptyStr, emptyStr } });
         }
         #endregion [mammet shorthand functions]
 
