@@ -1,7 +1,7 @@
-﻿namespace weapon_data
+﻿namespace NaughtyDogDCReader
 {
     public partial class Main
     {
-        public const string Version = "0.108.518 "
+        public const string Version = "0.113.531 "
    ;}
 }

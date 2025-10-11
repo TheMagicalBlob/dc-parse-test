@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading.Tasks;
-using static weapon_data.Main;
+using static NaughtyDogDCReader.Main;
 using System.Drawing;
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     public partial class DebugPanel : Form
     {

@@ -52,6 +52,9 @@
     <Compile Include="DebugPanel.Designer.cs">
       <DependentUpon>DebugPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="extentions.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PropertyPanel.cs" />
     <Compile Include="Structs.cs">
       <SubType>Form</SubType>

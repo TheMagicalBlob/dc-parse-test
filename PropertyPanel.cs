@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using static weapon_data.Main;
+using static NaughtyDogDCReader.Main;
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     public class PropertiesHandler
     {

@@ -5,10 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Security.Policy;
 using System.Xml.Linq;
-using static weapon_data.Main;
+using static NaughtyDogDCReader.Main;
 
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     public partial class Main
     {
@@ -71,6 +71,7 @@ namespace weapon_data
                 //#
                 BinFileLength = BitConverter.ToInt64(binFile, 0x8);
                 TableLength = BitConverter.ToInt32(binFile, 0x14);
+
                 Entries = new DCHeaderItem[TableLength];
 
 
@@ -80,17 +81,12 @@ namespace weapon_data
     #if false
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
     #endif
-
-
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-
-
                 StatusLabelMammet(new[] { "Reading Script...", emptyStr, emptyStr });
                 
-
-
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
+                    StatusLabelMammet(new[] { null, null, $"Header Item: {tableIndex} / {TableLength}..." });
                     Entries[tableIndex] = new DCHeaderItem(binFile, addr);
                 }
             
@@ -124,7 +120,7 @@ namespace weapon_data
                 Address = address;
                 Name = new SID(GetSubArray(binFile, address));
                 Type = new SID(GetSubArray(binFile, address + 8));
-
+                
                 StructAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
                 Struct = null;
@@ -255,7 +251,7 @@ namespace weapon_data
                     var dat = GetSubArray(binFile, (int)arrayAddr);
 
                     Hashes.Add(BitConverter.ToInt64(dat, 0));
-                    Symbols.Add(DecodeSIDHash(dat));
+                    Symbols.Add(SIDBase.DecodeSIDHash(dat));
                 }
             }
 
@@ -289,7 +285,7 @@ namespace weapon_data
                     StatusLabelMammet(new[] { null, null, $"Ammo-to-Weapon Entry: {i} / {arrayLen - 1}" });
 
                     hashes.Add(new[] { GetSubArray(binFile, (int)arrayAddr + 8), GetSubArray(binFile, (int)arrayAddr) });
-                    symbols.Add(new[] { DecodeSIDHash(hashes.Last()[0]), DecodeSIDHash(hashes.Last()[1]) });
+                    symbols.Add(new[] { SIDBase.DecodeSIDHash(hashes.Last()[0]), SIDBase.DecodeSIDHash(hashes.Last()[1]) });
                 }
                 echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
                 StatusLabelMammet(new[] { null, null, emptyStr });
@@ -1182,15 +1178,17 @@ namespace weapon_data
         {
             public SID(byte[] EncodedSIDArray)
             {
-                DecodedID = DecodeSIDHash(EncodedSIDArray);
+                DecodedID = SIDBase.DecodeSIDHash(EncodedSIDArray);
                 EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
                 RawID = (KnownSIDs) BitConverter.ToUInt64(EncodedSIDArray, 0);
 
                 Venat?.DecodedSIDs.Add(this);
+
+                echo($"new sid \"{DecodedID}\"");
             }
             public SID(ulong EncodedSID)
             {
-                DecodedID = DecodeSIDHash(EncodedSID);
+                DecodedID = SIDBase.DecodeSIDHash(EncodedSID);
                 EncodedID = EncodedSID.ToString("X");
                 RawID = (KnownSIDs) EncodedSID;
 
@@ -1213,7 +1211,7 @@ namespace weapon_data
                 Venat?.DecodedSIDs.Add(this);
             }
 
-            public static SID Empty = new SID("unnamed", 0x5FE267C3F96ADB8C);
+            public static readonly SID Empty = new SID("unnamed", 0x5FE267C3F96ADB8C);
 
 
             /// <summary> The decoded string id. </summary>

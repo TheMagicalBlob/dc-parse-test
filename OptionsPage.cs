@@ -3,10 +3,10 @@ using System.IO;
 using System.Drawing;
 using System.Net.Http;
 using System.Windows.Forms;
-using static weapon_data.Main;
+using static NaughtyDogDCReader.Main;
 
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     public partial class OptionsPage : Form
     {
@@ -17,9 +17,9 @@ namespace weapon_data
 
             sidbasePathTextBox.TextChanged += (sender, _) =>
             {
-                if (File.Exists(((TextBox)sender).Text))
+                if (File.Exists(((TextBox) sender).Text))
                 {
-                    SIDBase = File.ReadAllBytes(((TextBox)sender).Text);
+                    Main.SIDBase = new SIDBase(((TextBox) sender).Text);
                 }
             };
 
@@ -32,7 +32,7 @@ namespace weapon_data
         //======================================\\
         #region [Event Handler Declarations]
 
-        private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e) => ShowUnresolvedSIDs = ((CheckBox)sender).Checked;
+        private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e) => ShowUnresolvedSIDs = ((CheckBox) sender).Checked;
 
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace weapon_data
                         HttpResponseMessage reply;
                         client.DefaultRequestHeaders.Add("User-Agent", "Other"); // Set request headers to avoid error 403
                    
-                        if ((reply = await client.GetAsync($"https://api.github.com/repos/TheMagicalBlob/{nameof(weapon_data)}/tags")).IsSuccessStatusCode)
+                        if ((reply = await client.GetAsync($"https://api.github.com/repos/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/tags")).IsSuccessStatusCode)
                         {
                             var message = reply.Content.ReadAsStringAsync().Result;
                             var tag = message.Remove(message.IndexOf(',') - 1).Substring(message.IndexOf(':') + 2);
@@ -71,7 +71,7 @@ namespace weapon_data
                                         echo("Application Up-to-Date");
                                     }
                                     else
-                                        echo($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/releases");
+                                        echo($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/releases");
                                     return;
                                 }
 
@@ -103,7 +103,7 @@ namespace weapon_data
         // Prompt user to open their default browser and download the latest source code
         private void DownloadSourceBtn_Click(object sender, EventArgs e)
         {
-            echo($"Download Latest Source: https://github.com/TheMagicalBlob/{nameof(weapon_data)}/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
+            echo($"Download Latest Source: https://github.com/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
             
             if (MessageBox.Show(
                     "Download the latest source code through this system's default browser?\n\n(Download Will Start Automatically)",
@@ -113,7 +113,7 @@ namespace weapon_data
                 ) 
                 == DialogResult.Yes)
             {
-                System.Diagnostics.Process.Start($"https://github.com/TheMagicalBlob/{nameof(weapon_data)}/archive/refs/heads/master.zip");
+                System.Diagnostics.Process.Start($"https://github.com/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/archive/refs/heads/master.zip");
             }
             else Azem.BringToFront();
         }

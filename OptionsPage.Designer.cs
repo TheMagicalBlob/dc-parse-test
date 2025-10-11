@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     partial class OptionsPage
     {
@@ -30,19 +30,19 @@ namespace weapon_data
         /// </summary>
         private void InitializeComponent()
         {
-            this.Title = new weapon_data.Label();
+            this.Title = new NaughtyDogDCReader.Label();
             this.CloseBtn = new System.Windows.Forms.Button();
             this.SidbasePathBrowseBtn = new System.Windows.Forms.Button();
             this.UnusedBrowseBtn = new System.Windows.Forms.Button();
             this.ShowUnresolvedSIDsCheckBox = new System.Windows.Forms.CheckBox();
             this.dummy = new System.Windows.Forms.Button();
-            this.SeperatorLine1 = new weapon_data.Label();
+            this.SeperatorLine1 = new NaughtyDogDCReader.Label();
             this.DownloadSourceBtn = new System.Windows.Forms.Button();
-            this.Title2 = new weapon_data.Label();
-            this.CreditsLabel = new weapon_data.Label();
-            this.sidbasePathTextBox = new weapon_data.TextBox();
-            this.UnusedPathTextBox = new weapon_data.TextBox();
-            this.SeperatorLine0 = new weapon_data.Label();
+            this.Title2 = new NaughtyDogDCReader.Label();
+            this.CreditsLabel = new NaughtyDogDCReader.Label();
+            this.sidbasePathTextBox = new NaughtyDogDCReader.TextBox();
+            this.UnusedPathTextBox = new NaughtyDogDCReader.TextBox();
+            this.SeperatorLine0 = new NaughtyDogDCReader.Label();
             this.SuspendLayout();
             // 
             // Title

@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 using System.Linq;
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     partial class Main
     {
@@ -46,18 +46,18 @@ namespace weapon_data
             this.SidBaseBrowseBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.label5 = new weapon_data.Label();
-            this.label6 = new weapon_data.Label();
-            this.label4 = new weapon_data.Label();
-            this.logWindow = new weapon_data.RichTextBox();
-            this.label1 = new weapon_data.Label();
-            this.label2 = new weapon_data.Label();
-            this.label3 = new weapon_data.Label();
-            this.propertiesWindow = new weapon_data.RichTextBox();
-            this.scriptSelectionLabel = new weapon_data.Label();
-            this.SeperatorLine2 = new weapon_data.Label();
-            this.VersionLabel = new weapon_data.Label();
-            this.scriptStatusLabel = new weapon_data.Label();
+            this.label5 = new NaughtyDogDCReader.Label();
+            this.label6 = new NaughtyDogDCReader.Label();
+            this.label4 = new NaughtyDogDCReader.Label();
+            this.logWindow = new NaughtyDogDCReader.RichTextBox();
+            this.label1 = new NaughtyDogDCReader.Label();
+            this.label2 = new NaughtyDogDCReader.Label();
+            this.label3 = new NaughtyDogDCReader.Label();
+            this.propertiesWindow = new NaughtyDogDCReader.RichTextBox();
+            this.scriptSelectionLabel = new NaughtyDogDCReader.Label();
+            this.SeperatorLine2 = new NaughtyDogDCReader.Label();
+            this.VersionLabel = new NaughtyDogDCReader.Label();
+            this.scriptStatusLabel = new NaughtyDogDCReader.Label();
             this.SuspendLayout();
             // 
             // BinFileBrowseBtn

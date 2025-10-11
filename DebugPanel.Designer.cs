@@ -2,9 +2,9 @@
 using System.Drawing;
 using System;
 using System.Windows.Forms;
-using static weapon_data.Main;
+using static NaughtyDogDCReader.Main;
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     partial class DebugPanel
     {
@@ -38,9 +38,9 @@ namespace weapon_data
             this.dummy = new System.Windows.Forms.Button();
             this.debugTabCheckBtn = new System.Windows.Forms.Button();
             this.debugDisableLinesBtn = new System.Windows.Forms.CheckBox();
-            this.label1 = new weapon_data.Label();
-            this.label2 = new weapon_data.Label();
-            this.Title = new weapon_data.Label();
+            this.label1 = new NaughtyDogDCReader.Label();
+            this.label2 = new NaughtyDogDCReader.Label();
+            this.Title = new NaughtyDogDCReader.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.debugShowInvalidSIDsCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
@@ -206,14 +206,14 @@ namespace weapon_data
 
                 
                 // Apply the seperator drawing function to any seperator lines
-                if (item.GetType() == typeof(weapon_data.Label) && ((weapon_data.Label)item).IsSeparatorLine)
+                if (item.GetType() == typeof(NaughtyDogDCReader.Label) && ((NaughtyDogDCReader.Label)item).IsSeparatorLine)
                 {
                     if (item.Size.Width > item.Size.Height)
                     {
                         // Horizontal Lines
                         hSeparatorLines.Add(new Point[2] { 
-                            new Point(((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7),
-                            new Point(((weapon_data.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7)
+                            new Point(((NaughtyDogDCReader.Label)item).StretchToFitForm ? 1 : item.Location.X, item.Location.Y + 7),
+                            new Point(((NaughtyDogDCReader.Label)item).StretchToFitForm ? item.Parent.Width - 2 : item.Location.X + item.Width, item.Location.Y + 7)
                         });
 
                         Controls.Remove(item);
@@ -221,8 +221,8 @@ namespace weapon_data
                     else {
                         // Vertical Lines
                         vSeparatorLines.Add(new [] {
-                            new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? 1 : item.Location.Y),
-                            new Point(item.Location.X + 3, ((weapon_data.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height)
+                            new Point(item.Location.X + 3, ((NaughtyDogDCReader.Label)item).StretchToFitForm ? 1 : item.Location.Y),
+                            new Point(item.Location.X + 3, ((NaughtyDogDCReader.Label)item).StretchToFitForm ? item.Parent.Height - 2 : item.Height)
                         });
 
                         Controls.Remove(item);
@@ -243,7 +243,7 @@ namespace weapon_data
                 });
                 
                 // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)
-                if (item.GetType() != typeof(weapon_data.TextBox) && item.GetType() != typeof(weapon_data.RichTextBox))
+                if (item.GetType() != typeof(NaughtyDogDCReader.TextBox) && item.GetType() != typeof(NaughtyDogDCReader.RichTextBox))
                 {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
                 }

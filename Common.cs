@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace weapon_data
+namespace NaughtyDogDCReader
 {
     public partial class Main
     {
@@ -22,40 +24,8 @@ namespace weapon_data
         //## Script Parsing Globals
         //#
 
-        /// <summary>
-        /// An array of bytes containing the entire provided sidbase.bin file.<br/>
-        /// Used for decoding any read SID's that haven't already been decoded and chached.
-        /// </summary>
-        public static byte[] SIDBase
-        {
-            get => _sidbase;
 
-            set {
-                _sidbase = value;
-
-                if (value.Length > 0x19)
-                {
-                    SIDBaseTableLength = BitConverter.ToInt64(SIDBase, 0) * 16;
-                }
-                else
-                {
-                    //! Implement an error, since the file would obviously be corrupted.
-#if DEBUG
-                    echo("ERROR: Invalid length for sidbase.bin (< 0x19- is it corrupted?)");
-#else
-                    MessageBox.Show("ERROR: Invalid length for sidbase.bin (< 0x19- is it corrupted?)", "The provided sidbase was unable to be loaded.");
-#endif
-                }
-            }
-        }
-        private static byte[] _sidbase;
-
-        /// <summary>
-        /// The length (in bytes) of the sidbase.bin's lookup table (relative to the first entry), read from the first 8 bytes in the file.
-        /// </summary>
-        public static long SIDBaseTableLength;
-
-        
+        public static SIDBase SIDBase;
 
         /// <summary>
         /// An array of bytes containing the entire provided DC .bin file. <br/>
@@ -65,14 +35,40 @@ namespace weapon_data
             get => _dcFile;
 
             set {
-                _dcFile = value == Array.Empty<byte>() ? null : value; // array.empty for intentional resets of the array, just avoid oops
+                if (value == null)
+                {
+                    #if !DEBUG
+                    MessageBox.Show($"Null array provided for DC file.");
+                    value = Array.Empty<byte>();
+                    #else
+                    throw new InvalidDataException("Null array provided for DC file.");
+                    #endif
+                }
+                else if (value.Length < 0x2D) {
+                    #if !DEBUG
+                    MessageBox.Show($"ERROR: provided dc file was too small to be valid (0x{value.Length:X}).");
+                    value = Array.Empty<byte>();
+                    #else
+                    throw new InvalidDataException($"Provided dc file was too small to be valid (0x{value.Length:X}).");
+                    #endif
+                }
 
-                if (value?.Length > 0x2C)
+                // Array.Empty for intentional resets of the array, until this app is actually functional and I can rely on my shit code lol
+                if (value == Array.Empty<byte>())
+                {
+                    _dcFile = null;
+                    DCFileMainDataLength = 0;
+                    return;
+                }
+
+
+
+                // Actually go brr if all's well
+                _dcFile = value;
+
+                if (value.Length > 0x2C)
                 {
                     DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
-                }
-                else if ((value ?? null) != Array.Empty<byte>()) {
-                    //! Implement an error, since the file would obviously be corrupted.
                 }
             }
         }
@@ -111,10 +107,10 @@ namespace weapon_data
         //## Form Functionality Globals
         //#
         /// <summary> Return the current state of the options page. </summary>
-        public static bool OptionsPageIsOpen { get => Azem?.Visible ?? false; }
+        public static bool OptionsPageIsOpen => Azem?.Visible ?? false;
 
         #if DEBUG
-        public static bool DebugPanelIsOpen { get => Bingus?.Visible ?? false; }
+        public static bool DebugPanelIsOpen => Bingus?.Visible ?? false;
         #endif
 
         /// <summary> If true, show the string representation of the raw SID's instead of UNKNOWN_SID_64 when an id can not be decoded. </summary>
@@ -176,22 +172,7 @@ namespace weapon_data
         /// <summary>
         /// The absolute path to the provided DC file.
         /// </summary>
-        public static string ActiveFilePath
-        {
-            get => _activeFilePath;
-
-            set {
-                _activeFilePath = value ?? "null";
-
-                if (System.IO.File.Exists(ActiveFilePath))
-                {
-                    Venat?.LoadBinFile(ActiveFilePath);
-
-                    ActiveFileName = value.Substring(value.LastIndexOf('\\') + 1);
-                }
-            }
-        }
-        private static string _activeFilePath = "No Script Selected";
+        public static string ActiveFilePath = "No Script Selected";
 
 
 
@@ -357,19 +338,30 @@ namespace weapon_data
 
         
 
-        private binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
+        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
         {
             StatusDetails = details;
         });
+        
+        private readonly binThreadLabelWand statusLabelResetMammet = new binThreadLabelWand((details) =>
+        {
+            StatusDetails = Array.Empty<string>();
+        });
 
-        private binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
+
+        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
         {
             SelectionDetails = details;
+        });
+        
+        private readonly binThreadLabelWand selectionLabelResetMammet = new binThreadLabelWand((details) =>
+        {
+            SelectionDetails = Array.Empty<string>();
         });
 
 
 
-        private binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
+        private readonly binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
             if (args == null || args.Length < 1 || AbortOrCloseBtn == null)
             {
@@ -426,14 +418,14 @@ namespace weapon_data
         public static Color AppColour = Color.FromArgb(125, 183, 245);
         public static Color AppColourLight = Color.FromArgb(210, 240, 250);
 
-        public static Pen pen = new Pen(AppColourLight); // Colouring for Border Drawing
+        public static Pen FormDecorationPen = new Pen(AppColourLight); // Colouring for Border Drawing
 
         public static readonly Font MainFont        = new Font("Gadugi", 8.25f, FontStyle.Bold); // For the vast majority of controls; anything the user doesn't edit, really.
         public static readonly Font TextFont        = new Font("Segoe UI Semibold", 9f); // For option controls with customized contents
         public static readonly Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
 
-        /// <summary> Disable drawing of form border/separator lines </summary>
         #if DEBUG
+        /// <summary> Disable drawing of form border/separator lines </summary>
         public static bool noDraw;
         #endif
         #endregion
@@ -441,6 +433,7 @@ namespace weapon_data
         
 
         
+
 
 
 
@@ -508,17 +501,18 @@ namespace weapon_data
             //## Draw Vertical Lines
             foreach (var line in (venat as dynamic).VSeparatorLines ?? Array.Empty<Point[]>())
             {
-                yoshiP?.Graphics.DrawLine(pen, line[0], line[1]);
+                yoshiP?.Graphics.DrawLine(FormDecorationPen, line[0], line[1]);
             }
 
             //## Draw Horizontal Lines
             foreach (var line in (venat as dynamic).HSeparatorLines ?? Array.Empty<Point[]>())
             {
-                yoshiP?.Graphics.DrawLine(pen, line[0], line[1]);
+                yoshiP?.Graphics.DrawLine(FormDecorationPen, line[0], line[1]);
             }
 
             // Draw a thin (1 pixel) border around the form with the current Pen
-            yoshiP?.Graphics.DrawLines(pen, new [] {
+            yoshiP?.Graphics.DrawLines(FormDecorationPen, new []
+            {
                 Point.Empty,
                 new Point(venat.Width-1, 0),
                 new Point(venat.Width-1, venat.Height-1),
@@ -536,12 +530,14 @@ namespace weapon_data
         public void InitializeAdditionalEventHandlers_Main(Main Venat)
         {
             var controls = Venat.Controls.Cast<Control>().ToArray();
+
             var hSeparatorLineScanner = new List<Point[]>();
             var vSeparatorLineScanner = new List<Point[]>();
 
 
+
             // Apply the seperator drawing function to any seperator lines
-            foreach (var line in controls.OfType<weapon_data.Label>())
+            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
             {
                 if (line.IsSeparatorLine)
                 {
@@ -549,8 +545,8 @@ namespace weapon_data
                     {
                         // Horizontal Lines
                         hSeparatorLineScanner.Add(new Point[2] { 
-                            new Point(((weapon_data.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-                            new Point(((weapon_data.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                            new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+                            new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
                         });
 
                         Controls.Remove(line);
@@ -558,8 +554,8 @@ namespace weapon_data
                     else {
                         // Vertical Lines (the + 3 is to center the line with the displayed lines in the editor)
                         vSeparatorLineScanner.Add(new [] {
-                            new Point(line.Location.X + 3, ((weapon_data.Label)line).StretchToFitForm ? 1 : line.Location.Y),
-                            new Point(line.Location.X + 3, ((weapon_data.Label)line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
+                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.Y),
+                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
                         });
 
                         Controls.Remove(line);
@@ -599,7 +595,7 @@ namespace weapon_data
                 
 
                 // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)
-                if (item.GetType() == typeof(weapon_data.TextBox) || item.GetType() == typeof(weapon_data.RichTextBox))
+                if (item.GetType() == typeof(NaughtyDogDCReader.TextBox) || item.GetType() == typeof(NaughtyDogDCReader.RichTextBox))
                 {
                     item.KeyDown += (sender, arg) =>
                     {
@@ -799,10 +795,25 @@ namespace weapon_data
 
 
         //#
-        //## Miscellaneous Functions
+        //## Miscellaneous/General App Functions
         //#
-        #region [Miscellaneous Functions]
+        #region [Miscellaneous/General App Functions]
         
+        private static void LoadBinFile(string DCFilePath)
+        {
+            if (File.Exists(DCFilePath))
+            {
+                ActiveFilePath = DCFilePath;
+                ActiveFileName = DCFilePath.Substring(DCFilePath.LastIndexOf('\\') + 1);
+
+                Venat?.StartBinParseThread();
+            }
+            else {
+                MessageBox.Show("Invalid path provided for dc file! Doing nothing instead. :)", "How did you even manage that?");
+            }
+        }
+
+
         /// <summary>
         /// (//! Ideally...) Reset the GUI and all relevant globals to their original states.
         /// </summary>
@@ -828,85 +839,21 @@ namespace weapon_data
 
 
         /// <summary>
-        /// Use the Buffer class to copy and return a smaller sub-array from a provided <paramref name="array"/>.
+        /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="index"/> specified.
         /// </summary>
-        /// <param name="array"> The larger array from which to take the sub-array returned. </param>
-        /// <param name="index"> The start index in <paramref name="array"/> from which the copying starts. </param>
-        /// <param name="len"> The length of the sub-array to be returned. Defaults to 8 bytes. </param>
-        /// <returns> A byte array of 8 bytes (or an optional different length) copied from the specified <paramref name="index"/> in <paramref name="array"/>. </returns>
-        public static byte[] GetSubArray(byte[] array, int index, int len = 8)
+        /// <param name="array"> The array from which to take the sub-array. </param>
+        /// <param name="index"> The start index of the sub-array within <paramref name="array"/>. </param>
+        /// <param name="length"> The length of the sub-array. </param>
+        /// <returns> What the hell do you think. </returns>
+        private static byte[] GetSubArray(byte[] array, int index, int length = 8)
         {
-            var ret = new byte[8];
-            Buffer.BlockCopy(array, index, ret, 0, len);
+            var ret = new byte[length];
 
+            for (; length > 0; ret[length - 1] = array[index + (length-- - 1)]);
             return ret;
         }
 
-
-        /// <summary>
-        /// Parse the current sidbase.bin for the string representation of the provided 64-bit fnv1a hash.
-        /// </summary>
-        /// <param name="EncodedSIDArray"> The 8-byte array of bytes to decode. </param>
-        /// <returns> Either the decoded version of the provided hash, or the string representation of said SID if it could not be decoded. </returns>
-        private static string DecodeSIDHash(byte[] EncodedSIDArray)
-        {            
-            if (EncodedSIDArray.Length == 8)
-            {
-                var encodedSIDString = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
-
-                for (long mainArrayIndex = 0, subArrayIndex = 0; mainArrayIndex < SIDBaseTableLength; subArrayIndex = 0, mainArrayIndex+=8)
-                {
-                    if (SIDBase[mainArrayIndex] != EncodedSIDArray[subArrayIndex])
-                    {
-                        continue;
-                    }
-
-
-                    // Scan for the rest of the bytes
-                    while ((subArrayIndex < 8 && mainArrayIndex < SIDBase.Length) && SIDBase[mainArrayIndex + subArrayIndex] == EncodedSIDArray[subArrayIndex]) // while (subArrayIndex < 8 && sidbase[mainArrayIndex++] == (byte)bytesToDecode[subArrayIndex++]) how the fuck does this behave differently?? I need sleep.
-                    {
-                        subArrayIndex++;
-                    }
-
-                    // continue if there was only a partial match
-                    if (subArrayIndex != 8)
-                    {
-                        continue;
-                    }
-                
-
-                    // Read the string pointer
-                    var stringPtr = BitConverter.ToInt64(SIDBase, (int)(mainArrayIndex + subArrayIndex));
-                    if (stringPtr >= SIDBase.Length)
-                    {
-                        throw new IndexOutOfRangeException($"ERROR: Invalid Pointer Read for String Data!\n    str* 0x{stringPtr:X} >= len 0x{SIDBase.Length:X}.");
-                    }
-
-
-                    // Parse and add the string to the array
-                    var stringBuffer = emptyStr;
-
-                    while (SIDBase[stringPtr] != 0)
-                    {
-                        stringBuffer += Encoding.UTF8.GetString(SIDBase, (int)stringPtr++, 1);
-                    }
-
-                
-                    return stringBuffer;
-                }
-                
-                return "0x" + BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
-            }
-
-            // Invalid Length for encoded id array
-            else {
-                echo($"Invalid SID provided; unexpected length of \"{EncodedSIDArray?.Length ?? 0}\". Must be 8 bytes.");
-                return "INVALID_SID_64";
-            }
-        }
-
-        private static string DecodeSIDHash(ulong EncodedSID) => DecodeSIDHash(BitConverter.GetBytes(EncodedSID));
-        #endregion [miscellaneous functions]
+        #endregion [miscellaneous/general app functions]
 
 
 
@@ -958,144 +905,4 @@ namespace weapon_data
 
         #endregion [Global Functions]
     }
-
-
-    
-    
-
-    //=====================================\\
-    //---|   Custom Class Extensions   |---\\
-    //=====================================\\
-    #region [Custom Class Extensions]
-
-    /// <summary>
-    /// Custom RichTextBox class because bite me.
-    /// </summary>
-    public class RichTextBox : System.Windows.Forms.RichTextBox {
-
-        /// <summary> Appends Text to The Currrent Text of A Text Box, Followed By The Standard Line Terminator.<br/>Scrolls To Keep The Newest Line In View. </summary>
-        /// <param name="str"> The String To Output. </param>
-        public void AppendLine(string str = "", bool scroll = true)
-        {
-            AppendText(str + '\n');
-            Update();
-                
-            if (scroll) {
-                ScrollToCaret();
-            }
-        }
-
-
-
-        public void UpdateLine(string newMsg, int line, bool scroll = true)
-        {
-            while (line >= Lines.Length)
-            {
-                AppendText("\n");
-            }
-
-            var lines = Lines;
-            lines[line] = newMsg ?? " ";
-
-            Lines = lines;
-            Update();
-
-            if (scroll) {
-                ScrollToCaret();
-            }
-        }
-    }
-
-    /// <summary> Custom TextBox Class to Better Handle Default TextBox Contents. </summary>
-    public class TextBox : System.Windows.Forms.TextBox
-    {
-        /// <summary> Create a new winforms TextBox control. </summary>
-        public TextBox()
-        {
-            TextChanged += SetDefaultText; // Save the first Text assignment as the DefaultText
-
-            GotFocus += (sender, args) => ReadyControl();
-            LostFocus += (sender, args) => ResetControl(false); // Reset control if nothing was entered, or the text is a portion of the default text
-        }
-
-
-
-        /// <summary>
-        /// Default Control Text to Be Displayed When "Empty".
-        /// </summary>
-        private string DefaultText;
-        public override string Text
-        {
-            get => base.Text;
-
-            set {
-                base.Text = value?.Replace("\"", string.Empty);
-            }
-        }
-
-
-
-        // Help Better Keep Track of Whether the User's Changed the Text, Because I'm a Moron.
-        public bool IsDefault() => Text == DefaultText;
-
-        /// <summary>
-        /// Yoink Default Text From First Text Assignment (Ideally right after being created).
-        /// </summary>
-        private void SetDefaultText(object _, EventArgs __)
-        {
-            DefaultText = Text;
-
-            TextChanged -= SetDefaultText;
-        }
-
-
-        private void ReadyControl()
-        {
-            if(IsDefault()) {
-                Clear();
-            }
-        }
-
-
-        public void Reset() => ResetControl(true);
-        private void ResetControl(bool forceReset)
-        {
-            if(Text.Length < 1 || DefaultText.Contains(Text) || forceReset)
-            {
-                Text = DefaultText;
-            }
-
-        }
-
-
-        /// <summary>
-        /// Set Control Text and State Properly (meh).
-        /// </summary>
-        public void Set(string text)
-        {
-            if (text != string.Empty && !DefaultText.Contains(text))
-            {   
-                Text = text;
-            }
-        }
-    }
-
-    public class Label : System.Windows.Forms.Label
-    {
-        public bool IsSeparatorLine
-        {
-            get => _isSeparatorLine;
-            set => _isSeparatorLine = value;
-        }
-        private bool _isSeparatorLine = false;
-
-
-        public bool StretchToFitForm
-        {
-            get => _stretchToFitForm & IsSeparatorLine;
-            set => _stretchToFitForm = value;
-        }
-        private bool _stretchToFitForm = false;
-    }
-    #endregion
 }
