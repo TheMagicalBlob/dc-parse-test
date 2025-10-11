@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -50,8 +48,7 @@ namespace NaughtyDogDCReader
             {
                 if (File.Exists(path))
                 {
-
-
+                    SIDBase = new SIDBase(path);
                     return true;
                 }
                 return false;
@@ -173,8 +170,6 @@ namespace NaughtyDogDCReader
 
         private void OptionsMenuDropdownBtn_Click(object sender, EventArgs e)
         {
-            return; // disabled until i've actually implemented the thing
-
             Azem.Visible ^= true;
             Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
             Azem.Update();
@@ -250,9 +245,9 @@ namespace NaughtyDogDCReader
         /// //! Write Me
         /// </summary>
         /// <param name="pathObj"> The string object containing the path to the .bin file to be parsed. </param>
-        private void ThreadedBinFileParse(object pathObj)
+        private void ThreadedBinFileParse()
         {
-            var binPath = pathObj?.ToString() ?? "null";
+            var binPath = ActiveFilePath?.ToString() ?? "null";
             
             try
             {

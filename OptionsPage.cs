@@ -15,7 +15,7 @@ namespace NaughtyDogDCReader
             InitializeAdditionalEventHandlers_OptionsPage(); // Set Event Handlers and Other Form-Related Crap
             
 
-            sidbasePathTextBox.TextChanged += (sender, _) =>
+            SidbasePathTextBox.TextChanged += (sender, _) =>
             {
                 if (File.Exists(((TextBox) sender).Text))
                 {
@@ -33,6 +33,48 @@ namespace NaughtyDogDCReader
         #region [Event Handler Declarations]
 
         private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e) => ShowUnresolvedSIDs = ((CheckBox) sender).Checked;
+
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private void BrowseForSIDBase(object sender, EventArgs e)
+        {
+            using (var fileBrowser = new OpenFileDialog
+            {
+                Title = "Select the desired sidbase.bin to use.",
+                Filter = "String ID Lookup Table|*.bin"
+            })
+            {
+                if (fileBrowser.ShowDialog() == DialogResult.OK)
+                {
+                    SidbasePathTextBox.Set(fileBrowser.FileName);
+                }
+            }
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void BrowseForDCFile(object sender, EventArgs e)
+        {
+            using (var fileBrowser = new OpenFileDialog
+            {
+                Title = "Select the desired DC file to read/edit.",
+                Filter = "Naughty Dog DC Script File|*.bin"
+            })
+            {
+                if (fileBrowser.ShowDialog() == DialogResult.OK)
+                {
+                    DCFilePathTextBox.Set(fileBrowser.FileName);
+                }
+            }
+        }
+
+
 
 
         /// <summary>
@@ -119,7 +161,7 @@ namespace NaughtyDogDCReader
         }
 
 
-        // Choose a .gp4 Output Path Through Either a FolderBrowserDialogue, or OpenFileDialogue Instance (W/ the hackey Dummy File Method.
+        
         private void UNUSEDBrowseBtn_Click(object sender, EventArgs e)
         {
             // Use the ghastly Directory Tree Dialogue to Choose A Folder
@@ -129,7 +171,7 @@ namespace NaughtyDogDCReader
                 {
                     if (ShitBrowser.ShowDialog() == DialogResult.OK)
                     {
-                        sidbasePathTextBox.Set(ShitBrowser.SelectedPath);
+                        SidbasePathTextBox.Set(ShitBrowser.SelectedPath);
                     }
                 }
             }
@@ -147,22 +189,7 @@ namespace NaughtyDogDCReader
 
                 if (CrapBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    sidbasePathTextBox.Set(CrapBrowser.FileName.Remove(CrapBrowser.FileName.LastIndexOf('\\')));
-                }
-            }
-        }
-
-
-        // Search for the Base Application Package Through an OpenFileDialogue Instance.
-        private void BasePackagePathBrowseBtn_Click(object sender, EventArgs e)
-        {
-            using (var Browser = new OpenFileDialog
-            {
-                Title = "Please Select the Base-Game Package You're Creating a Patch Package for." })
-            {
-                if (Browser.ShowDialog() == DialogResult.OK)
-                {
-                    sidbasePathTextBox.Set(Browser.FileName);
+                    SidbasePathTextBox.Set(CrapBrowser.FileName.Remove(CrapBrowser.FileName.LastIndexOf('\\')));
                 }
             }
         }

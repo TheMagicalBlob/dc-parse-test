@@ -32,16 +32,16 @@ namespace NaughtyDogDCReader
         {
             this.Title = new NaughtyDogDCReader.Label();
             this.CloseBtn = new System.Windows.Forms.Button();
-            this.SidbasePathBrowseBtn = new System.Windows.Forms.Button();
-            this.UnusedBrowseBtn = new System.Windows.Forms.Button();
+            this.SidbaseBrowseBtn = new System.Windows.Forms.Button();
+            this.DCFileBrowseBtn = new System.Windows.Forms.Button();
             this.ShowUnresolvedSIDsCheckBox = new System.Windows.Forms.CheckBox();
             this.dummy = new System.Windows.Forms.Button();
             this.SeperatorLine1 = new NaughtyDogDCReader.Label();
             this.DownloadSourceBtn = new System.Windows.Forms.Button();
             this.Title2 = new NaughtyDogDCReader.Label();
             this.CreditsLabel = new NaughtyDogDCReader.Label();
-            this.sidbasePathTextBox = new NaughtyDogDCReader.TextBox();
-            this.UnusedPathTextBox = new NaughtyDogDCReader.TextBox();
+            this.SidbasePathTextBox = new NaughtyDogDCReader.TextBox();
+            this.DCFilePathTextBox = new NaughtyDogDCReader.TextBox();
             this.SeperatorLine0 = new NaughtyDogDCReader.Label();
             this.SuspendLayout();
             // 
@@ -72,33 +72,33 @@ namespace NaughtyDogDCReader
             this.CloseBtn.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CloseBtn.UseVisualStyleBackColor = false;
             // 
-            // SidbasePathBrowseBtn
+            // SidbaseBrowseBtn
             // 
-            this.SidbasePathBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.SidbasePathBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.SidbasePathBrowseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
-            this.SidbasePathBrowseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.SidbasePathBrowseBtn.Location = new System.Drawing.Point(347, 71);
-            this.SidbasePathBrowseBtn.Name = "SidbasePathBrowseBtn";
-            this.SidbasePathBrowseBtn.Size = new System.Drawing.Size(62, 20);
-            this.SidbasePathBrowseBtn.TabIndex = 8;
-            this.SidbasePathBrowseBtn.Text = "Browse...";
-            this.SidbasePathBrowseBtn.UseVisualStyleBackColor = false;
-            this.SidbasePathBrowseBtn.Click += new System.EventHandler(this.UNUSEDBrowseBtn_Click);
+            this.SidbaseBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.SidbaseBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.SidbaseBrowseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
+            this.SidbaseBrowseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.SidbaseBrowseBtn.Location = new System.Drawing.Point(347, 71);
+            this.SidbaseBrowseBtn.Name = "SidbaseBrowseBtn";
+            this.SidbaseBrowseBtn.Size = new System.Drawing.Size(62, 20);
+            this.SidbaseBrowseBtn.TabIndex = 8;
+            this.SidbaseBrowseBtn.Text = "Browse...";
+            this.SidbaseBrowseBtn.UseVisualStyleBackColor = false;
+            this.SidbaseBrowseBtn.Click += new System.EventHandler(this.BrowseForSIDBase);
             // 
-            // UnusedBrowseBtn
+            // DCFileBrowseBtn
             // 
-            this.UnusedBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.UnusedBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.UnusedBrowseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
-            this.UnusedBrowseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.UnusedBrowseBtn.Location = new System.Drawing.Point(347, 95);
-            this.UnusedBrowseBtn.Name = "UnusedBrowseBtn";
-            this.UnusedBrowseBtn.Size = new System.Drawing.Size(62, 20);
-            this.UnusedBrowseBtn.TabIndex = 9;
-            this.UnusedBrowseBtn.Text = "Browse...";
-            this.UnusedBrowseBtn.UseVisualStyleBackColor = false;
-            this.UnusedBrowseBtn.Click += new System.EventHandler(this.BasePackagePathBrowseBtn_Click);
+            this.DCFileBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.DCFileBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.DCFileBrowseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
+            this.DCFileBrowseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.DCFileBrowseBtn.Location = new System.Drawing.Point(347, 95);
+            this.DCFileBrowseBtn.Name = "DCFileBrowseBtn";
+            this.DCFileBrowseBtn.Size = new System.Drawing.Size(62, 20);
+            this.DCFileBrowseBtn.TabIndex = 9;
+            this.DCFileBrowseBtn.Text = "Browse...";
+            this.DCFileBrowseBtn.UseVisualStyleBackColor = false;
+            this.DCFileBrowseBtn.Click += new System.EventHandler(this.BrowseForDCFile);
             // 
             // ShowUnresolvedSIDsCheckBox
             // 
@@ -178,29 +178,29 @@ namespace NaughtyDogDCReader
             this.CreditsLabel.TabIndex = 17;
             this.CreditsLabel.Text = "Credits:\r\n  libgp4: TheMagicalBlob, Icemesh\r\n";
             // 
-            // sidbasePathTextBox
+            // SidbasePathTextBox
             // 
-            this.sidbasePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.sidbasePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
-            this.sidbasePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.sidbasePathTextBox.Location = new System.Drawing.Point(6, 71);
-            this.sidbasePathTextBox.Name = "sidbasePathTextBox";
-            this.sidbasePathTextBox.Size = new System.Drawing.Size(335, 24);
-            this.sidbasePathTextBox.TabIndex = 18;
-            this.sidbasePathTextBox.Text = "No valid sidbase.bin found or provided";
-            this.sidbasePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.SidbasePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.SidbasePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
+            this.SidbasePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.SidbasePathTextBox.Location = new System.Drawing.Point(6, 71);
+            this.SidbasePathTextBox.Name = "SidbasePathTextBox";
+            this.SidbasePathTextBox.Size = new System.Drawing.Size(335, 24);
+            this.SidbasePathTextBox.TabIndex = 18;
+            this.SidbasePathTextBox.Text = "No valid sidbase.bin found or provided";
+            this.SidbasePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // UnusedPathTextBox
+            // DCFilePathTextBox
             // 
-            this.UnusedPathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.UnusedPathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
-            this.UnusedPathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.UnusedPathTextBox.Location = new System.Drawing.Point(6, 95);
-            this.UnusedPathTextBox.Name = "UnusedPathTextBox";
-            this.UnusedPathTextBox.Size = new System.Drawing.Size(335, 24);
-            this.UnusedPathTextBox.TabIndex = 19;
-            this.UnusedPathTextBox.Text = "pLaCeHoLdEr";
-            this.UnusedPathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.DCFilePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.DCFilePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
+            this.DCFilePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.DCFilePathTextBox.Location = new System.Drawing.Point(6, 95);
+            this.DCFilePathTextBox.Name = "DCFilePathTextBox";
+            this.DCFilePathTextBox.Size = new System.Drawing.Size(335, 24);
+            this.DCFilePathTextBox.TabIndex = 19;
+            this.DCFilePathTextBox.Text = "No valid DC file loaded";
+            this.DCFilePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // SeperatorLine0
             // 
@@ -222,16 +222,16 @@ namespace NaughtyDogDCReader
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(415, 237);
             this.Controls.Add(this.SeperatorLine0);
-            this.Controls.Add(this.UnusedPathTextBox);
-            this.Controls.Add(this.sidbasePathTextBox);
+            this.Controls.Add(this.DCFilePathTextBox);
+            this.Controls.Add(this.SidbasePathTextBox);
             this.Controls.Add(this.CreditsLabel);
             this.Controls.Add(this.Title2);
             this.Controls.Add(this.DownloadSourceBtn);
             this.Controls.Add(this.SeperatorLine1);
             this.Controls.Add(this.dummy);
             this.Controls.Add(this.ShowUnresolvedSIDsCheckBox);
-            this.Controls.Add(this.UnusedBrowseBtn);
-            this.Controls.Add(this.SidbasePathBrowseBtn);
+            this.Controls.Add(this.DCFileBrowseBtn);
+            this.Controls.Add(this.SidbaseBrowseBtn);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.Title);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
@@ -253,15 +253,15 @@ namespace NaughtyDogDCReader
         #region [Control Declarations]
         private Label Title;
         private Button CloseBtn;
-        private Button SidbasePathBrowseBtn;
-        private Button UnusedBrowseBtn;
+        private Button SidbaseBrowseBtn;
+        private Button DCFileBrowseBtn;
         private CheckBox ShowUnresolvedSIDsCheckBox;
         private Label SeperatorLine1;
         private Button DownloadSourceBtn;
         private Label Title2;
         private Label CreditsLabel;
-        private TextBox sidbasePathTextBox;
-        private TextBox UnusedPathTextBox;
+        private TextBox SidbasePathTextBox;
+        private TextBox DCFilePathTextBox;
 
         private Button dummy;
         #endregion

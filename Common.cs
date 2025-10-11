@@ -332,6 +332,7 @@ namespace NaughtyDogDCReader
         public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
         /// <summary> //! </summary>
         private delegate void binThreadLabelWand(string[] details);
+        private delegate void generalBinThreadWand();
         /// <summary> //! </summary>
         public delegate string[] binThreadFormWandOutputRead();
 
@@ -343,9 +344,9 @@ namespace NaughtyDogDCReader
             StatusDetails = details;
         });
         
-        private readonly binThreadLabelWand statusLabelResetMammet = new binThreadLabelWand((details) =>
+        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(() =>
         {
-            StatusDetails = Array.Empty<string>();
+            StatusDetails = null;
         });
 
 
@@ -354,9 +355,9 @@ namespace NaughtyDogDCReader
             SelectionDetails = details;
         });
         
-        private readonly binThreadLabelWand selectionLabelResetMammet = new binThreadLabelWand((details) =>
+        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(() =>
         {
-            SelectionDetails = Array.Empty<string>();
+            SelectionDetails = null;
         });
 
 
@@ -762,7 +763,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         public static void ResetStatusLabel()
         {
-            StatusDetails = null;
+            Venat?.Invoke(Venat.statusLabelResetMammet);
         }
 
 
@@ -787,7 +788,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         public static void ResetSelectionLabel()
         {
-            SelectionDetails = Array.Empty<string>();
+            Venat?.Invoke(Venat.selectionLabelResetMammet);
         }
         #endregion
 
