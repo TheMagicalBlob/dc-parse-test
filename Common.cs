@@ -193,24 +193,30 @@ namespace NaughtyDogDCReader
 
 
 
-                // Update changed array members only
-                for (int i = 0; i < value.Length; i++)
+                if (_statusDetails != Array.Empty<string>() && value.Length <= _statusDetails.Length)
                 {
-                    if (value[i] != null)
+                    // Update changed array members only
+                    for (int i = 0; i < value.Length; i++)
                     {
-                        _statusDetails[i] = value[i];
+                        if (value[i] != null)
+                        {
+                            _statusDetails[i] = value[i];
+                        }
                     }
+                }
+                else {
+                    _statusDetails = value;
                 }
 
                 
 
-                ScriptStatusLabel.Text = $"Status: {StatusDetails[0]} ";
+                ScriptStatusLabel.Text = $"Status: {_statusDetails[0]} ";
             
-                for (int i = 1; i < StatusDetails.Length; i++)
+                for (int i = 1; i < _statusDetails.Length; i++)
                 {
                     if ((StatusDetails[i]?.Length ?? 0) > 0)
                     {
-                        ScriptStatusLabel.Text += " | " + StatusDetails[i];
+                        ScriptStatusLabel.Text += " | " + _statusDetails[i];
                         Venat?.Update();
                     }
                 }
@@ -899,9 +905,9 @@ namespace NaughtyDogDCReader
         /// A string[3] containing the details for the status label.
         /// <br/> 
         /// </param>
-        public static void StatusLabelMammet(string[] details = null)
+        public static void StatusLabelMammet(string[] details)
         {
-            Venat?.Invoke(Venat.statusLabelMammet, new [] { details ?? new[] { emptyStr, emptyStr, emptyStr } });
+            Venat?.Invoke(Venat.statusLabelMammet, new object [] { details });
         }
 
 
@@ -911,9 +917,9 @@ namespace NaughtyDogDCReader
         /// <param name="details">
         /// A string[3] containing the details for the slection label.
         /// <br/> 
-        public static void SelectionLabelMammet(string[] details = null)
+        public static void SelectionLabelMammet(string[] details)
         {
-            Venat?.Invoke(Venat.selectionLabelMammet, new [] { details ?? new[] { emptyStr, emptyStr, emptyStr } });
+            Venat?.Invoke(Venat.selectionLabelMammet, new [] { details });
         }
         #endregion [mammet shorthand functions]
 
