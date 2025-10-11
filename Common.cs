@@ -24,7 +24,6 @@ namespace NaughtyDogDCReader
         //## Script Parsing Globals
         //#
 
-
         public static SIDBase SIDBase;
 
         /// <summary>
@@ -188,7 +187,7 @@ namespace NaughtyDogDCReader
                 if (value == null || value.Length < 1)
                 {
                     _statusDetails = Array.Empty<string>();
-                    ScriptStatusLabel.Text = "Status: [None]";
+                    ScriptStatusLabel.Text = "Status: [Inactive]";
                     return;
                 }
 
@@ -217,7 +216,7 @@ namespace NaughtyDogDCReader
                 }
             }
         }
-        private static string[] _statusDetails = new string [] { null, null, null };
+        private static string[] _statusDetails = Array.Empty<string>();
 
         
 
@@ -236,6 +235,7 @@ namespace NaughtyDogDCReader
                     ScriptSelectionLabel.Text = "Selection: [None]";
                     return;
                 }
+
 
                 if ((SelectionDetails?.Length ?? 0) < 1)
                 {
@@ -272,7 +272,7 @@ namespace NaughtyDogDCReader
                 }
             }
         }
-        private static string[] _selectionDetails = new string [] { null, null, null };
+        private static string[] _selectionDetails = Array.Empty<string>();
         
 
 
@@ -836,6 +836,19 @@ namespace NaughtyDogDCReader
 
             ResetSelectionLabel();
             ResetStatusLabel();
+        }
+
+        public static void LoadSIDBase(string sidbasePath)
+        {
+            if (File.Exists(sidbasePath))
+            {
+                SIDBase = new SIDBase(sidbasePath);
+            }
+            else {
+                //ResetStatusLabel();
+                //UpdateStatusLabel(new[] { "Invalid sidbase.bin path provided." });
+                MessageBox.Show("Invalid path provided for desired sidbase.bin!", "dingus");
+            }
         }
 
 

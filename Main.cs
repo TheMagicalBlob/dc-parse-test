@@ -164,7 +164,17 @@ namespace NaughtyDogDCReader
 
         private void SidBaseBrowseBtn_Click(object sender, EventArgs e)
         {
-
+            using (var fileBrowser = new OpenFileDialog
+            {
+                Title = "Select the desired sidbase.bin to use.",
+                Filter = "String ID Lookup Table|*.bin"
+            })
+            {
+                if (fileBrowser.ShowDialog() == DialogResult.OK)
+                {
+                    LoadSIDBase(fileBrowser.FileName);   
+                }
+            }
         }
 
 
@@ -271,21 +281,25 @@ namespace NaughtyDogDCReader
                 //## Setup Form
                 //#
                 echo("\nFinished!");
-                StatusLabelMammet(new[] { "Finished Loading dc File", emptyStr, emptyStr });
+                StatusLabelMammet(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
 
                 ReloadButtonMammet(true);
                 AbortButtonMammet(1);
 
-
                 PropertiesPanelMammet(ActiveFileName, DCScript);
+                ResetStatusLabel();
             }
-            // File in 
-            catch (IOException crap) {
-                echo($"\nERROR: Selected File is Being Used by Another Process. ({crap.Message})");
+            // File in use, probably
+            catch (IOException)
+            {
+                echo($"\nERROR: Selected file is either in use, or doesn't exist.");
+
                 StatusLabelMammet(new[] { "Error Loading dc File!!!", emptyStr, emptyStr });
                 ResetSelectionLabel();
             }
-            catch (ThreadAbortException) {
+            // Thread has been killed (normal)
+            catch (ThreadAbortException)
+            {
                 StatusLabelMammet(new[] { "DC Parse Aborted", emptyStr, emptyStr });
                 ResetSelectionLabel();
             }
