@@ -76,7 +76,6 @@ namespace NaughtyDogDCReader
             // optionsMenuDropdownBtn
             // 
             this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.optionsMenuDropdownBtn.Enabled = false;
             this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 6);
             this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
@@ -84,7 +83,7 @@ namespace NaughtyDogDCReader
             this.optionsMenuDropdownBtn.TabIndex = 6;
             this.optionsMenuDropdownBtn.Text = "Options...";
             this.optionsMenuDropdownBtn.UseVisualStyleBackColor = false;
-            this.optionsMenuDropdownBtn.Click += new System.EventHandler(this.OptionsMenuDropdownBtn_Click);
+            this.optionsMenuDropdownBtn.Click += new System.EventHandler(this.ToggleOptionsMenu);
             // 
             // ExitBtn
             // 
@@ -183,7 +182,7 @@ namespace NaughtyDogDCReader
             this.debugPanelBtn.TabIndex = 45;
             this.debugPanelBtn.Text = "DEBUG";
             this.debugPanelBtn.UseVisualStyleBackColor = false;
-            this.debugPanelBtn.Click += new System.EventHandler(this.debugPanelBtn_Click);
+            this.debugPanelBtn.Click += new System.EventHandler(this.ToggleDebugPanel);
             // 
             // SidBaseBrowseBtn
             // 

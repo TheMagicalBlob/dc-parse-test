@@ -32,8 +32,6 @@ namespace NaughtyDogDCReader
         {
             this.Title = new NaughtyDogDCReader.Label();
             this.CloseBtn = new System.Windows.Forms.Button();
-            this.SidbaseBrowseBtn = new System.Windows.Forms.Button();
-            this.DCFileBrowseBtn = new System.Windows.Forms.Button();
             this.ShowUnresolvedSIDsCheckBox = new System.Windows.Forms.CheckBox();
             this.dummy = new System.Windows.Forms.Button();
             this.SeperatorLine1 = new NaughtyDogDCReader.Label();
@@ -71,34 +69,6 @@ namespace NaughtyDogDCReader
             this.CloseBtn.Text = "X";
             this.CloseBtn.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CloseBtn.UseVisualStyleBackColor = false;
-            // 
-            // SidbaseBrowseBtn
-            // 
-            this.SidbaseBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.SidbaseBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.SidbaseBrowseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
-            this.SidbaseBrowseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.SidbaseBrowseBtn.Location = new System.Drawing.Point(347, 71);
-            this.SidbaseBrowseBtn.Name = "SidbaseBrowseBtn";
-            this.SidbaseBrowseBtn.Size = new System.Drawing.Size(62, 20);
-            this.SidbaseBrowseBtn.TabIndex = 8;
-            this.SidbaseBrowseBtn.Text = "Browse...";
-            this.SidbaseBrowseBtn.UseVisualStyleBackColor = false;
-            this.SidbaseBrowseBtn.Click += new System.EventHandler(this.BrowseForSIDBase);
-            // 
-            // DCFileBrowseBtn
-            // 
-            this.DCFileBrowseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.DCFileBrowseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.DCFileBrowseBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
-            this.DCFileBrowseBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.DCFileBrowseBtn.Location = new System.Drawing.Point(347, 95);
-            this.DCFileBrowseBtn.Name = "DCFileBrowseBtn";
-            this.DCFileBrowseBtn.Size = new System.Drawing.Size(62, 20);
-            this.DCFileBrowseBtn.TabIndex = 9;
-            this.DCFileBrowseBtn.Text = "Browse...";
-            this.DCFileBrowseBtn.UseVisualStyleBackColor = false;
-            this.DCFileBrowseBtn.Click += new System.EventHandler(this.BrowseForDCFile);
             // 
             // ShowUnresolvedSIDsCheckBox
             // 
@@ -185,7 +155,8 @@ namespace NaughtyDogDCReader
             this.SidbasePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.SidbasePathTextBox.Location = new System.Drawing.Point(6, 71);
             this.SidbasePathTextBox.Name = "SidbasePathTextBox";
-            this.SidbasePathTextBox.Size = new System.Drawing.Size(335, 24);
+            this.SidbasePathTextBox.ReadOnly = true;
+            this.SidbasePathTextBox.Size = new System.Drawing.Size(403, 24);
             this.SidbasePathTextBox.TabIndex = 18;
             this.SidbasePathTextBox.Text = "No valid sidbase.bin found or provided";
             this.SidbasePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -197,7 +168,8 @@ namespace NaughtyDogDCReader
             this.DCFilePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.DCFilePathTextBox.Location = new System.Drawing.Point(6, 95);
             this.DCFilePathTextBox.Name = "DCFilePathTextBox";
-            this.DCFilePathTextBox.Size = new System.Drawing.Size(335, 24);
+            this.DCFilePathTextBox.ReadOnly = true;
+            this.DCFilePathTextBox.Size = new System.Drawing.Size(403, 24);
             this.DCFilePathTextBox.TabIndex = 19;
             this.DCFilePathTextBox.Text = "No valid DC file loaded";
             this.DCFilePathTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -230,8 +202,6 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.SeperatorLine1);
             this.Controls.Add(this.dummy);
             this.Controls.Add(this.ShowUnresolvedSIDsCheckBox);
-            this.Controls.Add(this.DCFileBrowseBtn);
-            this.Controls.Add(this.SidbaseBrowseBtn);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.Title);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
@@ -253,8 +223,6 @@ namespace NaughtyDogDCReader
         #region [Control Declarations]
         private Label Title;
         private Button CloseBtn;
-        private Button SidbaseBrowseBtn;
-        private Button DCFileBrowseBtn;
         private CheckBox ShowUnresolvedSIDsCheckBox;
         private Label SeperatorLine1;
         private Button DownloadSourceBtn;

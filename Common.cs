@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -144,6 +142,8 @@ namespace NaughtyDogDCReader
 
         /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
         private static int BaseAbortButtonWidth;
+
+        private static readonly byte[] EmptyDCFileHash = new byte[] { 0x1c, 0xd3, 0xe2, 0x12, 0xe6, 0xed, 0xda, 0xac, 0xd4, 0x3c, 0xac, 0x53, 0x55, 0x34, 0x19, 0x85, 0x2e, 0x3a, 0x7c, 0x1b, 0x28, 0x36, 0x15, 0xef, 0xea, 0x20, 0x74, 0x5e, 0x98, 0xe8, 0x7b, 0x95 };
 
         public const string emptyStr = "";
 
@@ -297,9 +297,6 @@ namespace NaughtyDogDCReader
         /// <summary> Output Window Pointer/Ref Because I'm Lazy. </summary>
         public static RichTextBox PropertiesWindow;
 
-        /// <summary> Log Window Pointer/Ref. </summary>
-        public static RichTextBox LogWindow;
-
         public static DebugPanel Bingus;
         
         public static Label ScriptStatusLabel;
@@ -311,17 +308,19 @@ namespace NaughtyDogDCReader
         /// <summary> A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file. </summary>
         public enum KnownSIDs : ulong
         {
-            UNKNOWN_SID_64 =       0x910ADC74DA2A5F6D,
-            array =                0x4F9E14B634C6B026,
-            symbol_array =         0xDFD21E68AC12C54B,
-            ammo_to_weapon_array = 0xEF3BE7EF6F790D34,
-            weapon_gameplay_defs = 0x8B099027E05B4597,
-            map =                  0x080F5919176D2D91,
+            UNKNOWN_SID_64 =       0x910ADC74DA2A5F6Dul,
+            array =                0x4F9E14B634C6B026ul,
+            symbol_array =         0xDFD21E68AC12C54Bul,
+            ammo_to_weapon_array = 0xEF3BE7EF6F790D34ul,
+            
+            map =                  0x080F5919176D2D91ul,
 
-            melee_weapon_gameplay_def = 0x730ADC6EDAF0A96D,
+            weapon_gameplay_defs = 0x8B099027E05B4597ul,
+            melee_weapon_gameplay_def = 0x730ADC6EDAF0A96Dul,
 
+            look2_def            = 0xBF24E1B6BADE9DCCul,
 
-            placeholder =          0xDEADBEEFDADDEAD2,
+            placeholder          = 0xDEADBEEFDEADBEEFul,
         }
         
 
@@ -462,8 +461,14 @@ namespace NaughtyDogDCReader
             if(MouseIsDown && Venat != null)
             {
                 Venat.Location = new Point(MousePosition.X - MouseDif.X, MousePosition.Y - MouseDif.Y);
+
                 if (Azem != null)
-                    Azem.Location = new Point(MousePosition.X - MouseDif.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 40);
+                    Azem.Location = new Point(MousePosition.X - MouseDif.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+                
+                #if DEBUG
+                else if (Bingus != null)
+                    Bingus.Location = new Point(MousePosition.X - MouseDif.X + (Venat.Size.Width - Bingus.Size.Width) / 2, Venat.Location.Y + 50);
+                #endif
                 
                 Venat.Update();
                 Azem?.Update();
@@ -829,7 +834,6 @@ namespace NaughtyDogDCReader
             DCFile = null;
             PropertiesPanel.Controls.Clear();
             PropertiesWindow.Clear();
-            LogWindow.Clear();
 
             if (Venat == null)
             {
@@ -844,16 +848,18 @@ namespace NaughtyDogDCReader
             ResetStatusLabel();
         }
 
-        public static void LoadSIDBase(string sidbasePath)
+        public static bool LoadSIDBase(string sidbasePath)
         {
             if (File.Exists(sidbasePath))
             {
                 SIDBase = new SIDBase(sidbasePath);
+                return true;
             }
             else {
                 //ResetStatusLabel();
                 //UpdateStatusLabel(new[] { "Invalid sidbase.bin path provided." });
-                MessageBox.Show("Invalid path provided for desired sidbase.bin!", "dingus");
+                MessageBox.Show("Invalid path provided for desired sidbase.bin!", sidbasePath);
+                return false;
             }
         }
 

@@ -4,76 +4,42 @@ using System.Drawing;
 using System.Net.Http;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace NaughtyDogDCReader
 {
     public partial class OptionsPage : Form
     {
-        public OptionsPage() {
+        public OptionsPage()
+        {
             InitializeComponent();
-            InitializeAdditionalEventHandlers_OptionsPage(); // Set Event Handlers and Other Form-Related Crap
+            InitializeAdditionalEventHandlers_OptionsPage(this); // Set Event Handlers and Other Form-Related Crap
             
-
-            SidbasePathTextBox.TextChanged += (sender, _) =>
-            {
-                if (File.Exists(((TextBox) sender).Text))
-                {
-                    Main.SIDBase = new SIDBase(((TextBox) sender).Text);
-                }
-            };
-
             LoadOptions();
         }
 
+
+
+        #region [Variable Declarations]
         
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        public Point[][] HSeparatorLines;
+
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        public Point[][] VSeparatorLines;
+
+        #endregion (variable declarations)
+
+
+
         //======================================\\
         //--|   Event Handler Declarations   |--\\
         //======================================\\
         #region [Event Handler Declarations]
 
         private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e) => ShowUnresolvedSIDs = ((CheckBox) sender).Checked;
-
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        private void BrowseForSIDBase(object sender, EventArgs e)
-        {
-            using (var fileBrowser = new OpenFileDialog
-            {
-                Title = "Select the desired sidbase.bin to use.",
-                Filter = "String ID Lookup Table|*.bin"
-            })
-            {
-                if (fileBrowser.ShowDialog() == DialogResult.OK)
-                {
-                    SidbasePathTextBox.Set(fileBrowser.FileName);
-                }
-            }
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void BrowseForDCFile(object sender, EventArgs e)
-        {
-            using (var fileBrowser = new OpenFileDialog
-            {
-                Title = "Select the desired DC file to read/edit.",
-                Filter = "Naughty Dog DC Script File|*.bin"
-            })
-            {
-                if (fileBrowser.ShowDialog() == DialogResult.OK)
-                {
-                    DCFilePathTextBox.Set(fileBrowser.FileName);
-                }
-            }
-        }
-
 
 
 
@@ -195,6 +161,9 @@ namespace NaughtyDogDCReader
         }
         #endregion
         
+
+
+
         //=====================================\\
         //--|   Options-Related Functions   |--\\
         //=====================================\\
@@ -203,8 +172,43 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
         /// </summary>
-        public void InitializeAdditionalEventHandlers_OptionsPage()
+        public void InitializeAdditionalEventHandlers_OptionsPage(Form azem)
         {
+            var controls = azem.Controls.Cast<Control>().ToArray();
+
+            var hSeparatorLineScanner = new List<Point[]>();
+            var vSeparatorLineScanner = new List<Point[]>();
+
+
+            // Apply the seperator drawing function to any seperator lines
+            foreach (var line in azem.Controls.OfType<NaughtyDogDCReader.Label>())
+            {
+                if (line.IsSeparatorLine)
+                {
+                    // Horizontal Lines
+                    hSeparatorLineScanner.Add(new Point[2] { 
+                        new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+                        new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                    });
+
+                    Controls.Remove(line);
+                }
+            }
+
+            if (hSeparatorLineScanner.Count > 0) {
+                HSeparatorLines = hSeparatorLineScanner.ToArray();
+            }
+            if (vSeparatorLineScanner.Count > 0) {
+                VSeparatorLines = vSeparatorLineScanner.ToArray();
+            }
+
+            
+            Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
+
+
+
+
+
             // Anonomously Create and Set CloseBtn Event Handler
             CloseBtn.Click += new EventHandler((sender, e) =>
             {
