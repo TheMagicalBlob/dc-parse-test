@@ -168,13 +168,12 @@ namespace NaughtyDogDCReader
 
 
 
-
         /// <summary>
         /// A collection of whatever-the-fuck naughty dog felt like including. This may be annoying.
         /// </summary>
-        public struct DCMapDef
+        public struct Map
         {
-            public DCMapDef(byte[] binFile, long Address, SID Name)
+            public Map(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
@@ -204,10 +203,11 @@ namespace NaughtyDogDCReader
 
                     echo($"    - 0x{structAddress.ToString("X").PadLeft(6, '0')} Type: {structTypeID} Name: {structName.DecodedID}" + 1);
 
-                    Items[arrayIndex] = new object[2];
-
-                    Items[arrayIndex][0] = structTypeID;
-                    Items[arrayIndex][1] = LoadMappedDCStructs(binFile, structTypeID, structAddress, structName);
+                    Items[arrayIndex] = new object[2]
+                    {
+                        structTypeID,
+                        LoadMappedDCStructs(binFile, structTypeID, structAddress, structName)
+                    };
                 }
                 echo($"  # Finished Parsing All Map Structures.");
             }
@@ -220,8 +220,12 @@ namespace NaughtyDogDCReader
 
             public long Address { get; set; }
 
+
             /// <summary>
-            /// An array of object arrays with the first element being the map item's struct type, and the other being the struct itself
+            /// A jagged object array of header items and their type id (not in that order...) <br/>
+            /// 
+            /// <br/> 0: the map item's struct type.
+            /// <br/> 1: the struct itself.
             /// </summary>
             public object[][] Items { get; set; }
         }
@@ -334,8 +338,6 @@ namespace NaughtyDogDCReader
 				ZoomSniperCameraDoFSettingsSP = 0;
 				ScreenEffectSettings = 0;
 				#endregion [variable initializations]
-
-                echo("bingus");
 
                 
 
@@ -1090,9 +1092,9 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// 
         /// </summary>
-        public struct UnknownStruct
+        public struct UnmappedStructure
         {
-            public UnknownStruct(SID Type, long Address, SID Name)
+            public UnmappedStructure(SID Type, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
@@ -1105,6 +1107,19 @@ namespace NaughtyDogDCReader
 
             public string Message { get; set; }
         }
+        
+        public struct BaseStruct
+        {
+            public BaseStruct(long Address, SID Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public SID Name { get; set; }
+            public long Address { get; set; }
+        }
+
 
 
 
@@ -1156,6 +1171,7 @@ namespace NaughtyDogDCReader
             //# #|Public Members|#
             /// <summary> The name associated with the current StructTemplate instance. </summary>
             public SID Name { get; set; }
+
             /// <summary> The start address of the structure in the DC file. </summary>
             public long Address { get; set; }
             /// <summary> Size of the current structure type. </summary>
@@ -1285,6 +1301,15 @@ namespace NaughtyDogDCReader
         }
         #endregion
     }
+
+
+
+
+
+
+
+
+
 
     
     //======================================\\

@@ -56,7 +56,7 @@ namespace NaughtyDogDCReader
             set {
                 if (value != null)
                 {
-                    DisplayHeaderItemDetails((int)value.Tag);
+                    PrintHeaderItemDetailDisplay((int)value.Tag);
                 }
 
                 _headerSelection = value;
@@ -71,7 +71,7 @@ namespace NaughtyDogDCReader
             set {
                 if (value != null)
                 {
-                    DisplayHeaderItemDetails((int)value.Tag);
+                    PrintHeaderItemDetailDisplay((int)value.Tag);
                 }
 
                 _subItemSelection = value;
@@ -103,7 +103,7 @@ namespace NaughtyDogDCReader
         private string Indentation = emptyStr;
 
         
-        private readonly Type[] NumericalTypes = new []
+        private readonly Type[] WholeNumericalTypes = new []
         {
             typeof(int),
             typeof(uint),
@@ -111,6 +111,14 @@ namespace NaughtyDogDCReader
             typeof(ulong),
             typeof(byte),
             typeof(sbyte),
+        };
+
+        
+        private readonly Type[] AdvancedNumericalTypes = new []
+        {
+            //typeof(decimal),
+            typeof(double),
+            typeof(float),
         };
         
 
@@ -350,8 +358,11 @@ namespace NaughtyDogDCReader
             switch (value.GetType())
             {
                 // ## Basic Numerical Values
-                case var val when NumericalTypes.Contains(val):
+                case var val when WholeNumericalTypes.Contains(val):
                     return $"0x{value:X}";
+
+                case var val when AdvancedNumericalTypes.Contains(val):
+                    return $"{value:F}";
 
                 // ## Booleans
                 case var val when val == typeof(bool):
@@ -360,20 +371,12 @@ namespace NaughtyDogDCReader
 
                 // ## String ID's
                 case var type when type == typeof(SID):
-                    var id = ((SID)value).DecodedID;
+                    return ((SID)value).DecodedID;
 
-                    if (id == "UNKNOWN_SID_64" && ShowUnresolvedSIDs)
-                    {
-                        id = ((SID)value).EncodedID;
-                    }
-                    #if DEBUG
-                    else if (id == "INVALID_SID_64" && ShowInvalidSIDs)
-                    {
-                        id = ((SID)value).EncodedID;
-                    }
-                    #endif
 
-                    return id;
+                // ## Strings
+                case var type when type == typeof(string):
+                    return value.ToString();
 
 
 
@@ -387,14 +390,15 @@ namespace NaughtyDogDCReader
                     str += '}';
                     return str;
 
-                        
+
 
                 // ## Unknown Struct
-                case var type when type == typeof(UnknownStruct):
-                    return $"{((UnknownStruct)value).Message.Replace("\n", "\n        ")}";
+                case var type when type == typeof(UnmappedStructure):
+                    return $"{((UnmappedStructure)value).Message.Replace("\n", "\n        ")}";
 
 
-                default: return value.ToString();
+                // Hopefully structs
+                default: return PrintSubItemDetailDisplay(value);
             }
         }
 
@@ -403,42 +407,66 @@ namespace NaughtyDogDCReader
         /// Populate the property window with details about the highlighted header item
         /// </summary>
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
-        private void DisplayHeaderItemDetails(int itemIndex)
+        private void PrintHeaderItemDetailDisplay(int itemIndex)
         {
             //#
-            //## Clear the current properties window contents and grab basic data about the current item
+            //## Grab basic data about the current item and clear the current properties window contents 
             //#
-            PropertiesWindow.Clear();
-
             var dcEntry = DCScript.Entries[itemIndex];
             var structType = dcEntry.Type;
 
+            PropertiesWindow.Clear();
+            UpdateSelectionLabel(new[] { null, dcEntry.Name.DecodedID });
 
-            UpdateSelectionLabel(new[] { null, dcEntry.Name.DecodedID == "UNKNOWN_SID_64" ? dcEntry.Name.EncodedID : dcEntry.Name.DecodedID });
+
+
 
             // Update Properties Window
-            PrintPropertyDetailNL($"{structType.DecodedID}");
+            PrintPropertyDetailNL("Type: " + structType.DecodedID);
 
-            if (dcEntry.Struct != null)
+            if (dcEntry.Struct == null)
             {
-                echo("Stuct Has been initialized...");
-                echo($"    Iterating through \"{dcEntry.Name.DecodedID}\".");
-                foreach (var property in dcEntry.Struct.GetType().GetProperties())
-                {
-                    echo("Property: " + property);
-                    PrintPropertyDetailSL($"# {SpaceOutStructName(property.Name)}: ");
+                PrintPropertyDetailNL("Null structure, for some reason.");
+                return;
+            }
 
-                    
-                    echo ("Getting property value...");
-                    
-                    var val = property.GetValue(dcEntry.Struct);
-                    PrintPropertyDetailNL($"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}");
-                }
+            
+            echo("Stuct Has been initialized...");
+            echo($"    Iterating through \"{dcEntry.Name.DecodedID}\".");
+            foreach (var property in dcEntry.Struct.GetType().GetProperties())
+            {
+                // Print the name of the property
+                PrintPropertyDetailSL($" {SpaceOutStructName(property.Name)}: ");
+
+                var val = property.GetValue(dcEntry.Struct);
+                PrintPropertyDetailNL($"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}");
             }
-            else {
-                PrintPropertyDetailNL("Press Enter or Double-Click Entry to Load Struct");
+        }
+
+        private string PrintSubItemDetailDisplay(object dcEntry)
+        {
+            //#
+            //## Grab basic data about the current item and clear the current properties window contents 
+            //#
+            PropertiesWindow.Clear();
+            UpdateSelectionLabel(new[] { null, (string) ((dynamic) dcEntry).Name.DecodedID });
+            string ret;
+
+
+
+            // Update Properties Window
+            ret = "Type: " + ((dynamic)dcEntry).Name + '\n';
+
+            foreach (var property in dcEntry.GetType().GetProperties())
+            {
+                // Print the name of the property
+                ret += $" {SpaceOutStructName(property.Name)}: ";
+
+                var val = property.GetValue(dcEntry);
+                ret += $"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}\n";
             }
-            return;
+
+            return ret;
         }
 
 
@@ -475,13 +503,10 @@ namespace NaughtyDogDCReader
         {
             if (DCScript.Entries[headerItemIndex].Struct == null)
             {
-                UpdateStatusLabel(new[] { null, "Loading Struct Contents..." });
-                DCScript.Entries[headerItemIndex].LoadItemStruct();
-
-                UpdateStatusLabel(new[] { null, $"{DCScript.Entries[headerItemIndex].Name.DecodedID} Loaded" });
+                UpdateStatusLabel(new[] { null, "Loading Array Contents..." });
 
                 // Update the properties window's displayed contents with the newly loaded struct properties
-                DisplayHeaderItemDetails(headerItemIndex);
+                PrintHeaderItemDetailDisplay(headerItemIndex);
             }
         }
 

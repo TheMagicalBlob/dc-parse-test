@@ -84,7 +84,7 @@ namespace NaughtyDogDCReader
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
-#if !false
+#if !DEBUG
             using (var Browser = new OpenFileDialog
             {
                 Title = "Please select a script from \"bin/dc1\"."
@@ -95,9 +95,9 @@ namespace NaughtyDogDCReader
             }
 #else
             LoadBinFile(
-                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
+                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
                 //@"C:\Users\blob\LocalModding\Bin Reversing\working (1.07)\weapon-mods.bin"
-                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
+                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
             );
 #endif
         }
@@ -356,9 +356,9 @@ namespace NaughtyDogDCReader
                 //## Mapped Structures
                 //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case KnownSIDs.map:                       return new DCMapDef(DCFile, Address, name);
+                case KnownSIDs.map:                       return new Map(DCFile, Address, name);
                 
-                case KnownSIDs.weapon_gameplay_defs:      return new WeaponGameplayDef(DCFile, Address, name);
+                case KnownSIDs.weapon_gameplay_def:      return new WeaponGameplayDef(DCFile, Address, name);
                 
                 case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
                 
@@ -372,7 +372,7 @@ namespace NaughtyDogDCReader
                 //#
                 //## Unmapped Structures
                 //#
-                default: return new UnknownStruct(Type, Address, name);
+                default: return new UnmappedStructure(Type, Address, name);
             }
         }
         #endregion [Function Declarations]

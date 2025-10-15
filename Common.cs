@@ -318,7 +318,7 @@ namespace NaughtyDogDCReader
             
             map =                  0x080F5919176D2D91ul,
 
-            weapon_gameplay_defs = 0x8B099027E05B4597ul,
+            weapon_gameplay_def  = 0x6E1BB1DB85CC7806ul,
             melee_weapon_gameplay_def = 0x730ADC6EDAF0A96Dul,
 
             look2_def            = 0xBF24E1B6BADE9DCCul,
