@@ -21,9 +21,10 @@ namespace NaughtyDogDCReader
         public PropertiesHandler()
         {
             IndentationDepth = 0;
+            DefaultPropertyButtonHeight = 23;
+            GroupBoxContentsOffset = 7;
 
-            
-            propertiesPanelMammet = PopulatePropertiesPanel;
+            propertiesPanelMammet = PopulatePropertiesPanelWithHeaderItems;
             propertiesWindowSameLineMammet = _printPropertyDetailSL;
             propertiesWindowNewLineMammet = _printPropertyDetailNL;
             propertiesWindowSpecificLineMammet = _printPropertyDetailSpL;
@@ -79,6 +80,8 @@ namespace NaughtyDogDCReader
         private Button _subItemSelection;
 
 
+        private ScrollBar scrollBar;
+
 
 
         private int IndentationDepth
@@ -96,9 +99,8 @@ namespace NaughtyDogDCReader
             }
         }
 
+
         private string Indentation = emptyStr;
-
-
 
         
         private readonly Type[] NumericalTypes = new []
@@ -110,7 +112,18 @@ namespace NaughtyDogDCReader
             typeof(byte),
             typeof(sbyte),
         };
+        
 
+
+        /// <summary>
+        /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
+        /// </summary>
+        private readonly int DefaultPropertyButtonHeight;
+
+        /// <summary>
+        /// The offset of the actual contents of the group box from the top of the control. (why the hell does it need that thing?)
+        /// </summary>
+        private readonly int GroupBoxContentsOffset;
 
         
 
@@ -145,11 +158,11 @@ namespace NaughtyDogDCReader
         //## Event Handler Declarations
         //#
         #region [event handlers]
-        private void LoadHeaderItemContentsOnEnterIfUnloaded(object sender, PreviewKeyDownEventArgs args)
+        private void LoadArrayContentsIntoPropertiesWindow(object sender, PreviewKeyDownEventArgs args)
         {
             if (args.KeyCode == Keys.Return)
             {
-                LoadHeaderItemContents((int) ((Control)sender).Tag);
+                LoadArrayContentsForDisplay((int) ((Control)sender).Tag);
 
                 // Unsubscribe from the event once the struct's been loaded
                 ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
@@ -158,7 +171,7 @@ namespace NaughtyDogDCReader
         
         private void LoadHeaderItemContentsOnEnterIfUnloaded(object sender, EventArgs args)
         {
-            LoadHeaderItemContents((int) ((Control)sender).Tag);
+            LoadArrayContentsForDisplay((int) ((Control)sender).Tag);
 
             // Unsubscribe from the event
             ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
@@ -174,7 +187,6 @@ namespace NaughtyDogDCReader
         //## Properties Window-related funtion declarations
         //#
         
-
         /// <summary>
         /// Overrite a specific line in the properties output window with the provided <paramref name="message"/>
         /// <br/> Appends an empty new line if no message is provided.
@@ -199,6 +211,9 @@ namespace NaughtyDogDCReader
                 echo(err);
             }
         }
+
+
+
         private void _printPropertyDetailSpL(string message, int line = 0)
         {
             PropertiesWindow.UpdateLine(Indentation + message.Replace("\n", "\n" + Indentation), line);
@@ -206,6 +221,7 @@ namespace NaughtyDogDCReader
         }
        
         
+
         
         /// <summary>
         /// Replace a specified line in the properties output window with <paramref name="message"/>.
@@ -231,12 +247,16 @@ namespace NaughtyDogDCReader
                 echo(err);
             }
         }
+
+
+
         private void _printPropertyDetailSL(string message, int _ = 0)
         {
             //! This is a bit of a lazy way of maintaining the indent...
             PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
             PropertiesWindow.Update();
         }
+
 
 
 
@@ -430,9 +450,14 @@ namespace NaughtyDogDCReader
         //## Properties Panel-related funtion declarations
         //#
 
+        
+        /// <summary>
+        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
+        /// </summary>
         private void HighlightHeaderButton(Button sender)
         {
-            if (HeaderSelection != null) // "Reset" the previous button if applicable
+            // "Reset" the previous button if applicable
+            if (HeaderSelection != null)
             {
                 HeaderSelection.Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, HeaderSelection.Font.Style ^ FontStyle.Underline);
             }
@@ -444,9 +469,9 @@ namespace NaughtyDogDCReader
 
         
         /// <summary>
-        /// 
+        /// //! WRITE ME
         /// </summary>
-        private void LoadHeaderItemContents(int headerItemIndex)
+        private void LoadArrayContentsForDisplay(int headerItemIndex)
         {
             if (DCScript.Entries[headerItemIndex].Struct == null)
             {
@@ -467,34 +492,90 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcScript"></param>
-        private void PopulatePropertiesPanel(string dcFileName, DCFileHeader dcScript)
+        private void PopulatePropertiesPanelWithHeaderItems(string dcFileName, DCFileHeader dcScript)
         {
-            Button newButton()
+            Button currentButton;
+            
+            var dcEntries = dcScript.Entries;
+            var dcLen = dcEntries.Length;
+
+            HeaderItemButtons = new Button[dcEntries.Length];
+
+            var cumulativeButtonHeight = DefaultPropertyButtonHeight * dcEntries.Length;
+            if (cumulativeButtonHeight >= PropertiesPanel.Height - GroupBoxContentsOffset) // minus 7 to half-assedly account for the stupid top border of the group box.
             {
-                var btn = new Button()
+                scrollBar = new VScrollBar()
                 {
-                    Font = MainFont,
-
-                    BackColor = Color.FromArgb(255, 20, 20, 20),
-                    ForeColor = Color.White,
-
-                    FlatStyle = 0
+                    Name = "PropertiesPanelScrollBar",
+                    Height = PropertiesPanel.Height,
+                    Width = 20, // Default width's a bit fat
+                    Maximum = cumulativeButtonHeight
                 };
 
-                // Assign basic form functionality event handlers
-                btn.MouseDown += MouseDownFunc;
-                btn.MouseUp   += MouseUpFunc;
-                btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
-                btn.DoubleClick += new EventHandler((sender, e) => { });
-
-
-                return btn;
+                scrollBar.Location = new Point(PropertiesPanel.Width - (scrollBar.Width + 1), GroupBoxContentsOffset);
+                scrollBar.Scroll += ScrollPropertyButtons;
+                
+                PropertiesPanel.Controls.Add(scrollBar);
             }
 
 
+            for (var i = 0; i < dcLen; ++i)
+            {
+                var dcEntry = dcEntries[i];
+                currentButton = NewButton();
+
+                PropertiesPanel.Controls.Add(currentButton);
+                currentButton.Location = new Point(1, (currentButton.Height * i) + GroupBoxContentsOffset);
+
+                // Apply item name as button text
+                currentButton.Text = dcEntry.Name.DecodedID;
+
+                // Apply item type id as button name
+                currentButton.Name = dcEntry.Type.DecodedID;
+
+
+                // Style the control
+                currentButton.FlatAppearance.BorderSize = 0;
+                currentButton.Width = currentButton.Parent.Width - 2;
+                if (scrollBar != null)
+                {
+                    currentButton.Width -= scrollBar.Width;
+                }
+
+                // Save the index of the header item tied to the control via the button's Tag property
+                currentButton.Tag = i;
+
+
+                // Apply event handlers to the control
+                //currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
+                currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
+
+                currentButton.PreviewKeyDown += LoadArrayContentsIntoPropertiesWindow;
+                currentButton.DoubleClick += LoadHeaderItemContentsOnEnterIfUnloaded;
+                
+                HeaderItemButtons[i] = currentButton;
+            }
+
+            // Adjust the tab indexes of buttons intended to be after the property buttons
+            Venat.optionsMenuDropdownBtn.TabIndex += dcLen;
+            Venat.MinimizeBtn.TabIndex += dcLen;
+            Venat.ExitBtn.TabIndex += dcLen;
+        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dcArrayName"></param>
+        /// <param name="dcArrayObj"></param>
+        private void PopulatePropertiesPanelWithArrayItems(string dcArrayName, object dcArrayObj)
+        {
+            MessageBox.Show("WRONG FUNCTION CALLED, DUMBASS");
+            return;
+
+
             Button currentButton;
-            var dcEntries = dcScript.Entries;
+            var dcEntries = (dynamic[]) ((dynamic)dcArrayObj).Entries;
             var dcLen = dcEntries.Length;
 
             HeaderItemButtons = new Button[dcEntries.Length];
@@ -502,36 +583,16 @@ namespace NaughtyDogDCReader
 
             for (var i = 0; i < dcLen; ++i)
             {
-                string label;
                 var dcEntry = dcEntries[i];
-                PropertiesPanel.Controls.Add(currentButton = newButton());
+                PropertiesPanel.Controls.Add(currentButton = NewButton());
                 currentButton.Location = new Point(1, 7 + currentButton.Height * i);
 
 
                 // Apply header item name as button text
-                label = dcEntry.Name.DecodedID;
-                if (label == "UNKNOWN_SID_64"
-            #if DEBUG
-                || label == "INVALID_SID_64"
-            #endif
-                    )
-                {
-                    label = dcEntry.Name.EncodedID;
-                }
-                currentButton.Text = label;
+                currentButton.Text = dcEntry.Name.DecodedID;
 
-
-                // Apply header item type id as button name
-                label = dcEntry.Type.DecodedID;
-                if (label == "UNKNOWN_SID_64"
-            #if DEBUG
-                || label == "INVALID_SID_64"
-            #endif
-                    )
-                {
-                    label = dcEntry.Type.EncodedID;
-                }
-                currentButton.Name = label;
+                // Apply header item type name as button name
+                currentButton.Name = dcEntry.Type.DecodedID;
 
 
                 // Style the control
@@ -547,7 +608,7 @@ namespace NaughtyDogDCReader
                 //currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
                 currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
 
-                currentButton.PreviewKeyDown += LoadHeaderItemContentsOnEnterIfUnloaded;
+                currentButton.PreviewKeyDown += LoadArrayContentsIntoPropertiesWindow;
                 currentButton.DoubleClick += LoadHeaderItemContentsOnEnterIfUnloaded;
                 
                 HeaderItemButtons[i] = currentButton;
@@ -557,6 +618,40 @@ namespace NaughtyDogDCReader
             Venat.optionsMenuDropdownBtn.TabIndex += dcLen;
             Venat.MinimizeBtn.TabIndex += dcLen;
             Venat.ExitBtn.TabIndex += dcLen;
+        }
+
+        
+
+        private Button NewButton()
+        {
+            var btn = new Button()
+            {
+                Font = MainFont,
+                BackColor = AppColour,
+                ForeColor = Color.White,
+
+                FlatStyle = 0,
+                Height = DefaultPropertyButtonHeight
+            };
+
+            // Assign basic form functionality event handlers
+            btn.MouseDown += MouseDownFunc;
+            btn.MouseUp   += MouseUpFunc;
+            btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            btn.DoubleClick += new EventHandler((sender, e) => { }); //!
+
+
+            return btn;
+        }
+
+        public void ScrollPropertyButtons(object _, ScrollEventArgs offset)
+        {
+            foreach (var button in PropertiesPanel.Controls.OfType<Button>())
+            {
+                button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
+            }
+            PropertiesPanel.Update();
         }
         #endregion
     }

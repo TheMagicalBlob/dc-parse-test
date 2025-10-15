@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
 using System.Text;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using static NaughtyDogDCReader.Main;
 
 
 namespace NaughtyDogDCReader
@@ -88,7 +85,6 @@ namespace NaughtyDogDCReader
                 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    StatusLabelMammet(new[] { null, null, $"Header Item: {tableIndex} / {TableLength}..." });
                     Entries[tableIndex] = new DCHeaderItem(binFile, addr);
                 }
             
@@ -120,19 +116,21 @@ namespace NaughtyDogDCReader
             public DCHeaderItem(byte[] binFile, int address)
             {
                 Address = address;
-                Name = new SID(GetSubArray(binFile, address));
-                Type = new SID(GetSubArray(binFile, address + 8));
-                
-                StructAddress = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
-                Struct = null;
+                Name = new SID(GetSubArray(binFile, Address));
+                Type = new SID(GetSubArray(binFile, Address + 8));
+                
+                StructAddress = BitConverter.ToInt64(GetSubArray(binFile, Address + 16), 0);
+
+                
+                Struct = LoadMappedDCStructs(DCFile, Type, StructAddress, Name);
             }
 
 
             /// <summary>
             /// The Address of this Header Item in the DC file.
             /// </summary>
-            public long Address { get; set; }
+            public int Address { get; set; }
 
             /// <summary>
             /// The name of the current entry in the DC file header.
@@ -157,12 +155,14 @@ namespace NaughtyDogDCReader
 
 
             /// <summary>
-            /// Begin loading the header item's structure. //! write something more verbose lmao
+            /// Begin loading the header item's structure. <br/>
+            /// //! write something more verbose lmao      <br/>
+            /// //! Scratch that; I don't think this is really necessary anymore, woo. Keeping it for now just-in-case. (not that it'd be difficult to rewrite...)
             /// </summary>
             public void LoadItemStruct()
             {
                 echo("Loading Item Struct...");
-                Struct = LoadDCStructByType(DCFile, Type, StructAddress, Name);
+                Struct = LoadMappedDCStructs(DCFile, Type, StructAddress, Name);
             }
         }
 
@@ -203,16 +203,13 @@ namespace NaughtyDogDCReader
                     var structName = new SID(GetSubArray(binFile, (int)mapNamesArrayPtr));
 
                     echo($"    - 0x{structAddress.ToString("X").PadLeft(6, '0')} Type: {structTypeID} Name: {structName.DecodedID}" + 1);
-                    StatusLabelMammet(new[] { null, null, $"Loading Map Entry {arrayIndex + 1} / {mapLength}" });
 
                     Items[arrayIndex] = new object[2];
 
                     Items[arrayIndex][0] = structTypeID;
-                    Items[arrayIndex][1] = LoadDCStructByType(binFile, structTypeID, structAddress, structName);
+                    Items[arrayIndex][1] = LoadMappedDCStructs(binFile, structTypeID, structAddress, structName);
                 }
                 echo($"  # Finished Parsing All Map Structures.");
-
-                StatusLabelMammet(new[] { null, null, emptyStr });
             }
 
             
@@ -1044,7 +1041,7 @@ namespace NaughtyDogDCReader
                 ReticleSimpleName = 0;
 
                 
-                    // Read Hud2 Reticle Name
+                // Read Hud2 Reticle Name
                 for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + reticleDefNameOffset), 0); binFile[i] != 0;)
                 {
                     ReticleName += (char)binFile[i++];
@@ -1112,7 +1109,7 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// [Description Unavailable]
+        /// N/A
         /// </summary>
         public struct StructTemplate
         {
@@ -1175,9 +1172,19 @@ namespace NaughtyDogDCReader
 
 
 
-
+        /// <summary>
+        /// Small class used for handling string id's in a bit more of a convenient manner.
+        /// </summary>
         public class SID
         {
+            //#
+            //## Instance Initializers
+            //#
+
+            /// <summary>
+            /// Create a new SID instance from a provided byte array, and attempt to decode the id.
+            /// </summary>
+            /// <param name="EncodedSIDArray"> The encoded ulong string id, converted to a byte array. </param>
             public SID(byte[] EncodedSIDArray)
             {
                 DecodedID = SIDBase.DecodeSIDHash(EncodedSIDArray);
@@ -1185,38 +1192,55 @@ namespace NaughtyDogDCReader
                 RawID = (KnownSIDs) BitConverter.ToUInt64(EncodedSIDArray, 0);
 
                 Venat?.DecodedSIDs.Add(this);
-
-                echo($"new sid \"{DecodedID}\"");
             }
+            
+            /// <summary>
+            /// Create a new SID instance from a provided ulong hash, and attempt to decode the id.
+            /// </summary>
+            /// <param name="EncodedSID"> The encoded ulong string id. </param>
             public SID(ulong EncodedSID)
             {
-                DecodedID = SIDBase.DecodeSIDHash(EncodedSID);
-                EncodedID = EncodedSID.ToString("X");
+                var EncodedSIDArray = BitConverter.GetBytes(EncodedSID);
+
+                DecodedID = SIDBase.DecodeSIDHash(EncodedSIDArray);
+                EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
                 RawID = (KnownSIDs) EncodedSID;
 
                 Venat?.DecodedSIDs.Add(this);
             }
-            public SID(string decodedSID, byte[] encodedSID)
-            {
-                DecodedID = decodedSID;
-                EncodedID = BitConverter.ToString(encodedSID).Replace("-", emptyStr);
-                RawID = (KnownSIDs) BitConverter.ToUInt64(encodedSID, 0);
 
-                Venat?.DecodedSIDs.Add(this);
-            }
-            public SID(string decodedSID, ulong encodedSID)
+
+            /// <summary>
+            /// I didn't know how else to make that SID.Empty thing
+            /// </summary>
+            private SID(string decodedSID, ulong encodedSID)
             {
                 DecodedID = decodedSID;
                 EncodedID = encodedSID.ToString("X");
-                RawID = (KnownSIDs)encodedSID;
 
-                Venat?.DecodedSIDs.Add(this);
+                RawID = (KnownSIDs) encodedSID;
             }
 
-            public static readonly SID Empty = new SID("unnamed", 0x5FE267C3F96ADB8C);
+            
+            
+            
 
 
-            /// <summary> The decoded string id. </summary>
+
+            //#
+            //## VARIABLE DECLARATIONS
+            //#
+
+            /// <summary>
+            /// The decoded string id.
+            /// <br/><br/>
+            /// If the id cannot be decoded, it will return either: 
+            /// <br/> - the encoded ulong sid's string representation
+            /// <br/> OR
+            /// <br/> - UNKNOWN_SID_64
+            /// <br/><br/>
+            /// Depending on whether the ShowUnresolvedSIDs option is enabled or disabled respectively
+            /// </summary>
             public string DecodedID
             {
                 get {
@@ -1230,6 +1254,7 @@ namespace NaughtyDogDCReader
                         return EncodedID;
                     }
                     #endif
+                    
                     return _decodedID;
                 }
 
@@ -1237,11 +1262,26 @@ namespace NaughtyDogDCReader
             }
             private string _decodedID;
 
-            /// <summary> The encoded string id. </summary>
+
+
+            /// <summary>
+            /// The string representation of the encoded ulong string id.
+            /// </summary>
             public string EncodedID { get; set; }
 
-            /// <summary> The unaltered version of the encoded string id. </summary>
+
+
+            /// <summary>
+            /// The raw ulong version of the encoded string id. (used for hardcoded checks in code)
+            /// </summary>
             public KnownSIDs RawID { get; set; }
+
+
+            
+            /// <summary>
+            /// Represents an item with an unspecified name.
+            /// </summary>
+            public static readonly SID Empty = new SID("unnamed", 0x5FE267C3F96ADB8C);
         }
         #endregion
     }
@@ -1349,7 +1389,7 @@ namespace NaughtyDogDCReader
         {
             var ret = new byte[length];
 
-            for (; length > 0; ret[length - 1] = array[index + (length-- - 1)]);
+            for (/* muahahahahhahahaaa */; length > 0; ret[length - 1] = array[index + (length-- - 1)]);
             return ret;
         }
 

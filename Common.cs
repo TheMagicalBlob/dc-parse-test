@@ -287,15 +287,18 @@ namespace NaughtyDogDCReader
 
         /// <summary> OptionsPage Form Pointer/Refference. </summary>
         public static OptionsPage Azem;
-
-        /// <summary> StructBSIdkNameItLater Class Pointer/Refference. </summary>
-        public static PropertiesHandler Panels;
+        
+        /// <summary> Output Window Pointer/Refference Because I'm Lazy. </summary>
+        public static RichTextBox PropertiesWindow;
 
         /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
         public static GroupBox PropertiesPanel;
+
+        /// <summary> StructBSIdkNameItLater Class Pointer/Refference. </summary>
+        public static PropertiesHandler Panels;
         
-        /// <summary> Output Window Pointer/Ref Because I'm Lazy. </summary>
-        public static RichTextBox PropertiesWindow;
+        /// <summary> Log Window Pointer/Refference.  </summary>
+        public static RichTextBox LogWindow;
 
         public static DebugPanel Bingus;
         
@@ -369,13 +372,15 @@ namespace NaughtyDogDCReader
 
         private readonly binThreadFormWand abortButtonMammet  = new binThreadFormWand((args) =>
         {
-            if (args == null || args.Length < 1 || AbortOrCloseBtn == null)
+            if (args == null || AbortOrCloseBtn == null)
             {
                 return;
             }
 
             foreach (object obj in args)
             {
+                // Change the state of the button.
+                // Null = Toggle | Int = Specific State
                 if (obj == null || obj.GetType() == typeof(int))
                 {
                     var newIndex = (int) (obj ?? (AbortOrCloseBtn.Text == "Abort" ? 1 : 0));
@@ -392,11 +397,14 @@ namespace NaughtyDogDCReader
                     AbortOrCloseBtn.Location = new Point(AbortOrCloseBtn.Location.X + AbortButtonWidthDifference * (-2 * newIndex + 1), AbortOrCloseBtn.Location.Y);
                     return;
                 }
+                // Enable/Disable the button for bools
                 else if (obj.GetType() == typeof(bool))
                 {
                     AbortOrCloseBtn.Enabled = (bool)obj;
                     AbortOrCloseBtn.Font = new Font(AbortOrCloseBtn.Font.FontFamily, AbortOrCloseBtn.Font.Size, (FontStyle)(((bool) obj ? 0 : 8)));
                 }
+
+                // Complain if an arg of an unexpected type is provided
                 else
                     echo($"ERROR: Unexpected argument type of \"{obj.GetType()}\" provided to abortButtonMammet");
                 }
@@ -421,10 +429,12 @@ namespace NaughtyDogDCReader
         //## Global Look/Feel-Related Variables
         //#
 
-        public static Color AppColour = Color.FromArgb(125, 183, 245);
-        public static Color AppColourLight = Color.FromArgb(210, 240, 250);
+        public static Color AppColour = Color.FromArgb(20, 20, 20);
+        public static Color AppColourLight = Color.FromArgb(42, 42, 42);
+        public static Color AppColourSpecial = Color.FromArgb(125, 183, 245);
+        public static Color AppAccentColour = Color.FromArgb(210, 240, 250); // Why did I choose this colour specifically? I forget.
 
-        public static Pen FormDecorationPen = new Pen(AppColourLight); // Colouring for Border Drawing
+        public static Pen FormDecorationPen = new Pen(AppAccentColour); // Colouring for Border Drawing
 
         public static readonly Font MainFont        = new Font("Gadugi", 8.25f, FontStyle.Bold); // For the vast majority of controls; anything the user doesn't edit, really.
         public static readonly Font TextFont        = new Font("Segoe UI Semibold", 9f); // For option controls with customized contents
@@ -656,71 +666,6 @@ namespace NaughtyDogDCReader
             KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control)sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
             Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
-        }
-
-
-
-        /// <summary>
-        /// Initialize Dropdown Menu Used for Toggling of Folder Browser Method
-        /// </summary>
-        private void CreateBrowseModeDropdownMenu()
-        {
-            var extalignment = BinFileBrowseBtn.Size.Height;
-            var alignment = BinFileBrowseBtn.Location;
-
-            var ButtonSize = new Size(BinFileBrowseBtn.Size.Width + optionsMenuDropdownBtn.Size.Width, 25);
-
-            DropdownMenu[0] = new Button() {
-                Font = new Font("Gadugi", 7.25f, FontStyle.Bold),
-                Text = "Directory Tree*",
-                BackColor = AppColour,
-                ForeColor = Color.Black,
-                FlatStyle = FlatStyle.Flat,
-                Location = new Point(alignment.X, alignment.Y + extalignment),
-                Size = ButtonSize
-            };
-            DropdownMenu[1] = new Button() {
-                Font = new Font("Gadugi", 7.25F, FontStyle.Bold),
-                Text = "File Browser",
-                BackColor = AppColour,
-                ForeColor = Color.Black,
-                FlatStyle = FlatStyle.Flat,
-                Location = new Point(alignment.X, alignment.Y + extalignment + DropdownMenu[0].Size.Height),
-                Size = ButtonSize
-            };
-
-
-            // Create and Assign Event Handlers
-            DropdownMenu[0].Click += (why, does) =>
-            {
-                if (!LegacyFolderSelectionDialogue) {
-                    DropdownMenu[0].Text += '*';
-                    DropdownMenu[1].Text = DropdownMenu[1].Text.Remove(DropdownMenu[1].Text.Length-1);
-
-                    LegacyFolderSelectionDialogue ^= true;
-                }
-            };
-            DropdownMenu[1].Click += (my, back) =>
-            {
-                if (LegacyFolderSelectionDialogue) {
-                    DropdownMenu[1].Text += '*';
-                    DropdownMenu[0].Text = DropdownMenu[0].Text.Remove(DropdownMenu[0].Text.Length-1);
-
-                    LegacyFolderSelectionDialogue ^= true;
-                }
-            };
-            // still hurt. there was a third event at first.
-
-
-            // Add Controls to MainForm Control Collection
-            Controls.Add(DropdownMenu[0]);
-            Controls.Add(DropdownMenu[1]);
-
-            // Ensure Controls Display Correctly
-            DropdownMenu[0].Hide();
-            DropdownMenu[1].Hide();
-            DropdownMenu[0].BringToFront();
-            DropdownMenu[1].BringToFront();
         }
         #endregion
 

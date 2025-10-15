@@ -84,7 +84,7 @@ namespace NaughtyDogDCReader
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
-#if !DEBUG
+#if !false
             using (var Browser = new OpenFileDialog
             {
                 Title = "Please select a script from \"bin/dc1\"."
@@ -95,8 +95,8 @@ namespace NaughtyDogDCReader
             }
 #else
             LoadBinFile(
-                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
-                @"C:\Users\blob\LocalModding\Bin Reversing\working (1.07)\weapon-mods.bin"
+                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
+                //@"C:\Users\blob\LocalModding\Bin Reversing\working (1.07)\weapon-mods.bin"
                 //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
             );
 #endif
@@ -267,7 +267,6 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// //! Write Me
         /// </summary>
-        /// <param name="pathObj"> The string object containing the path to the .bin file to be parsed. </param>
         private void ThreadedBinFileParse()
         {
             var binPath = ActiveFilePath?.ToString() ?? "null";
@@ -279,6 +278,8 @@ namespace NaughtyDogDCReader
                 //#
                 DCFile = File.ReadAllBytes(binPath);
 
+                // TODO: make sure there's no difference betweeen path versions! //!
+                // Check whether or not the script is a basic empty one
                 if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
                 {
                     StatusLabelMammet(new [] { "Empty DC File Loaded." });
@@ -287,13 +288,13 @@ namespace NaughtyDogDCReader
                 }
 
 
+                // Enable the abort button for the load process (do I even need this button anymore? I suppose not)
                 AbortButtonMammet(true);
 
                 DCScript = new DCFileHeader(DCFile, ActiveFileName);
 
                 for (int headerItemIndex = 0, offset = 0x28; headerItemIndex < DCScript.Entries.Length; headerItemIndex++, offset += 24)
                 {
-                    StatusLabelMammet(new[] { null, $" ({headerItemIndex} / {DCScript.TableLength})", null });
                     echo($"Item #{headerItemIndex}: [ Label: {DCScript.Entries[headerItemIndex].Name} Type: {DCScript.Entries[headerItemIndex].Type} Data Address: {DCScript.Entries[headerItemIndex].StructAddress:X} ]");
                 }
 
@@ -335,18 +336,19 @@ namespace NaughtyDogDCReader
         }
 
 
+
         /// <summary>
-        /// //! WRITE ME
+        /// //! WRITE A DESCRIPTION FOR ME!                                                                                          no.
         /// </summary>
-        /// <param name="binFile"> The whole DC file, loaded as a byte array. </param>
+        /// 
+        /// <param name="DCFile"> The whole DC file, loaded as a byte array. </param>
         /// <param name="Type"> The type of the DC struct. </param>
-        /// <param name="Address"> The address of the DC struct in the <paramref name="binFile"/>. </param>
+        /// <param name="Address"> The address of the DC struct in the <paramref name="DCFile"/>. </param>
         /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
-        /// <param name="silent"></param>
         /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
-        private static object LoadDCStructByType(byte[] binFile, SID Type, long Address, object NameObj = null)
+        private static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, object Name = null)
         {
-            var Name = (SID) (NameObj ?? SID.Empty);
+            var name = (SID) (Name ?? SID.Empty);
 
             switch (Type.RawID)
             {
@@ -354,23 +356,23 @@ namespace NaughtyDogDCReader
                 //## Mapped Structures
                 //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case KnownSIDs.map:                       return new DCMapDef(binFile, Address, Name);
+                case KnownSIDs.map:                       return new DCMapDef(DCFile, Address, name);
                 
-                case KnownSIDs.weapon_gameplay_defs:      return new WeaponGameplayDef(binFile, Address, Name);
+                case KnownSIDs.weapon_gameplay_defs:      return new WeaponGameplayDef(DCFile, Address, name);
                 
-                case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(binFile, Address, Name);
+                case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
                 
-                case KnownSIDs.symbol_array:              return new SymbolArrayDef(binFile, Address, Name);
+                case KnownSIDs.symbol_array:              return new SymbolArrayDef(DCFile, Address, name);
                 
-                case KnownSIDs.ammo_to_weapon_array:      return new AmmoToWeaponArray(binFile, Address, Name);
+                case KnownSIDs.ammo_to_weapon_array:      return new AmmoToWeaponArray(DCFile, Address, name);
 
-                case KnownSIDs.look2_def:                 return new Look2Def(binFile, Address, Name);
+                case KnownSIDs.look2_def:                 return new Look2Def(DCFile, Address, name);
 
                     
                 //#
                 //## Unmapped Structures
                 //#
-                default: return new UnknownStruct(Type, Address, Name);
+                default: return new UnknownStruct(Type, Address, name);
             }
         }
         #endregion [Function Declarations]
