@@ -42,11 +42,11 @@ namespace NaughtyDogDCReader
                     return;
                 }
 
-            
+
                 //#
                 //## Run a few basic integrity checks
                 //#
-                var integrityCheck  = new SID(GetSubArray(binFile, 0x20));
+                var integrityCheck = new SID(GetSubArray(binFile, 0x20));
                 if (integrityCheck.RawID != KnownSIDs.array)
                 {
                     echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20, aborting.");
@@ -62,8 +62,8 @@ namespace NaughtyDogDCReader
                     echo($"ERROR; Unexpected Value \"{unkInt1}\" read at 0x18, aborting.");
                     return;
                 }
-            
-            
+
+
 
                 //#
                 //## Read remaining header info
@@ -77,23 +77,23 @@ namespace NaughtyDogDCReader
                 //#
                 //## Parse header content table
                 //#
-    #if false
+#if false
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
-    #endif
+#endif
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
                 StatusLabelMammet(new[] { "Reading Script...", emptyStr, emptyStr });
-                
+
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
                     Entries[tableIndex] = new DCHeaderItem(binFile, addr);
                 }
-            
-    #if false
+
+#if false
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
-    #endif
+#endif
             }
-            
-            
+
+
             //#
             //## Variable Declarations
             //#
@@ -119,10 +119,10 @@ namespace NaughtyDogDCReader
 
                 Name = new SID(GetSubArray(binFile, Address));
                 Type = new SID(GetSubArray(binFile, Address + 8));
-                
+
                 StructAddress = BitConverter.ToInt64(GetSubArray(binFile, Address + 16), 0);
 
-                
+
                 Struct = LoadMappedDCStructs(DCFile, Type, StructAddress, Name);
             }
 
@@ -136,12 +136,12 @@ namespace NaughtyDogDCReader
             /// The name of the current entry in the DC file header.
             /// </summary>
             public SID Name { get; set; }
-            
+
             /// <summary>
             /// The struct type of the current entry in the DC file header.
             /// </summary>
             public SID Type { get; set; }
-            
+
             /// <summary>
             /// The address of the struct pointed to by tbe current dc header entry.
             /// </summary>
@@ -177,7 +177,7 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-                
+
                 var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 if (mapLength < 1)
                 {
@@ -194,7 +194,7 @@ namespace NaughtyDogDCReader
 
 
                 echo($"\n  # Parsing {mapLength} Map Structures...");
-                for (int arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
+                for (var arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
                     var structAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
 
@@ -212,7 +212,7 @@ namespace NaughtyDogDCReader
                 echo($"  # Finished Parsing All Map Structures.");
             }
 
-            
+
             /// <summary>
             /// The name of the map item.
             /// </summary>
@@ -243,13 +243,13 @@ namespace NaughtyDogDCReader
                 this.Address = Address;
 
                 Symbols = new List<string>();
-                Hashes  = new List<long>();
+                Hashes = new List<long>();
 
 
                 var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
 
-                for (int i = 0; i < arrayLen; arrayAddr += 8, i++)
+                for (var i = 0; i < arrayLen; arrayAddr += 8, i++)
                 {
                     var dat = GetSubArray(binFile, (int)arrayAddr);
 
@@ -276,18 +276,18 @@ namespace NaughtyDogDCReader
             public AmmoToWeaponArray(byte[] binFile, long address, SID Name)
             {
                 var symbols = new List<string[]>();
-                var hashes  = new List<byte[][]>();
+                var hashes = new List<byte[][]>();
                 this.Name = Name;
-                
+
                 var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
                 var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
 
                 echo($"\n  # Parsing Ammo-to-Weapon Structures...");
-                for (int i = 0; i < arrayLen; arrayAddr += 16, i++)
+                for (var i = 0; i < arrayLen; arrayAddr += 16, i++)
                 {
                     StatusLabelMammet(new[] { null, null, $"Ammo-to-Weapon Entry: {i} / {arrayLen - 1}" });
 
-                    hashes.Add(new[] { GetSubArray(binFile, (int)arrayAddr + 8), GetSubArray(binFile, (int)arrayAddr) });
+                    hashes.Add(new[] { GetSubArray(binFile, (int) arrayAddr + 8), GetSubArray(binFile, (int) arrayAddr) });
                     symbols.Add(new[] { SIDBase.DecodeSIDHash(hashes.Last()[0]), SIDBase.DecodeSIDHash(hashes.Last()[1]) });
                 }
                 echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
@@ -304,7 +304,7 @@ namespace NaughtyDogDCReader
             public byte[][][] Hashes { get; set; }
         }
 
-    
+
 
         /// <summary>
         /// 
@@ -319,43 +319,43 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-                # region [variable initializations]
-				UnknownInt_at0x00 = 0;
-				UnknownInt_at0x04 = 0;
-				UnknownInt_at0x08 = 0;
-				UnknownFloat_at0x0C = 0;
-				UnknownLong_at0x20 = 0;
-				UnknownLong_at0x38 = 0;
-				UnknownLong_at0x40 = 0;
-				UnknownLong_at0x48 = 0;
-				UnknownByteArray_at0x50 = null;
-				UnknownLong_at0x60 = 0;
-				UnknownLong_at0x78 = 0;
-				UnknownByteArray_at0x88 = null;
-			
-			
-				ZoomCameraDoFSettingsSP = 0;
-				ZoomSniperCameraDoFSettingsSP = 0;
-				ScreenEffectSettings = 0;
-				#endregion [variable initializations]
+                #region [variable initializations]
+                UnknownInt_at0x00 = 0;
+                UnknownInt_at0x04 = 0;
+                UnknownInt_at0x08 = 0;
+                UnknownFloat_at0x0C = 0;
+                UnknownLong_at0x20 = 0;
+                UnknownLong_at0x38 = 0;
+                UnknownLong_at0x40 = 0;
+                UnknownLong_at0x48 = 0;
+                UnknownByteArray_at0x50 = null;
+                UnknownLong_at0x60 = 0;
+                UnknownLong_at0x78 = 0;
+                UnknownByteArray_at0x88 = null;
 
-                
+
+                ZoomCameraDoFSettingsSP = 0;
+                ZoomSniperCameraDoFSettingsSP = 0;
+                ScreenEffectSettings = 0;
+                #endregion [variable initializations]
+
+
 
                 //#
                 //## Parse Weapon Gameplay Definition
                 //#
-                
+
                 // Load firearm-related variables
-                FirearmGameplayDefinition = new FirearmGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmGameplayDef_Ptr), 0), Name);
-                
-                MeleeWeaponGameplayDefinition = new MeleeWeaponGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + meleeGameplayDef_Ptr), 0), Name);
+                FirearmGameplayDefinition = new FirearmGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + firearmGameplayDef_Ptr), 0), Name);
 
-                BlindfireAutoTargetDefinition = new BlindfireAutoTargetDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + blindfireAutoTargetDef_Ptr), 0), Name);
+                MeleeWeaponGameplayDefinition = new MeleeWeaponGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + meleeGameplayDef_Ptr), 0), Name);
 
-                GrenadeGameplayDefinition = new GrenadeGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + grenadeGameplayDef_Ptr), 0), Name);
+                BlindfireAutoTargetDefinition = new BlindfireAutoTargetDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + blindfireAutoTargetDef_Ptr), 0), Name);
 
-                Hud2ReticleDefinition = new Hud2ReticleDef(binFile,  BitConverter.ToInt64(GetSubArray(binFile, (int)Address + hud2ReticleDef_Ptr), 0), Name);
-                
+                GrenadeGameplayDefinition = new GrenadeGameplayDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + grenadeGameplayDef_Ptr), 0), Name);
+
+                Hud2ReticleDefinition = new Hud2ReticleDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + hud2ReticleDef_Ptr), 0), Name);
+
             }
 
 
@@ -365,110 +365,110 @@ namespace NaughtyDogDCReader
             //# Private Members
             /// <summary> Weapon Gameplay Definition structure offset. </summary>
 			private const int
-				# region [offsets]
-				unknownInt_at0x00 = 0x00, // unknown uint
-				unknownInt_at0x04 = 0x04, // unknown uint
-				unknownInt_at0x08 = 0x08, // unknown uint
-				
-				unknownFloat_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
-				firearmGameplayDef_Ptr = 0x10, // firearm-gameplay-def*
-				blindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def*
-				
-				unknownLong_at0x20 = 0x20, // unknown ulong
-				grenadeGameplayDef_Ptr = 0x28, // grenade-gameplay-def*
-				
-				meleeGameplayDef_Ptr = 0x30, // melee-gameplay-def*
-				
-				unknownLong_at0x38 = 0x38, // unknown ulong
-				unknownLong_at0x40 = 0x40, // unknown ulong
-				unknownLong_at0x48 = 0x48, // unknown ulong
-				unknownByteArray_at0x50 = 0x50, // unknown byte[]
-				
-				hud2ReticleDef_Ptr = 0x58, // hud2-reticle-def*
-				unknownLong_at0x60 = 0x60, // unknown ulong
-				zoomCameraDoFSettingsSP = 0x68, // *zoom-camera-dof-settings-sp*
-				zoomSniperCameraDoFSettingsSP = 0x70, // *zoom-sniper-camera-dof-settings-sp*
-				unknownLong_at0x78 = 0x78, // unknown ulong
-				screenEffectSettings_Ptr = 0x80, // screen-effect-settings*
-				unknownByteArray_at0x88 = 0x88 // unknown byte[]
-				#endregion [offsets]
-			;
+            #region [offsets]
+                unknownInt_at0x00 = 0x00, // unknown uint
+                unknownInt_at0x04 = 0x04, // unknown uint
+                unknownInt_at0x08 = 0x08, // unknown uint
+
+                unknownFloat_at0x0C = 0x0C, // unknown, usually set to -1, but the bow has it set to zero
+                firearmGameplayDef_Ptr = 0x10, // firearm-gameplay-def*
+                blindfireAutoTargetDef_Ptr = 0x18, // blindfire-auto-target-def*
+
+                unknownLong_at0x20 = 0x20, // unknown ulong
+                grenadeGameplayDef_Ptr = 0x28, // grenade-gameplay-def*
+
+                meleeGameplayDef_Ptr = 0x30, // melee-gameplay-def*
+
+                unknownLong_at0x38 = 0x38, // unknown ulong
+                unknownLong_at0x40 = 0x40, // unknown ulong
+                unknownLong_at0x48 = 0x48, // unknown ulong
+                unknownByteArray_at0x50 = 0x50, // unknown byte[]
+
+                hud2ReticleDef_Ptr = 0x58, // hud2-reticle-def*
+                unknownLong_at0x60 = 0x60, // unknown ulong
+                zoomCameraDoFSettingsSP = 0x68, // *zoom-camera-dof-settings-sp*
+                zoomSniperCameraDoFSettingsSP = 0x70, // *zoom-sniper-camera-dof-settings-sp*
+                unknownLong_at0x78 = 0x78, // unknown ulong
+                screenEffectSettings_Ptr = 0x80, // screen-effect-settings*
+                unknownByteArray_at0x88 = 0x88 // unknown byte[]
+            #endregion [offsets]
+            ;
 
 
-            
+
             // ## Public Members (heh)
             /// <summary> The name for the weapon this WeaponGameplayDefinition belongs to. </summary>
             public SID Name { get; set; }
             /// <summary> The address of the WeaponGameplayDefinition struct in the provided DC file. </summary>
             public long Address { get; set; }
 
-            
-			#region [variable declarations]
-			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_at0x00 { get; set; }
 
-			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_at0x04 { get; set; }
+            #region [variable declarations]
+            /// <summary> unknown uint <summary/>
+            public uint UnknownInt_at0x00 { get; set; }
 
-			/// <summary> unknown uint <summary/>
-			public uint UnknownInt_at0x08 { get; set; }
+            /// <summary> unknown uint <summary/>
+            public uint UnknownInt_at0x04 { get; set; }
 
-			
-			/// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
-			public float UnknownFloat_at0x0C { get; set; }
+            /// <summary> unknown uint <summary/>
+            public uint UnknownInt_at0x08 { get; set; }
 
-			/// <summary> firearm-gameplay-def* <summary/>
-			public FirearmGameplayDef FirearmGameplayDefinition { get; set; }
 
-			/// <summary> blindfire-auto-target-def* <summary/>
-			public BlindfireAutoTargetDef BlindfireAutoTargetDefinition { get; set; }
+            /// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
+            public float UnknownFloat_at0x0C { get; set; }
 
-			
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x20 { get; set; }
+            /// <summary> firearm-gameplay-def* <summary/>
+            public FirearmGameplayDef FirearmGameplayDefinition { get; set; }
 
-			/// <summary> grenade-gameplay-def* <summary/>
-			public GrenadeGameplayDef GrenadeGameplayDefinition { get; set; }
+            /// <summary> blindfire-auto-target-def* <summary/>
+            public BlindfireAutoTargetDef BlindfireAutoTargetDefinition { get; set; }
 
-			
-			/// <summary> melee-gameplay-def* <summary/>
-			public MeleeWeaponGameplayDef MeleeWeaponGameplayDefinition { get; set; }
 
-			
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x38 { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownLong_at0x20 { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x40 { get; set; }
+            /// <summary> grenade-gameplay-def* <summary/>
+            public GrenadeGameplayDef GrenadeGameplayDefinition { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x48 { get; set; }
 
-			/// <summary> unknown byte[] <summary/>
-			public byte[] UnknownByteArray_at0x50 { get; set; }
+            /// <summary> melee-gameplay-def* <summary/>
+            public MeleeWeaponGameplayDef MeleeWeaponGameplayDefinition { get; set; }
 
-			
-			/// <summary> hud2-reticle-def* <summary/>
-			public Hud2ReticleDef Hud2ReticleDefinition { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x60 { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownLong_at0x38 { get; set; }
 
-			/// <summary> *zoom-camera-dof-settings-sp* <summary/>
-			public ulong ZoomCameraDoFSettingsSP { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownLong_at0x40 { get; set; }
 
-			/// <summary> *zoom-sniper-camera-dof-settings-sp* <summary/>
-			public ulong ZoomSniperCameraDoFSettingsSP { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownLong_at0x48 { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownLong_at0x78 { get; set; }
+            /// <summary> unknown byte[] <summary/>
+            public byte[] UnknownByteArray_at0x50 { get; set; }
 
-			/// <summary> screen-effect-settings* <summary/>
-			public ulong ScreenEffectSettings { get; set; }
 
-			/// <summary> unknown byte[] <summary/>
-			public byte[] UnknownByteArray_at0x88 { get; set; }
-			#endregion [variable declarations]
+            /// <summary> hud2-reticle-def* <summary/>
+            public Hud2ReticleDef Hud2ReticleDefinition { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownLong_at0x60 { get; set; }
+
+            /// <summary> *zoom-camera-dof-settings-sp* <summary/>
+            public ulong ZoomCameraDoFSettingsSP { get; set; }
+
+            /// <summary> *zoom-sniper-camera-dof-settings-sp* <summary/>
+            public ulong ZoomSniperCameraDoFSettingsSP { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownLong_at0x78 { get; set; }
+
+            /// <summary> screen-effect-settings* <summary/>
+            public ulong ScreenEffectSettings { get; set; }
+
+            /// <summary> unknown byte[] <summary/>
+            public byte[] UnknownByteArray_at0x88 { get; set; }
+            #endregion [variable declarations]
         }
 
 
@@ -488,194 +488,194 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-                # region [variable initializations]
-				AmmoTypes = 0;
-			
-				UnknownFloat_at0x14 = 0;
-				UnknownFloat_at0x18 = 0;
-				UnknownInt_at0x20 = 0;
-				UnknownFloat_at0x24 = 0;
-				UnknownFloat_at0x28 = 0;
-				UnknownFloat_at0x2C = 0;
-				UnknownFloat_at0x30 = 0;
-				UnknownFloat_at0x48 = 0;
-				UnknownFloat_at0x50 = 0;
-				UnknownFloat_at0x54 = 0;
-				UnknownFloat_at0x60 = 0;
-				UnknownInt_at0x68 = 0;
-				UnknownFloat_at0x6C = 0;
-				UnknownFloat_at0x70 = 0;
-				UnknownFloat_at0x74 = 0;
-				UnknownFloat_at0x78 = 0;
-				UnknownFloat_at0x7C = 0;
-				UnknownFloat_at0x80 = 0;
-				UnknownFloat_at0x84 = 0;
-				UnknownFloat_at0x88 = 0;
-				UnknownFloat_at0x8C = 0;
-				BaseAmmoCount = 0;
-				UnknownFloat_at0xA0 = 0;
-				UnknownFloat_at0xA4 = 0;
-				UnknownFloat_at0xA8 = 0;
-				UnknownFloat_at0xAC = 0;
-			
-				ScopedLagSettings = 0;
-			
-				ProneAim0SID = 0;
-				UnknownFloat_at0xC0 = 0;
-				UnknownFloat_at0xC4 = 0;
-				UnknownFloat_at0xC8 = 0;
-				UnknownFloat_at0xCC = 0;
-			
-				FirearmAimDeviationDef0 = 0;
-				FirearmAimDeviationDef1 = 0;
-			
-				UnknownFloat_at0xE0 = 0;
-				UnknownFloat_at0xE4 = 0;
-				UnknownFloat_at0xE8 = 0;
-			
-				FirearmKickbackDef0 = 0;
-				FirearmKickbackDef1 = 0;
-				FirearmKickbackDef2 = 0;
-				FirearmKickbackDef3 = 0;
-			
-				UnknownFloat_at0x118 = 0;
-				UnknownFloat_at0x120 = 0;
-			
-				LerpAimSwaySettings0 = 0;
-				LerpAimSwaySettings1 = 0;
-				LerpAimSwaySettings2 = 0;
-				SwayHoldBreathSettings0 = 0;
-				SwayHoldBreathSettings1 = 0;
-			
-				UnknownInt_at0x158 = 0;
-				UnknownFloat_at0x15C = 0;
-				UnknownFloat_at0x160 = 0;
-				UnknownFloat_at0x164 = 0;
-				UnknownFloat_at0x168 = 0;
-				UnknownFloat_at0x16C = 0;
-				UnknownInt_at0x194 = 0;
-				UnknownFloat_at0x19C = 0;
-			
-				UnknownAimSID = 0;
-				HorseAimSID = 0;
-				ProneAim1SID = 0;
-				AimAssistSID = 0;
-				HapticSettingsSID = 0;
-				RumbleSettingsSID = 0;
-				CameraShakeRightSID = 0;
-				CameraShakeLeftSID = 0;
-				PointCurve0 = 0;
-				GunmoveIkSettings = 0;
-				PointCurve1 = 0;
-				PointCurve2 = 0;
-				DamageLinksSID = 0;
-				#endregion [variable initializations]
+                #region [variable initializations]
+                AmmoTypes = 0;
+
+                UnknownFloat_at0x14 = 0;
+                UnknownFloat_at0x18 = 0;
+                UnknownInt_at0x20 = 0;
+                UnknownFloat_at0x24 = 0;
+                UnknownFloat_at0x28 = 0;
+                UnknownFloat_at0x2C = 0;
+                UnknownFloat_at0x30 = 0;
+                UnknownFloat_at0x48 = 0;
+                UnknownFloat_at0x50 = 0;
+                UnknownFloat_at0x54 = 0;
+                UnknownFloat_at0x60 = 0;
+                UnknownInt_at0x68 = 0;
+                UnknownFloat_at0x6C = 0;
+                UnknownFloat_at0x70 = 0;
+                UnknownFloat_at0x74 = 0;
+                UnknownFloat_at0x78 = 0;
+                UnknownFloat_at0x7C = 0;
+                UnknownFloat_at0x80 = 0;
+                UnknownFloat_at0x84 = 0;
+                UnknownFloat_at0x88 = 0;
+                UnknownFloat_at0x8C = 0;
+                BaseAmmoCount = 0;
+                UnknownFloat_at0xA0 = 0;
+                UnknownFloat_at0xA4 = 0;
+                UnknownFloat_at0xA8 = 0;
+                UnknownFloat_at0xAC = 0;
+
+                ScopedLagSettings = 0;
+
+                ProneAim0SID = 0;
+                UnknownFloat_at0xC0 = 0;
+                UnknownFloat_at0xC4 = 0;
+                UnknownFloat_at0xC8 = 0;
+                UnknownFloat_at0xCC = 0;
+
+                FirearmAimDeviationDef0 = 0;
+                FirearmAimDeviationDef1 = 0;
+
+                UnknownFloat_at0xE0 = 0;
+                UnknownFloat_at0xE4 = 0;
+                UnknownFloat_at0xE8 = 0;
+
+                FirearmKickbackDef0 = 0;
+                FirearmKickbackDef1 = 0;
+                FirearmKickbackDef2 = 0;
+                FirearmKickbackDef3 = 0;
+
+                UnknownFloat_at0x118 = 0;
+                UnknownFloat_at0x120 = 0;
+
+                LerpAimSwaySettings0 = 0;
+                LerpAimSwaySettings1 = 0;
+                LerpAimSwaySettings2 = 0;
+                SwayHoldBreathSettings0 = 0;
+                SwayHoldBreathSettings1 = 0;
+
+                UnknownInt_at0x158 = 0;
+                UnknownFloat_at0x15C = 0;
+                UnknownFloat_at0x160 = 0;
+                UnknownFloat_at0x164 = 0;
+                UnknownFloat_at0x168 = 0;
+                UnknownFloat_at0x16C = 0;
+                UnknownInt_at0x194 = 0;
+                UnknownFloat_at0x19C = 0;
+
+                UnknownAimSID = 0;
+                HorseAimSID = 0;
+                ProneAim1SID = 0;
+                AimAssistSID = 0;
+                HapticSettingsSID = 0;
+                RumbleSettingsSID = 0;
+                CameraShakeRightSID = 0;
+                CameraShakeLeftSID = 0;
+                PointCurve0 = 0;
+                GunmoveIkSettings = 0;
+                PointCurve1 = 0;
+                PointCurve2 = 0;
+                DamageLinksSID = 0;
+                #endregion [variable initializations]
 
 
 
 
-                BaseAmmoCount = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)Address + baseAmmoCount), 0);
+                BaseAmmoCount = (int) BitConverter.ToInt64(GetSubArray(binFile, (int) Address + baseAmmoCount), 0);
 
-                
-                FirearmDamageMovementDefinition = new FirearmDamageMovementDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmDamageMovementDef_Ptr), 0), Name);
-                
-                FirearmStatBarDefinition = new FirearmStatBarDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int)Address + firearmStatBarDef_Ptr), 0), Name);
+
+                FirearmDamageMovementDefinition = new FirearmDamageMovementDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + firearmDamageMovementDef_Ptr), 0), Name);
+
+                FirearmStatBarDefinition = new FirearmStatBarDef(binFile, BitConverter.ToInt64(GetSubArray(binFile, (int) Address + firearmStatBarDef_Ptr), 0), Name);
             }
 
-            
+
 
             //#
             //## Variable Declarations
             //#
-            
+
             //# Private Members
             /// <summary>  Firearm Gameplay Definition structure offset. </summary>
-			private const int
-				# region [offsets]
-				ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
-				
-				unknownFloat_at0x14 = 0x14, // unknown float
-				unknownFloat_at0x18 = 0x18, // unknown float
-				unknownInt_at0x20 = 0x20, // unknown int
-				unknownFloat_at0x24 = 0x24, // unknown float
-				unknownFloat_at0x28 = 0x28, // unknown float
-				unknownFloat_at0x2C = 0x2C, // unknown float
-				unknownFloat_at0x30 = 0x30, // unknown float
-				unknownFloat_at0x48 = 0x48, // unknown float
-				unknownFloat_at0x50 = 0x50, // unknown float
-				unknownFloat_at0x54 = 0x54, // unknown float
-				unknownFloat_at0x60 = 0x60, // unknown float
-				unknownInt_at0x68 = 0x68, // unknown int
-				unknownFloat_at0x6C = 0x6C, // unknown float
-				unknownFloat_at0x70 = 0x70, // unknown float
-				unknownFloat_at0x74 = 0x74, // unknown float
-				unknownFloat_at0x78 = 0x78, // unknown float
-				unknownFloat_at0x7C = 0x7C, // unknown float
-				unknownFloat_at0x80 = 0x80, // unknown float
-				unknownFloat_at0x84 = 0x84, // unknown float
-				unknownFloat_at0x88 = 0x88, // unknown float
-				unknownFloat_at0x8C = 0x8C, // unknown float
-				baseAmmoCount = 0x98, // integer (long or int?) amount of base ammo
-				unknownFloat_at0xA0 = 0xA0, // unknown float
-				unknownFloat_at0xA4 = 0xA4, // unknown float
-				unknownFloat_at0xA8 = 0xA8, // unknown float
-				unknownFloat_at0xAC = 0xAC, // unknown float
-				
-				scopedLagSettings_Ptr = 0xB0, // scoped-lag-settings*
-				
-				proneAim0SID = 0xB8, // unknown ulong
-				unknownFloat_at0xC0 = 0xC0, // unknown float
-				unknownFloat_at0xC4 = 0xC4, // unknown float
-				unknownFloat_at0xC8 = 0xC8, // unknown float
-				unknownFloat_at0xCC = 0xCC, // unknown float
-				
-				firearmAimDeviationDef0_Ptr = 0xD0, // firearm-aim-deviation-def*
-				firearmAimDeviationDef1_Ptr = 0xD8, // firearm-aim-deviation-def*
-				
-				unknownFloat_at0xE0 = 0xE0, // unknown float
-				unknownFloat_at0xE4 = 0xE4, // unknown float
-				unknownFloat_at0xE8 = 0xE8, // unknown float
-				
-				firearmKickbackDef0_Ptr = 0xF0, // firearm-kickback-def*
-				firearmKickbackDef1_Ptr = 0xF8, // firearm-kickback-def*
-				firearmKickbackDef2_Ptr = 0x108, // firearm-kickback-def*
-				firearmKickbackDef3_Ptr = 0x110, // firearm-kickback-def*
-				
-				unknownFloat_at0x118 = 0x118, // unknown float
-				unknownFloat_at0x120 = 0x120, // unknown float
-				
-				lerpAimSwaySettings0_Ptr = 0x128, // lerp-aim-sway-settings*
-				lerpAimSwaySettings1_Ptr = 0x130, // lerp-aim-sway-settings*
-				lerpAimSwaySettings2_Ptr = 0x140, // lerp-aim-sway-settings*
-				swayHoldBreathSettings0_Ptr = 0x148, // sway-hold-breath-settings*
-				swayHoldBreathSettings1_Ptr = 0x150, // sway-hold-breath-settings*
-				
-				unknownInt_at0x158 = 0x158, // unknown int
-				unknownFloat_at0x15C = 0x15C, // unknown float
-				unknownFloat_at0x160 = 0x160, // unknown float
-				unknownFloat_at0x164 = 0x164, // unknown float
-				unknownFloat_at0x168 = 0x168, // unknown float
-				unknownFloat_at0x16C = 0x16C, // unknown float
-				unknownInt_at0x194 = 0x194, // unknown int
-				unknownFloat_at0x19C = 0x19C, // unknown float
-				
-				unknownAimSID = 0x1A0, // unknown ulong
-				horseAimSID = 0x1A8, // unknown ulong
-				proneAim1SID = 0x1B0, // unknown ulong
-				aimAssistSID = 0x1B8, // unknown ulong
-				firearmDamageMovementDef_Ptr = 0x1C8, // firearm-damage-movement-def*
-				hapticSettingsSID = 0x1F8, // unknown ulong
-				rumbleSettingsSID = 0x200, // unknown ulong
-				cameraShakeRightSID = 0x208, // unknown ulong
-				cameraShakeLeftSID = 0x210, // unknown ulong
-				pointCurve0_Ptr = 0x228, // unknown ulong
-				gunmoveIkSettings_Ptr = 0x278, // gunmove-ik-settings*
-				firearmStatBarDef_Ptr = 0x280, // firearm-stat-bar-def*
-				pointCurve1_Ptr = 0x288, // unknown ulong
-				pointCurve2_Ptr = 0x290, // unknown ulong
-				damageLinksSID = 0x2A0  // unknown ulong
-				#endregion [offsets]
-			;
+            private const int
+            #region [offsets]
+                ammoTypes_Ptr = 0x00, // symbol-array containing ammo type names
+
+                unknownFloat_at0x14 = 0x14, // unknown float
+                unknownFloat_at0x18 = 0x18, // unknown float
+                unknownInt_at0x20 = 0x20, // unknown int
+                unknownFloat_at0x24 = 0x24, // unknown float
+                unknownFloat_at0x28 = 0x28, // unknown float
+                unknownFloat_at0x2C = 0x2C, // unknown float
+                unknownFloat_at0x30 = 0x30, // unknown float
+                unknownFloat_at0x48 = 0x48, // unknown float
+                unknownFloat_at0x50 = 0x50, // unknown float
+                unknownFloat_at0x54 = 0x54, // unknown float
+                unknownFloat_at0x60 = 0x60, // unknown float
+                unknownInt_at0x68 = 0x68, // unknown int
+                unknownFloat_at0x6C = 0x6C, // unknown float
+                unknownFloat_at0x70 = 0x70, // unknown float
+                unknownFloat_at0x74 = 0x74, // unknown float
+                unknownFloat_at0x78 = 0x78, // unknown float
+                unknownFloat_at0x7C = 0x7C, // unknown float
+                unknownFloat_at0x80 = 0x80, // unknown float
+                unknownFloat_at0x84 = 0x84, // unknown float
+                unknownFloat_at0x88 = 0x88, // unknown float
+                unknownFloat_at0x8C = 0x8C, // unknown float
+                baseAmmoCount = 0x98, // integer (long or int?) amount of base ammo
+                unknownFloat_at0xA0 = 0xA0, // unknown float
+                unknownFloat_at0xA4 = 0xA4, // unknown float
+                unknownFloat_at0xA8 = 0xA8, // unknown float
+                unknownFloat_at0xAC = 0xAC, // unknown float
+
+                scopedLagSettings_Ptr = 0xB0, // scoped-lag-settings*
+
+                proneAim0SID = 0xB8, // unknown ulong
+                unknownFloat_at0xC0 = 0xC0, // unknown float
+                unknownFloat_at0xC4 = 0xC4, // unknown float
+                unknownFloat_at0xC8 = 0xC8, // unknown float
+                unknownFloat_at0xCC = 0xCC, // unknown float
+
+                firearmAimDeviationDef0_Ptr = 0xD0, // firearm-aim-deviation-def*
+                firearmAimDeviationDef1_Ptr = 0xD8, // firearm-aim-deviation-def*
+
+                unknownFloat_at0xE0 = 0xE0, // unknown float
+                unknownFloat_at0xE4 = 0xE4, // unknown float
+                unknownFloat_at0xE8 = 0xE8, // unknown float
+
+                firearmKickbackDef0_Ptr = 0xF0, // firearm-kickback-def*
+                firearmKickbackDef1_Ptr = 0xF8, // firearm-kickback-def*
+                firearmKickbackDef2_Ptr = 0x108, // firearm-kickback-def*
+                firearmKickbackDef3_Ptr = 0x110, // firearm-kickback-def*
+
+                unknownFloat_at0x118 = 0x118, // unknown float
+                unknownFloat_at0x120 = 0x120, // unknown float
+
+                lerpAimSwaySettings0_Ptr = 0x128, // lerp-aim-sway-settings*
+                lerpAimSwaySettings1_Ptr = 0x130, // lerp-aim-sway-settings*
+                lerpAimSwaySettings2_Ptr = 0x140, // lerp-aim-sway-settings*
+                swayHoldBreathSettings0_Ptr = 0x148, // sway-hold-breath-settings*
+                swayHoldBreathSettings1_Ptr = 0x150, // sway-hold-breath-settings*
+
+                unknownInt_at0x158 = 0x158, // unknown int
+                unknownFloat_at0x15C = 0x15C, // unknown float
+                unknownFloat_at0x160 = 0x160, // unknown float
+                unknownFloat_at0x164 = 0x164, // unknown float
+                unknownFloat_at0x168 = 0x168, // unknown float
+                unknownFloat_at0x16C = 0x16C, // unknown float
+                unknownInt_at0x194 = 0x194, // unknown int
+                unknownFloat_at0x19C = 0x19C, // unknown float
+
+                unknownAimSID = 0x1A0, // unknown ulong
+                horseAimSID = 0x1A8, // unknown ulong
+                proneAim1SID = 0x1B0, // unknown ulong
+                aimAssistSID = 0x1B8, // unknown ulong
+                firearmDamageMovementDef_Ptr = 0x1C8, // firearm-damage-movement-def*
+                hapticSettingsSID = 0x1F8, // unknown ulong
+                rumbleSettingsSID = 0x200, // unknown ulong
+                cameraShakeRightSID = 0x208, // unknown ulong
+                cameraShakeLeftSID = 0x210, // unknown ulong
+                pointCurve0_Ptr = 0x228, // unknown ulong
+                gunmoveIkSettings_Ptr = 0x278, // gunmove-ik-settings*
+                firearmStatBarDef_Ptr = 0x280, // firearm-stat-bar-def*
+                pointCurve1_Ptr = 0x288, // unknown ulong
+                pointCurve2_Ptr = 0x290, // unknown ulong
+                damageLinksSID = 0x2A0  // unknown ulong
+            #endregion [offsets]
+            ;
 
 
             //# Public Members
@@ -685,232 +685,232 @@ namespace NaughtyDogDCReader
             public long Address { get; set; }
 
             #region [variable declarations]
-			/// <summary> symbol-array containing ammo type names <summary/>
-			public ulong AmmoTypes { get; set; }
+            /// <summary> symbol-array containing ammo type names <summary/>
+            public ulong AmmoTypes { get; set; }
 
-			
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x14 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x18 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x14 { get; set; }
 
-			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x20 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x18 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x24 { get; set; }
+            /// <summary> unknown int <summary/>
+            public int UnknownInt_at0x20 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x28 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x24 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x2C { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x28 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x30 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x2C { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x48 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x30 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x50 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x48 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x54 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x50 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x60 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x54 { get; set; }
 
-			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x68 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x60 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x6C { get; set; }
+            /// <summary> unknown int <summary/>
+            public int UnknownInt_at0x68 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x70 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x6C { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x74 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x70 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x78 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x74 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x7C { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x78 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x80 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x7C { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x84 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x80 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x88 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x84 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x8C { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x88 { get; set; }
 
-			/// <summary> integer (long or int?) amount of base ammo <summary/>
-			public long BaseAmmoCount { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x8C { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xA0 { get; set; }
+            /// <summary> integer (long or int?) amount of base ammo <summary/>
+            public long BaseAmmoCount { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xA4 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xA0 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xA8 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xA4 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xAC { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xA8 { get; set; }
 
-			
-			/// <summary> scoped-lag-settings* <summary/>
-			public ulong ScopedLagSettings { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xAC { get; set; }
 
-			
-			/// <summary> unknown ulong <summary/>
-			public ulong ProneAim0SID { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xC0 { get; set; }
+            /// <summary> scoped-lag-settings* <summary/>
+            public ulong ScopedLagSettings { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xC4 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xC8 { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong ProneAim0SID { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xCC { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xC0 { get; set; }
 
-			
-			/// <summary> firearm-aim-deviation-def* <summary/>
-			public ulong FirearmAimDeviationDef0 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xC4 { get; set; }
 
-			/// <summary> firearm-aim-deviation-def* <summary/>
-			public ulong FirearmAimDeviationDef1 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xC8 { get; set; }
 
-			
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xE0 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xCC { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xE4 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0xE8 { get; set; }
+            /// <summary> firearm-aim-deviation-def* <summary/>
+            public ulong FirearmAimDeviationDef0 { get; set; }
 
-			
-			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef0 { get; set; }
+            /// <summary> firearm-aim-deviation-def* <summary/>
+            public ulong FirearmAimDeviationDef1 { get; set; }
 
-			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef1 { get; set; }
 
-			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef2 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xE0 { get; set; }
 
-			/// <summary> firearm-kickback-def* <summary/>
-			public ulong FirearmKickbackDef3 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xE4 { get; set; }
 
-			
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x118 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0xE8 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x120 { get; set; }
 
-			
-			/// <summary> lerp-aim-sway-settings* <summary/>
-			public ulong LerpAimSwaySettings0 { get; set; }
+            /// <summary> firearm-kickback-def* <summary/>
+            public ulong FirearmKickbackDef0 { get; set; }
 
-			/// <summary> lerp-aim-sway-settings* <summary/>
-			public ulong LerpAimSwaySettings1 { get; set; }
+            /// <summary> firearm-kickback-def* <summary/>
+            public ulong FirearmKickbackDef1 { get; set; }
 
-			/// <summary> lerp-aim-sway-settings* <summary/>
-			public ulong LerpAimSwaySettings2 { get; set; }
+            /// <summary> firearm-kickback-def* <summary/>
+            public ulong FirearmKickbackDef2 { get; set; }
 
-			/// <summary> sway-hold-breath-settings* <summary/>
-			public ulong SwayHoldBreathSettings0 { get; set; }
+            /// <summary> firearm-kickback-def* <summary/>
+            public ulong FirearmKickbackDef3 { get; set; }
 
-			/// <summary> sway-hold-breath-settings* <summary/>
-			public ulong SwayHoldBreathSettings1 { get; set; }
 
-			
-			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x158 { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x118 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x15C { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x120 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x160 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x164 { get; set; }
+            /// <summary> lerp-aim-sway-settings* <summary/>
+            public ulong LerpAimSwaySettings0 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x168 { get; set; }
+            /// <summary> lerp-aim-sway-settings* <summary/>
+            public ulong LerpAimSwaySettings1 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x16C { get; set; }
+            /// <summary> lerp-aim-sway-settings* <summary/>
+            public ulong LerpAimSwaySettings2 { get; set; }
 
-			/// <summary> unknown int <summary/>
-			public int UnknownInt_at0x194 { get; set; }
+            /// <summary> sway-hold-breath-settings* <summary/>
+            public ulong SwayHoldBreathSettings0 { get; set; }
 
-			/// <summary> unknown float <summary/>
-			public float UnknownFloat_at0x19C { get; set; }
+            /// <summary> sway-hold-breath-settings* <summary/>
+            public ulong SwayHoldBreathSettings1 { get; set; }
 
-			
-			/// <summary> unknown ulong <summary/>
-			public ulong UnknownAimSID { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong HorseAimSID { get; set; }
+            /// <summary> unknown int <summary/>
+            public int UnknownInt_at0x158 { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong ProneAim1SID { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x15C { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong AimAssistSID { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x160 { get; set; }
 
-			/// <summary> firearm-damage-movement-def* <summary/>
-			public FirearmDamageMovementDef FirearmDamageMovementDefinition { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x164 { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong HapticSettingsSID { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x168 { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong RumbleSettingsSID { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x16C { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong CameraShakeRightSID { get; set; }
+            /// <summary> unknown int <summary/>
+            public int UnknownInt_at0x194 { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong CameraShakeLeftSID { get; set; }
+            /// <summary> unknown float <summary/>
+            public float UnknownFloat_at0x19C { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong PointCurve0 { get; set; }
 
-			/// <summary> gunmove-ik-settings* <summary/>
-			public ulong GunmoveIkSettings { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong UnknownAimSID { get; set; }
 
-			/// <summary> firearm-stat-bar-def* <summary/>
-			public FirearmStatBarDef FirearmStatBarDefinition { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong HorseAimSID { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong PointCurve1 { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong ProneAim1SID { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong PointCurve2 { get; set; }
+            /// <summary> unknown ulong <summary/>
+            public ulong AimAssistSID { get; set; }
 
-			/// <summary> unknown ulong <summary/>
-			public ulong DamageLinksSID { get; set; }
-			#endregion [variable declarations]
+            /// <summary> firearm-damage-movement-def* <summary/>
+            public FirearmDamageMovementDef FirearmDamageMovementDefinition { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong HapticSettingsSID { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong RumbleSettingsSID { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong CameraShakeRightSID { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong CameraShakeLeftSID { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong PointCurve0 { get; set; }
+
+            /// <summary> gunmove-ik-settings* <summary/>
+            public ulong GunmoveIkSettings { get; set; }
+
+            /// <summary> firearm-stat-bar-def* <summary/>
+            public FirearmStatBarDef FirearmStatBarDefinition { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong PointCurve1 { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong PointCurve2 { get; set; }
+
+            /// <summary> unknown ulong <summary/>
+            public ulong DamageLinksSID { get; set; }
+            #endregion [variable declarations]
         }
 
 
@@ -1038,23 +1038,23 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-                
+
                 ReticleName = 0;
                 ReticleSimpleName = 0;
 
-                
+
                 // Read Hud2 Reticle Name
-                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + reticleDefNameOffset), 0); binFile[i] != 0;)
+                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int) Address + reticleDefNameOffset), 0); binFile[i] != 0;)
                 {
-                    ReticleName += (char)binFile[i++];
+                    ReticleName += (char) binFile[i++];
                 }
                 // Read Hud2 Simple Reticle Name
-                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + reticleDefSimpleNameOffset), 0); binFile[i] != 0;)
+                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int) Address + reticleDefSimpleNameOffset), 0); binFile[i] != 0;)
                 {
-                    ReticleSimpleName += (char)binFile[i++];
+                    ReticleSimpleName += (char) binFile[i++];
                 }
             }
-            
+
             /// <summary> HUD2 Reticle Definition structure offset. </summary>
             private const byte
                 reticleDefNameOffset = 0x8,
@@ -1065,7 +1065,7 @@ namespace NaughtyDogDCReader
 
             public SID Name { get; set; }
             public long Address { get; set; }
-            
+
             public long ReticleName { get; set; }
             public long ReticleSimpleName { get; set; }
         }
@@ -1107,7 +1107,7 @@ namespace NaughtyDogDCReader
 
             public string Message { get; set; }
         }
-        
+
         public struct BaseStruct
         {
             public BaseStruct(long Address, SID Name)
@@ -1183,7 +1183,7 @@ namespace NaughtyDogDCReader
 
             #endregion [variable declarations]
         }
-        
+
 
 
 
@@ -1209,7 +1209,7 @@ namespace NaughtyDogDCReader
 
                 Venat?.DecodedSIDs.Add(this);
             }
-            
+
             /// <summary>
             /// Create a new SID instance from a provided ulong hash, and attempt to decode the id.
             /// </summary>
@@ -1237,9 +1237,9 @@ namespace NaughtyDogDCReader
                 RawID = (KnownSIDs) encodedSID;
             }
 
-            
-            
-            
+
+
+
 
 
 
@@ -1259,18 +1259,19 @@ namespace NaughtyDogDCReader
             /// </summary>
             public string DecodedID
             {
-                get {
+                get
+                {
                     if (_decodedID == "UNKNOWN_SID_64" && ShowUnresolvedSIDs)
                     {
                         return EncodedID;
                     }
-                    #if DEBUG
+#if DEBUG
                     else if (_decodedID == "INVALID_SID_64" && ShowInvalidSIDs)
                     {
                         return EncodedID;
                     }
-                    #endif
-                    
+#endif
+
                     return _decodedID;
                 }
 
@@ -1293,7 +1294,7 @@ namespace NaughtyDogDCReader
             public KnownSIDs RawID { get; set; }
 
 
-            
+
             /// <summary>
             /// Represents an item with an unspecified name.
             /// </summary>
@@ -1311,7 +1312,7 @@ namespace NaughtyDogDCReader
 
 
 
-    
+
     //======================================\\
     //--|   SIDBase Class Declaration   |---\\
     //======================================\\
@@ -1352,10 +1353,11 @@ namespace NaughtyDogDCReader
             }
 
 
-            SIDHashTable   = GetSubArray(rawSIDBase, 8, HashTableRawLength);
+            SIDHashTable = GetSubArray(rawSIDBase, 8, HashTableRawLength);
             SIDStringTable = GetSubArray(rawSIDBase, SIDHashTable.Length + 8, rawSIDBase.Length - (HashTableRawLength + 8));
-  
-            if (rawSIDBase.Length < 24) {
+
+            if (rawSIDBase.Length < 24)
+            {
                 //! Implement an error, since the file would obviously be corrupted.
 #if DEBUG
                 echo("ERROR: Invalid length for sidbase.bin (< 0x19- is it corrupted?)");
@@ -1365,7 +1367,7 @@ namespace NaughtyDogDCReader
             }
         }
 
-        
+
 
 
         //#
@@ -1376,7 +1378,7 @@ namespace NaughtyDogDCReader
         /// The Lookup table of the sidbase, containing the hashes & their decoded string pointers, the latter of which get adjusted to be used with the string table.
         /// </summary>
         private readonly byte[] SIDHashTable;
-        
+
         /// <summary>
         /// The raw, null-separated string data of the sidbase.
         /// </summary>
@@ -1388,7 +1390,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         public readonly int HashTableRawLength;
 
-        
+
         /// <summary>
         /// The amount of items in the sidbase.bin's lookup table.<br/>
         /// No reason to read it as a long integer, as if it's that big; we've already fucked off by now.
@@ -1397,8 +1399,8 @@ namespace NaughtyDogDCReader
 
 
 
-        
-        
+
+
         //#
         //## FUNCTION DECLARATIONS
         //#
@@ -1414,12 +1416,16 @@ namespace NaughtyDogDCReader
         {
             var ret = new byte[length];
 
-            for (/* muahahahahhahahaaa */; length > 0; ret[length - 1] = array[index + (length-- - 1)]);
+            for (/* muahahahahhahahaaa */; length > 0; ret[length - 1] = array[index + (length-- - 1)])
+            {
+                ;
+            }
+
             return ret;
         }
 
 
-        
+
         /// <summary>
         /// Attempt to decode a provided 64-bit FNV-1a hash via a provided lookup file (sidbase.bin)
         /// </summary>
@@ -1456,7 +1462,7 @@ namespace NaughtyDogDCReader
 
                     scanAddress = currentRange -= 8;
                 }
-                
+
 
                 while (true)
                 {
@@ -1467,7 +1473,7 @@ namespace NaughtyDogDCReader
                         {
                             goto readString;
                         }
-                    
+
                         scanAddress -= 0x10;
                     }
                     if (((currentRange >> 4) & 1) == 1)
@@ -1489,7 +1495,9 @@ namespace NaughtyDogDCReader
                         currentRange /= 2;
                     }
                     else
+                    {
                         break;
+                    }
 
 
 
@@ -1506,11 +1514,11 @@ namespace NaughtyDogDCReader
 
 
 
-                // Read the string pointer
-                readString:
-                var stringPtr = (int) BitConverter.ToInt64(SIDHashTable, scanAddress + 8); // Get the string pointer for the read hasha, located immediately after said hash
+            // Read the string pointer
+            readString:
+                var stringPtr = (int)BitConverter.ToInt64(SIDHashTable, scanAddress + 8); // Get the string pointer for the read hasha, located immediately after said hash
                 stringPtr -= HashTableRawLength + 8; // Adjust the string pointer to account for the lookup table being a separate array, and table length being removed
-                
+
                 if (stringPtr >= SIDStringTable.Length)
                 {
                     throw new IndexOutOfRangeException($"ERROR: Invalid Pointer Read for String Data!\n    str* 0x{stringPtr:X} >= len 0x{SIDHashTable.Length + SIDStringTable.Length + 8:X}.");
@@ -1522,25 +1530,27 @@ namespace NaughtyDogDCReader
 
                 while (SIDStringTable[stringPtr] != 0)
                 {
-                    stringBuffer += Encoding.UTF8.GetString(SIDStringTable, (int)stringPtr++, 1);
+                    stringBuffer += Encoding.UTF8.GetString(SIDStringTable, (int) stringPtr++, 1);
                 }
 
-                
+
                 return stringBuffer;
             }
-            else {
+            else
+            {
                 echo($"Invalid SID provided; unexpected length of \"{bytesToDecode?.Length ?? 0}\". Must be 8 bytes.");
                 return "INVALID_SID_64";
             }
         }
 
-        public string DecodeSIDHash(ulong EncodedSID) => DecodeSIDHash(BitConverter.GetBytes(EncodedSID));
-
-        
+        public string DecodeSIDHash(ulong EncodedSID)
+        {
+            return DecodeSIDHash(BitConverter.GetBytes(EncodedSID));
+        }
 
         private static void echo(object message = null)
         {
-            # if DEBUG
+#if DEBUG
             string str;
 
             Console.WriteLine(str = message?.ToString() ?? string.Empty);
@@ -1549,11 +1559,11 @@ namespace NaughtyDogDCReader
             {
                 Debug.WriteLine(str);
             }
-            #endif
+#endif
         }
 
 
-        #if false
+#if false
         private string BAD_DecodeSIDHash(byte[] bytesToDecode)
         {
             var ret = "UNKNOWN_SID_64";
@@ -1665,6 +1675,6 @@ namespace NaughtyDogDCReader
 
             return ret;
         }
-        #endif
+#endif
     }
 }

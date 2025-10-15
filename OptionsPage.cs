@@ -1,11 +1,11 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
-using System.Collections.Generic;
-using System.Linq;
 
 
 namespace NaughtyDogDCReader
@@ -16,14 +16,14 @@ namespace NaughtyDogDCReader
         {
             InitializeComponent();
             InitializeAdditionalEventHandlers_OptionsPage(this); // Set Event Handlers and Other Form-Related Crap
-            
+
             LoadOptions();
         }
 
 
 
         #region [Variable Declarations]
-        
+
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
         public Point[][] HSeparatorLines;
 
@@ -39,7 +39,10 @@ namespace NaughtyDogDCReader
         //======================================\\
         #region [Event Handler Declarations]
 
-        private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e) => ShowUnresolvedSIDs = ((CheckBox) sender).Checked;
+        private void ShowUnresolvedSIDsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            ShowUnresolvedSIDs = ((CheckBox) sender).Checked;
+        }
 
 
 
@@ -48,7 +51,8 @@ namespace NaughtyDogDCReader
         /// </summary>
         private async void VersionCheckBtn_Click(object sender, EventArgs e)
         {
-            try {
+            try
+            {
                 using (var clientHandler = new HttpClientHandler())
                 {
                     clientHandler.UseDefaultCredentials = true;
@@ -58,28 +62,33 @@ namespace NaughtyDogDCReader
                     {
                         HttpResponseMessage reply;
                         client.DefaultRequestHeaders.Add("User-Agent", "Other"); // Set request headers to avoid error 403
-                   
+
                         if ((reply = await client.GetAsync($"https://api.github.com/repos/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/tags")).IsSuccessStatusCode)
                         {
                             var message = reply.Content.ReadAsStringAsync().Result;
                             var tag = message.Remove(message.IndexOf(',') - 1).Substring(message.IndexOf(':') + 2);
-    #if DEBUG
+#if DEBUG
                             echo($"Newest Tag: [{tag}]");
-    #endif
+#endif
 
-                            if (tag != Main.Version) {
+                            if (tag != Main.Version)
+                            {
                                 string[]
                                     checkedVersion = tag.Split('.'),
                                     currentVersion = Main.Version.Split('.')
                                 ;
-                            
+
                                 if (checkedVersion.Length != currentVersion.Length)
                                 {
-                                    if (checkedVersion.Length < currentVersion.Length) {
+                                    if (checkedVersion.Length < currentVersion.Length)
+                                    {
                                         echo("Application Up-to-Date");
                                     }
                                     else
+                                    {
                                         echo($@"New Version Available.\nLink: https://github.com/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/releases");
+                                    }
+
                                     return;
                                 }
 
@@ -88,21 +97,25 @@ namespace NaughtyDogDCReader
                                     var currnum = currentVersion[i];
                                     var newnum = checkedVersion[i];
 
-                                    if (int.Parse(currnum) < int.Parse(newnum)) {
+                                    if (int.Parse(currnum) < int.Parse(newnum))
+                                    {
                                         echo($"New Version Available. (//! print link or prompt to open in browser)");
                                         return;
                                     }
                                 }
-                            
+
                                 echo("Application Up-to-Date");
                             }
                         }
                         else
+                        {
                             echo($"Error checking for newest tag (Status: {reply.StatusCode})");
+                        }
                     }
                 }
             }
-            catch (Exception dang) {
+            catch (Exception dang)
+            {
                 echo($"Unable to connect to api.github ({dang.GetType()})");
             }
         }
@@ -112,22 +125,25 @@ namespace NaughtyDogDCReader
         private void DownloadSourceBtn_Click(object sender, EventArgs e)
         {
             echo($"Download Latest Source: https://github.com/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/archive/refs/heads/master.zip\nNo guarantees on stability; I just use the main branch for everything.");
-            
+
             if (MessageBox.Show(
                     "Download the latest source code through this system's default browser?\n\n(Download Will Start Automatically)",
                     "Press \"Ok\" to open in a browser, or copy the link from the Output Window.",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question
-                ) 
+                )
                 == DialogResult.Yes)
             {
                 System.Diagnostics.Process.Start($"https://github.com/TheMagicalBlob/{nameof(NaughtyDogDCReader)}/archive/refs/heads/master.zip");
             }
-            else Azem.BringToFront();
+            else
+            {
+                Azem.BringToFront();
+            }
         }
 
 
-        
+
         private void UNUSEDBrowseBtn_Click(object sender, EventArgs e)
         {
             // Use the ghastly Directory Tree Dialogue to Choose A Folder
@@ -142,7 +158,8 @@ namespace NaughtyDogDCReader
                 }
             }
             // Use The Newer "Hackey" Method
-            else {
+            else
+            {
                 var CrapBrowser = new OpenFileDialog()
                 {
                     ValidateNames = false,
@@ -160,7 +177,7 @@ namespace NaughtyDogDCReader
             }
         }
         #endregion
-        
+
 
 
 
@@ -168,7 +185,7 @@ namespace NaughtyDogDCReader
         //--|   Options-Related Functions   |--\\
         //=====================================\\
         #region [Options-Related Functions]
-        
+
         /// <summary>
         /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
         /// </summary>
@@ -186,7 +203,7 @@ namespace NaughtyDogDCReader
                 if (line.IsSeparatorLine)
                 {
                     // Horizontal Lines
-                    hSeparatorLineScanner.Add(new Point[2] { 
+                    hSeparatorLineScanner.Add(new Point[2] {
                         new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
                         new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
                     });
@@ -195,15 +212,17 @@ namespace NaughtyDogDCReader
                 }
             }
 
-            if (hSeparatorLineScanner.Count > 0) {
+            if (hSeparatorLineScanner.Count > 0)
+            {
                 HSeparatorLines = hSeparatorLineScanner.ToArray();
             }
-            if (vSeparatorLineScanner.Count > 0) {
+            if (vSeparatorLineScanner.Count > 0)
+            {
                 VSeparatorLines = vSeparatorLineScanner.ToArray();
             }
 
-            
-            Paint += (venat, yoshiP) => DrawFormDecorations((Form)venat, yoshiP);
+
+            Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
 
 
 
@@ -213,7 +232,7 @@ namespace NaughtyDogDCReader
             CloseBtn.Click += new EventHandler((sender, e) =>
             {
                 // Hide OptionsPage Form
-                Azem.Visible = false;    
+                Azem.Visible = false;
                 SaveOptions();
             });
 
@@ -227,13 +246,13 @@ namespace NaughtyDogDCReader
                 //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
 
             });
-            MouseUp += new MouseEventHandler((sender, e) => 
+            MouseUp += new MouseEventHandler((sender, e) =>
                 MouseIsDown = false
             );
             MouseMove += new MouseEventHandler((sender, e) => MoveForm());
 
-            
-            foreach(Control item in Controls)
+
+            foreach (Control item in Controls)
             {
                 item.MouseDown += new MouseEventHandler((sender, e) =>
                 {
@@ -242,10 +261,10 @@ namespace NaughtyDogDCReader
 
                     //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
                 });
-                item.MouseUp   += new MouseEventHandler((sender, e) => 
+                item.MouseUp += new MouseEventHandler((sender, e) =>
                     MouseIsDown = false
                 );
-                
+
                 // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
                 if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
                 {
@@ -268,7 +287,7 @@ namespace NaughtyDogDCReader
             }
         }
 
-        
+
 
         /// <summary>
         /// Load any saved options from the local dc.blb file.

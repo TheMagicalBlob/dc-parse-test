@@ -9,7 +9,7 @@ namespace NaughtyDogDCReader
 {
     public class PropertiesHandler
     {
-        
+
         //================================\\
         //--|   Class Initialization   |--\\
         //================================\\
@@ -20,14 +20,13 @@ namespace NaughtyDogDCReader
         /// </summary>
         public PropertiesHandler()
         {
-            IndentationDepth = 0;
-            DefaultPropertyButtonHeight = 23;
             GroupBoxContentsOffset = 7;
+            DefaultPropertyButtonHeight = 23;
 
             propertiesPanelMammet = PopulatePropertiesPanelWithHeaderItems;
-            propertiesWindowSameLineMammet = _printPropertyDetailSL;
-            propertiesWindowNewLineMammet = _printPropertyDetailNL;
-            propertiesWindowSpecificLineMammet = _printPropertyDetailSpL;
+            propertiesWindowSameLineMammet = PropertiesWindowSameLineMammetWorker;
+            propertiesWindowNewLineMammet = PropertiesWindowNewLineMammetWorker;
+            propertiesWindowSpecificLineMammet = propertiesWindowSpecificLineMammetWorker;
         }
 
 
@@ -49,14 +48,18 @@ namespace NaughtyDogDCReader
 
 
 
+        /// <summary>
+        /// The selected/highlighted button out of the loaded header item buttons
+        /// </summary>
         private Button HeaderSelection
         {
             get => _headerSelection;
 
-            set {
+            set
+            {
                 if (value != null)
                 {
-                    PrintHeaderItemDetailDisplay((int)value.Tag);
+                    PrintHeaderItemDetailDisplay((int) value.Tag);
                 }
 
                 _headerSelection = value;
@@ -64,14 +67,19 @@ namespace NaughtyDogDCReader
         }
         private Button _headerSelection;
 
+
+        /// <summary>
+        /// The selected/highlighted button out of the loaded 
+        /// </summary>
         private Button SubItemSelection
         {
             get => _subItemSelection;
 
-            set {
+            set
+            {
                 if (value != null)
                 {
-                    PrintHeaderItemDetailDisplay((int)value.Tag);
+                    PrintHeaderItemDetailDisplay((int) value.Tag);
                 }
 
                 _subItemSelection = value;
@@ -80,30 +88,22 @@ namespace NaughtyDogDCReader
         private Button _subItemSelection;
 
 
+
+        /// <summary>
+        /// The (vertical) scroll bar used to navigate the buttons populating the PropertiesPanel when they bleed passed the bottom of the group box
+        /// </summary>
         private ScrollBar scrollBar;
-
-
 
         private int IndentationDepth
         {
-            get {
-                if (Indentation.Length < 8)
-                {
-                    return 0;
-                }
-
-                return Indentation.Length / 8;
-            }
-            set {
-                Indentation = new string(' ', value * 8);
-            }
+            get => Indentation.Length < 8 ? 0 : Indentation.Length / 8; set => Indentation = new string(' ', value * 8);
         }
 
 
         private string Indentation = emptyStr;
 
-        
-        private readonly Type[] WholeNumericalTypes = new []
+
+        private readonly Type[] WholeNumericalTypes = new[]
         {
             typeof(int),
             typeof(uint),
@@ -113,14 +113,14 @@ namespace NaughtyDogDCReader
             typeof(sbyte),
         };
 
-        
-        private readonly Type[] AdvancedNumericalTypes = new []
+
+        private readonly Type[] AdvancedNumericalTypes = new[]
         {
-            //typeof(decimal),
+            typeof(decimal),
             typeof(double),
             typeof(float),
         };
-        
+
 
 
         /// <summary>
@@ -133,23 +133,23 @@ namespace NaughtyDogDCReader
         /// </summary>
         private readonly int GroupBoxContentsOffset;
 
-        
+
 
 
         //#
         //## Threading-Related Variables (threads, delegates, and mammets)
         //#
-        
+
         /// <summary> //! </summary>
         public delegate void PropertiesWindowOutputWand(string msg, int line);
-        
+
         /// <summary> //! </summary>
         public delegate void PropertiesPanelWand(string dcFileName, DCFileHeader dcEntries);
 
 
-        private PropertiesWindowOutputWand propertiesWindowSameLineMammet;
-        private PropertiesWindowOutputWand propertiesWindowNewLineMammet;
-        private PropertiesWindowOutputWand propertiesWindowSpecificLineMammet;
+        private readonly PropertiesWindowOutputWand propertiesWindowSameLineMammet;
+        private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
+        private readonly PropertiesWindowOutputWand propertiesWindowSpecificLineMammet;
 
         public PropertiesPanelWand propertiesPanelMammet;
         #endregion
@@ -170,19 +170,19 @@ namespace NaughtyDogDCReader
         {
             if (args.KeyCode == Keys.Return)
             {
-                LoadArrayContentsForDisplay((int) ((Control)sender).Tag);
+                LoadArrayContentsForDisplay((int) ((Control) sender).Tag);
 
                 // Unsubscribe from the event once the struct's been loaded
-                ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
+                ((Button) sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
             }
         }
-        
+
         private void LoadHeaderItemContentsOnEnterIfUnloaded(object sender, EventArgs args)
         {
-            LoadArrayContentsForDisplay((int) ((Control)sender).Tag);
+            LoadArrayContentsForDisplay((int) ((Control) sender).Tag);
 
             // Unsubscribe from the event
-            ((Button)sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
+            ((Button) sender).DoubleClick -= LoadHeaderItemContentsOnEnterIfUnloaded;
         }
         #endregion [event handlers]
 
@@ -194,7 +194,7 @@ namespace NaughtyDogDCReader
         //#
         //## Properties Window-related funtion declarations
         //#
-        
+
         /// <summary>
         /// Overrite a specific line in the properties output window with the provided <paramref name="message"/>
         /// <br/> Appends an empty new line if no message is provided.
@@ -202,7 +202,9 @@ namespace NaughtyDogDCReader
         public void PrintPropertyDetailSpL(object message = null, int line = 0)
         {
             if (message == null)
+            {
                 message = emptyStr;
+            }
 
 #if DEBUG
             // Debug Output
@@ -210,7 +212,8 @@ namespace NaughtyDogDCReader
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
+            try
+            {
                 Venat?.Invoke(propertiesWindowSpecificLineMammet, new object[] { message?.ToString() ?? "null", line < 0 ? 0 : line });
             }
             catch (Exception dang)
@@ -222,15 +225,15 @@ namespace NaughtyDogDCReader
 
 
 
-        private void _printPropertyDetailSpL(string message, int line = 0)
+        private void propertiesWindowSpecificLineMammetWorker(string message, int line = 0)
         {
             PropertiesWindow.UpdateLine(Indentation + message.Replace("\n", "\n" + Indentation), line);
             PropertiesWindow.Update();
         }
-       
-        
 
-        
+
+
+
         /// <summary>
         /// Replace a specified line in the properties output window with <paramref name="message"/>.
         /// <br/> Clears the line if no message is provided.
@@ -238,7 +241,9 @@ namespace NaughtyDogDCReader
         public void PrintPropertyDetailSL(object message)
         {
             if (message == null)
+            {
                 message = " ";
+            }
 
 #if DEBUG
             // Debug Output
@@ -246,7 +251,8 @@ namespace NaughtyDogDCReader
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
+            try
+            {
                 Venat?.Invoke(propertiesWindowSameLineMammet, new object[] { message?.ToString() ?? "null", null });
             }
             catch (Exception dang)
@@ -258,7 +264,7 @@ namespace NaughtyDogDCReader
 
 
 
-        private void _printPropertyDetailSL(string message, int _ = 0)
+        private void PropertiesWindowSameLineMammetWorker(string message, int _ = 0)
         {
             //! This is a bit of a lazy way of maintaining the indent...
             PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
@@ -275,7 +281,9 @@ namespace NaughtyDogDCReader
         public void PrintPropertyDetailNL(object message = null, int indentationOverride = 0)
         {
             if (message == null)
+            {
                 message = emptyStr;
+            }
 
 #if DEBUG
             // Debug Output
@@ -283,7 +291,8 @@ namespace NaughtyDogDCReader
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
+            try
+            {
                 Venat?.Invoke(propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null", null });
             }
             catch (Exception dang)
@@ -293,7 +302,7 @@ namespace NaughtyDogDCReader
             }
         }
 
-        private void _printPropertyDetailNL(string message, int _ = 0)
+        private void PropertiesWindowNewLineMammetWorker(string message, int _ = 0)
         {
             PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation), false);
             PropertiesWindow.Update();
@@ -316,11 +325,14 @@ namespace NaughtyDogDCReader
         {
             var str = emptyStr;
 
-            for (var i = 0; i < name.Length; i++) {
+            for (var i = 0; i < name.Length; i++)
+            {
 
-                if (name[i] <= 122u && name[i] >= 97u) {
+                if (name[i] <= 122u && name[i] >= 97u)
+                {
 
-                    if (i + 1 != name.Length) {
+                    if (i + 1 != name.Length)
+                    {
 
                         if (name[i + 1] >= 65u && name[i + 1] <= 90u)
                         {
@@ -351,55 +363,79 @@ namespace NaughtyDogDCReader
             {
                 return "null";
             }
+            string
+                indent,
+                returnString
+            ;
 
-                
-            //var indent = new string(' ', 8 * indentationOverride ?? Indentation);
+
+            indent = indentationOverride != null ? new string(' ', (indentationOverride * 8) ?? IndentationDepth) : Indentation;
+
 
             switch (value.GetType())
             {
-                // ## Basic Numerical Values
-                case var val when WholeNumericalTypes.Contains(val):
-                    return $"0x{value:X}";
-
-                case var val when AdvancedNumericalTypes.Contains(val):
-                    return $"{value:F}";
-
                 // ## Booleans
                 case var val when val == typeof(bool):
-                    return val.ToString();
+                    returnString = val.ToString();
+                    break;
+
+
+                // ## Basic Numerical Values
+                case var val when WholeNumericalTypes.Contains(val):
+                    returnString = $"0x{value:X}";
+                    break;
+
+                // ## "Advanced" Numerical Values
+                case var val when AdvancedNumericalTypes.Contains(val):
+                    returnString = $"{value:F}";
+                    break;
 
 
                 // ## String ID's
                 case var type when type == typeof(SID):
-                    return ((SID)value).DecodedID;
+                    returnString = ((SID) value).DecodedID;
+                    break;
 
 
                 // ## Strings
                 case var type when type == typeof(string):
-                    return value.ToString();
+                    if (value.ToString().Length < 1)
+                    {
 
+                    }
+                    returnString = value.ToString();
+                    break;
 
 
                 // ## Arrays
                 case var type when type.ToString().Contains("[]"):
-                    var str = $"{type.ToString().Replace("System.", emptyStr)}: {{\n";
+                {
+                    returnString = $"{type.ToString().Replace("System.", emptyStr)}: {{\n";
+
                     foreach (var item in (Array) value)
                     {
-                        str += $"        {FormatPropertyValue(item, 1)},\n";
+                        returnString += $"{FormatPropertyValue(item, 1)},\n";
                     }
-                    str += '}';
-                    return str;
+
+                    returnString += '}';
+                    break;
+                }
 
 
 
                 // ## Unknown Struct
                 case var type when type == typeof(UnmappedStructure):
-                    return $"{((UnmappedStructure)value).Message.Replace("\n", "\n        ")}";
+                    returnString = $"{((UnmappedStructure) value).Message.Replace("\n", "\n        ")}";
+                    break;
 
 
                 // Hopefully structs
-                default: return PrintSubItemDetailDisplay(value);
+                default:
+                    returnString = PrintSubItemDetailDisplay(value);
+                    break;
             }
+
+            return indent + returnString;
         }
 
 
@@ -430,37 +466,34 @@ namespace NaughtyDogDCReader
                 return;
             }
 
-            
-            echo("Stuct Has been initialized...");
-            echo($"    Iterating through \"{dcEntry.Name.DecodedID}\".");
+
             foreach (var property in dcEntry.Struct.GetType().GetProperties())
             {
                 // Print the name of the property
                 PrintPropertyDetailSL($" {SpaceOutStructName(property.Name)}: ");
 
+                // Get and format the property value
                 var val = property.GetValue(dcEntry.Struct);
-                PrintPropertyDetailNL($"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}");
+                var formattedVal = FormatPropertyValue(val).Replace("\n", "\n" + Indentation);
+
+                // Print the formatted property value
+                PrintPropertyDetailNL(formattedVal);
             }
         }
 
+
         private string PrintSubItemDetailDisplay(object dcEntry)
         {
-            //#
-            //## Grab basic data about the current item and clear the current properties window contents 
-            //#
+            //## clear the current properties window contents 
             PropertiesWindow.Clear();
-            UpdateSelectionLabel(new[] { null, (string) ((dynamic) dcEntry).Name.DecodedID });
-            string ret;
-
-
 
             // Update Properties Window
-            ret = "Type: " + ((dynamic)dcEntry).Name + '\n';
+            var ret = "Type: " + ((dynamic)dcEntry).Name.DecodedID + '\n';
 
             foreach (var property in dcEntry.GetType().GetProperties())
             {
                 // Print the name of the property
-                ret += $" {SpaceOutStructName(property.Name)}: ";
+                ret += $"{SpaceOutStructName(property.Name)}: ";
 
                 var val = property.GetValue(dcEntry);
                 ret += $"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}\n";
@@ -478,7 +511,7 @@ namespace NaughtyDogDCReader
         //## Properties Panel-related funtion declarations
         //#
 
-        
+
         /// <summary>
         /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
         /// </summary>
@@ -495,7 +528,7 @@ namespace NaughtyDogDCReader
         }
 
 
-        
+
         /// <summary>
         /// //! WRITE ME
         /// </summary>
@@ -520,7 +553,7 @@ namespace NaughtyDogDCReader
         private void PopulatePropertiesPanelWithHeaderItems(string dcFileName, DCFileHeader dcScript)
         {
             Button currentButton;
-            
+
             var dcEntries = dcScript.Entries;
             var dcLen = dcEntries.Length;
 
@@ -539,7 +572,7 @@ namespace NaughtyDogDCReader
 
                 scrollBar.Location = new Point(PropertiesPanel.Width - (scrollBar.Width + 1), GroupBoxContentsOffset);
                 scrollBar.Scroll += ScrollPropertyButtons;
-                
+
                 PropertiesPanel.Controls.Add(scrollBar);
             }
 
@@ -577,7 +610,7 @@ namespace NaughtyDogDCReader
 
                 currentButton.PreviewKeyDown += LoadArrayContentsIntoPropertiesWindow;
                 currentButton.DoubleClick += LoadHeaderItemContentsOnEnterIfUnloaded;
-                
+
                 HeaderItemButtons[i] = currentButton;
             }
 
@@ -587,7 +620,7 @@ namespace NaughtyDogDCReader
             Venat.ExitBtn.TabIndex += dcLen;
         }
 
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -600,7 +633,7 @@ namespace NaughtyDogDCReader
 
 
             Button currentButton;
-            var dcEntries = (dynamic[]) ((dynamic)dcArrayObj).Entries;
+            var dcEntries = (dynamic[])((dynamic)dcArrayObj).Entries;
             var dcLen = dcEntries.Length;
 
             HeaderItemButtons = new Button[dcEntries.Length];
@@ -610,7 +643,7 @@ namespace NaughtyDogDCReader
             {
                 var dcEntry = dcEntries[i];
                 PropertiesPanel.Controls.Add(currentButton = NewButton());
-                currentButton.Location = new Point(1, 7 + currentButton.Height * i);
+                currentButton.Location = new Point(1, 7 + (currentButton.Height * i));
 
 
                 // Apply header item name as button text
@@ -635,7 +668,7 @@ namespace NaughtyDogDCReader
 
                 currentButton.PreviewKeyDown += LoadArrayContentsIntoPropertiesWindow;
                 currentButton.DoubleClick += LoadHeaderItemContentsOnEnterIfUnloaded;
-                
+
                 HeaderItemButtons[i] = currentButton;
             }
 
@@ -645,7 +678,7 @@ namespace NaughtyDogDCReader
             Venat.ExitBtn.TabIndex += dcLen;
         }
 
-        
+
 
         private Button NewButton()
         {
@@ -661,7 +694,7 @@ namespace NaughtyDogDCReader
 
             // Assign basic form functionality event handlers
             btn.MouseDown += MouseDownFunc;
-            btn.MouseUp   += MouseUpFunc;
+            btn.MouseUp += MouseUpFunc;
             btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
 
             btn.DoubleClick += new EventHandler((sender, e) => { }); //!

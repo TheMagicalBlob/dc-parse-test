@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -34,7 +32,7 @@ namespace NaughtyDogDCReader
 
             PropertiesPanel = propertiesPanel;
             PropertiesWindow = propertiesWindow;
-            
+
             ScriptStatusLabel = scriptStatusLabel;
             ScriptSelectionLabel = scriptSelectionLabel;
             AbortOrCloseBtn = abortOrCloseBtn;
@@ -57,8 +55,11 @@ namespace NaughtyDogDCReader
                 {
                     SIDBase = new SIDBase(path);
                     return true;
-                } 
-                else return false;
+                }
+                else
+                {
+                    return false;
+                }
             }))
             // Bitch if it isn't found so the user knows to load one manually
             {
@@ -74,7 +75,7 @@ namespace NaughtyDogDCReader
 
 
 
-        
+
 
 
         //======================================\\
@@ -112,7 +113,7 @@ namespace NaughtyDogDCReader
             {
                 if (fileBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    LoadSIDBase(fileBrowser.FileName);   
+                    LoadSIDBase(fileBrowser.FileName);
                 }
             }
         }
@@ -121,18 +122,18 @@ namespace NaughtyDogDCReader
         private void ToggleOptionsMenu(object sender, EventArgs e)
         {
             Azem.Visible ^= true;
-            Azem.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+            Azem.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + 50);
             Azem.Update();
         }
-        
+
 
         private void ToggleDebugPanel(object sender, EventArgs e)
         {
             Bingus.Visible ^= true;
-		    Bingus.Location = new Point(Venat.Location.X + (Venat.Size.Width - Azem.Size.Width) / 2, Venat.Location.Y + 50);
+            Bingus.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + 50);
             Bingus.Update();
         }
-        
+
 
         private void ReloadBinFile(object sender, EventArgs e)
         {
@@ -143,19 +144,21 @@ namespace NaughtyDogDCReader
             {
                 LoadBinFile(filePath);
             }
-            else {
+            else
+            {
                 UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", emptyStr, emptyStr });
             }
         }
-        
+
 
         private void AbortOrCloseBtn_Click(object sender, EventArgs e)
         {
-            if (((Button)sender).Text == "Abort")
+            if (((Button) sender).Text == "Abort")
             {
                 Abort = true;
             }
-            else {
+            else
+            {
                 CloseBinFile();
                 AbortButtonMammet(0, false);
             }
@@ -245,12 +248,13 @@ namespace NaughtyDogDCReader
         //--|   Function Delcarations   |---\\
         //==================================\\
         #region [Function Delcarations]
-        
+
         private void StartBinParseThread()
-        {   
+        {
             if (binThread != null && binThread.ThreadState != System.Threading.ThreadState.Unstarted)
             {
-                try {
+                try
+                {
                     echo("Bin thread already active, killing thread.");
                     binThread.Abort();
                 }
@@ -270,7 +274,7 @@ namespace NaughtyDogDCReader
         private void ThreadedBinFileParse()
         {
             var binPath = ActiveFilePath?.ToString() ?? "null";
-            
+
             try
             {
                 //#
@@ -282,7 +286,7 @@ namespace NaughtyDogDCReader
                 // Check whether or not the script is a basic empty one
                 if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
                 {
-                    StatusLabelMammet(new [] { "Empty DC File Loaded." });
+                    StatusLabelMammet(new[] { "Empty DC File Loaded." });
                     ResetSelectionLabel();
                     return;
                 }
@@ -326,13 +330,13 @@ namespace NaughtyDogDCReader
                 StatusLabelMammet(new[] { "DC Parse Aborted", emptyStr, emptyStr });
                 ResetSelectionLabel();
             }
-            # if !DEBUG
+#if !DEBUG
             catch (Exception fuck) {
                 echo($"\nERROR: An unexpected {fuck.GetType()} occured while attempting to parse the DC file.");
                 MessageBox.Show($"An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file.", "Unhandled Error Parsing DC File!!!");
                 AbortButtonMammet(false, 0);
             }
-            #endif
+#endif
         }
 
 
@@ -348,7 +352,7 @@ namespace NaughtyDogDCReader
         /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
         private static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, object Name = null)
         {
-            var name = (SID) (Name ?? SID.Empty);
+            var name = (SID)(Name ?? SID.Empty);
 
             switch (Type.RawID)
             {
@@ -356,19 +360,19 @@ namespace NaughtyDogDCReader
                 //## Mapped Structures
                 //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case KnownSIDs.map:                       return new Map(DCFile, Address, name);
-                
-                case KnownSIDs.weapon_gameplay_def:      return new WeaponGameplayDef(DCFile, Address, name);
-                
+                case KnownSIDs.map: return new Map(DCFile, Address, name);
+
+                case KnownSIDs.weapon_gameplay_def: return new WeaponGameplayDef(DCFile, Address, name);
+
                 case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
-                
-                case KnownSIDs.symbol_array:              return new SymbolArrayDef(DCFile, Address, name);
-                
-                case KnownSIDs.ammo_to_weapon_array:      return new AmmoToWeaponArray(DCFile, Address, name);
 
-                case KnownSIDs.look2_def:                 return new Look2Def(DCFile, Address, name);
+                case KnownSIDs.symbol_array: return new SymbolArrayDef(DCFile, Address, name);
 
-                    
+                case KnownSIDs.ammo_to_weapon_array: return new AmmoToWeaponArray(DCFile, Address, name);
+
+                case KnownSIDs.look2_def: return new Look2Def(DCFile, Address, name);
+
+
                 //#
                 //## Unmapped Structures
                 //#

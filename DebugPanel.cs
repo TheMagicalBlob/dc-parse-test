@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Threading.Tasks;
-using static NaughtyDogDCReader.Main;
 using System.Drawing;
+using System.Windows.Forms;
+using static NaughtyDogDCReader.Main;
 
 namespace NaughtyDogDCReader
 {
@@ -16,13 +12,14 @@ namespace NaughtyDogDCReader
             InitializeComponent();
             InitializeAdditionalEventHandlers_DebugPanel();
 
-            CloseBtn.Click += (a, b) => {
+            CloseBtn.Click += (a, b) =>
+            {
                 Bingus.Visible = false;
                 Venat?.Update();
             };
         }
 
-        
+
         //#
         //## Debug Variable Declarations
         //#
@@ -45,25 +42,25 @@ namespace NaughtyDogDCReader
             var ffs = new[] { 'a', 'b', 'c', 'd', 'e', 'f', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
             foreach (var item in ffs)
             {
-                echo($"[{item}]: {(byte) item} => {(byte) item.ToString().ToUpper() [0]}");
+                echo($"[{item}]: {(byte) item} => {(byte) item.ToString().ToUpper()[0]}");
             }
 
-            for(byte beh = 90; beh < 98; beh++)
+            for (byte beh = 90; beh < 98; beh++)
             {
-                echo($"{(char)beh}");
+                echo($"{(char) beh}");
             }
-            echo((char)123);
+            echo((char) 123);
         }
-        
+
         private void debugDisableLinesBtn_CheckedChanged(object sender, EventArgs e)
         {
-            #if DEBUG
+#if DEBUG
             noDraw ^= true;
             CreateGraphics().Clear(BackColor);
             Refresh();
-            #endif
+#endif
         }
-        
+
 
         // verify tab index adjustment is working as expected
         private void debugTabCheckBtn_Click(object sender, EventArgs e)
@@ -74,7 +71,7 @@ namespace NaughtyDogDCReader
                 {
                     if (cunt.HasChildren)
                     {
-                        eh (cunt.Controls);
+                        eh(cunt.Controls);
                     }
                     echo($"# [{cunt.Name}: {cunt.TabIndex}]");
                 }
@@ -87,14 +84,14 @@ namespace NaughtyDogDCReader
         private void button1_Click(object sender, EventArgs e)
         {
             AbortButtonMammet(null, true);
-                UpdateStatusLabel(new[] { null, "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
+            UpdateStatusLabel(new[] { null, "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
         }
 
         private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            #if DEBUG
-            ShowInvalidSIDs = ((CheckBox)sender).Checked;
-            #endif
+#if DEBUG
+            ShowInvalidSIDs = ((CheckBox) sender).Checked;
+#endif
         }
     }
 }

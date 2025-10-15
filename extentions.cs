@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NaughtyDogDCReader
 {
@@ -14,7 +10,8 @@ namespace NaughtyDogDCReader
     /// <summary>
     /// Custom RichTextBox class because bite me.
     /// </summary>
-    public class RichTextBox : System.Windows.Forms.RichTextBox {
+    public class RichTextBox : System.Windows.Forms.RichTextBox
+    {
 
         /// <summary> Appends Text to The Currrent Text of A Text Box, Followed By The Standard Line Terminator.<br/>Scrolls To Keep The Newest Line In View. </summary>
         /// <param name="str"> The String To Output. </param>
@@ -22,8 +19,9 @@ namespace NaughtyDogDCReader
         {
             AppendText(str + '\n');
             Update();
-                
-            if (scroll) {
+
+            if (scroll)
+            {
                 ScrollToCaret();
             }
         }
@@ -43,7 +41,8 @@ namespace NaughtyDogDCReader
             Lines = lines;
             Update();
 
-            if (scroll) {
+            if (scroll)
+            {
                 ScrollToCaret();
             }
         }
@@ -71,15 +70,16 @@ namespace NaughtyDogDCReader
         {
             get => base.Text;
 
-            set {
-                base.Text = value?.Replace("\"", string.Empty);
-            }
+            set => base.Text = value?.Replace("\"", string.Empty);
         }
 
 
 
         // Help Better Keep Track of Whether the User's Changed the Text, Because I'm a Moron.
-        public bool IsDefault() => Text == DefaultText;
+        public bool IsDefault()
+        {
+            return Text == DefaultText;
+        }
 
         /// <summary>
         /// Yoink Default Text From First Text Assignment (Ideally right after being created).
@@ -94,16 +94,21 @@ namespace NaughtyDogDCReader
 
         private void ReadyControl()
         {
-            if(IsDefault()) {
+            if (IsDefault())
+            {
                 Clear();
             }
         }
 
 
-        public void Reset() => ResetControl(true);
+        public void Reset()
+        {
+            ResetControl(true);
+        }
+
         private void ResetControl(bool forceReset)
         {
-            if(Text.Length < 1 || DefaultText.Contains(Text) || forceReset)
+            if (Text.Length < 1 || DefaultText.Contains(Text) || forceReset)
             {
                 Text = DefaultText;
             }
@@ -117,7 +122,7 @@ namespace NaughtyDogDCReader
         public void Set(string text)
         {
             if (text != string.Empty && !DefaultText.Contains(text))
-            {   
+            {
                 Text = text;
             }
         }
@@ -125,12 +130,7 @@ namespace NaughtyDogDCReader
 
     public class Label : System.Windows.Forms.Label
     {
-        public bool IsSeparatorLine
-        {
-            get => _isSeparatorLine;
-            set => _isSeparatorLine = value;
-        }
-        private bool _isSeparatorLine = false;
+        public bool IsSeparatorLine { get; set; } = false;
 
 
         public bool StretchToFitForm
