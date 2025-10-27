@@ -43,6 +43,7 @@ namespace NaughtyDogDCReader
             this.Title = new NaughtyDogDCReader.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.debugShowInvalidSIDsCheckBox = new System.Windows.Forms.CheckBox();
+            this.showBasicPropertiesWindow = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // CloseBtn
@@ -141,7 +142,7 @@ namespace NaughtyDogDCReader
             this.button1.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.button1.ForeColor = System.Drawing.SystemColors.WindowText;
             this.button1.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button1.Location = new System.Drawing.Point(11, 60);
+            this.button1.Location = new System.Drawing.Point(9, 58);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(54, 21);
             this.button1.TabIndex = 47;
@@ -160,12 +161,24 @@ namespace NaughtyDogDCReader
             this.debugShowInvalidSIDsCheckBox.UseVisualStyleBackColor = true;
             this.debugShowInvalidSIDsCheckBox.CheckedChanged += new System.EventHandler(this.debugShowInvalidSIDsCheckBox_CheckedChanged);
             // 
+            // showBasicPropertiesWindow
+            // 
+            this.showBasicPropertiesWindow.AutoSize = true;
+            this.showBasicPropertiesWindow.Location = new System.Drawing.Point(69, 59);
+            this.showBasicPropertiesWindow.Name = "showBasicPropertiesWindow";
+            this.showBasicPropertiesWindow.Size = new System.Drawing.Size(174, 17);
+            this.showBasicPropertiesWindow.TabIndex = 49;
+            this.showBasicPropertiesWindow.Text = "Show Basic Properties Window";
+            this.showBasicPropertiesWindow.UseVisualStyleBackColor = true;
+            this.showBasicPropertiesWindow.CheckedChanged += new System.EventHandler(this.showBasicPropertiesWindow_CheckedChanged);
+            // 
             // DebugPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(335, 170);
+            this.Controls.Add(this.showBasicPropertiesWindow);
             this.Controls.Add(this.debugShowInvalidSIDsCheckBox);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.debugTabCheckBtn);
@@ -306,5 +319,6 @@ namespace NaughtyDogDCReader
         private CheckBox debugDisableLinesBtn;
         private Button button1;
         private CheckBox debugShowInvalidSIDsCheckBox;
+        private CheckBox showBasicPropertiesWindow;
     }
 }

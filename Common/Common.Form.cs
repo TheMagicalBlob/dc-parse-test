@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -11,101 +9,15 @@ namespace NaughtyDogDCReader
 {
     public partial class Main
     {
-
         //=================================\\
         //--|   Variable Declarations   |--\\
         //=================================\\
         #region [Variable Declarations]
 
-
-        //#
-        //## Script Parsing Globals
-        //#
-
-        public static SIDBase SIDBase;
-
-        /// <summary>
-        /// An array of bytes containing the entire provided DC .bin file. <br/>
-        /// </summary>
-        public static byte[] DCFile
-        {
-            get => _dcFile;
-
-            set
-            {
-                if (value == null)
-                {
-#if !DEBUG
-                    MessageBox.Show($"Null array provided for DC file.");
-                    value = Array.Empty<byte>();
-#else
-                    throw new InvalidDataException("Null array provided for DC file.");
-#endif
-                }
-                else if (value.Length < 0x2D)
-                {
-#if !DEBUG
-                    MessageBox.Show($"ERROR: provided dc file was too small to be valid (0x{value.Length:X}).");
-                    value = Array.Empty<byte>();
-#else
-                    throw new InvalidDataException($"Provided dc file was too small to be valid (0x{value.Length:X}).");
-#endif
-                }
-
-                // Array.Empty for intentional resets of the array, until this app is actually functional and I can rely on my shit code lol
-                if (value == Array.Empty<byte>())
-                {
-                    _dcFile = null;
-                    DCFileMainDataLength = 0;
-                    return;
-                }
-
-
-
-                // Actually go brr if all's well
-                _dcFile = value;
-
-                if (value.Length > 0x2C)
-                {
-                    DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
-                }
-            }
-        }
-        private static byte[] _dcFile;
-
-        /// <summary>
-        /// The address of the provided DC file's relocation table
-        /// </summary>
-        public static long DCFileMainDataLength;
-
-
-
-        public static DCFileHeader DCScript;
-
-        public List<SID> DecodedSIDs = new List<SID>();
-
-        public static bool Abort
-        {
-            set
-            {
-                if (value && binThread != null)
-                {
-                    echo("Aborting...");
-
-                    binThread.Abort();
-                    AbortButtonMammet(false);
-                }
-            }
-        }
-
-
-
-
-
-
         //#
         //## Form Functionality Globals
         //#
+        #region [Form Functionality Globals]
         /// <summary> Return the current state of the options page. </summary>
         public static bool OptionsPageIsOpen => Azem?.Visible ?? false;
 
@@ -311,11 +223,12 @@ namespace NaughtyDogDCReader
 
         public static Label ScriptStatusLabel;
         public static Label ScriptSelectionLabel;
-        public static Button AbortOrCloseBtn;
 
 
 
-        /// <summary> A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file. </summary>
+        /// <summary>
+        /// A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file.
+        /// </summary>
         public enum KnownSIDs : ulong
         {
             UNKNOWN_SID_64 = 0x910ADC74DA2A5F6Dul,
@@ -332,129 +245,7 @@ namespace NaughtyDogDCReader
 
             placeholder = 0xDEADBEEFDEADBEEFul,
         }
-
-
-
-
-
-
-        //#
-        //## Threading-Related Variables (threads, delegates, and mammets)
-        //#
-        private static Thread binThread;
-
-        /// <summary> Cross-thread form interaction delegate. </summary>
-        public delegate void binThreadFormWand(params object[] args); //! god I need to read about delegates lmao
-        /// <summary> //! </summary>
-        private delegate void binThreadLabelWand(string[] details);
-        private delegate void generalBinThreadWand();
-        /// <summary> //! </summary>
-        public delegate string[] binThreadFormWandOutputRead();
-
-
-
-
-        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
-        {
-            StatusDetails = details;
-        });
-
-        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(() =>
-        {
-            StatusDetails = null;
-        });
-
-
-        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
-        {
-            SelectionDetails = details;
-        });
-
-        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(() =>
-        {
-            SelectionDetails = null;
-        });
-
-
-
-        private readonly binThreadFormWand abortButtonMammet = new binThreadFormWand((args) =>
-        {
-            if (args == null || AbortOrCloseBtn == null)
-            {
-                return;
-            }
-
-            foreach (var obj in args)
-            {
-                // Change the state of the button.
-                // Null = Toggle | Int = Specific State
-                if (obj == null || obj.GetType() == typeof(int))
-                {
-                    var newIndex = (int)(obj ?? (AbortOrCloseBtn.Text == "Abort" ? 1 : 0));
-
-                    if (newIndex > 1)
-                    { //! make sure this check is unnecessary, then remove it
-                        echo($"ERROR: abortButtonMammet was provided an invalid index of \"{newIndex}\" for the button mode. Button has been defaulted to Abort.");
-                        newIndex = 0;
-                    }
-
-                    AbortOrCloseBtn.Text = new[] { "Abort", "Close File" }[newIndex];
-
-                    AbortOrCloseBtn.Size = new Size(BaseAbortButtonWidth + (AbortButtonWidthDifference * newIndex), AbortOrCloseBtn.Size.Height);
-
-                    AbortOrCloseBtn.Location = new Point(AbortOrCloseBtn.Location.X + (AbortButtonWidthDifference * ((-2 * newIndex) + 1)), AbortOrCloseBtn.Location.Y);
-                    return;
-                }
-                // Enable/Disable the button for bools
-                else if (obj.GetType() == typeof(bool))
-                {
-                    AbortOrCloseBtn.Enabled = (bool)obj;
-                    AbortOrCloseBtn.Font = new Font(AbortOrCloseBtn.Font.FontFamily, AbortOrCloseBtn.Font.Size, (FontStyle)((bool)obj ? 0 : 8));
-                }
-
-                // Complain if an arg of an unexpected type is provided
-                else
-                {
-                    echo($"ERROR: Unexpected argument type of \"{obj.GetType()}\" provided to abortButtonMammet");
-                }
-            }
-        });
-
-        public binThreadFormWand reloadButtonMammet = new binThreadFormWand((Hmmm) =>
-        {
-            if (Venat == null)
-            {
-                return;
-            }
-
-            Venat.ReloadScriptBtn.Enabled ^= true;
-            Venat.ReloadScriptBtn.Font = new Font(Venat.ReloadScriptBtn.Font.FontFamily, Venat.ReloadScriptBtn.Font.Size, Venat.ReloadScriptBtn.Font.Style ^ FontStyle.Strikeout);
-        });
-
-
-
-
-
-
-        //#
-        //## Global Look/Feel-Related Variables
-        //#
-
-        public static Color AppColour = Color.FromArgb(20, 20, 20);
-        public static Color AppColourLight = Color.FromArgb(42, 42, 42);
-        public static Color AppColourSpecial = Color.FromArgb(125, 183, 245);
-        public static Color AppAccentColour = Color.FromArgb(210, 240, 250); // Why did I choose this colour specifically? I forget.
-
-        public static Pen FormDecorationPen = new Pen(AppAccentColour); // Colouring for Border Drawing
-
-        public static readonly Font MainFont = new Font("Gadugi", 8.25f, FontStyle.Bold); // For the vast majority of controls; anything the user doesn't edit, really.
-        public static readonly Font TextFont = new Font("Segoe UI Semibold", 9f); // For option controls with customized contents
-        public static readonly Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
-
-#if DEBUG
-        /// <summary> Disable drawing of form border/separator lines </summary>
-        public static bool noDraw;
-#endif
+        #endregion
         #endregion
 
 
@@ -463,11 +254,11 @@ namespace NaughtyDogDCReader
 
 
 
-
-        //==========================================\\
-        //---|   Global Function Delcarations   |---\\
-        //==========================================\\
-        #region [Global Function Delcarations]
+        
+        //===================================\\
+        //---|   Function Delcarations   |---\\
+        //===================================\\
+        #region [Function Delcarations]
 
         //#
         //## Form Functionality Functions
@@ -693,169 +484,86 @@ namespace NaughtyDogDCReader
             Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
         }
         #endregion
+        
+
+
+
+
+
 
 
 
 
 
         //#
-        //## Logging/Output functionaliy
+        //## Threading-Related Variables (threads, delegates, and mammets)
         //#
-        #region [Logging/Output Functionality]
+        private static Thread binThread;
 
-        /// <summary>
-        /// Echo a provided string (or string representation of an object) to the standard console output.
-        /// <br/> Appends an empty new line if no message is provided.
-        /// </summary>
-#pragma warning disable IDE1006 // bug off, this one's lowercase
-        public static void echo(object message = null)
+        /// <summary> Cross-thread form interaction delegate. </summary>
+        public delegate void binThreadFormWand(bool args); //! god I need to read about delegates lmao
+        /// <summary> //! </summary>
+        private delegate void binThreadLabelWand(string[] details);
+        private delegate void generalBinThreadWand();
+        /// <summary> //! </summary>
+        public delegate string[] binThreadFormWandOutputRead();
+
+
+
+
+        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
         {
-#if DEBUG
-            string str;
-
-            Console.WriteLine(str = message?.ToString() ?? emptyStr);
-
-            if (!Console.IsInputRedirected)
-            {
-                Debug.WriteLine(str);
-            }
-#endif
-        }
-#pragma warning restore IDE1006
-
-
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="details"> The string[] to update the label's text with. </param>
-        public static void UpdateStatusLabel(string[] details)
-        {
-            if ((details?.Length ?? 0) < 1)
-            {
-                echo($"ERROR: Empty or null string array provided for status label details.");
-                return;
-            }
-
             StatusDetails = details;
-        }
+        });
 
-        /// <summary>
-        /// Reset the ScriptStatusLabel to it's default value.
-        /// </summary>
-        public static void ResetStatusLabel()
+        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(() =>
         {
-            Venat?.Invoke(Venat.statusLabelResetMammet);
-        }
+            StatusDetails = null;
+        });
 
 
-
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="details"> The string to update the label's text with. </param>
-        public static void UpdateSelectionLabel(string[] details)
+        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
         {
-            if ((details?.Length ?? 0) < 1)
+            SelectionDetails = details;
+        });
+
+        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(() =>
+        {
+            SelectionDetails = null;
+        });
+
+
+
+
+        private readonly binThreadFormWand reloadCloseButtonsMammet = new binThreadFormWand((isEnabled) =>
+        {
+            if (Venat.CloseBtn == null)
             {
-                echo($"ERROR: Empty or null string array provided for selection label details.");
+                echo($"ERROR: {nameof(Venat.CloseBtn)} was null!");
                 return;
             }
 
-            SelectionDetails = details;
-        }
-
-        /// <summary>
-        /// Reset the ScriptSelectionLabel to it's default value.
-        /// </summary>
-        public static void ResetSelectionLabel()
-        {
-            Venat?.Invoke(Venat.selectionLabelResetMammet);
-        }
-        #endregion
+            // Enable/Disable the button, and update the button with the strikeout style property
+            Venat.CloseBtn.Enabled = isEnabled;
+            Venat.CloseBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
 
 
-
-
-        //#
-        //## Miscellaneous/General App Functions
-        //#
-        #region [Miscellaneous/General App Functions]
-
-        private static void LoadBinFile(string DCFilePath)
-        {
-            if (File.Exists(DCFilePath))
+            if (Venat.ReloadScriptBtn == null)
             {
-                ActiveFilePath = DCFilePath;
-                ActiveFileName = DCFilePath.Substring(DCFilePath.LastIndexOf('\\') + 1);
-
-                Venat?.StartBinParseThread();
-            }
-            else
-            {
-                MessageBox.Show("Invalid path provided for dc file! Doing nothing instead. :)", "How did you even manage that?");
-            }
-        }
-
-
-        /// <summary>
-        /// (//! Ideally...) Reset the GUI and all relevant globals to their original states.
-        /// </summary>
-        private static void CloseBinFile()
-        {
-            DCFile = null;
-            PropertiesPanel.Controls.Clear();
-            PropertiesWindow.Clear();
-
-            if (Venat == null)
-            {
-                Panels.Reset();
-
-                Venat.optionsMenuDropdownBtn.TabIndex -= DCScript.Entries.Length;
-                Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
-                Venat.ExitBtn.TabIndex -= DCScript.Entries.Length;
+                echo($"ERROR: {nameof(Venat.ReloadScriptBtn)} was null!");
+                return;
             }
 
-            ResetSelectionLabel();
-            ResetStatusLabel();
-        }
-
-        public static bool LoadSIDBase(string sidbasePath)
-        {
-            if (File.Exists(sidbasePath))
-            {
-                SIDBase = new SIDBase(sidbasePath);
-                return true;
-            }
-            else
-            {
-                //ResetStatusLabel();
-                //UpdateStatusLabel(new[] { "Invalid sidbase.bin path provided." });
-                MessageBox.Show("Invalid path provided for desired sidbase.bin!", sidbasePath);
-                return false;
-            }
-        }
+            Venat.ReloadScriptBtn.Enabled = isEnabled;
+            Venat.ReloadScriptBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
+        });
 
 
-        /// <summary>
-        /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="index"/> specified.
-        /// </summary>
-        /// <param name="array"> The array from which to take the sub-array. </param>
-        /// <param name="index"> The start index of the sub-array within <paramref name="array"/>. </param>
-        /// <param name="length"> The length of the sub-array. </param>
-        /// <returns> What the hell do you think. </returns>
-        private static byte[] GetSubArray(byte[] array, int index, int length = 8)
-        {
-            var ret = new byte[length];
 
-            for (; length > 0; ret[length - 1] = array[index + (length-- - 1)])
-            {
-                ;
-            }
 
-            return ret;
-        }
 
-        #endregion [miscellaneous/general app functions]
+
+
 
 
 
@@ -864,19 +572,14 @@ namespace NaughtyDogDCReader
         //#
         #region [Mammet Shorthand Functions]
 
-        public static void AbortButtonMammet(params object[] args)
+        public static void ReloadCloseButtonsMammet(bool enabled)
         {
-            Venat?.Invoke(Venat.abortButtonMammet, new[] { args ?? new object[] { false, 0 } });
-        }
-
-        public static void ReloadButtonMammet(bool enabled)
-        {
-            Venat?.Invoke(Venat.reloadButtonMammet, new[] { new object[] { enabled } });
+            Venat?.Invoke(Venat.reloadCloseButtonsMammet, new object[] { enabled });
         }
 
         public static void PropertiesPanelMammet(object dcFileName, DCFileHeader dcEntries)
         {
-            Venat?.Invoke(Panels.propertiesPanelMammet, new[] { dcFileName, dcEntries });
+            Venat?.Invoke(Panels.propertiesPanelMammet, new object[] { dcFileName, dcEntries });
         }
 
 
@@ -904,7 +607,6 @@ namespace NaughtyDogDCReader
             Venat?.Invoke(Venat.selectionLabelMammet, new[] { details });
         }
         #endregion [mammet shorthand functions]
-
-        #endregion [Global Functions]
+        #endregion
     }
 }

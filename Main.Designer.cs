@@ -34,10 +34,10 @@ namespace NaughtyDogDCReader
         private void InitializeComponent()
         {
             this.BinFileBrowseBtn = new System.Windows.Forms.Button();
-            this.optionsMenuDropdownBtn = new System.Windows.Forms.Button();
+            this.OptionsMenuDropdownBtn = new System.Windows.Forms.Button();
             this.ExitBtn = new System.Windows.Forms.Button();
             this.MinimizeBtn = new System.Windows.Forms.Button();
-            this.abortOrCloseBtn = new System.Windows.Forms.Button();
+            this.CloseBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
             this.propertiesPanel = new System.Windows.Forms.GroupBox();
             this.dummy0 = new System.Windows.Forms.Button();
@@ -46,6 +46,7 @@ namespace NaughtyDogDCReader
             this.SidBaseBrowseBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label5 = new NaughtyDogDCReader.Label();
             this.label6 = new NaughtyDogDCReader.Label();
             this.label4 = new NaughtyDogDCReader.Label();
@@ -73,17 +74,17 @@ namespace NaughtyDogDCReader
             this.BinFileBrowseBtn.UseVisualStyleBackColor = false;
             this.BinFileBrowseBtn.Click += new System.EventHandler(this.BinPathBrowseBtn_Click);
             // 
-            // optionsMenuDropdownBtn
+            // OptionsMenuDropdownBtn
             // 
-            this.optionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.optionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.optionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 6);
-            this.optionsMenuDropdownBtn.Name = "optionsMenuDropdownBtn";
-            this.optionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
-            this.optionsMenuDropdownBtn.TabIndex = 6;
-            this.optionsMenuDropdownBtn.Text = "Options...";
-            this.optionsMenuDropdownBtn.UseVisualStyleBackColor = false;
-            this.optionsMenuDropdownBtn.Click += new System.EventHandler(this.ToggleOptionsMenu);
+            this.OptionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.OptionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.OptionsMenuDropdownBtn.Location = new System.Drawing.Point(760, 6);
+            this.OptionsMenuDropdownBtn.Name = "OptionsMenuDropdownBtn";
+            this.OptionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
+            this.OptionsMenuDropdownBtn.TabIndex = 6;
+            this.OptionsMenuDropdownBtn.Text = "Options...";
+            this.OptionsMenuDropdownBtn.UseVisualStyleBackColor = false;
+            this.OptionsMenuDropdownBtn.Click += new System.EventHandler(this.ToggleOptionsMenu);
             // 
             // ExitBtn
             // 
@@ -113,19 +114,19 @@ namespace NaughtyDogDCReader
             this.MinimizeBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.MinimizeBtn.UseVisualStyleBackColor = false;
             // 
-            // abortOrCloseBtn
+            // CloseBtn
             // 
-            this.abortOrCloseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.abortOrCloseBtn.Enabled = false;
-            this.abortOrCloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.abortOrCloseBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.abortOrCloseBtn.Location = new System.Drawing.Point(709, 41);
-            this.abortOrCloseBtn.Name = "abortOrCloseBtn";
-            this.abortOrCloseBtn.Size = new System.Drawing.Size(44, 23);
-            this.abortOrCloseBtn.TabIndex = 3;
-            this.abortOrCloseBtn.Text = "Abort";
-            this.abortOrCloseBtn.UseVisualStyleBackColor = false;
-            this.abortOrCloseBtn.Click += new System.EventHandler(this.AbortOrCloseBtn_Click);
+            this.CloseBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.CloseBtn.Enabled = false;
+            this.CloseBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.CloseBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Strikeout, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.CloseBtn.Location = new System.Drawing.Point(643, 41);
+            this.CloseBtn.Name = "CloseBtn";
+            this.CloseBtn.Size = new System.Drawing.Size(110, 23);
+            this.CloseBtn.TabIndex = 3;
+            this.CloseBtn.Text = "Close Current Script";
+            this.CloseBtn.UseVisualStyleBackColor = false;
+            this.CloseBtn.Click += new System.EventHandler(this.CloseBtn_Click);
             // 
             // ReloadScriptBtn
             // 
@@ -143,6 +144,7 @@ namespace NaughtyDogDCReader
             // 
             // propertiesPanel
             // 
+            this.propertiesPanel.BackColor = System.Drawing.Color.Black;
             this.propertiesPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.propertiesPanel.Location = new System.Drawing.Point(5, 259);
             this.propertiesPanel.Name = "propertiesPanel";
@@ -218,6 +220,16 @@ namespace NaughtyDogDCReader
             this.button2.Size = new System.Drawing.Size(0, 0);
             this.button2.TabIndex = 53;
             this.button2.UseVisualStyleBackColor = false;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.BackColor = System.Drawing.Color.Black;
+            this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.groupBox1.Location = new System.Drawing.Point(546, 230);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(338, 391);
+            this.groupBox1.TabIndex = 20;
+            this.groupBox1.TabStop = false;
             // 
             // label5
             // 
@@ -385,12 +397,13 @@ namespace NaughtyDogDCReader
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(888, 626);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.SidBaseBrowseBtn);
-            this.Controls.Add(this.abortOrCloseBtn);
+            this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.ReloadScriptBtn);
             this.Controls.Add(this.BinFileBrowseBtn);
             this.Controls.Add(this.label4);
@@ -400,7 +413,7 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dummy1);
             this.Controls.Add(this.dummy0);
-            this.Controls.Add(this.optionsMenuDropdownBtn);
+            this.Controls.Add(this.OptionsMenuDropdownBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.propertiesWindow);
             this.Controls.Add(this.scriptSelectionLabel);
@@ -427,9 +440,8 @@ namespace NaughtyDogDCReader
 
         public Button[] DropdownMenu = new Button[2];
         private Button BinFileBrowseBtn;
-        private RichTextBox propertiesWindow;
         private Label scriptStatusLabel;
-        private Button abortOrCloseBtn;
+        private Button CloseBtn;
         private Button ReloadScriptBtn;
         private Label label1;
         private Label VersionLabel;
@@ -449,9 +461,11 @@ namespace NaughtyDogDCReader
         private Label label5;
         private Button button1;
         private Button button2;
-        public Button optionsMenuDropdownBtn;
+        public Button OptionsMenuDropdownBtn;
         public Button ExitBtn;
         public Button MinimizeBtn;
+        public RichTextBox propertiesWindow;
+        public GroupBox groupBox1;
     }
 }
 

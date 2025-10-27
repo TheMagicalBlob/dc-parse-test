@@ -10,67 +10,16 @@ namespace NaughtyDogDCReader
 {
     public partial class Main : Form
     {
-        public Main()
-        {
-            InitializeComponent();
-            InitializeAdditionalEventHandlers_Main(this);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"> The path to the DC Script to be loaded on-boot. </param>
+        public Main(string path) => main(path);
 
-            VersionLabel.Text += Version;
-            logWindow.Clear();
-            propertiesWindow.Clear();
-
-
-
-            // Set global object refs used in various static functions (maybe change that...)
-            Update(); Refresh();
-            // Form pointers
-            Venat = this;
-            Azem = new OptionsPage();
-            Panels = new PropertiesHandler();
-            Bingus = new DebugPanel();
-
-
-            PropertiesPanel = propertiesPanel;
-            PropertiesWindow = propertiesWindow;
-
-            ScriptStatusLabel = scriptStatusLabel;
-            ScriptSelectionLabel = scriptSelectionLabel;
-            AbortOrCloseBtn = abortOrCloseBtn;
-            Update(); Refresh();
-
-
-
-            // Check various expected paths for the required sidbase.bin file
-            var workingDirectory = Directory.GetCurrentDirectory();
-            if (!new[]
-            {
-                $@"{workingDirectory}\sidbase.bin",
-                $@"{workingDirectory}\sid\sidbase.bin",
-                $@"{workingDirectory}\sid1\sidbase.bin",
-                $@"{workingDirectory}\..\sidbase.bin"
-            }
-            .Any(path =>
-            {
-                if (File.Exists(path))
-                {
-                    SIDBase = new SIDBase(path);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }))
-            // Bitch if it isn't found so the user knows to load one manually
-            {
-                echo($"No valid sidbase.bin file was found in/around \"{workingDirectory}\".");
-                UpdateStatusLabel(new[] { "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
-            }
-
-
-            BaseAbortButtonWidth = AbortOrCloseBtn.Size.Width;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        public Main() => main(null);
 
 
 
@@ -85,7 +34,7 @@ namespace NaughtyDogDCReader
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
-#if !DEBUG
+#if !true
             using (var Browser = new OpenFileDialog
             {
                 Title = "Please select a script from \"bin/dc1\"."
@@ -122,7 +71,7 @@ namespace NaughtyDogDCReader
         private void ToggleOptionsMenu(object sender, EventArgs e)
         {
             Azem.Visible ^= true;
-            Azem.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + 50);
+            Azem.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + SubformVerticalOffset);
             Azem.Update();
         }
 
@@ -130,7 +79,7 @@ namespace NaughtyDogDCReader
         private void ToggleDebugPanel(object sender, EventArgs e)
         {
             Bingus.Visible ^= true;
-            Bingus.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + 50);
+            Bingus.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + SubformVerticalOffset);
             Bingus.Update();
         }
 
@@ -138,33 +87,25 @@ namespace NaughtyDogDCReader
         private void ReloadBinFile(object sender, EventArgs e)
         {
             var filePath = ActiveFilePath;
-            CloseBinFile();
 
             if (File.Exists(filePath))
             {
+                CloseBinFile();
                 LoadBinFile(filePath);
             }
-            else
-            {
+            else {
                 UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", emptyStr, emptyStr });
             }
         }
 
 
-        private void AbortOrCloseBtn_Click(object sender, EventArgs e)
-        {
-            if (((Button) sender).Text == "Abort")
-            {
-                Abort = true;
-            }
-            else
-            {
-                CloseBinFile();
-                AbortButtonMammet(0, false);
-            }
+        
 
-            ReloadButtonMammet(false);
-        }
+        /// <summary>
+        /// Reset the GUI and all relevant globals to their original states. //! (ideally...)
+        /// </summary>
+        private void CloseBtn_Click(object _, EventArgs __) => CloseBinFile();
+
 
 
         /// <summary>
@@ -173,7 +114,6 @@ namespace NaughtyDogDCReader
         private void FormKeyboardInputHandler(string sender, Keys arg, bool ctrl, bool shift)
         {
             echo($"Input [{arg}] Recieved by Control [{sender}]");
-            return;
 
             /*
             switch (arg)
@@ -242,143 +182,83 @@ namespace NaughtyDogDCReader
 
 
 
-
-
         //==================================\\
         //--|   Function Delcarations   |---\\
         //==================================\\
         #region [Function Delcarations]
-
-        private void StartBinParseThread()
+        #pragma warning disable IDE1006
+        private void main(string DCFilePath)
         {
-            if (binThread != null && binThread.ThreadState != System.Threading.ThreadState.Unstarted)
+            InitializeComponent();
+            InitializeAdditionalEventHandlers_Main(this);
+
+            VersionLabel.Text += Version;
+            logWindow.Clear();
+            propertiesWindow.Clear();
+
+
+
+            // Set global object refs used in various static functions (maybe change that...)
+            Refresh();
+            Venat = this;
+            Azem = new OptionsPage();
+            Panels = new PropertiesHandler();
+            Bingus = new DebugPanel();
+
+
+            PropertiesPanel = propertiesPanel;
+            PropertiesWindow = propertiesWindow;
+
+            ScriptStatusLabel = scriptStatusLabel;
+            ScriptSelectionLabel = scriptSelectionLabel;
+            Update();
+
+
+
+            // Check various expected paths for the required sidbase.bin file
+            var workingDirectory = Directory.GetCurrentDirectory();
+            if (!new[]
             {
-                try
+                $@"{workingDirectory}\sidbase.bin",
+                $@"{workingDirectory}\sid\sidbase.bin",
+                $@"{workingDirectory}\sid1\sidbase.bin",
+                $@"{workingDirectory}\..\sidbase.bin"
+            }
+            .Any(path =>
+            {
+                if (File.Exists(path))
                 {
-                    echo("Bin thread already active, killing thread.");
-                    binThread.Abort();
+                    SIDBase = new SIDBase(path);
+                    return true;
                 }
-                catch (ThreadAbortException) { echo("Bin thread killed."); }
-                catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting bin thread."); }
-                echo();
-            }
-
-            // Create and start the thread
-            (binThread = new Thread(ThreadedBinFileParse)).Start();
-        }
-
-
-        /// <summary>
-        /// //! Write Me
-        /// </summary>
-        private void ThreadedBinFileParse()
-        {
-            var binPath = ActiveFilePath?.ToString() ?? "null";
-
-            try
-            {
-                //#
-                //## Load & Parse provided DC file.
-                //#
-                DCFile = File.ReadAllBytes(binPath);
-
-                // TODO: make sure there's no difference betweeen path versions! //!
-                // Check whether or not the script is a basic empty one
-                if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
+                else
                 {
-                    StatusLabelMammet(new[] { "Empty DC File Loaded." });
-                    ResetSelectionLabel();
-                    return;
+                    return false;
                 }
+            }))
+            // Bitch if it isn't found so the user knows to load one manually
+            {
+                echo($"No valid sidbase.bin file was found in/around \"{workingDirectory}\".");
+                UpdateStatusLabel(new[] { "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
+            }
 
 
-                // Enable the abort button for the load process (do I even need this button anymore? I suppose not)
-                AbortButtonMammet(true);
+            BaseAbortButtonWidth = CloseBtn.Size.Width;
 
-                DCScript = new DCFileHeader(DCFile, ActiveFileName);
 
-                for (int headerItemIndex = 0, offset = 0x28; headerItemIndex < DCScript.Entries.Length; headerItemIndex++, offset += 24)
+
+            // Immediately load the provided script if the tool was started with the path one as the first argument
+            if (DCFilePath != null)
+            {
+                Paint += (_, __) =>
                 {
-                    echo($"Item #{headerItemIndex}: [ Label: {DCScript.Entries[headerItemIndex].Name} Type: {DCScript.Entries[headerItemIndex].Type} Data Address: {DCScript.Entries[headerItemIndex].StructAddress:X} ]");
-                }
-
-
-
-                //#
-                //## Setup Form
-                //#
-                echo("\nFinished!");
-                StatusLabelMammet(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
-
-                ReloadButtonMammet(true);
-                AbortButtonMammet(1);
-
-                PropertiesPanelMammet(ActiveFileName, DCScript);
-                ResetStatusLabel();
-            }
-            // File in use, probably
-            catch (IOException)
-            {
-                echo($"\nERROR: Selected file is either in use, or doesn't exist.");
-
-                StatusLabelMammet(new[] { "Error Loading dc File!!!", emptyStr, emptyStr });
-                ResetSelectionLabel();
-            }
-            // Thread has been killed (normal)
-            catch (ThreadAbortException)
-            {
-                StatusLabelMammet(new[] { "DC Parse Aborted", emptyStr, emptyStr });
-                ResetSelectionLabel();
-            }
-#if !DEBUG
-            catch (Exception fuck) {
-                echo($"\nERROR: An unexpected {fuck.GetType()} occured while attempting to parse the DC file.");
-                MessageBox.Show($"An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file.", "Unhandled Error Parsing DC File!!!");
-                AbortButtonMammet(false, 0);
-            }
-#endif
-        }
-
-
-
-        /// <summary>
-        /// //! WRITE A DESCRIPTION FOR ME!                                                                                          no.
-        /// </summary>
-        /// 
-        /// <param name="DCFile"> The whole DC file, loaded as a byte array. </param>
-        /// <param name="Type"> The type of the DC struct. </param>
-        /// <param name="Address"> The address of the DC struct in the <paramref name="DCFile"/>. </param>
-        /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
-        /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
-        private static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, object Name = null)
-        {
-            var name = (SID)(Name ?? SID.Empty);
-
-            switch (Type.RawID)
-            {
-                //#
-                //## Mapped Structures
-                //#
-                // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case KnownSIDs.map: return new Map(DCFile, Address, name);
-
-                case KnownSIDs.weapon_gameplay_def: return new WeaponGameplayDef(DCFile, Address, name);
-
-                case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
-
-                case KnownSIDs.symbol_array: return new SymbolArrayDef(DCFile, Address, name);
-
-                case KnownSIDs.ammo_to_weapon_array: return new AmmoToWeaponArray(DCFile, Address, name);
-
-                case KnownSIDs.look2_def: return new Look2Def(DCFile, Address, name);
-
-
-                //#
-                //## Unmapped Structures
-                //#
-                default: return new UnmappedStructure(Type, Address, name);
+                    Update();
+                    LoadBinFile(DCFilePath);
+                };
             }
         }
-        #endregion [Function Declarations]
+        #pragma warning restore IDE1006
+
+        #endregion (function declarations)
     }
 }

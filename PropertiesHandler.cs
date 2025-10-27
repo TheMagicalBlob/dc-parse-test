@@ -23,10 +23,24 @@ namespace NaughtyDogDCReader
             GroupBoxContentsOffset = 7;
             DefaultPropertyButtonHeight = 23;
 
+
             propertiesPanelMammet = PopulatePropertiesPanelWithHeaderItems;
-            propertiesWindowSameLineMammet = PropertiesWindowSameLineMammetWorker;
-            propertiesWindowNewLineMammet = PropertiesWindowNewLineMammetWorker;
-            propertiesWindowSpecificLineMammet = propertiesWindowSpecificLineMammetWorker;
+
+            propertiesWindowNewLineMammet = (message, _) =>
+            {
+                PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation), false);
+                PropertiesWindow.Update();
+            };
+            propertiesWindowSameLineMammet = (message, _) =>
+            {
+                PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
+                PropertiesWindow.Update();
+            };
+            propertiesWindowSpecificLineMammet = (message, line) =>
+            {
+                PropertiesWindow.UpdateLine(Indentation + message.Replace("\n", "\n" + Indentation), line);
+                PropertiesWindow.Update();
+            };
         }
 
 
@@ -92,7 +106,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// The (vertical) scroll bar used to navigate the buttons populating the PropertiesPanel when they bleed passed the bottom of the group box
         /// </summary>
-        private ScrollBar scrollBar;
+        private ScrollBar ScrollBar;
 
         private int IndentationDepth
         {
@@ -225,11 +239,6 @@ namespace NaughtyDogDCReader
 
 
 
-        private void propertiesWindowSpecificLineMammetWorker(string message, int line = 0)
-        {
-            PropertiesWindow.UpdateLine(Indentation + message.Replace("\n", "\n" + Indentation), line);
-            PropertiesWindow.Update();
-        }
 
 
 
@@ -264,16 +273,6 @@ namespace NaughtyDogDCReader
 
 
 
-        private void PropertiesWindowSameLineMammetWorker(string message, int _ = 0)
-        {
-            //! This is a bit of a lazy way of maintaining the indent...
-            PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
-            PropertiesWindow.Update();
-        }
-
-
-
-
         /// <summary>
         /// Replace a specified line in the properties output window with <paramref name="message"/>.
         /// <br/> Clears the line if no message is provided.
@@ -302,18 +301,17 @@ namespace NaughtyDogDCReader
             }
         }
 
-        private void PropertiesWindowNewLineMammetWorker(string message, int _ = 0)
-        {
-            PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation), false);
-            PropertiesWindow.Update();
-        }
-
 
         public void Reset()
         {
+            PropertiesPanel.Controls.Clear();
+            PropertiesWindow.Clear();
+
             HeaderItemButtons = null;
             SubItemButtons = null;
             HeaderSelection = null;
+            SubItemSelection = null;
+            ScrollBar = null;
         }
 
 
@@ -562,7 +560,7 @@ namespace NaughtyDogDCReader
             var cumulativeButtonHeight = DefaultPropertyButtonHeight * dcEntries.Length;
             if (cumulativeButtonHeight >= PropertiesPanel.Height - GroupBoxContentsOffset) // minus 7 to half-assedly account for the stupid top border of the group box.
             {
-                scrollBar = new VScrollBar()
+                ScrollBar = new VScrollBar()
                 {
                     Name = "PropertiesPanelScrollBar",
                     Height = PropertiesPanel.Height,
@@ -570,10 +568,10 @@ namespace NaughtyDogDCReader
                     Maximum = cumulativeButtonHeight
                 };
 
-                scrollBar.Location = new Point(PropertiesPanel.Width - (scrollBar.Width + 1), GroupBoxContentsOffset);
-                scrollBar.Scroll += ScrollPropertyButtons;
+                ScrollBar.Location = new Point(PropertiesPanel.Width - (ScrollBar.Width + 1), GroupBoxContentsOffset);
+                ScrollBar.Scroll += ScrollPropertyButtons;
 
-                PropertiesPanel.Controls.Add(scrollBar);
+                PropertiesPanel.Controls.Add(ScrollBar);
             }
 
 
@@ -595,9 +593,9 @@ namespace NaughtyDogDCReader
                 // Style the control
                 currentButton.FlatAppearance.BorderSize = 0;
                 currentButton.Width = currentButton.Parent.Width - 2;
-                if (scrollBar != null)
+                if (ScrollBar != null)
                 {
-                    currentButton.Width -= scrollBar.Width;
+                    currentButton.Width -= ScrollBar.Width;
                 }
 
                 // Save the index of the header item tied to the control via the button's Tag property
@@ -615,7 +613,7 @@ namespace NaughtyDogDCReader
             }
 
             // Adjust the tab indexes of buttons intended to be after the property buttons
-            Venat.optionsMenuDropdownBtn.TabIndex += dcLen;
+            Venat.OptionsMenuDropdownBtn.TabIndex += dcLen;
             Venat.MinimizeBtn.TabIndex += dcLen;
             Venat.ExitBtn.TabIndex += dcLen;
         }
@@ -673,7 +671,7 @@ namespace NaughtyDogDCReader
             }
 
             // Adjust the tab indexes of buttons intended to be after the property buttons
-            Venat.optionsMenuDropdownBtn.TabIndex += dcLen;
+            Venat.OptionsMenuDropdownBtn.TabIndex += dcLen;
             Venat.MinimizeBtn.TabIndex += dcLen;
             Venat.ExitBtn.TabIndex += dcLen;
         }

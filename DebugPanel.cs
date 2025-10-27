@@ -17,6 +17,8 @@ namespace NaughtyDogDCReader
                 Bingus.Visible = false;
                 Venat?.Update();
             };
+
+            showBasicPropertiesWindow.Checked = !Venat.groupBox1.Visible;
         }
 
 
@@ -83,8 +85,6 @@ namespace NaughtyDogDCReader
 
         private void button1_Click(object sender, EventArgs e)
         {
-            AbortButtonMammet(null, true);
-            UpdateStatusLabel(new[] { null, "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
         }
 
         private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -92,6 +92,14 @@ namespace NaughtyDogDCReader
 #if DEBUG
             ShowInvalidSIDs = ((CheckBox) sender).Checked;
 #endif
+        }
+
+        private void showBasicPropertiesWindow_CheckedChanged(object sender, EventArgs e)
+        {
+            var @checked = ((CheckBox)sender).Checked;
+
+            Venat.propertiesWindow.Visible = @checked;
+            Venat.groupBox1.Visible = !@checked;
         }
     }
 }

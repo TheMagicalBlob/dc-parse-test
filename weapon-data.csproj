@@ -46,6 +46,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Common.Design.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\Common.Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\Common.Struct.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="DebugPanel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -62,7 +71,7 @@
     <Compile Include="Ver.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Common.cs">
+    <Compile Include="Common\Common.Misc.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="OptionsPage.cs">
