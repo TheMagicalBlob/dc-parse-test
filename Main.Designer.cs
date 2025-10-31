@@ -78,7 +78,7 @@ namespace NaughtyDogDCReader
             // 
             this.OptionsMenuDropdownBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.OptionsMenuDropdownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.OptionsMenuDropdownBtn.Location = new System.Drawing.Point(765, 6);
+            this.OptionsMenuDropdownBtn.Location = new System.Drawing.Point(763, 5);
             this.OptionsMenuDropdownBtn.Name = "OptionsMenuDropdownBtn";
             this.OptionsMenuDropdownBtn.Size = new System.Drawing.Size(71, 23);
             this.OptionsMenuDropdownBtn.TabIndex = 6;
@@ -92,7 +92,7 @@ namespace NaughtyDogDCReader
             this.ExitBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.ExitBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
             this.ExitBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.ExitBtn.Location = new System.Drawing.Point(866, 6);
+            this.ExitBtn.Location = new System.Drawing.Point(864, 4);
             this.ExitBtn.Name = "ExitBtn";
             this.ExitBtn.Size = new System.Drawing.Size(22, 22);
             this.ExitBtn.TabIndex = 8;
@@ -106,7 +106,7 @@ namespace NaughtyDogDCReader
             this.MinimizeBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
             this.MinimizeBtn.ForeColor = System.Drawing.SystemColors.WindowText;
             this.MinimizeBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.MinimizeBtn.Location = new System.Drawing.Point(841, 6);
+            this.MinimizeBtn.Location = new System.Drawing.Point(839, 4);
             this.MinimizeBtn.Name = "MinimizeBtn";
             this.MinimizeBtn.Size = new System.Drawing.Size(22, 22);
             this.MinimizeBtn.TabIndex = 7;
@@ -178,7 +178,7 @@ namespace NaughtyDogDCReader
             // 
             this.debugPanelBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.debugPanelBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.debugPanelBtn.Location = new System.Drawing.Point(700, 6);
+            this.debugPanelBtn.Location = new System.Drawing.Point(698, 5);
             this.debugPanelBtn.Name = "debugPanelBtn";
             this.debugPanelBtn.Size = new System.Drawing.Size(59, 23);
             this.debugPanelBtn.TabIndex = 45;

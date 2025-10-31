@@ -70,18 +70,6 @@ namespace NaughtyDogDCReader
         /// Static refference to the active DC binary's header struct.
         /// </summary>
         public static DCFileHeader DCScript;
-        
-        
-        /// <summary>
-        /// SIDBase Class instance for the active sidbase.bin.
-        /// </summary>
-        public static SIDBase SIDBase;
-
-
-        /// <summary>
-        /// List of SIDBase Class instances for the active sidbase.bin lookup tables.
-        /// </summary>
-        public static List<SIDBase> SIDBases;
 
 
         /// <summary>
@@ -137,24 +125,6 @@ namespace NaughtyDogDCReader
             }
         }
         
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sidbasePath"></param>
-        /// <returns> True if the file at <paramref name="sidbasePath"/> exists. </returns>
-        public static bool LoadSIDBase(string sidbasePath)
-        {
-            if (File.Exists(sidbasePath))
-            {
-                SIDBases.Add(new SIDBase(sidbasePath));
-                return true;
-            }
-            else
-            {
-                MessageBox.Show($"File does not exist:\n " + sidbasePath, "Invalid path provided for desired sidbase.bin!");
-                return false;
-            }
-        }
 
 
         /// <summary>

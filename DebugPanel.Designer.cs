@@ -103,7 +103,7 @@ namespace NaughtyDogDCReader
             this.label1.IsSeparatorLine = true;
             this.label1.Location = new System.Drawing.Point(2, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(411, 17);
+            this.label1.Size = new System.Drawing.Size(312, 17);
             this.label1.StretchToFitForm = true;
             this.label1.TabIndex = 23;
             this.label1.Text = "---------------------------------------------------------------------------------" +
@@ -116,7 +116,7 @@ namespace NaughtyDogDCReader
             this.label2.IsSeparatorLine = true;
             this.label2.Location = new System.Drawing.Point(2, 151);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(411, 17);
+            this.label2.Size = new System.Drawing.Size(312, 17);
             this.label2.StretchToFitForm = true;
             this.label2.TabIndex = 22;
             this.label2.Text = "---------------------------------------------------------------------------------" +
@@ -178,6 +178,7 @@ namespace NaughtyDogDCReader
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(335, 170);
+            this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.showBasicPropertiesWindow);
             this.Controls.Add(this.debugShowInvalidSIDsCheckBox);
             this.Controls.Add(this.button1);
@@ -186,7 +187,6 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dummy);
-            this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.Title);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;

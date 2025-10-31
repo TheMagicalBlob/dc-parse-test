@@ -62,7 +62,7 @@ namespace NaughtyDogDCReader
             {
                 if (fileBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    LoadSIDBase(fileBrowser.FileName);
+                    SIDBase.LoadSIDBase(fileBrowser.FileName);
                 }
             }
         }
@@ -228,7 +228,7 @@ namespace NaughtyDogDCReader
             {
                 if (File.Exists(path))
                 {
-                    SIDBase = new SIDBase(path);
+                    SIDBase.LoadSIDBase(path);
                     return true;
                 }
                 else

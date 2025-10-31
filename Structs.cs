@@ -1457,8 +1457,6 @@ namespace NaughtyDogDCReader
                 DecodedID = SIDBase.DecodeSIDHash(EncodedSIDArray);
                 EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
                 RawID = (KnownSIDs) BitConverter.ToUInt64(EncodedSIDArray, 0);
-
-                Venat?.DecodedSIDs.Add(this);
             }
 
             /// <summary>
@@ -1472,8 +1470,6 @@ namespace NaughtyDogDCReader
                 DecodedID = SIDBase.DecodeSIDHash(EncodedSIDArray);
                 EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
                 RawID = (KnownSIDs) EncodedSID;
-
-                Venat?.DecodedSIDs.Add(this);
             }
 
 
@@ -1510,8 +1506,7 @@ namespace NaughtyDogDCReader
             /// </summary>
             public string DecodedID
             {
-                get
-                {
+                get {
                     if (_decodedID == "UNKNOWN_SID_64" && ShowUnresolvedSIDs)
                     {
                         return EncodedID;
@@ -1571,13 +1566,11 @@ namespace NaughtyDogDCReader
     /// <summary> 
     /// Used for decoding any encoded string id's found.
     /// </summary>
-    public static class SIDBase
+    public class SIDBase
     {
         /// <summary>
-        /// Initialize a new sidbase instance with the path provided. <br/>
+        /// Initialize a new instance of the SIDBase class with the file at the path provided. <br/>
         ///
-        /// TODO:
-        /// Implement functionality for parsing multiple sidbases.
         /// </summary>
         /// <param name="SIDBasePath"> The path of the sidbase.bin to be loaded for this instance. </param>
         /// <exception cref="FileNotFoundException"> Thrown in the event that Jupiter aligns wi- what the fuck else would it be for. </exception>
@@ -1621,6 +1614,8 @@ namespace NaughtyDogDCReader
 
 
 
+
+
         //#
         //## VARIABLE DECLARATIONS
         //#
@@ -1647,6 +1642,14 @@ namespace NaughtyDogDCReader
         /// No reason to read it as a long integer, as if it's that big; we've already fucked off by now.
         /// </summary>
         public readonly int HashTableCount;
+        
+        
+        /// <summary>
+        /// List of SIDBase Class instances for the active sidbase.bin lookup tables.
+        /// </summary>
+        private static SIDBase[] SIDBases;
+
+
 
 
 
@@ -1655,6 +1658,34 @@ namespace NaughtyDogDCReader
         //#
         //## FUNCTION DECLARATIONS
         //#
+#pragma warning disable IDE0011 // aDd BrAcEs
+        
+        /// <summary>
+        /// Load a new sidbase from the path provided, adding it to the list of sidbases to search through. <br/>
+        ///
+        /// </summary>
+        /// <param name="SIDBasePath"> The path of the sidbase.bin to be loaded for this instance. </param>
+        public static void LoadSIDBase(string SIDBasePath)
+        {
+            if (File.Exists(SIDBasePath))
+            {
+                if (SIDBases != null)
+                {
+                    // Load it and add it to the list of previously-loaded lookup tables
+                    SIDBases = SIDBases.Concat(new[] { new SIDBase(SIDBasePath) }).ToArray();
+                }
+                else {
+                    // Load it and create the lookup table list
+                    SIDBases = new[] { new SIDBase(SIDBasePath) };
+                }
+            }
+            else {
+                // Bitch 'n moan
+                MessageBox.Show($"File does not exist:\n " + SIDBasePath, "Invalid path provided for desired sidbase.bin!");
+            }
+        }
+
+
 
         /// <summary>
         /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="index"/> specified.
@@ -1665,14 +1696,14 @@ namespace NaughtyDogDCReader
         /// <returns> What the hell do you think. </returns>
         private static byte[] GetSubArray(byte[] array, int index, int length = 8)
         {
-            var ret = new byte[length];
-
-            for (/* muahahahahhahahaaa */; length > 0; ret[length - 1] = array[index + (length-- - 1)])
+            // Build return string.
+            for (var ret = new byte[length];; ret[length - 1] = array[index + (length-- - 1)])
             {
-                ;
+                if (length <= 0)
+                {
+                    return ret;
+                }
             }
-
-            return ret;
         }
 
 
@@ -1682,7 +1713,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="bytesToDecode"> The hash to decode, as an array of bytes </param>
         /// <exception cref="IndexOutOfRangeException"> Thrown in the event of an invalid string pointer read from the sidbase after the provided hash is located. </exception>
-        public string DecodeSIDHash(byte[] bytesToDecode)
+        private string LookupSIDHash(byte[] bytesToDecode)
         {
             if (bytesToDecode.Length == 8)
             {
@@ -1787,20 +1818,21 @@ namespace NaughtyDogDCReader
 
                 return stringBuffer;
             }
-            else
-            {
+            else {
                 echo($"Invalid SID provided; unexpected length of \"{bytesToDecode?.Length ?? 0}\". Must be 8 bytes.");
                 return "INVALID_SID_64";
             }
         }
 
-        public static string DecodeSIDHash(byte[] EncodedSID, List<SIDBase> LookupTables)
+
+
+        public static string DecodeSIDHash(byte[] EncodedSID)
         {
             var id = "(No SIDBases Loaded.)";
 
-            foreach (var table in LookupTables)
+            foreach (var table in SIDBases ?? Array.Empty<SIDBase>())
             {
-                id = table?.DecodeSIDHash(EncodedSID) ?? "(Null SIDBase Instance!!!)";
+                id = table?.LookupSIDHash(EncodedSID) ?? "(Null SIDBase Instance!!!)";
 
                 if (id != "UNKNOWN_SID_64")
                 {
@@ -1810,6 +1842,8 @@ namespace NaughtyDogDCReader
 
             return id;
         }
+        
+
 
         private static void echo(object message = null)
         {
