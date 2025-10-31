@@ -18,7 +18,7 @@ namespace NaughtyDogDCReader
                 Venat?.Update();
             };
 
-            showBasicPropertiesWindow.Checked = !Venat.groupBox1.Visible;
+            showBasicPropertiesWindow.Checked = !Venat.propertiesEditor.Visible;
         }
 
 
@@ -99,7 +99,7 @@ namespace NaughtyDogDCReader
             var @checked = ((CheckBox)sender).Checked;
 
             Venat.propertiesWindow.Visible = @checked;
-            Venat.groupBox1.Visible = !@checked;
+            Venat.propertiesEditor.Visible = !@checked;
         }
     }
 }

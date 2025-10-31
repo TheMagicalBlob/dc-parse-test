@@ -250,14 +250,18 @@ namespace NaughtyDogDCReader
             // Immediately load the provided script if the tool was started with the path one as the first argument
             if (DCFilePath != null)
             {
-                Paint += (_, __) =>
+                void DelayedDCFileLoad(object _, PaintEventArgs __)
                 {
+                    Paint -= DelayedDCFileLoad;
+
                     Update();
                     LoadBinFile(DCFilePath);
-                };
+                }
+
+                Paint += DelayedDCFileLoad;
             }
         }
-        #pragma warning restore IDE1006
+#pragma warning restore IDE1006
 
         #endregion (function declarations)
     }

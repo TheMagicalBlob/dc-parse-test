@@ -21,7 +21,6 @@ namespace NaughtyDogDCReader
         //## Script Parsing Globals
         //#
         #region [Script Parsing Globals]
-        public static SIDBase SIDBase;
 
         /// <summary>
         /// The loaded DC Script binary as a byte array. <br/>
@@ -67,10 +66,43 @@ namespace NaughtyDogDCReader
         public static long DCFileMainDataLength;
 
 
-
+        /// <summary>
+        /// Static refference to the active DC binary's header struct.
+        /// </summary>
         public static DCFileHeader DCScript;
+        
+        
+        /// <summary>
+        /// SIDBase Class instance for the active sidbase.bin.
+        /// </summary>
+        public static SIDBase SIDBase;
 
-        public List<SID> DecodedSIDs = new List<SID>();
+
+        /// <summary>
+        /// List of SIDBase Class instances for the active sidbase.bin lookup tables.
+        /// </summary>
+        public static List<SIDBase> SIDBases;
+
+
+        /// <summary>
+        /// A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file.
+        /// </summary>
+        public enum KnownSIDs : ulong
+        {
+            UNKNOWN_SID_64 = 0x910ADC74DA2A5F6Dul,
+            array = 0x4F9E14B634C6B026ul,
+            symbol_array = 0xDFD21E68AC12C54Bul,
+            ammo_to_weapon_array = 0xEF3BE7EF6F790D34ul,
+
+            map = 0x080F5919176D2D91ul,
+
+            weapon_gameplay_def = 0x6E1BB1DB85CC7806ul,
+            melee_weapon_gameplay_def = 0x730ADC6EDAF0A96Dul,
+
+            look2_def = 0xBF24E1B6BADE9DCCul,
+
+            placeholder = 0xDEADBEEFDEADBEEFul,
+        }
         #endregion
 
         #endregion
@@ -114,7 +146,7 @@ namespace NaughtyDogDCReader
         {
             if (File.Exists(sidbasePath))
             {
-                SIDBase = new SIDBase(sidbasePath);
+                SIDBases.Add(new SIDBase(sidbasePath));
                 return true;
             }
             else
@@ -146,6 +178,11 @@ namespace NaughtyDogDCReader
                 Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
                 Venat.ExitBtn.TabIndex -= DCScript.Entries.Length;
             }
+        }
+
+        private static void CTCloseBinFile()
+        {
+            Venat?.Invoke(Venat.CloseBinFileMammet);
         }
 
         
@@ -211,7 +248,7 @@ namespace NaughtyDogDCReader
             catch (IOException dang)
             {
                 catchError("Error loading DC file; file may be in use, or simply not exist.", $"\nERROR: Selected file is either in use, or doesn't exist. ({dang.Message})");
-            }
+            }/*
             // Thread has been killed (not sure why I'm still bothering to check for this)
             catch (ThreadAbortException)
             {
@@ -225,12 +262,12 @@ namespace NaughtyDogDCReader
                 catchError(mainErr + $" ({fuck.GetType()})", '\n' + intErr);
                 MessageBox.Show(intErr, mainErr);
             }
-
+*/
 
             void catchError(string mainMessage, string internalMessage)
             {
                 echo(internalMessage);
-                CloseBinFile();
+                CTCloseBinFile();
 
                 StatusLabelMammet(new[] { mainMessage, emptyStr, emptyStr });
             }
@@ -286,7 +323,7 @@ namespace NaughtyDogDCReader
 
 
 
-        public static object getPropertyValueByType(Type type, int Offset)
+        public static object GetPropertyValueByType(Type type, int Offset)
         {
             switch (type.Name)
             {

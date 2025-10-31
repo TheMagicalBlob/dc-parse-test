@@ -23,8 +23,6 @@ namespace NaughtyDogDCReader
 
 
 
-
-
         //===================================\\
         //---|   Function Delcarations   |---\\
         //===================================\\
@@ -56,14 +54,16 @@ namespace NaughtyDogDCReader
 
             return ret;
         }
+
         
         /// <summary>
-        /// 
+        /// Reads a string from <paramref name="buffer"/> at the specified <paramref name="startAddress"/>, until the string terminator is read. <br/>
+        /// Encoding: Converts the bytes to a char, so whatever string encoding format that results in.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="startAddress"></param>
-        /// <param name="terminator"></param>
-        /// <returns></returns>
+        /// <param name="buffer"> The array of bytes from which to read the returned string. </param>
+        /// <param name="startAddress"> The address in <paramref name="buffer"/> at which to start reading the returned string. </param>
+        /// <param name="terminator"> The terminator for the string (defaults to the standard string terminator; 0x00). </param>
+        /// <returns> Home with the Milk. </returns>
         public static string ReadString(byte[] buffer, int startAddress, byte terminator = 0)
         {
             var str = string.Empty;

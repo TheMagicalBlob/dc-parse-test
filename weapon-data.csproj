@@ -71,7 +71,7 @@
     <Compile Include="Ver.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Common\Common.Misc.cs">
+    <Compile Include="Common\Common.Logging.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="OptionsPage.cs">

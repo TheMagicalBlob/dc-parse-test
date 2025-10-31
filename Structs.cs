@@ -1140,6 +1140,7 @@ namespace NaughtyDogDCReader
 
                 Offsets = new[]
                 {
+                    //[offset initializations here]
                     0x8, // reticleDefNameOffset
                     0x18 // reticleDefSimpleNameOffset
                 };
@@ -1150,34 +1151,26 @@ namespace NaughtyDogDCReader
                 {
                     var property = properties[i];
                     var propertyType = property.GetType();
-                    var isPointer = property.Name.EndsWith("Pointer");
+                    var propertyValue = GetPropertyValueByType(propertyType, Offsets[i]);
+                    
+
 
                     echo($"{property.Name} [");
                     echo($"\toffset: {Offsets[i]:X}");
                     echo($"\tproperty type: {property.PropertyType.Name}");
-                    echo($"\tproperty is pointer: {isPointer}");
+                    echo($"\tproperty value: {propertyValue}");
                     echo("]");
 
                     echo($"Attempting to set property value...");
-                    property.SetValue(this, getPropertyValueByType(propertyType, Offsets[i]));
+
+                    property.SetValue(this, propertyValue);
                     
                     echo($"{property.Name}.Value: {property.GetValue(this)}");
-                }
-                echo("}");
-
-
 /*
-                // Read Hud2 Reticle Name
-                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int) Address + reticleDefNameOffset), 0); binFile[i] != 0;)
-                {
-                    ReticleNamePointer += (char) binFile[i++];
-                }
-                // Read Hud2 Simple Reticle Name
-                for (var i = BitConverter.ToInt64(GetSubArray(binFile, (int) Address + reticleDefSimpleNameOffset), 0); binFile[i] != 0;)
-                {
-                    ReticleSimpleNamePointer += (char) binFile[i++];
-                }
+                    properties[i].SetValue(this, getPropertyValueByType(properties[i].GetType(), Offsets[i]));
 */
+                }
+                echo("}\n\n");
             }
 
             /// <summary> HUD2 Reticle Definition structure offset. </summary>
@@ -1432,65 +1425,6 @@ namespace NaughtyDogDCReader
 
 
 
-        /// <summary>
-        /// [Description Here]
-        /// </summary>
-        public struct StructTemplate
-        {
-            /// <summary>
-            /// Create a new instance of the StructTemplate struct.
-            /// </summary>
-            /// <param name="binFile"> The DC file this StructTemplate instance is being read from. </param>
-            /// <param name="Address"> The start address of the structure in the DC file. </param>
-            /// <param name="Name"> The name associated with the current StructTemplate instance. </param>
-            public StructTemplate(byte[] binFile, long Address, SID Name)
-            {
-                //#
-                //## Variable Initializations
-                //#
-                #region [variable initializations]
-                this.Name = Name;
-                this.Address = Address;
-
-                //RawData = GetSubArray(binFile, (int) Address, Size);
-
-                // _VARIABLE_DECLARATIONS_HERE_
-                #endregion
-            }
-
-
-            //#
-            //## Offset Declarations
-            //#
-            #region [Offset Declarations]
-            // [offset declarations here]
-            #endregion [offset declarations]
-
-
-
-            //#
-            //## Variable Declarations
-            //#
-            #region [Variable Declarations]
-
-            //# #|Private Members|#
-            // [private members here]
-            
-            //# #|Public Members|#
-            /// <summary> The name associated with the current StructTemplate instance. </summary>
-            public SID Name { get; set; }
-
-            /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
-            
-            /// <summary> Size of the current structure type. </summary>
-            //public const int Size = [size here];
-
-            ///// <summary> The raw binary data of the current StructureTemplate instance. </summary>
-            //public byte[] RawData { get; set; }
-
-            #endregion [variable declarations]
-        }
 
 
 
@@ -1637,7 +1571,7 @@ namespace NaughtyDogDCReader
     /// <summary> 
     /// Used for decoding any encoded string id's found.
     /// </summary>
-    public class SIDBase
+    public static class SIDBase
     {
         /// <summary>
         /// Initialize a new sidbase instance with the path provided. <br/>
@@ -1860,9 +1794,21 @@ namespace NaughtyDogDCReader
             }
         }
 
-        public string DecodeSIDHash(ulong EncodedSID)
+        public static string DecodeSIDHash(byte[] EncodedSID, List<SIDBase> LookupTables)
         {
-            return DecodeSIDHash(BitConverter.GetBytes(EncodedSID));
+            var id = "(No SIDBases Loaded.)";
+
+            foreach (var table in LookupTables)
+            {
+                id = table?.DecodeSIDHash(EncodedSID) ?? "(Null SIDBase Instance!!!)";
+
+                if (id != "UNKNOWN_SID_64")
+                {
+                    break;
+                }
+            }
+
+            return id;
         }
 
         private static void echo(object message = null)

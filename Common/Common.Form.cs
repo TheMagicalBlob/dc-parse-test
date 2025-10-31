@@ -206,9 +206,12 @@ namespace NaughtyDogDCReader
 
         /// <summary> OptionsPage Form Pointer/Refference. </summary>
         public static OptionsPage Azem;
-
-        /// <summary> Output Window Pointer/Refference Because I'm Lazy. </summary>
+        
+        /// <summary> Properties Window (the output one) Pointer/Refference Because I'm Lazy. </summary>
         public static RichTextBox PropertiesWindow;
+
+        /// <summary> Properties Editor Pointer/Refference. </summary>
+        public static GroupBox PropertiesEditor;
 
         /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
         public static GroupBox PropertiesPanel;
@@ -219,32 +222,12 @@ namespace NaughtyDogDCReader
         /// <summary> Log Window Pointer/Refference.  </summary>
         public static RichTextBox LogWindow;
 
+        /// <summary> Debug options panel form Pointer/Refference. </summary>
         public static DebugPanel Bingus;
 
         public static Label ScriptStatusLabel;
         public static Label ScriptSelectionLabel;
 
-
-
-        /// <summary>
-        /// A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file.
-        /// </summary>
-        public enum KnownSIDs : ulong
-        {
-            UNKNOWN_SID_64 = 0x910ADC74DA2A5F6Dul,
-            array = 0x4F9E14B634C6B026ul,
-            symbol_array = 0xDFD21E68AC12C54Bul,
-            ammo_to_weapon_array = 0xEF3BE7EF6F790D34ul,
-
-            map = 0x080F5919176D2D91ul,
-
-            weapon_gameplay_def = 0x6E1BB1DB85CC7806ul,
-            melee_weapon_gameplay_def = 0x730ADC6EDAF0A96Dul,
-
-            look2_def = 0xBF24E1B6BADE9DCCul,
-
-            placeholder = 0xDEADBEEFDEADBEEFul,
-        }
         #endregion
         #endregion
 
@@ -556,6 +539,13 @@ namespace NaughtyDogDCReader
 
             Venat.ReloadScriptBtn.Enabled = isEnabled;
             Venat.ReloadScriptBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
+        });
+
+
+        
+        private readonly generalBinThreadWand CloseBinFileMammet = new generalBinThreadWand(() =>
+        {
+            CloseBinFile();
         });
 
 

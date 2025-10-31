@@ -33,8 +33,16 @@ namespace NaughtyDogDCReader
             };
             propertiesWindowSameLineMammet = (message, _) =>
             {
-                PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
-                PropertiesWindow.Update();
+                if (PropertiesWindow.Lines.Any())
+                {
+                    PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
+                    PropertiesWindow.Update();
+                }
+                #if DEBUG
+                else {
+                    echo($"\nWARNING: {nameof(propertiesWindowSameLineMammet)} was called, but {nameof(PropertiesWindow)}.Lines returned no elemenes.\n");
+                }
+                #endif
             };
             propertiesWindowSpecificLineMammet = (message, line) =>
             {
@@ -290,8 +298,7 @@ namespace NaughtyDogDCReader
 #endif
 
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try
-            {
+            try {
                 Venat?.Invoke(propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null", null });
             }
             catch (Exception dang)
@@ -300,6 +307,7 @@ namespace NaughtyDogDCReader
                 echo(err);
             }
         }
+
 
 
         public void Reset()
@@ -313,6 +321,7 @@ namespace NaughtyDogDCReader
             SubItemSelection = null;
             ScrollBar = null;
         }
+
 
 
         /// <summary>
@@ -468,7 +477,7 @@ namespace NaughtyDogDCReader
             foreach (var property in dcEntry.Struct.GetType().GetProperties())
             {
                 // Print the name of the property
-                PrintPropertyDetailSL($" {SpaceOutStructName(property.Name)}: ");
+                PrintPropertyDetailSL($"\n{SpaceOutStructName(property.Name)}: [\n");
 
                 // Get and format the property value
                 var val = property.GetValue(dcEntry.Struct);
@@ -476,6 +485,8 @@ namespace NaughtyDogDCReader
 
                 // Print the formatted property value
                 PrintPropertyDetailNL(formattedVal);
+
+                PrintPropertyDetailNL("]");
             }
         }
 
