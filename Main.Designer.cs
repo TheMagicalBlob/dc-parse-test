@@ -333,11 +333,11 @@ namespace NaughtyDogDCReader
             this.propertiesWindow.Location = new System.Drawing.Point(546, 238);
             this.propertiesWindow.Name = "propertiesWindow";
             this.propertiesWindow.ReadOnly = true;
-            this.propertiesWindow.ShortcutsEnabled = false;
             this.propertiesWindow.Size = new System.Drawing.Size(338, 385);
             this.propertiesWindow.TabIndex = 10;
             this.propertiesWindow.TabStop = false;
             this.propertiesWindow.Text = "recto verso";
+            this.propertiesWindow.WordWrap = false;
             // 
             // scriptSelectionLabel
             // 
@@ -440,13 +440,11 @@ namespace NaughtyDogDCReader
 
         public Button[] DropdownMenu = new Button[2];
         private Button BinFileBrowseBtn;
-        private Label scriptStatusLabel;
         private Button CloseBtn;
         private Button ReloadScriptBtn;
         private Label label1;
         private Label VersionLabel;
         private GroupBox propertiesPanel;
-        private Label scriptSelectionLabel;
         private Label SeperatorLine2;
         private Label label3;
         private Button dummy0;
@@ -466,6 +464,8 @@ namespace NaughtyDogDCReader
         public Button MinimizeBtn;
         public RichTextBox propertiesWindow;
         public GroupBox propertiesEditor;
+        public Label scriptStatusLabel;
+        public Label scriptSelectionLabel;
     }
 }
 

@@ -201,32 +201,39 @@ namespace NaughtyDogDCReader
 
 
 
-        /// <summary> MainPage Form Pointer/Refference. </summary>
+        /// <summary> MainPage Form Pointer/Reference. </summary>
         public static Main Venat;
 
-        /// <summary> OptionsPage Form Pointer/Refference. </summary>
+        /// <summary> OptionsPage Form Pointer/Reference. </summary>
         public static OptionsPage Azem;
         
-        /// <summary> Properties Window (the output one) Pointer/Refference Because I'm Lazy. </summary>
+        /// <summary> Properties Window (the output one) Pointer/Reference Because I'm Lazy. </summary>
         public static RichTextBox PropertiesWindow;
 
-        /// <summary> Properties Editor Pointer/Refference. </summary>
+        /// <summary> Properties Editor Pointer/Reference. </summary>
         public static GroupBox PropertiesEditor;
 
-        /// <summary> Properties Panel GroupBox Pointer/Refference. </summary>
+        /// <summary> Properties Panel GroupBox Pointer/Reference. </summary>
         public static GroupBox PropertiesPanel;
 
-        /// <summary> StructBSIdkNameItLater Class Pointer/Refference. </summary>
+        /// <summary> StructBSIdkNameItLater Class Pointer/Reference. </summary>
         public static PropertiesHandler Panels;
 
-        /// <summary> Log Window Pointer/Refference.  </summary>
+        /// <summary> Log Window Pointer/Reference.  </summary>
         public static RichTextBox LogWindow;
 
-        /// <summary> Debug options panel form Pointer/Refference. </summary>
+        /// <summary> Debug options panel form Pointer/Reference. </summary>
         public static DebugPanel Bingus;
 
         public static Label ScriptStatusLabel;
         public static Label ScriptSelectionLabel;
+
+        /// <summary>
+        /// 0: Address
+        ///<br/>
+        /// 1: Original Data
+        /// </summary>
+        public static List<object[]> Changes;
 
         #endregion
         #endregion

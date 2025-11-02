@@ -1145,32 +1145,6 @@ namespace NaughtyDogDCReader
                     0x18 // reticleDefSimpleNameOffset
                 };
 
-                var properties = GetType().GetProperties();
-                echo("Members: {");
-                for (var i = 0; i < properties.Length; i++)
-                {
-                    var property = properties[i];
-                    var propertyType = property.GetType();
-                    var propertyValue = GetPropertyValueByType(propertyType, Offsets[i]);
-                    
-
-
-                    echo($"{property.Name} [");
-                    echo($"\toffset: {Offsets[i]:X}");
-                    echo($"\tproperty type: {property.PropertyType.Name}");
-                    echo($"\tproperty value: {propertyValue}");
-                    echo("]");
-
-                    echo($"Attempting to set property value...");
-
-                    property.SetValue(this, propertyValue);
-                    
-                    echo($"{property.Name}.Value: {property.GetValue(this)}");
-/*
-                    properties[i].SetValue(this, getPropertyValueByType(properties[i].GetType(), Offsets[i]));
-*/
-                }
-                echo("}\n\n");
             }
 
             /// <summary> HUD2 Reticle Definition structure offset. </summary>
@@ -1185,6 +1159,145 @@ namespace NaughtyDogDCReader
             
             public long ReticleNamePointer { get; set; }
             public long ReticleSimpleNamePointer { get; set; }
+        }
+
+
+        
+        /// <summary>
+        /// Initialize a new instance of the hud2-reticle-def struct.
+        /// </summary>
+        public struct hud2_reticle_def
+        {
+            /// <summary>
+            /// Create a new instance of the hud2_reticle_def struct.
+            /// </summary>
+            /// <param name="binFile"> The DC file this hud2_reticle_def instance is being read from. </param>
+            /// <param name="Address"> The start address of the structure in the DC file. </param>
+            /// <param name="Name"> The name associated with the current hud2_reticle_def instance. </param>
+            public hud2_reticle_def(byte[] binFile, long Address, SID Name)
+            {
+                //#
+                //## Variable Initializations
+                //#
+                #region [variable initializations]
+                this.Name = Name;
+                this.Address = Address;
+
+
+                
+                RawData = GetSubArray(binFile, (int) Address, Size);
+
+
+				UnknownLong_At0x00 = 0;
+				UnknownLong_At0x08 = 0;
+				UnknownLong_At0x10 = 0;
+				UnknownLong_At0x18 = 0;
+				UnknownLong_At0x20 = 0;
+				UnknownLong_At0x28 = 0;
+                
+
+
+
+
+                //#
+                //## Offset Initializations
+                //#
+                Offsets = new[]
+                {
+                    0x00, // unknownLong_At0x00 (Unknown long)
+					0x08, // unknownLong_At0x08 (Unknown long)
+					0x10, // unknownLong_At0x10 (Unknown long)
+					0x18, // unknownLong_At0x18 (Unknown long)
+					0x20, // unknownLong_At0x20 (Unknown long)
+					0x28  // unknownLong_At0x28 (Unknown long)
+                };
+                #endregion
+
+                
+                var properties = GetType().GetProperties();
+                echo("Members: {");
+                for (var i = 0; i < properties.Length; i++)
+                {
+                    var property = properties[i];
+                    var propertyType = property.GetType();
+                    var propertyValue = ReadPropertyValueByType(propertyType, Offsets[i]);
+                    
+
+
+                    echo($"{property.Name} [");
+                    echo($"\toffset: {Offsets[i]:X}");
+                    echo($"\tproperty type: {property.PropertyType.Name}");
+                    echo($"\tproperty value: {propertyValue}");
+                    echo("]");
+
+                    echo($"Attempting to set property value...");
+
+                    property.SetValue(this, propertyValue);
+                    
+                    echo($"{property.Name}.Value: {property.GetValue(this)}");
+
+
+                    if (false) //!
+                    #pragma warning disable CS0162
+                    {
+                        properties[i].SetValue(this, ReadPropertyValueByType(properties[i].GetType(), Offsets[i]));
+                    }
+                }
+                echo("}\n\n");
+            }
+
+            
+            //#
+            //## Offset Declarations
+            //#
+            /// <summary> HUD2 Reticle Definition structure offset. </summary>
+            private readonly int[] Offsets;
+
+
+
+
+            //#
+            //## Variable Declarations
+            //#
+            #region [Variable Declarations]
+
+            //# #|Private Members|#
+            // [private members here]
+
+            //# #|Public Members|#
+            /// <summary> The name associated with the current hud2_reticle_def instance. </summary>
+            public SID Name { get; set; }
+
+            /// <summary> The start address of the structure in the DC file. </summary>
+            public long Address { get; set; }
+            
+
+
+            /// <summary> Unknown long <summary/>
+			public long UnknownLong_At0x00 { get; set; }
+
+			/// <summary> Unknown long <summary/>
+			public long UnknownLong_At0x08 { get; set; }
+
+			/// <summary> Unknown long <summary/>
+			public long UnknownLong_At0x10 { get; set; }
+
+			/// <summary> Unknown long <summary/>
+			public long UnknownLong_At0x18 { get; set; }
+
+			/// <summary> Unknown long <summary/>
+			public long UnknownLong_At0x20 { get; set; }
+
+			/// <summary> Unknown long <summary/>
+			public long UnknownLong_At0x28 { get; set; }
+
+
+            /// <summary> Size of the current structure type. </summary>
+            public const int Size =  0x30; // The size of the structure
+
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
+            public byte[] RawData { get; set; }
+            #endregion [variable declarations]
         }
 
 
@@ -1686,7 +1799,7 @@ namespace NaughtyDogDCReader
         }
 
 
-
+        
         /// <summary>
         /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="index"/> specified.
         /// </summary>
@@ -1696,6 +1809,12 @@ namespace NaughtyDogDCReader
         /// <returns> What the hell do you think. </returns>
         private static byte[] GetSubArray(byte[] array, int index, int length = 8)
         {
+            if (length == 0)
+            {
+                return Array.Empty<byte>();
+            }
+
+
             // Build return string.
             for (var ret = new byte[length];; ret[length - 1] = array[index + (length-- - 1)])
             {

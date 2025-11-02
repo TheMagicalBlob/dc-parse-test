@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -292,8 +293,8 @@ namespace NaughtyDogDCReader
 
 
 
-
-        public static object GetPropertyValueByType(Type type, int Offset)
+        
+        public static object ReadPropertyValueByType(Type type, int Offset)
         {
             switch (type.Name)
             {
@@ -322,6 +323,95 @@ namespace NaughtyDogDCReader
 
                     return BitConverter.ToInt32(DCFile, Offset);
             }
+        }
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Type"></param>
+        /// <param name="Offset"></param>
+        /// <param name="ValueAsString"></param>
+        public static void WritePropertyValueByType(Type Type, int Offset, string ValueAsString)
+        {
+            byte[] convertedValue;
+
+            // Ensure value string has no hex number prefix
+            if (ValueAsString.Length > 2)
+            {
+                if ($"{ValueAsString[0]}{ValueAsString[1]}" == "0x")
+                {
+                    var substring = ValueAsString.Substring(2);
+                    echo($"Removing hexadecimal number specifier from value string ({ValueAsString} => {substring})");
+
+                    ValueAsString = substring;
+                }
+            }
+
+            if (StatusDetails?.Length > 1 && StatusDetails[1] == "Invalid Input Value")
+            {
+                UpdateStatusLabel(new[] { null, string.Empty });
+            }
+
+
+
+            // Convert the value to the relevant type, then write it to the loaded DC file array
+            switch (Type.Name)
+            {
+                case "Byte":
+                    convertedValue = new[] { byte.Parse(ValueAsString, System.Globalization.NumberStyles.HexNumber) };
+                    break;
+
+
+                case "Single":
+                    convertedValue = BitConverter.GetBytes(float.Parse(ValueAsString, System.Globalization.NumberStyles.HexNumber));
+                    break;
+
+                case "Double":
+                    convertedValue = BitConverter.GetBytes(double.Parse(ValueAsString, System.Globalization.NumberStyles.HexNumber));
+                    break;
+
+                    
+                case "Short":
+                    convertedValue = BitConverter.GetBytes(short.Parse(ValueAsString, System.Globalization.NumberStyles.HexNumber));
+                    break;
+                    
+                case "Long":
+                    convertedValue = BitConverter.GetBytes(long.Parse(ValueAsString, System.Globalization.NumberStyles.HexNumber));
+                    break;
+
+                case "Int":
+                default:
+                    if (Type.Name != "Int")
+                    {
+                        echo($"Unknown Type, Treating as signed int32");
+
+                    }
+                    
+
+                    if (int.TryParse(ValueAsString, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var parsedValue))
+                    {
+                        convertedValue = BitConverter.GetBytes(parsedValue);
+                    }
+                    else {
+                        convertedValue = null;
+                    }
+                    break;
+            }
+            
+            
+            // Handle invalid inputs
+            if (convertedValue == null)
+            {
+                UpdateStatusLabel(new[] { null, "Invalid Input Value" });
+                return;
+            }
+
+
+            WriteSubArray(DCFile, convertedValue, Offset);
+
+            Changes.Add(new object[] { Offset, convertedValue });
         }
 
         #endregion

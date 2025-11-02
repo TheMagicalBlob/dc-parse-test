@@ -23,30 +23,34 @@ namespace NaughtyDogDCReader
             GroupBoxContentsOffset = 7;
             DefaultPropertyButtonHeight = 23;
 
+            Changes = new List<object[]>();
+
 
             propertiesPanelMammet = PopulatePropertiesPanelWithHeaderItems;
 
+            // Newline
             propertiesWindowNewLineMammet = (message, _) =>
             {
-                PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation), false);
+                PropertiesWindow.AppendLine(message, false);
                 PropertiesWindow.Update();
             };
-            propertiesWindowSameLineMammet = (message, _) =>
-            {
-                if (PropertiesWindow.Lines.Any())
-                {
-                    PropertiesWindow.UpdateLine(Indentation + PropertiesWindow.Lines.Last() + message.Replace("\n", "\n" + Indentation), PropertiesWindow.Lines.Length - 1);
-                    PropertiesWindow.Update();
-                }
-                #if DEBUG
-                else {
-                    echo($"\nWARNING: {nameof(propertiesWindowSameLineMammet)} was called, but {nameof(PropertiesWindow)}.Lines returned no elemenes.\n");
-                }
-                #endif
-            };
+
+            // Specific-line
             propertiesWindowSpecificLineMammet = (message, line) =>
             {
-                PropertiesWindow.UpdateLine(Indentation + message.Replace("\n", "\n" + Indentation), line);
+                PropertiesWindow.UpdateLine(message.Replace("\n", "\n" + Indentation), line);
+                PropertiesWindow.Update();
+            };
+
+            // Default W/ Indent
+            propertiesWindowMammet = (message, _) =>
+            {
+                if (message[0] != '\n')
+                {
+                    message = Indentation + message;
+                }
+             
+                PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation));
                 PropertiesWindow.Update();
             };
         }
@@ -66,6 +70,7 @@ namespace NaughtyDogDCReader
         //## Properties Panels Functionality Variables
         //#
         private Button[] HeaderItemButtons;
+
         private List<Button> SubItemButtons;
 
 
@@ -110,19 +115,24 @@ namespace NaughtyDogDCReader
         private Button _subItemSelection;
 
 
-
         /// <summary>
         /// The (vertical) scroll bar used to navigate the buttons populating the PropertiesPanel when they bleed passed the bottom of the group box
         /// </summary>
         private ScrollBar ScrollBar;
 
+
+
         private int IndentationDepth
         {
-            get => Indentation.Length < 8 ? 0 : Indentation.Length / 8; set => Indentation = new string(' ', value * 8);
+            get => Indentation.Length < 4 ? 0 : Indentation.Length / 4;
+            
+            set => Indentation = new string(' ', value > 0 ? value * 4 : 0);
         }
 
 
         private string Indentation = emptyStr;
+
+
 
 
         private readonly Type[] WholeNumericalTypes = new[]
@@ -169,9 +179,9 @@ namespace NaughtyDogDCReader
         public delegate void PropertiesPanelWand(string dcFileName, DCFileHeader dcEntries);
 
 
-        private readonly PropertiesWindowOutputWand propertiesWindowSameLineMammet;
         private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
         private readonly PropertiesWindowOutputWand propertiesWindowSpecificLineMammet;
+        private readonly PropertiesWindowOutputWand propertiesWindowMammet;
 
         public PropertiesPanelWand propertiesPanelMammet;
         #endregion
@@ -247,45 +257,11 @@ namespace NaughtyDogDCReader
 
 
 
-
-
-
-
         /// <summary>
         /// Replace a specified line in the properties output window with <paramref name="message"/>.
         /// <br/> Clears the line if no message is provided.
         /// </summary>
-        public void PrintPropertyDetailSL(object message)
-        {
-            if (message == null)
-            {
-                message = " ";
-            }
-
-#if DEBUG
-            // Debug Output
-            echo(message);
-#endif
-
-            // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try
-            {
-                Venat?.Invoke(propertiesWindowSameLineMammet, new object[] { message?.ToString() ?? "null", null });
-            }
-            catch (Exception dang)
-            {
-                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
-                echo(err);
-            }
-        }
-
-
-
-        /// <summary>
-        /// Replace a specified line in the properties output window with <paramref name="message"/>.
-        /// <br/> Clears the line if no message is provided.
-        /// </summary>
-        public void PrintPropertyDetailNL(object message = null, int indentationOverride = 0)
+        public void PrintPropertyDetailNL(object message = null)
         {
             if (message == null)
             {
@@ -300,6 +276,33 @@ namespace NaughtyDogDCReader
             // This occasionally crashes in a manner that's really annoying to replicate, so meh
             try {
                 Venat?.Invoke(propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null", null });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
+                echo(err);
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void PrintPropertyDetail(object message = null, int indentationOverride = 0)
+        {
+            if (message == null)
+            {
+                message = emptyStr;
+            }
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(propertiesWindowMammet, new object[] { message?.ToString() ?? "null", null });
             }
             catch (Exception dang)
             {
@@ -408,7 +411,7 @@ namespace NaughtyDogDCReader
                 case var type when type == typeof(string):
                     if (value.ToString().Length < 1)
                     {
-
+                        //! the fuck was I going to do here, again?
                     }
                     returnString = value.ToString();
                     break;
@@ -432,7 +435,7 @@ namespace NaughtyDogDCReader
 
                 // ## Unknown Struct
                 case var type when type == typeof(UnmappedStructure):
-                    returnString = $"{((UnmappedStructure) value).Message.Replace("\n", "\n        ")}";
+                    returnString = $"{((UnmappedStructure) value).Message}";
                     break;
 
 
@@ -465,7 +468,7 @@ namespace NaughtyDogDCReader
 
 
             // Update Properties Window
-            PrintPropertyDetailNL("Type: " + structType.DecodedID);
+            PrintPropertyDetailNL("\nType: " + structType.DecodedID);
 
             if (dcEntry.Struct == null)
             {
@@ -473,18 +476,18 @@ namespace NaughtyDogDCReader
                 return;
             }
 
-
+            IndentationDepth = 1;
             foreach (var property in dcEntry.Struct.GetType().GetProperties())
             {
                 // Print the name of the property
-                PrintPropertyDetailSL($"\n{SpaceOutStructName(property.Name)}: [\n");
+                PrintPropertyDetailNL($"{SpaceOutStructName(property.Name)}: [");
 
                 // Get and format the property value
                 var val = property.GetValue(dcEntry.Struct);
-                var formattedVal = FormatPropertyValue(val).Replace("\n", "\n" + Indentation);
+                var formattedVal = FormatPropertyValue(val);
 
                 // Print the formatted property value
-                PrintPropertyDetailNL(formattedVal);
+                PrintPropertyDetail(formattedVal);
 
                 PrintPropertyDetailNL("]");
             }
@@ -497,7 +500,7 @@ namespace NaughtyDogDCReader
             PropertiesWindow.Clear();
 
             // Update Properties Window
-            var ret = "Type: " + ((dynamic)dcEntry).Name.DecodedID + '\n';
+            var ret = "\nType: " + ((dynamic)dcEntry).Name.DecodedID + '\n';
 
             foreach (var property in dcEntry.GetType().GetProperties())
             {
@@ -630,6 +633,7 @@ namespace NaughtyDogDCReader
         }
 
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -637,9 +641,9 @@ namespace NaughtyDogDCReader
         /// <param name="dcArrayObj"></param>
         private void PopulatePropertiesPanelWithArrayItems(string dcArrayName, object dcArrayObj)
         {
+            //! Finish this copy-pasted code
             MessageBox.Show("WRONG FUNCTION CALLED, DUMBASS");
             return;
-
 
             Button currentButton;
             var dcEntries = (dynamic[])((dynamic)dcArrayObj).Entries;

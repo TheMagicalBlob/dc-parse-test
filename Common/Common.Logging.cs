@@ -34,13 +34,13 @@ namespace NaughtyDogDCReader
         #region [Miscellaneous Functions]
 
         /// <summary>
-        /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="index"/> specified.
+        /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="Address"/> specified.
         /// </summary>
         /// <param name="array"> The array from which to take the sub-array. </param>
-        /// <param name="index"> The start index of the sub-array within <paramref name="array"/>. </param>
+        /// <param name="Address"> The start address of the sub-array within <paramref name="array"/>. </param>
         /// <param name="length"> The length of the sub-array. </param>
         /// <returns> What the hell do you think. </returns>
-        private static byte[] GetSubArray(byte[] array, int index, int length = 8)
+        public static byte[] GetSubArray(byte[] array, int Address, int length = 8)
         {
             if (length == 0)
             {
@@ -48,12 +48,35 @@ namespace NaughtyDogDCReader
             }
 
 
-            var ret = new byte[length];
-
-            for (; length > 0; ret[length - 1] = array[index + (length-- - 1)]);
-
-            return ret;
+            // Build return string.
+            for (var ret = new byte[length];; ret[length - 1] = array[Address + (length-- - 1)])
+            {
+                if (length <= 0)
+                {
+                    return ret;
+                }
+            }
         }
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="subarray"></param>
+        /// <param name="Address"></param>
+        public static void WriteSubArray(byte[] array, byte[] subarray, int Address)
+        {
+            for (var length = subarray.Length - 1;; array[Address + length] = subarray[length--])
+            {
+                if (length < 1)
+                {
+                    return;
+                }
+            }
+        }
+
 
         
         /// <summary>
