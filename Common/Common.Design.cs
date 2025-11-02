@@ -25,7 +25,7 @@ namespace NaughtyDogDCReader
         public static Pen FormDecorationPen = new Pen(AppAccentColour); // Colouring for Border Drawing
 
         public static Font MainFont = new Font("Gadugi", 8.25f, FontStyle.Bold); // For the vast majority of controls; anything the user doesn't edit, really.
-        public static Font TextFont = new Font("Segoe UI Semibold", 9f); // For option controls with customized contents
+        public static Font TextFont = new Font("Segoe UI Semibold", 7.5f); // For option controls with customized contents
         public static Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
 
         public static int SubformVerticalOffset = 50;

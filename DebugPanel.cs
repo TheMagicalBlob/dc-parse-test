@@ -19,7 +19,7 @@ namespace NaughtyDogDCReader
                 Venat?.Update();
             };
 
-            showBasicPropertiesWindow.Checked = !Venat.propertiesEditor.Visible;
+            showBasicPropertiesWindow.Checked = Venat.propertiesWindow.Visible;
         }
 
 

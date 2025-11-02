@@ -26,7 +26,7 @@ namespace NaughtyDogDCReader
             Changes = new List<object[]>();
 
 
-            propertiesPanelMammet = PopulatePropertiesPanelWithHeaderItems;
+            propertiesPanelMammet = PopulatePropertiesPanelWithStructItems;
 
             // Newline
             propertiesWindowNewLineMammet = (message, _) =>
@@ -86,6 +86,7 @@ namespace NaughtyDogDCReader
             {
                 if (value != null)
                 {
+                    PopulatePropertiesEditorWithStructItems(DCScript.Entries[(int) value.Tag].Struct);
                     PrintHeaderItemDetailDisplay((int) value.Tag);
                 }
 
@@ -106,6 +107,7 @@ namespace NaughtyDogDCReader
             {
                 if (value != null)
                 {
+                    PopulatePropertiesEditorWithStructItems(DCScript.Entries[(int) value.Tag].Struct);
                     PrintHeaderItemDetailDisplay((int) value.Tag);
                 }
 
@@ -367,7 +369,7 @@ namespace NaughtyDogDCReader
         /// <param name="value"></param>
         /// <param name="indentationOverride"></param>
         /// <returns></returns>
-        private string FormatPropertyValue(object value, int? indentationOverride = null)
+        private string FormatPropertyValueAsString(object value, int? indentationOverride = null)
         {
             if (value == null)
             {
@@ -424,7 +426,7 @@ namespace NaughtyDogDCReader
 
                     foreach (var item in (Array) value)
                     {
-                        returnString += $"{FormatPropertyValue(item, 1)},\n";
+                        returnString += $"{FormatPropertyValueAsString(item, 1)},\n";
                     }
 
                     returnString += '}';
@@ -441,12 +443,14 @@ namespace NaughtyDogDCReader
 
                 // Hopefully structs
                 default:
-                    returnString = PrintSubItemDetailDisplay(value);
+                    returnString = PrintStructPropertyDetails(value);
                     break;
             }
 
             return indent + returnString;
         }
+
+
 
 
         /// <summary>
@@ -484,7 +488,7 @@ namespace NaughtyDogDCReader
 
                 // Get and format the property value
                 var val = property.GetValue(dcEntry.Struct);
-                var formattedVal = FormatPropertyValue(val);
+                var formattedVal = FormatPropertyValueAsString(val);
 
                 // Print the formatted property value
                 PrintPropertyDetail(formattedVal);
@@ -494,7 +498,14 @@ namespace NaughtyDogDCReader
         }
 
 
-        private string PrintSubItemDetailDisplay(object dcEntry)
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dcEntry"></param>
+        /// <returns></returns>
+        private string PrintStructPropertyDetails(object dcEntry)
         {
             //## clear the current properties window contents 
             PropertiesWindow.Clear();
@@ -508,7 +519,7 @@ namespace NaughtyDogDCReader
                 ret += $"{SpaceOutStructName(property.Name)}: ";
 
                 var val = property.GetValue(dcEntry);
-                ret += $"{FormatPropertyValue(val).Replace("\n", "\n" + Indentation)}\n";
+                ret += $"{FormatPropertyValueAsString(val).Replace("\n", "\n" + Indentation)}\n";
             }
 
             return ret;
@@ -552,7 +563,33 @@ namespace NaughtyDogDCReader
 
                 // Update the properties window's displayed contents with the newly loaded struct properties
                 PrintHeaderItemDetailDisplay(headerItemIndex);
+                PopulatePropertiesEditorWithStructItems(DCScript.Entries[headerItemIndex].Struct);
             }
+        }
+
+        
+
+        private Button NewPropertiesPanelButton()
+        {
+            var btn = new Button()
+            {
+                Font = MainFont,
+                BackColor = AppColour,
+                ForeColor = Color.White,
+
+                FlatStyle = 0,
+                Height = DefaultPropertyButtonHeight
+            };
+
+            // Assign basic form functionality event handlers
+            btn.MouseDown += MouseDownFunc;
+            btn.MouseUp += MouseUpFunc;
+            btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            btn.DoubleClick += new EventHandler((sender, e) => { }); //!
+
+
+            return btn;
         }
 
 
@@ -562,7 +599,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcScript"></param>
-        private void PopulatePropertiesPanelWithHeaderItems(string dcFileName, DCFileHeader dcScript)
+        private void PopulatePropertiesPanelWithStructItems(string dcFileName, DCFileHeader dcScript)
         {
             Button currentButton;
 
@@ -592,7 +629,7 @@ namespace NaughtyDogDCReader
             for (var i = 0; i < dcLen; ++i)
             {
                 var dcEntry = dcEntries[i];
-                currentButton = NewButton();
+                currentButton = NewPropertiesPanelButton();
 
                 PropertiesPanel.Controls.Add(currentButton);
                 currentButton.Location = new Point(1, (currentButton.Height * i) + GroupBoxContentsOffset);
@@ -655,7 +692,7 @@ namespace NaughtyDogDCReader
             for (var i = 0; i < dcLen; ++i)
             {
                 var dcEntry = dcEntries[i];
-                PropertiesPanel.Controls.Add(currentButton = NewButton());
+                PropertiesPanel.Controls.Add(currentButton = NewPropertiesPanelButton());
                 currentButton.Location = new Point(1, 7 + (currentButton.Height * i));
 
 
@@ -692,30 +729,6 @@ namespace NaughtyDogDCReader
         }
 
 
-
-        private Button NewButton()
-        {
-            var btn = new Button()
-            {
-                Font = MainFont,
-                BackColor = AppColour,
-                ForeColor = Color.White,
-
-                FlatStyle = 0,
-                Height = DefaultPropertyButtonHeight
-            };
-
-            // Assign basic form functionality event handlers
-            btn.MouseDown += MouseDownFunc;
-            btn.MouseUp += MouseUpFunc;
-            btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
-            btn.DoubleClick += new EventHandler((sender, e) => { }); //!
-
-
-            return btn;
-        }
-
         public void ScrollPropertyButtons(object _, ScrollEventArgs offset)
         {
             foreach (var button in PropertiesPanel.Controls.OfType<Button>())
@@ -724,6 +737,111 @@ namespace NaughtyDogDCReader
             }
             PropertiesPanel.Update();
         }
+
+
+
+
+
+        private void PopulatePropertiesEditorWithStructItems(object dcStruct)
+        {
+            var totalHeight = 8;
+            var type = dcStruct.GetType();
+            var properties = type.GetProperties();
+            PropertiesEditor.Controls.Clear();
+
+            if (type == typeof(Map))
+            {
+                properties = properties.Where(property => property.Name != "Items").ToArray();
+            }
+
+            foreach (var property in properties)
+            {
+                var boxes = NewPropertiesEditorItem(property.Name, property.GetValue(dcStruct));
+                    
+                PropertiesEditor.Controls.Add(boxes[0]);
+                boxes[0].Location = new Point(2, totalHeight);
+
+                PropertiesEditor.Controls.Add(boxes[1]);
+                boxes[1].Location = new Point(boxes[0].Width, totalHeight);
+
+
+                totalHeight += boxes[0].Height;
+            }
+
+            
+            if (type == typeof(Map))
+            {
+                foreach (var property in ((Map)dcStruct).Items)
+                {
+                    var boxes = NewPropertiesEditorItem(((SID) property[0]).DecodedID, property[1]);
+                    
+                    PropertiesEditor.Controls.Add(boxes[0]);
+                    boxes[0].Location = new Point(2, totalHeight);
+
+                    PropertiesEditor.Controls.Add(boxes[1]);
+                    boxes[1].Location = new Point(boxes[0].Width, totalHeight);
+
+
+                    totalHeight += boxes[0].Height;
+                }
+            }
+        }
+
+        
+        private void PopulatePropertiesEditorWithArrayItems(string DCFileName, object ArrayStruct)
+        {
+            int dcLen = ((dynamic) ArrayStruct).Entries.Length;
+
+            for (var i = 0; i < dcLen; ++i)
+            {
+
+            }
+
+        }
+
+
+        
+
+        private TextBox[] NewPropertiesEditorItem(string propertyName, object propertyValue)
+        {
+            var nameBox = new TextBox()
+            {
+                Font = TextFont,
+                BackColor = AppColourLight,
+                ForeColor = Color.White,
+                
+                Height = DefaultPropertyButtonHeight,
+                Width = (PropertiesEditor.Width / 3) - 2,
+              
+                Text = propertyName
+            };
+
+            // Assign basic form functionality event handlers
+            nameBox.MouseDown += MouseDownFunc;
+            nameBox.MouseUp += MouseUpFunc;
+
+
+            var valueBox = new TextBox()
+            {
+                Font = TextFont,
+                BackColor = AppColourLight,
+                ForeColor = Color.White,
+
+                Height = DefaultPropertyButtonHeight,
+                Width = PropertiesEditor.Width - nameBox.Width - 2,
+
+                Text = FormatPropertyValueAsString(propertyValue, 0)
+            };
+
+            // Assign basic form functionality event handlers
+            valueBox.MouseDown += MouseDownFunc;
+            valueBox.MouseUp += MouseUpFunc;
+
+
+
+            return new[] { nameBox, valueBox };
+        }
+
         #endregion
     }
 }

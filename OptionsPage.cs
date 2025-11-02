@@ -153,13 +153,12 @@ namespace NaughtyDogDCReader
                 {
                     if (ShitBrowser.ShowDialog() == DialogResult.OK)
                     {
-                        SidbasePathTextBox.Set(ShitBrowser.SelectedPath);
+                        SidbasePathTextBox.Text = ShitBrowser.SelectedPath;
                     }
                 }
             }
             // Use The Newer "Hackey" Method
-            else
-            {
+            else {
                 var CrapBrowser = new OpenFileDialog()
                 {
                     ValidateNames = false,
@@ -172,7 +171,7 @@ namespace NaughtyDogDCReader
 
                 if (CrapBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    SidbasePathTextBox.Set(CrapBrowser.FileName.Remove(CrapBrowser.FileName.LastIndexOf('\\')));
+                    SidbasePathTextBox.Text = CrapBrowser.FileName.Remove(CrapBrowser.FileName.LastIndexOf('\\'));
                 }
             }
         }

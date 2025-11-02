@@ -275,7 +275,7 @@ namespace NaughtyDogDCReader
             // logWindow
             // 
             this.logWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.logWindow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
+            this.logWindow.Font = new System.Drawing.Font("Segoe UI Semibold", 7.5F);
             this.logWindow.ForeColor = System.Drawing.SystemColors.Window;
             this.logWindow.Location = new System.Drawing.Point(5, 108);
             this.logWindow.Name = "logWindow";
@@ -329,6 +329,7 @@ namespace NaughtyDogDCReader
             // propertiesWindow
             // 
             this.propertiesWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.propertiesWindow.Font = new System.Drawing.Font("Segoe UI Semibold", 8.25F);
             this.propertiesWindow.ForeColor = System.Drawing.SystemColors.Window;
             this.propertiesWindow.Location = new System.Drawing.Point(546, 238);
             this.propertiesWindow.Name = "propertiesWindow";
@@ -337,6 +338,7 @@ namespace NaughtyDogDCReader
             this.propertiesWindow.TabIndex = 10;
             this.propertiesWindow.TabStop = false;
             this.propertiesWindow.Text = "recto verso";
+            this.propertiesWindow.Visible = false;
             this.propertiesWindow.WordWrap = false;
             // 
             // scriptSelectionLabel

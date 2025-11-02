@@ -206,8 +206,9 @@ namespace NaughtyDogDCReader
             Bingus = new DebugPanel();
 
 
-            PropertiesPanel = propertiesPanel;
+            PropertiesPanel = propertiesEditor;
             PropertiesWindow = propertiesWindow;
+            PropertiesEditor = propertiesPanel;
 
             ScriptStatusLabel = scriptStatusLabel;
             ScriptSelectionLabel = scriptSelectionLabel;
