@@ -45,9 +45,9 @@ namespace NaughtyDogDCReader
             }
 #else
             LoadBinFile(
-                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
+                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
                 //@"C:\Users\blob\LocalModding\Bin Reversing\working (1.07)\weapon-mods.bin"
-                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
+                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
             );
 #endif
         }
@@ -206,9 +206,9 @@ namespace NaughtyDogDCReader
             Bingus = new DebugPanel();
 
 
-            PropertiesPanel = propertiesEditor;
+            PropertiesPanel = propertiesPanel;
             PropertiesWindow = propertiesWindow;
-            PropertiesEditor = propertiesPanel;
+            PropertiesEditor = propertiesEditor;
 
             ScriptStatusLabel = scriptStatusLabel;
             ScriptSelectionLabel = scriptSelectionLabel;

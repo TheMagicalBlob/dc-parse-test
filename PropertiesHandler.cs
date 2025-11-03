@@ -437,7 +437,7 @@ namespace NaughtyDogDCReader
 
 
                 // ## Unknown Struct
-                case var type when type == typeof(UnmappedStructure):
+                case var type when type == typeof(UnmappedStructure) && !PropertiesEditor.Visible:
                     returnString = $"{((UnmappedStructure) value).Message}";
                     break;
 
@@ -454,7 +454,8 @@ namespace NaughtyDogDCReader
                     break;
             }
 
-            return indent + returnString;
+
+            return returnString;
         }
 
 
@@ -498,7 +499,7 @@ namespace NaughtyDogDCReader
                 var formattedVal = FormatPropertyValueAsString(val);
 
                 // Print the formatted property value
-                PrintPropertyDetail(formattedVal);
+                PrintPropertyDetail(val);
 
                 PrintPropertyDetailNL("]");
             }
@@ -759,7 +760,7 @@ namespace NaughtyDogDCReader
 
             if (type == typeof(Map))
             {
-                properties = ((Map) dcStruct).Items;
+                properties = ((Map) dcStruct).Items.Select(item => new object [] { ((SID) ((dynamic) item[1]).Name).DecodedID, item[1] }).ToArray();
             }
             else {
                 properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(dcStruct) }).ToArray();
@@ -768,7 +769,7 @@ namespace NaughtyDogDCReader
 
             foreach (var property in properties)
             {
-                var newRow = NewPropertiesEditorRow(((SID) ((dynamic) property[1]).Name).DecodedID, property[1]);
+                var newRow = NewPropertiesEditorRow(property[0], property[1]);
                     
                 PropertiesEditor.Controls.Add(newRow[0]);
                 newRow[0].Location = new Point(2, totalHeight);

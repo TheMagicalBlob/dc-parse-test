@@ -89,7 +89,7 @@ namespace NaughtyDogDCReader
             weapon_gameplay_def = 0x6E1BB1DB85CC7806ul,
             melee_weapon_gameplay_def = 0x730ADC6EDAF0A96Dul,
 
-            look2_def = 0xBF24E1B6BADE9DCCul,
+            look2 = 0xBF24E1B6BADE9DCCul,
 
             placeholder = 0xDEADBEEFDEADBEEFul,
         }
@@ -268,7 +268,7 @@ namespace NaughtyDogDCReader
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
                 case KnownSIDs.map: return new Map(DCFile, Address, name);
 
-                case KnownSIDs.weapon_gameplay_def: return new WeaponGameplayDef(DCFile, Address, name);
+                case KnownSIDs.weapon_gameplay_def: return new weapon_gameplay_def(DCFile, Address, name);
 
                 case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
 
@@ -276,7 +276,7 @@ namespace NaughtyDogDCReader
 
                 case KnownSIDs.ammo_to_weapon_array: return new AmmoToWeaponArray(DCFile, Address, name);
 
-                case KnownSIDs.look2_def: return new look2(DCFile, Address, name);
+                case KnownSIDs.look2: return new look2(DCFile, Address, name);
 
 
                 //#
