@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
 
@@ -443,7 +444,13 @@ namespace NaughtyDogDCReader
 
                 // Hopefully structs
                 default:
-                    returnString = PrintStructPropertyDetails(value);
+                    if (PropertiesEditor.Visible)
+                    {
+                        returnString = value.GetType().Name;
+                    }
+                    else {
+                        returnString = PrintStructPropertyDetails(value);
+                    }
                     break;
             }
 
@@ -744,46 +751,33 @@ namespace NaughtyDogDCReader
 
         private void PopulatePropertiesEditorWithStructItems(object dcStruct)
         {
-            var totalHeight = 8;
+            var totalHeight = 8; // Start with 8 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
+
             var type = dcStruct.GetType();
-            var properties = type.GetProperties();
+            object[][] properties;
             PropertiesEditor.Controls.Clear();
 
             if (type == typeof(Map))
             {
-                properties = properties.Where(property => property.Name != "Items").ToArray();
+                properties = ((Map) dcStruct).Items;
             }
+            else {
+                properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(dcStruct) }).ToArray();
+            }
+
 
             foreach (var property in properties)
             {
-                var boxes = NewPropertiesEditorItem(property.Name, property.GetValue(dcStruct));
+                var newRow = NewPropertiesEditorRow(((SID) ((dynamic) property[1]).Name).DecodedID, property[1]);
                     
-                PropertiesEditor.Controls.Add(boxes[0]);
-                boxes[0].Location = new Point(2, totalHeight);
+                PropertiesEditor.Controls.Add(newRow[0]);
+                newRow[0].Location = new Point(2, totalHeight);
 
-                PropertiesEditor.Controls.Add(boxes[1]);
-                boxes[1].Location = new Point(boxes[0].Width, totalHeight);
-
-
-                totalHeight += boxes[0].Height;
-            }
-
-            
-            if (type == typeof(Map))
-            {
-                foreach (var property in ((Map)dcStruct).Items)
-                {
-                    var boxes = NewPropertiesEditorItem(((SID) property[0]).DecodedID, property[1]);
-                    
-                    PropertiesEditor.Controls.Add(boxes[0]);
-                    boxes[0].Location = new Point(2, totalHeight);
-
-                    PropertiesEditor.Controls.Add(boxes[1]);
-                    boxes[1].Location = new Point(boxes[0].Width, totalHeight);
+                PropertiesEditor.Controls.Add(newRow[1]);
+                newRow[1].Location = new Point(newRow[0].Width, totalHeight);
 
 
-                    totalHeight += boxes[0].Height;
-                }
+                totalHeight += newRow[0].Height;
             }
         }
 
@@ -802,23 +796,31 @@ namespace NaughtyDogDCReader
 
         
 
-        private TextBox[] NewPropertiesEditorItem(string propertyName, object propertyValue)
+        private Control[] NewPropertiesEditorRow(object propertyName, object propertyValue)
         {
-            var nameBox = new TextBox()
+            var nameBox = new Button()
             {
                 Font = TextFont,
                 BackColor = AppColourLight,
                 ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Padding = Padding.Empty,
                 
                 Height = DefaultPropertyButtonHeight,
                 Width = (PropertiesEditor.Width / 3) - 2,
               
-                Text = propertyName
+                Text = propertyName as string
             };
 
             // Assign basic form functionality event handlers
             nameBox.MouseDown += MouseDownFunc;
             nameBox.MouseUp += MouseUpFunc;
+            nameBox.Click += (_, __) =>
+            {
+
+            };
+
+
 
 
             var valueBox = new TextBox()
@@ -826,6 +828,7 @@ namespace NaughtyDogDCReader
                 Font = TextFont,
                 BackColor = AppColourLight,
                 ForeColor = Color.White,
+                Padding = Padding.Empty,
 
                 Height = DefaultPropertyButtonHeight,
                 Width = PropertiesEditor.Width - nameBox.Width - 2,
@@ -839,7 +842,7 @@ namespace NaughtyDogDCReader
 
 
 
-            return new[] { nameBox, valueBox };
+            return new Control [] { nameBox, valueBox };
         }
 
         #endregion

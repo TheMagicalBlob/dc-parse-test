@@ -135,12 +135,12 @@ namespace NaughtyDogDCReader
             /// <summary>
             /// The Address of this Header Item in the DC file.
             /// </summary>
-            public int Address { get; set; }
+            public int Address;
 
             /// <summary>
             /// The name of the current entry in the DC file header.
             /// </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary>
             /// The struct type of the current entry in the DC file header.
@@ -217,9 +217,9 @@ namespace NaughtyDogDCReader
             /// <summary>
             /// The name of the map item.
             /// </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
-            public long Address { get; set; }
+            public long Address;
 
 
             /// <summary>
@@ -260,8 +260,8 @@ namespace NaughtyDogDCReader
             }
 
 
-            public SID Name { get; set; }
-            public long Address { get; set; }
+            public SID Name;
+            public long Address;
 
             public List<string> Symbols { get; set; }
             public List<long> Hashes { get; set; }
@@ -298,7 +298,7 @@ namespace NaughtyDogDCReader
                 Hashes = hashes.ToArray();
             }
 
-            public SID Name { get; set; }
+            public SID Name;
 
 
             public string[][] Symbols { get; set; }
@@ -399,9 +399,9 @@ namespace NaughtyDogDCReader
 
             // ## Public Members (heh)
             /// <summary> The name for the weapon this WeaponGameplayDefinition belongs to. </summary>
-            public SID Name { get; set; }
+            public SID Name;
             /// <summary> The address of the WeaponGameplayDefinition struct in the provided DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
 
 
             #region [variable declarations]
@@ -722,10 +722,10 @@ namespace NaughtyDogDCReader
 
             //# #|Public Members|#
             /// <summary> The name associated with the current firearmGameplayDef instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
             
 
 
@@ -1020,8 +1020,8 @@ namespace NaughtyDogDCReader
                 //RawData = GetSubArray(binFile, Address, Size);
             }
 
-            public SID Name { get; set; }
-            public long Address { get; set; }
+            public SID Name;
+            public long Address;
 
             //public uint Size { get; set; }
             //public byte[] RawData { get; set; }
@@ -1043,8 +1043,8 @@ namespace NaughtyDogDCReader
                 //RawData = GetSubArray(binFile, Address, Size);
             }
 
-            public SID Name { get; set; }
-            public long Address { get; set; }
+            public SID Name;
+            public long Address;
 
             //public uint Size { get; set; }
             //public byte[] RawData { get; set; }
@@ -1262,10 +1262,10 @@ namespace NaughtyDogDCReader
 
             //# #|Public Members|#
             /// <summary> The name associated with the current hud2_reticle_def instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
             
 
 
@@ -1404,10 +1404,10 @@ namespace NaughtyDogDCReader
 
             //# #|Public Members|#
             /// <summary> The name associated with the current look2 instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
             
 
 
@@ -1513,10 +1513,10 @@ namespace NaughtyDogDCReader
                 Message = $"Unknown Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
             }
 
-            public SID Name { get; set; }
-            public long Address { get; set; }
+            public SID Name;
+            public long Address;
 
-            public string Message { get; set; }
+            public string Message;
         }
 
         public struct BaseStruct
@@ -1527,8 +1527,8 @@ namespace NaughtyDogDCReader
                 this.Address = Address;
             }
 
-            public SID Name { get; set; }
-            public long Address { get; set; }
+            public SID Name;
+            public long Address;
         }
 
         #endregion
