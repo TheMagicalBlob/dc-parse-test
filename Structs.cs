@@ -1392,9 +1392,14 @@ namespace NaughtyDogDCReader
                 
                 var properties = GetType().GetProperties();
 
-                for (var i = 0; i < properties.Length; i++)
+                for (var i = 0; i < Offsets.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(properties[i].GetType(), Offsets[i]));
+                    var propertyOffset = Offsets[i];
+                    var propertyType = properties[i].PropertyType;
+
+                    var propertyValue = ReadPropertyValueByType(propertyType, (int) Address + propertyOffset);
+
+                    properties[i].SetValue(this, propertyValue);
                 }
                 #endregion
             }
@@ -1419,10 +1424,10 @@ namespace NaughtyDogDCReader
 
             //# #|Public Members|#
             /// <summary> The name associated with the current look2 instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
             
 
 

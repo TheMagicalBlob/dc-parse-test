@@ -299,6 +299,9 @@ namespace NaughtyDogDCReader
         {
             switch (type.Name)
             {
+                case "SID":
+                    return new SID(GetSubArray(DCFile, Offset));
+
                 case "Byte":
                     return DCFile[Offset];
 
@@ -309,17 +312,24 @@ namespace NaughtyDogDCReader
                     return BitConverter.ToDouble(DCFile, Offset);
 
                     
-                case "Short":
+                case "Int16":
                     return BitConverter.ToInt16(DCFile, Offset);
+                case "UInt16":
+                    return BitConverter.ToUInt16(DCFile, Offset);
                     
-                case "Long":
+                case "Int64":
                     return BitConverter.ToInt64(DCFile, Offset);
+                case "UInt64":
+                    return BitConverter.ToUInt64(DCFile, Offset);
 
-                case "Int":
+
+                case "UInt32":
+                    return BitConverter.ToUInt32(DCFile, Offset);
+                case "Int32":
                 default:
-                    if (type.Name != "Int")
+                    if (!type.Name.Contains("Int"))
                     {
-                        echo($"Unknown Type, Treating as signed int32");
+                        echo($"Unknown Type \"{type.Name}\", Treating as signed Int32");
                     }
 
                     return BitConverter.ToInt32(DCFile, Offset);
