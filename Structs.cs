@@ -401,7 +401,7 @@ namespace NaughtyDogDCReader
 
                 for (var i = 0; i < properties.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(properties[i].GetType(), Offsets[i]));
+                    properties[i].SetValue(this, ReadPropertyValueByType(DCFile, properties[i].GetType(), Offsets[i]));
                 }
                 #endregion
             }
@@ -748,7 +748,7 @@ namespace NaughtyDogDCReader
 
                 for (var i = 0; i < properties.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(properties[i].GetType(), Offsets[i]));
+                    properties[i].SetValue(this, ReadPropertyValueByType(DCFile, properties[i].GetType(), Offsets[i]));
                 }
                 #endregion
             }
@@ -1231,7 +1231,7 @@ namespace NaughtyDogDCReader
 
                 for (var i = 0; i < properties.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(properties[i].GetType(), Offsets[i]));
+                    properties[i].SetValue(this, ReadPropertyValueByType(DCFile, properties[i].GetType(), Offsets[i]));
                 }
                 #endregion
             }
@@ -1390,17 +1390,34 @@ namespace NaughtyDogDCReader
                 
 
                 
-                var properties = GetType().GetProperties();
+                var properties = this.GetType().GetProperties();
+                echo($"Setting {properties.Length} properties in new {this.Name.DecodedID} instance...");
 
+
+                var huh = this;
                 for (var i = 0; i < Offsets.Length; i++)
                 {
+                    echoSl($"\t[{properties[i].Name}");
                     var propertyOffset = Offsets[i];
                     var propertyType = properties[i].PropertyType;
+                    echo($" @ 0x{propertyOffset:X}]");
 
-                    var propertyValue = ReadPropertyValueByType(propertyType, (int) Address + propertyOffset);
+                    var propertyValue = ReadPropertyValueByType(DCFile, propertyType, (int) Address + propertyOffset);
+                    echo($"\t{propertyType.Name}");
+                    echo($"\t{propertyValue}");
 
-                    properties[i].SetValue(this, propertyValue);
+                    properties[i].SetValue(huh, propertyValue);
+                    var chk = properties[i].GetValue(this);
+
+                    if (!chk.Equals(propertyValue))
+                    {
+                        echo($"Property \"{properties[i].Name}\" was not set. ({chk} != {propertyValue})");
+                    }
+
+
+                    echo("\n\n");
                 }
+                this = huh;
                 #endregion
             }
 

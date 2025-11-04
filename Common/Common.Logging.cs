@@ -133,6 +133,19 @@ namespace NaughtyDogDCReader
             }
 #endif
         }
+        public static void echoSl(object message = null)
+        {
+#if DEBUG
+            string str;
+
+            Console.Write(str = message?.ToString() ?? emptyStr);
+
+            if (!Console.IsInputRedirected)
+            {
+                Debug.Write(str);
+            }
+#endif
+        }
 #pragma warning restore IDE1006
 
 

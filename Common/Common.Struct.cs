@@ -295,36 +295,36 @@ namespace NaughtyDogDCReader
 
 
         
-        public static object ReadPropertyValueByType(Type type, int Offset)
+        public static object ReadPropertyValueByType(byte[] array, Type type, int Offset)
         {
             switch (type.Name)
             {
                 case "SID":
-                    return new SID(GetSubArray(DCFile, Offset));
+                    return new SID(GetSubArray(array, Offset));
 
                 case "Byte":
-                    return DCFile[Offset];
+                    return array[Offset];
 
 
                 case "Single":
-                    return BitConverter.ToSingle(DCFile, Offset);
+                    return BitConverter.ToSingle(array, Offset);
                 case "Double":
-                    return BitConverter.ToDouble(DCFile, Offset);
+                    return BitConverter.ToDouble(array, Offset);
 
                     
                 case "Int16":
-                    return BitConverter.ToInt16(DCFile, Offset);
+                    return BitConverter.ToInt16(array, Offset);
                 case "UInt16":
-                    return BitConverter.ToUInt16(DCFile, Offset);
+                    return BitConverter.ToUInt16(array, Offset);
                     
                 case "Int64":
-                    return BitConverter.ToInt64(DCFile, Offset);
+                    return BitConverter.ToInt64(array, Offset);
                 case "UInt64":
-                    return BitConverter.ToUInt64(DCFile, Offset);
+                    return BitConverter.ToUInt64(array, Offset);
 
 
                 case "UInt32":
-                    return BitConverter.ToUInt32(DCFile, Offset);
+                    return BitConverter.ToUInt32(array, Offset);
                 case "Int32":
                 default:
                     if (!type.Name.Contains("Int"))
@@ -332,7 +332,7 @@ namespace NaughtyDogDCReader
                         echo($"Unknown Type \"{type.Name}\", Treating as signed Int32");
                     }
 
-                    return BitConverter.ToInt32(DCFile, Offset);
+                    return BitConverter.ToInt32(array, Offset);
             }
         }
 
