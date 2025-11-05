@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace NaughtyDogDCReader
 {
@@ -81,13 +82,13 @@ namespace NaughtyDogDCReader
         {
             UNKNOWN_SID_64 = 0x910ADC74DA2A5F6Dul,
             array = 0x4F9E14B634C6B026ul,
-            symbol_array = 0xDFD21E68AC12C54Bul,
-            ammo_to_weapon_array = 0xEF3BE7EF6F790D34ul,
+            symbol_array = 0xC8F749F92779D489ul,
+            ammo_to_weapon_array = 0x14F1A7D0C4E0E13Eul,
 
             map = 0x080F5919176D2D91ul,
 
             weapon_gameplay_def = 0x6E1BB1DB85CC7806ul,
-            melee_weapon_gameplay_def = 0x730ADC6EDAF0A96Dul,
+            melee_weapon_gameplay_def = 0xD17D76E0322C34A7ul,
 
             look2 = 0xBF24E1B6BADE9DCCul,
 
@@ -274,7 +275,7 @@ namespace NaughtyDogDCReader
 
                 case KnownSIDs.symbol_array: return new SymbolArrayDef(DCFile, Address, name);
 
-                case KnownSIDs.ammo_to_weapon_array: return new AmmoToWeaponArray(DCFile, Address, name);
+                case KnownSIDs.ammo_to_weapon_array: return new ammo_to_weapon_array(DCFile, Address, name);
 
                 case KnownSIDs.look2: return new look2(DCFile, Address, name);
 
@@ -295,44 +296,57 @@ namespace NaughtyDogDCReader
 
 
         
-        public static object ReadPropertyValueByType(byte[] array, Type type, int Offset)
+        public static object ReadPropertyValueByType(byte[] Array, System.Reflection.PropertyInfo Property, int Offset)
         {
-            switch (type.Name)
+            var type = Property.PropertyType.Name;
+            
+            switch (type)
             {
                 case "SID":
-                    return new SID(GetSubArray(array, Offset));
+                    return new SID(GetSubArray(Array, Offset));
 
                 case "Byte":
-                    return array[Offset];
+                    return Array[Offset];
+
+                case "Byte[]":
+                    if (Property.Name.Contains("_s0x"))
+                    {
+                        var name = Property.Name.Substring(Property.Name.LastIndexOf("_s0x") + 4);
+                        return GetSubArray(Array, Offset, int.Parse(name));
+                    }
+                    else {
+                        echo("Array was provided with an invalid name format ({Property.Name}). Assuming length of 8 for byte array.");
+                        return GetSubArray(Array, Offset);
+                    }
 
 
                 case "Single":
-                    return BitConverter.ToSingle(array, Offset);
+                    return BitConverter.ToSingle(Array, Offset);
                 case "Double":
-                    return BitConverter.ToDouble(array, Offset);
+                    return BitConverter.ToDouble(Array, Offset);
 
                     
                 case "Int16":
-                    return BitConverter.ToInt16(array, Offset);
+                    return BitConverter.ToInt16(Array, Offset);
                 case "UInt16":
-                    return BitConverter.ToUInt16(array, Offset);
+                    return BitConverter.ToUInt16(Array, Offset);
                     
                 case "Int64":
-                    return BitConverter.ToInt64(array, Offset);
+                    return BitConverter.ToInt64(Array, Offset);
                 case "UInt64":
-                    return BitConverter.ToUInt64(array, Offset);
+                    return BitConverter.ToUInt64(Array, Offset);
 
 
                 case "UInt32":
-                    return BitConverter.ToUInt32(array, Offset);
+                    return BitConverter.ToUInt32(Array, Offset);
                 case "Int32":
                 default:
-                    if (!type.Name.Contains("Int"))
+                    if (!type.Contains("Int"))
                     {
-                        echo($"Unknown Type \"{type.Name}\", Treating as signed Int32");
+                        echo($"Unknown Type \"{type}\", Treating as signed Int32");
                     }
 
-                    return BitConverter.ToInt32(array, Offset);
+                    return BitConverter.ToInt32(Array, Offset);
             }
         }
 
@@ -635,13 +649,6 @@ namespace NaughtyDogDCReader
 
 
             /// <summary>
-            /// The amount of items in the sidbase.bin's lookup table.<br/>
-            /// No reason to read it as a long integer, as if it's that big; we've already fucked off by now.
-            /// </summary>
-            public readonly int HashTableCount;
-        
-        
-            /// <summary>
             /// List of SIDBase Class instances for the active sidbase.bin lookup tables.
             /// </summary>
             private static SIDBase[] SIDBases;
@@ -718,6 +725,12 @@ namespace NaughtyDogDCReader
             /// <exception cref="IndexOutOfRangeException"> Thrown in the event of an invalid string pointer read from the sidbase after the provided hash is located. </exception>
             private string LookupSIDHash(byte[] bytesToDecode)
             {
+                if (bytesToDecode.Sum(@byte => @byte) == 0)
+                {
+                    echo($"Null SID provided.");
+                    return "(null sid)";
+                }
+
                 if (bytesToDecode.Length == 8)
                 {
                     ulong

@@ -15,13 +15,14 @@ namespace NaughtyDogDCReader
         //--|   Structure Definitions   |--\\
         //=================================\\
         #region [Structure Definitions]
+        #pragma warning disable IDE1006
 
         /// <summary>
         /// Details on the initial header array for the provided DC file, as well as an array of any present HeaderItems.
         /// </summary>
         public struct DCFileHeader
         {
-            public DCFileHeader(byte[] binFile, string binName)
+            public DCFileHeader(byte[] DCFile, string ScriptName)
             {
                 //#
                 //## Variable Initializations
@@ -39,7 +40,7 @@ namespace NaughtyDogDCReader
                 //#
                 //## Read file magic from header
                 //#
-                if (!binFile.Take(8).ToArray().SequenceEqual(new byte[] { 0x30, 0x30, 0x43, 0x44, 0x01, 0x00, 0x00, 0x00 }))
+                if (!DCFile.Take(8).ToArray().SequenceEqual(new byte[] { 0x30, 0x30, 0x43, 0x44, 0x01, 0x00, 0x00, 0x00 }))
                 {
                     echo($"ERROR; Invalid File Provided: Invalid file magic.");
                     return;
@@ -49,18 +50,18 @@ namespace NaughtyDogDCReader
                 //#
                 //## Run a few basic integrity checks
                 //#
-                var integrityCheck = new SID(GetSubArray(binFile, 0x20));
+                var integrityCheck = new SID(GetSubArray(DCFile, 0x20));
                 if (integrityCheck.RawID != KnownSIDs.array)
                 {
                     echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20, aborting.");
                     return;
                 }
-                if ((unkInt0 = BitConverter.ToInt32(binFile, 0x10)) != 1)
+                if ((unkInt0 = BitConverter.ToInt32(DCFile, 0x10)) != 1)
                 {
                     echo($"ERROR; Unexpected Value \"{unkInt0}\" read at 0x10, aborting.");
                     return;
                 }
-                if ((HeaderTableStartPointer = BitConverter.ToInt64(binFile, headerTableStartPointerAddr)) != 0x28)
+                if ((HeaderTableStartPointer = BitConverter.ToInt64(DCFile, headerTableStartPointerAddr)) != 0x28)
                 {
                     echo($"ERROR; Unexpected Value \"{HeaderTableStartPointer}\" read at {headerTableStartPointerAddr}, aborting.");
                     return;
@@ -71,8 +72,8 @@ namespace NaughtyDogDCReader
                 //#
                 //## Read remaining header info
                 //#
-                BinFileLength = BitConverter.ToInt64(binFile, 0x8);
-                TableLength = BitConverter.ToInt32(binFile, 0x14);
+                BinFileLength = BitConverter.ToInt64(DCFile, 0x8);
+                TableLength = BitConverter.ToInt32(DCFile, 0x14);
 
                 Entries = new DCHeaderItem[TableLength];
 
@@ -88,7 +89,7 @@ namespace NaughtyDogDCReader
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    Entries[tableIndex] = new DCHeaderItem(binFile, addr);
+                    Entries[tableIndex] = new DCHeaderItem(DCFile, addr);
                 }
 
 #if false
@@ -118,17 +119,17 @@ namespace NaughtyDogDCReader
         /// </summary>
         public struct DCHeaderItem
         {
-            public DCHeaderItem(byte[] binFile, int address)
+            public DCHeaderItem(byte[] DCFile, int Address)
             {
-                Address = address;
+                this.Address = Address;
 
-                Name = new SID(GetSubArray(binFile, Address));
-                Type = new SID(GetSubArray(binFile, Address + 8));
+                Name = new SID(GetSubArray(DCFile, this.Address));
+                Type = new SID(GetSubArray(DCFile, this.Address + 8));
 
-                StructAddress = BitConverter.ToInt64(GetSubArray(binFile, Address + 16), 0);
+                StructAddress = BitConverter.ToInt64(GetSubArray(DCFile, this.Address + 16), 0);
 
 
-                Struct = LoadMappedDCStructs(DCFile, Type, StructAddress, Name);
+                Struct = LoadMappedDCStructs(Main.DCFile, Type, StructAddress, Name);
             }
 
 
@@ -156,19 +157,6 @@ namespace NaughtyDogDCReader
             /// The actual mapped structure object.
             /// </summary>
             public object Struct { get; private set; }
-
-
-
-            /// <summary>
-            /// Begin loading the header item's structure. <br/>
-            /// //! write something more verbose lmao      <br/>
-            /// //! Scratch that; I don't think this is really necessary anymore, woo. Keeping it for now just-in-case. (not that it'd be difficult to rewrite...)
-            /// </summary>
-            public void LoadItemStruct()
-            {
-                echo("Loading Item Struct...");
-                Struct = LoadMappedDCStructs(DCFile, Type, StructAddress, Name);
-            }
         }
 
 
@@ -272,22 +260,22 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// 
         /// </summary>
-        public struct AmmoToWeaponArray
+        public struct ammo_to_weapon_array
         {
-            public AmmoToWeaponArray(byte[] binFile, long address, SID Name)
+            public ammo_to_weapon_array(byte[] binFile, long Address, SID Name)
             {
+                this.Name = Name;
+                this.Address = Address;
+
                 var symbols = new List<string[]>();
                 var hashes = new List<byte[][]>();
-                this.Name = Name;
 
-                var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)address), 0);
-                var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)address + 8), 0);
+                var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int) Address), 0);
+                var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int) Address + 8), 0);
 
                 echo($"\n  # Parsing Ammo-to-Weapon Structures...");
                 for (var i = 0; i < arrayLen; arrayAddr += 16, i++)
                 {
-                    StatusLabelMammet(new[] { null, null, $"Ammo-to-Weapon Entry: {i} / {arrayLen - 1}" });
-
                     hashes.Add(new[] { GetSubArray(binFile, (int) arrayAddr + 8), GetSubArray(binFile, (int) arrayAddr) });
                     symbols.Add(new[] { SIDBase.DecodeSIDHash(hashes.Last()[0]), SIDBase.DecodeSIDHash(hashes.Last()[1]) });
                 }
@@ -299,11 +287,16 @@ namespace NaughtyDogDCReader
             }
 
             public SID Name;
+            public long Address;
 
-
+            /// <summary>
+            /// 0: Ammo Type <br/>
+            /// 1: Weapon Name
+            /// </summary>
             public string[][] Symbols { get; set; }
             public byte[][][] Hashes { get; set; }
         }
+
 
 
         
@@ -327,12 +320,10 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-
-                
                 RawData = GetSubArray(binFile, (int) Address, Size);
 
 
-				UnknownInt_at0x00 = 0;
+                UnknownInt_at0x00 = 0;
 				UnknownInt_at0x04 = 0;
 				UnknownInt_at0x08 = 0;
 			
@@ -348,7 +339,7 @@ namespace NaughtyDogDCReader
 				UnknownLong_at0x38 = 0;
 				UnknownLong_at0x40 = 0;
 				UnknownLong_at0x48 = 0;
-				UnknownByteArray_at0x50 = null;
+				UnknownByteArray_at0x50_s0x08 = null;
 			
 				Hud2ReticleDef_Pointer = 0;
 				UnknownLong_at0x60 = 0;
@@ -356,8 +347,9 @@ namespace NaughtyDogDCReader
 				ZoomSniperCameraDoFSettingsSP = SID.Empty;
 				UnknownLong_at0x78 = 0;
 				ScreenEffectSettings_Pointer = 0;
-				UnknownByteArray_at0x88 = null;
-                
+				UnknownByteArray_at0x88_s0x08 = null;
+
+
 
 
 
@@ -383,7 +375,7 @@ namespace NaughtyDogDCReader
 					0x38, // unknownLong_at0x38 (Unknown ulong)
 					0x40, // unknownLong_at0x40 (Unknown ulong)
 					0x48, // unknownLong_at0x48 (Unknown ulong)
-					0x50, // unknownByteArray_at0x50 (Unknown byte Array)
+					0x50, // unknownByteArray_at0x50_s0x08 (Unknown byte Array)
 				
 					0x58, // hud2ReticleDef_Ptr (hud2-reticle-def*)
 					0x60, // unknownLong_at0x60 (Unknown ulong)
@@ -391,18 +383,25 @@ namespace NaughtyDogDCReader
 					0x70, // zoomSniperCameraDoFSettingsSP (*zoom-sniper-camera-dof-settings-sp*)
 					0x78, // unknownLong_at0x78 (Unknown ulong)
 					0x80, // screenEffectSettings_Ptr (screen-effect-settings*)
-					0x88  // unknownByteArray_at0x88 (Unknown byte Array)
+					0x88  // unknownByteArray_at0x88_s0x08 (Unknown byte Array)
                 };
 
                 
 
+
                 
-                var properties = GetType().GetProperties();
+                //#
+                //## Assign Property Values
+                //#
+                var that = this.MemberwiseClone();
+                var properties = that.GetType().GetProperties();
 
                 for (var i = 0; i < properties.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(DCFile, properties[i].GetType(), Offsets[i]));
+                    properties[i].SetValue(that, ReadPropertyValueByType(RawData, properties[i], Offsets[i]));
                 }
+
+                this = (weapon_gameplay_def) that;
                 #endregion
             }
 
@@ -421,18 +420,21 @@ namespace NaughtyDogDCReader
             //#
             #region [Variable Declarations]
 
-            //# #|Private Members|#
-            // [private members here]
-
-            //# #|Public Members|#
+            //# #| Public Fields |#
             /// <summary> The name associated with the current weapon_gameplay_def instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
+
+            /// <summary> Size of the current structure type. </summary>
+            public const int Size =  0x90; // The size of the structure;
+
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
+            public byte[] RawData;
+
             
-
-
+            //# #| Public Properties |#
             /// <summary> Unknown uint <summary/>
 			public uint UnknownInt_at0x00 { get; set; }
 
@@ -474,7 +476,7 @@ namespace NaughtyDogDCReader
 			public ulong UnknownLong_at0x48 { get; set; }
 
 			/// <summary> Unknown byte Array <summary/>
-			public byte[] UnknownByteArray_at0x50 { get; set; }
+			public byte[] UnknownByteArray_at0x50_s0x08 { get; set; }
 
 			
 			/// <summary> hud2-reticle-def* <summary/>
@@ -496,18 +498,11 @@ namespace NaughtyDogDCReader
 			public ulong ScreenEffectSettings_Pointer { get; set; }
 
 			/// <summary> Unknown byte Array <summary/>
-			public byte[] UnknownByteArray_at0x88 { get; set; }
-
-
-            /// <summary> Size of the current structure type. </summary>
-            public const int Size =  0x90; // The size of the structure
-
-            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
-            public byte[] RawData { get; set; }
+			public byte[] UnknownByteArray_at0x88_s0x08 { get; set; }
             #endregion [variable declarations]
         }
 
-        
+
 
         
         /// <summary>
@@ -530,12 +525,10 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-
-                
                 RawData = GetSubArray(binFile, (int) Address, Size);
 
 
-				AmmoTypes_Pointer = 0;
+                AmmoTypes_Pointer = 0;
 			
 				UnknownFloat_at0x14 = 0;
 				UnknownFloat_at0x18 = 0;
@@ -632,7 +625,8 @@ namespace NaughtyDogDCReader
 				PointCurve1_Pointer = 0;
 				PointCurve2_Pointer = 0;
 				DamageLinksSID = 0;
-                
+
+
 
 
 
@@ -743,13 +737,20 @@ namespace NaughtyDogDCReader
 
                 
 
+
                 
-                var properties = GetType().GetProperties();
+                //#
+                //## Assign Property Values
+                //#
+                var that = this.MemberwiseClone();
+                var properties = that.GetType().GetProperties();
 
                 for (var i = 0; i < properties.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(DCFile, properties[i].GetType(), Offsets[i]));
+                    properties[i].SetValue(that, ReadPropertyValueByType(RawData, properties[i], Offsets[i]));
                 }
+
+                this = (firearm_gameplay_def) that;
                 #endregion
             }
 
@@ -768,18 +769,21 @@ namespace NaughtyDogDCReader
             //#
             #region [Variable Declarations]
 
-            //# #|Private Members|#
-            // [private members here]
-
-            //# #|Public Members|#
+            //# #| Public Fields |#
             /// <summary> The name associated with the current firearm_gameplay_def instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
+
+            /// <summary> Size of the current structure type. </summary>
+            public const int Size =  0x2B0; // The size of the structure;
+
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
+            public byte[] RawData;
+
             
-
-
+            //# #| Public Properties |#
             /// <summary> symbol-array containing ammo type names <summary/>
 			public long AmmoTypes_Pointer { get; set; }
 
@@ -1044,15 +1048,9 @@ namespace NaughtyDogDCReader
 
 			/// <summary> Unknown ulong <summary/>
 			public ulong DamageLinksSID { get; set; }
-
-
-            /// <summary> Size of the current structure type. </summary>
-            public const int Size =  0x2B0; // The size of the structure
-
-            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
-            public byte[] RawData { get; set; }
             #endregion [variable declarations]
         }
+
 
 
 
@@ -1067,16 +1065,10 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-
-                //Size = ?
-                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
-
-            //public uint Size { get; set; }
-            //public byte[] RawData { get; set; }
         }
 
 
@@ -1090,16 +1082,10 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-
-                //Size = ?
-                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
-
-            //public uint Size { get; set; }
-            //public byte[] RawData { get; set; }
         }
 
 
@@ -1113,16 +1099,10 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-
-                //Size = ?
-                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
-
-            //public uint Size { get; set; }
-            //public byte[] RawData { get; set; }
         }
 
 
@@ -1136,16 +1116,10 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-
-                //Size = ?
-                //RawData = GetSubArray(binFile, Address, Size);
             }
 
             public SID Name;
             public long Address;
-
-            //public uint Size { get; set; }
-            //public byte[] RawData { get; set; }
         }
 
 
@@ -1159,16 +1133,10 @@ namespace NaughtyDogDCReader
             {
                 this.Name = Name;
                 this.Address = Address;
-
-                //Size = 0;
-                //RawData = GetSubArray(binFile, (int) Address, Size);
             }
 
             public SID Name;
             public long Address;
-
-            //public int Size { get; set; }
-            //public byte[] RawData { get; set; }
         }
 
 
@@ -1195,18 +1163,17 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-
-                
                 RawData = GetSubArray(binFile, (int) Address, Size);
 
 
-				UnknownLong_At0x00 = 0;
+                UnknownLong_At0x00 = 0;
 				UnknownLong_At0x08 = 0;
 				UnknownLong_At0x10 = 0;
 				UnknownLong_At0x18 = 0;
 				UnknownLong_At0x20 = 0;
 				UnknownLong_At0x28 = 0;
-                
+
+
 
 
 
@@ -1226,13 +1193,20 @@ namespace NaughtyDogDCReader
 
                 
 
+
                 
-                var properties = GetType().GetProperties();
+                //#
+                //## Assign Property Values
+                //#
+                var that = this.MemberwiseClone();
+                var properties = that.GetType().GetProperties();
 
                 for (var i = 0; i < properties.Length; i++)
                 {
-                    properties[i].SetValue(this, ReadPropertyValueByType(DCFile, properties[i].GetType(), Offsets[i]));
+                    properties[i].SetValue(that, ReadPropertyValueByType(RawData, properties[i], Offsets[i]));
                 }
+
+                this = (hud2_reticle_def) that;
                 #endregion
             }
 
@@ -1251,18 +1225,21 @@ namespace NaughtyDogDCReader
             //#
             #region [Variable Declarations]
 
-            //# #|Private Members|#
-            // [private members here]
-
-            //# #|Public Members|#
+            //# #| Public Fields |#
             /// <summary> The name associated with the current hud2_reticle_def instance. </summary>
-            public SID Name { get; set; }
+            public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address { get; set; }
+            public long Address;
+
+            /// <summary> Size of the current structure type. </summary>
+            public const int Size =  0x30; // The size of the structure;
+
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
+            public byte[] RawData;
+
             
-
-
+            //# #| Public Properties |#
             /// <summary> Unknown long <summary/>
 			public long UnknownLong_At0x00 { get; set; }
 
@@ -1280,16 +1257,11 @@ namespace NaughtyDogDCReader
 
 			/// <summary> Unknown long <summary/>
 			public long UnknownLong_At0x28 { get; set; }
-
-
-            /// <summary> Size of the current structure type. </summary>
-            public const int Size =  0x30; // The size of the structure
-
-            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
-            public byte[] RawData { get; set; }
             #endregion [variable declarations]
         }
 
+
+        
 
         
         /// <summary>
@@ -1312,12 +1284,10 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-
-                
                 RawData = GetSubArray(binFile, (int) Address, Size);
 
 
-				EncodedNameID = 0;
+                EncodedNameID = 0;
 				DecodedName_Pointer = 0;
 				DecodedSkeletonName_Pointer = 0;
 				EncodedSkeletonNameID = 0;
@@ -1346,7 +1316,8 @@ namespace NaughtyDogDCReader
 				ModelScale_2 = 0;
 				IsPlayerFlag = 0;
 				Vec4_Pointer = 0;
-                
+
+
 
 
 
@@ -1389,35 +1360,20 @@ namespace NaughtyDogDCReader
 
                 
 
+
                 
-                var properties = this.GetType().GetProperties();
-                echo($"Setting {properties.Length} properties in new {this.Name.DecodedID} instance...");
+                //#
+                //## Assign Property Values
+                //#
+                var that = this.MemberwiseClone();
+                var properties = that.GetType().GetProperties();
 
-
-                var huh = this;
-                for (var i = 0; i < Offsets.Length; i++)
+                for (var i = 0; i < properties.Length; i++)
                 {
-                    echoSl($"\t[{properties[i].Name}");
-                    var propertyOffset = Offsets[i];
-                    var propertyType = properties[i].PropertyType;
-                    echo($" @ 0x{propertyOffset:X}]");
-
-                    var propertyValue = ReadPropertyValueByType(DCFile, propertyType, (int) Address + propertyOffset);
-                    echo($"\t{propertyType.Name}");
-                    echo($"\t{propertyValue}");
-
-                    properties[i].SetValue(huh, propertyValue);
-                    var chk = properties[i].GetValue(this);
-
-                    if (!chk.Equals(propertyValue))
-                    {
-                        echo($"Property \"{properties[i].Name}\" was not set. ({chk} != {propertyValue})");
-                    }
-
-
-                    echo("\n\n");
+                    properties[i].SetValue(that, ReadPropertyValueByType(RawData, properties[i], Offsets[i]));
                 }
-                this = huh;
+
+                this = (look2) that;
                 #endregion
             }
 
@@ -1436,18 +1392,21 @@ namespace NaughtyDogDCReader
             //#
             #region [Variable Declarations]
 
-            //# #|Private Members|#
-            // [private members here]
-
-            //# #|Public Members|#
+            //# #| Public Fields |#
             /// <summary> The name associated with the current look2 instance. </summary>
             public SID Name;
 
             /// <summary> The start address of the structure in the DC file. </summary>
             public long Address;
+
+            /// <summary> Size of the current structure type. </summary>
+            public const int Size =  0x3B0; // The size of the structure;
+
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
+            public byte[] RawData;
+
             
-
-
+            //# #| Public Properties |#
             /// <summary> The encoded character symbol/name id <summary/>
 			public ulong EncodedNameID { get; set; }
 
@@ -1524,15 +1483,9 @@ namespace NaughtyDogDCReader
 
 			/// <summary> vec4* (vector?) <summary/>
 			public long Vec4_Pointer { get; set; }
-
-
-            /// <summary> Size of the current structure type. </summary>
-            public const int Size =  0x3B0; // The size of the structure
-
-            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
-            public byte[] RawData { get; set; }
             #endregion [variable declarations]
         }
+
 
 
 
@@ -1547,7 +1500,7 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-                Message = $"Unknown Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
+                Message = $"Unmapped Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
             }
 
             public SID Name;
@@ -1555,19 +1508,6 @@ namespace NaughtyDogDCReader
 
             public string Message;
         }
-
-        public struct BaseStruct
-        {
-            public BaseStruct(long Address, SID Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-            }
-
-            public SID Name;
-            public long Address;
-        }
-
         #endregion
     }
 }

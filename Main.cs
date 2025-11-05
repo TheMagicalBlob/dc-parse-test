@@ -34,7 +34,7 @@ namespace NaughtyDogDCReader
 
         private void BinPathBrowseBtn_Click(object sender, EventArgs e)
         {
-#if !true
+#if true
             using (var Browser = new OpenFileDialog
             {
                 Title = "Please select a script from \"bin/dc1\"."
@@ -182,6 +182,7 @@ namespace NaughtyDogDCReader
 
 
 
+
         //==================================\\
         //--|   Function Delcarations   |---\\
         //==================================\\
@@ -262,7 +263,7 @@ namespace NaughtyDogDCReader
                 Paint += DelayedDCFileLoad;
             }
         }
-#pragma warning restore IDE1006
+        #pragma warning restore IDE1006
 
         #endregion (function declarations)
     }

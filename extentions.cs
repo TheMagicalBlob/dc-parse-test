@@ -12,9 +12,11 @@ namespace NaughtyDogDCReader
     /// </summary>
     public class RichTextBox : System.Windows.Forms.RichTextBox
     {
-
-        /// <summary> Appends Text to The Currrent Text of A Text Box, Followed By The Standard Line Terminator.<br/>Scrolls To Keep The Newest Line In View. </summary>
-        /// <param name="str"> The String To Output. </param>
+        /// <summary>
+        /// Appends Text to The Currrent Text of A Text Box, Followed By The Standard Line Terminator.
+        /// <br/>Scrolls To Keep The Newest Line In View.
+        /// </summary>
+        /// <param name="str"> The String to Output. </param>
         public void AppendLine(string str = "", bool scroll = true)
         {
             AppendText(str + '\n');

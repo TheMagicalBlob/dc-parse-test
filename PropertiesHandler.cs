@@ -226,6 +226,8 @@ namespace NaughtyDogDCReader
 
 
 
+
+
         //#
         //## Properties Window-related funtion declarations
         //#
@@ -286,6 +288,7 @@ namespace NaughtyDogDCReader
                 echo(err);
             }
         }
+
 
 
         /// <summary>
@@ -538,8 +541,13 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
+
+
         //#
-        //## Properties Panel-related funtion declarations
+        //## PropertiesPanel-related funtion declarations
         //#
 
 
@@ -628,7 +636,7 @@ namespace NaughtyDogDCReader
                 };
 
                 ScrollBar.Location = new Point(PropertiesPanel.Width - (ScrollBar.Width + 1), GroupBoxContentsOffset);
-                ScrollBar.Scroll += ScrollPropertyButtons;
+                ScrollBar.Scroll += ScrollPropertyPanelButtons;
 
                 PropertiesPanel.Controls.Add(ScrollBar);
             }
@@ -737,7 +745,7 @@ namespace NaughtyDogDCReader
         }
 
 
-        public void ScrollPropertyButtons(object _, ScrollEventArgs offset)
+        public void ScrollPropertyPanelButtons(object _, ScrollEventArgs offset)
         {
             foreach (var button in PropertiesPanel.Controls.OfType<Button>())
             {
@@ -750,6 +758,15 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
+
+        
+        //#
+        //## PropertiesEditor-related funtion declarations
+        //#
+
         private void PopulatePropertiesEditorWithStructItems(object dcStruct)
         {
             var totalHeight = 8; // Start with 8 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
@@ -758,6 +775,7 @@ namespace NaughtyDogDCReader
             object[][] properties;
             PropertiesEditor.Controls.Clear();
 
+
             if (type == typeof(Map))
             {
                 properties = ((Map) dcStruct).Items.Select(item => new object [] { ((SID) ((dynamic) item[1]).Name).DecodedID, item[1] }).ToArray();
@@ -765,6 +783,7 @@ namespace NaughtyDogDCReader
             else {
                 properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(dcStruct) }).ToArray();
             }
+
 
 
             foreach (var property in properties)
@@ -783,15 +802,16 @@ namespace NaughtyDogDCReader
         }
 
         
-        private void PopulatePropertiesEditorWithArrayItems(string DCFileName, object ArrayStruct)
+        private void PopulatePropertiesEditorWithArrayItems(string ArrayName, object ArrayStruct)
         {
+            UpdateSelectionLabel(new[] { null, null, ArrayName });
+
             int dcLen = ((dynamic) ArrayStruct).Entries.Length;
 
             for (var i = 0; i < dcLen; ++i)
             {
 
             }
-
         }
 
 
@@ -799,12 +819,11 @@ namespace NaughtyDogDCReader
 
         private Control[] NewPropertiesEditorRow(object propertyName, object propertyValue)
         {
-            var nameBox = new Button()
+            var nameBox = new TextBox()
             {
                 Font = TextFont,
                 BackColor = AppColourLight,
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
                 Padding = Padding.Empty,
                 
                 Height = DefaultPropertyButtonHeight,

@@ -365,18 +365,17 @@ namespace NaughtyDogDCReader
                     {
                         // Horizontal Lines
                         hSeparatorLineScanner.Add(new Point[2] {
-                            new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-                            new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
                         });
 
                         Controls.Remove(line);
                     }
-                    else
-                    {
+                    else {
                         // Vertical Lines (the + 3 is to center the line with the displayed lines in the editor)
-                        vSeparatorLineScanner.Add(new[] {
-                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.Y),
-                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
+                        vSeparatorLineScanner.Add(new Point[2] {
+                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.Y),
+                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
                         });
 
                         Controls.Remove(line);
