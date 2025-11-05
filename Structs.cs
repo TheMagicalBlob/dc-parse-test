@@ -50,7 +50,7 @@ namespace NaughtyDogDCReader
                 //#
                 //## Run a few basic integrity checks
                 //#
-                var integrityCheck = new SID(GetSubArray(DCFile, 0x20));
+                var integrityCheck = SID.Parse(GetSubArray(DCFile, 0x20));
                 if (integrityCheck.RawID != KnownSIDs.array)
                 {
                     echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20, aborting.");
@@ -123,8 +123,8 @@ namespace NaughtyDogDCReader
             {
                 this.Address = Address;
 
-                Name = new SID(GetSubArray(DCFile, this.Address));
-                Type = new SID(GetSubArray(DCFile, this.Address + 8));
+                Name = SID.Parse(GetSubArray(DCFile, this.Address));
+                Type = SID.Parse(GetSubArray(DCFile, this.Address + 8));
 
                 StructAddress = BitConverter.ToInt64(GetSubArray(DCFile, this.Address + 16), 0);
 
@@ -190,8 +190,8 @@ namespace NaughtyDogDCReader
                 {
                     var structAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
 
-                    var structTypeID = new SID(GetSubArray(binFile, structAddress - 8));
-                    var structName = new SID(GetSubArray(binFile, (int)mapNamesArrayPtr));
+                    var structTypeID = SID.Parse(GetSubArray(binFile, structAddress - 8));
+                    var structName   = SID.Parse(GetSubArray(binFile, (int)mapNamesArrayPtr));
 
                     Items[arrayIndex] = new object[2]
                     {
@@ -1377,6 +1377,7 @@ namespace NaughtyDogDCReader
                 #endregion
             }
 
+
             
             //#
             //## Offset Declarations
@@ -1500,13 +1501,15 @@ namespace NaughtyDogDCReader
                 this.Name = Name;
                 this.Address = Address;
 
-                Message = $"Unmapped Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
+                LongMessage = $"Unmapped Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
+                ShortMessage = $"Type \"{Type.DecodedID}\" not yet mapped.";
             }
 
             public SID Name;
             public long Address;
 
-            public string Message;
+            public readonly string LongMessage;
+            public string ShortMessage { get; private set; }
         }
         #endregion
     }

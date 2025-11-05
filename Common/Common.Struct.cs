@@ -109,14 +109,16 @@ namespace NaughtyDogDCReader
 
 
         //===================================\\
-        //---|   Function Delcarations   |---\\
+        //---|   Function Declarations   |---\\
         //===================================\\
-        #region [Function Delcarations]
+        #region [Function Declarations]
 
         private static void LoadBinFile(string DCFilePath)
         {
             if (File.Exists(DCFilePath))
             {
+                CloseBinFile();
+
                 ActiveFilePath = DCFilePath;
                 ActiveFileName = DCFilePath.Substring(DCFilePath.LastIndexOf('\\') + 1);
 
@@ -147,9 +149,12 @@ namespace NaughtyDogDCReader
             {
                 Panels.Reset();
 
-                Venat.OptionsMenuDropdownBtn.TabIndex -= DCScript.Entries.Length;
-                Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
-                Venat.ExitBtn.TabIndex -= DCScript.Entries.Length;
+                if (DCScript.Entries != null)
+                {
+                    Venat.OptionsMenuDropdownBtn.TabIndex -= DCScript.Entries.Length;
+                    Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
+                    Venat.ExitBtn.TabIndex -= DCScript.Entries.Length;
+                }
             }
         }
 
@@ -303,7 +308,7 @@ namespace NaughtyDogDCReader
             switch (type)
             {
                 case "SID":
-                    return new SID(GetSubArray(Array, Offset));
+                    return SID.Parse(GetSubArray(Array, Offset));
 
                 case "Byte":
                     return Array[Offset];
@@ -466,10 +471,11 @@ namespace NaughtyDogDCReader
             /// Create a new SID instance from a provided byte array, and attempt to decode the id.
             /// </summary>
             /// <param name="EncodedSIDArray"> The encoded ulong string id, converted to a byte array. </param>
-            public SID(byte[] EncodedSIDArray)
+            private SID(byte[] EncodedSIDArray)
             {
                 DecodedID = SIDBase.DecodeSIDHash(EncodedSIDArray);
                 EncodedID = BitConverter.ToString(EncodedSIDArray).Replace("-", emptyStr);
+
                 RawID = (KnownSIDs) BitConverter.ToUInt64(EncodedSIDArray, 0);
             }
 
@@ -477,7 +483,7 @@ namespace NaughtyDogDCReader
             /// Create a new SID instance from a provided ulong hash, and attempt to decode the id.
             /// </summary>
             /// <param name="EncodedSID"> The encoded ulong string id. </param>
-            public SID(ulong EncodedSID)
+            private SID(ulong EncodedSID)
             {
                 var EncodedSIDArray = BitConverter.GetBytes(EncodedSID);
 
@@ -488,7 +494,7 @@ namespace NaughtyDogDCReader
 
 
             /// <summary>
-            /// I didn't know how else to make that SID.Empty thing
+            /// I don't know how else to make that SID.Empty field, lol.
             /// </summary>
             private SID(string decodedSID, ulong encodedSID)
             {
@@ -507,6 +513,7 @@ namespace NaughtyDogDCReader
             //#
             //## VARIABLE DECLARATIONS
             //#
+            #region [Variable Declarations]
 
             /// <summary>
             /// The decoded string id.
@@ -559,6 +566,40 @@ namespace NaughtyDogDCReader
             /// Represents an item with an unspecified name.
             /// </summary>
             public static readonly SID Empty = new SID("unnamed", 0x5FE267C3F96ADB8C);
+            #endregion
+
+
+
+
+
+
+            //#
+            //## FUNCTION DECLARATIONS
+            //#
+            #region [Function Declarations]
+            /// <summary>
+            /// Create a new SID instance from the provided <paramref name="EncodedSID"/>.
+            /// </summary>
+            /// <param name="EncodedSID"> The FNV1-a 64b hash to be decoded with the loaded lookup sidbase.bin table(s), converted to an array of bytes. </param>
+            /// 
+            /// <returns>
+            /// A new SID instance containing the id's decoded string (or error reply), as well as the encoded string id in a hex number string format. <br/>
+            /// Also contains the encoded id in it's original ulong format
+            /// </returns>
+            public static SID Parse(byte[] EncodedSID) => new SID(EncodedSID);
+
+            
+            /// <summary>
+            /// Create a new SID instance from the provided <paramref name="EncodedSID"/>.
+            /// </summary>
+            /// <param name="EncodedSID"> The FNV1-a 64b hash to be decoded with the loaded lookup sidbase.bin table(s), as a default unsigned 64-bit integer. </param>
+            /// 
+            /// <returns>
+            /// A new SID instance containing the id's decoded string (or error reply), as well as the encoded string id in a hex number string format. <br/>
+            /// Also contains the encoded id in it's original ulong format
+            /// </returns>
+            public static SID Parse(ulong EncodedSID) => new SID(EncodedSID);
+            #endregion
         }
 
 

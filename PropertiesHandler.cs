@@ -255,7 +255,7 @@ namespace NaughtyDogDCReader
             }
             catch (Exception dang)
             {
-                var err = $"Missed PrintPropertyDetailSL Invokation due to a(n) {dang.GetType()}.";
+                var err = $"Missed PrintPropertyDetailSL Invocation due to a(n) {dang.GetType()}.";
                 echo(err);
             }
         }
@@ -284,7 +284,7 @@ namespace NaughtyDogDCReader
             }
             catch (Exception dang)
             {
-                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
+                var err = $"Missed PrintPropertyDetailNL Invocation due to a(n) {dang.GetType()}.";
                 echo(err);
             }
         }
@@ -312,23 +312,29 @@ namespace NaughtyDogDCReader
             }
             catch (Exception dang)
             {
-                var err = $"Missed PrintPropertyDetailNL Invokation due to a(n) {dang.GetType()}.";
+                var err = $"Missed PrintPropertyDetailNL Invocation due to a(n) {dang.GetType()}.";
                 echo(err);
             }
         }
 
 
 
+        /// <summary>
+        /// Reset all instance members in the current PropertiesHandler (clear all added controls, reset static ones to default states, clear variables)
+        /// </summary>
         public void Reset()
         {
-            PropertiesPanel.Controls.Clear();
             PropertiesWindow.Clear();
+            PropertiesPanel.Controls.Clear();
+            PropertiesEditor.Controls.Clear();
 
             HeaderItemButtons = null;
             SubItemButtons = null;
             HeaderSelection = null;
             SubItemSelection = null;
             ScrollBar = null;
+
+            IndentationDepth = 0;
         }
 
 
@@ -339,17 +345,14 @@ namespace NaughtyDogDCReader
         /// <returns> The provided <paramref name="name">, now spaced out rather than camel/pascal-case. </returns>
         private string SpaceOutStructName(string name)
         {
-            var str = emptyStr;
+            var str = string.Empty;
 
             for (var i = 0; i < name.Length; i++)
             {
-
                 if (name[i] <= 122u && name[i] >= 97u)
                 {
-
                     if (i + 1 != name.Length)
                     {
-
                         if (name[i + 1] >= 65u && name[i + 1] <= 90u)
                         {
                             str += $"{name[i]} ";
@@ -368,27 +371,42 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// //!
+        /// Get a formatted string representation for the property's value.
+        /// <br/><br/>
+        /// 
+        /// Whole Numerical Values: <br/>
+        /// - formats as a hex number if <paramref name="PropertyName"/> indicates the property's a pointer <br/>
+        /// - otherwise formats as a basic integer value <br/>
+        /// <br/><br/>
+        /// 
+        /// Advanced Numerical Values: <br/>
+        /// - formats as a float. Meh, it works.
+        /// <br/><br/>
+        /// 
+        /// Strings: <br/>
+        /// - Either returns the string, or (empty string) / (null string) if applicable.
+        /// <br/><br/>
+        /// 
+        /// Advanced Numerical Values: <br/>
+        /// - formats as a float. Meh, it works.
+        /// <br/><br/>
+        /// 
+        /// <br/>
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="indentationOverride"></param>
+        /// <param name="Value"></param>
+        /// <param name="IndentationOverride"></param>
         /// <returns></returns>
-        private string FormatPropertyValueAsString(object value, int? indentationOverride = null)
+        private string FormatPropertyValueAsString(string PropertyName, object Value, int? IndentationOverride = null)
         {
-            if (value == null)
+            if (Value == null)
             {
                 return "null";
             }
-            string
-                indent,
-                returnString
-            ;
+            string returnString;
 
 
-            indent = indentationOverride != null ? new string(' ', (indentationOverride * 8) ?? IndentationDepth) : Indentation;
 
-
-            switch (value.GetType())
+            switch (Value.GetType())
             {
                 // ## Booleans
                 case var val when val == typeof(bool):
@@ -398,28 +416,36 @@ namespace NaughtyDogDCReader
 
                 // ## Basic Numerical Values
                 case var val when WholeNumericalTypes.Contains(val):
-                    returnString = $"0x{value:X}";
+                    returnString = $"0x{Value:X}";
                     break;
 
                 // ## "Advanced" Numerical Values
                 case var val when AdvancedNumericalTypes.Contains(val):
-                    returnString = $"{value:F}";
+                    returnString = $"{Value:F}";
                     break;
 
 
                 // ## String ID's
                 case var type when type == typeof(SID):
-                    returnString = ((SID) value).DecodedID;
+                    returnString = ((SID) Value).DecodedID;
                     break;
 
 
                 // ## Strings
                 case var type when type == typeof(string):
-                    if (value.ToString().Length < 1)
+                    if (Value == null)
                     {
-                        //! the fuck was I going to do here, again?
+                        returnString = "(null string)";
+                        break;
                     }
-                    returnString = value.ToString();
+
+                    if (Value.ToString().Length < 1)
+                    {
+                        returnString = "(empty string)";
+                        break;
+                    }
+
+                    returnString = Value.ToString();
                     break;
 
 
@@ -428,9 +454,9 @@ namespace NaughtyDogDCReader
                 {
                     returnString = $"{type.ToString().Replace("System.", emptyStr)}: {{\n";
 
-                    foreach (var item in (Array) value)
+                    foreach (var item in (Array) Value)
                     {
-                        returnString += $"{FormatPropertyValueAsString(item, 1)},\n";
+                        returnString += $"{FormatPropertyValueAsString("unnamed", item, 1)},\n";
                     }
 
                     returnString += '}';
@@ -440,8 +466,14 @@ namespace NaughtyDogDCReader
 
 
                 // ## Unknown Struct
-                case var type when type == typeof(UnmappedStructure) && !PropertiesEditor.Visible:
-                    returnString = $"{((UnmappedStructure) value).Message}";
+                case var type when type == typeof(UnmappedStructure):
+                    if (PropertiesEditor.Visible)
+                    {
+                        returnString = $"{((UnmappedStructure) Value).LongMessage}";
+                    }
+                    else {
+                        returnString = $"{((UnmappedStructure) Value).ShortMessage}";
+                    }
                     break;
 
 
@@ -449,14 +481,21 @@ namespace NaughtyDogDCReader
                 default:
                     if (PropertiesEditor.Visible)
                     {
-                        returnString = value.GetType().Name;
+                        returnString = Value.GetType().Name;
                     }
                     else {
-                        returnString = PrintStructPropertyDetails(value);
+                        returnString = PrintStructPropertyDetails(Value);
                     }
                     break;
             }
 
+
+            if (PropertiesWindow.Visible)
+            {
+                var indent = IndentationOverride != null ? new string(' ', (int) IndentationOverride * 8) : Indentation;
+
+                returnString = indent + returnString.Replace("\n", indent);
+            }
 
             return returnString;
         }
@@ -499,7 +538,7 @@ namespace NaughtyDogDCReader
 
                 // Get and format the property value
                 var val = property.GetValue(dcEntry.Struct);
-                var formattedVal = FormatPropertyValueAsString(val);
+                var formattedVal = FormatPropertyValueAsString(property.Name, val);
 
                 // Print the formatted property value
                 PrintPropertyDetail(val);
@@ -530,7 +569,7 @@ namespace NaughtyDogDCReader
                 ret += $"{SpaceOutStructName(property.Name)}: ";
 
                 var val = property.GetValue(dcEntry);
-                ret += $"{FormatPropertyValueAsString(val).Replace("\n", "\n" + Indentation)}\n";
+                ret += $"{FormatPropertyValueAsString(property.Name, val).Replace("\n", "\n" + Indentation)}\n";
             }
 
             return ret;
@@ -853,7 +892,7 @@ namespace NaughtyDogDCReader
                 Height = DefaultPropertyButtonHeight,
                 Width = PropertiesEditor.Width - nameBox.Width - 2,
 
-                Text = FormatPropertyValueAsString(propertyValue, 0)
+                Text = FormatPropertyValueAsString(propertyName as string, propertyValue, 0)
             };
 
             // Assign basic form functionality event handlers

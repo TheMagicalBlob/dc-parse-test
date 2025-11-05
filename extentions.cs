@@ -13,7 +13,7 @@ namespace NaughtyDogDCReader
     public class RichTextBox : System.Windows.Forms.RichTextBox
     {
         /// <summary>
-        /// Appends Text to The Currrent Text of A Text Box, Followed By The Standard Line Terminator.
+        /// Appends Text to The Current Text of A Text Box, Followed By The Standard Line Terminator.
         /// <br/>Scrolls To Keep The Newest Line In View.
         /// </summary>
         /// <param name="str"> The String to Output. </param>
