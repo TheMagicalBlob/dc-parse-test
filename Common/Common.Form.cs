@@ -575,7 +575,7 @@ namespace NaughtyDogDCReader
 
         public static void PropertiesPanelMammet(object dcFileName, DCFileHeader dcEntries)
         {
-            Venat?.Invoke(Panels.propertiesPanelMammet, new object[] { dcFileName, dcEntries });
+            Venat?.Invoke(Panels?.propertiesPanelMammet, new object[] { dcFileName, dcEntries });
         }
 
 

@@ -301,211 +301,6 @@ namespace NaughtyDogDCReader
 
         
         /// <summary>
-        /// Initialize a new instance of the weapon-gameplay-def struct.
-        /// </summary>
-        public struct weapon_gameplay_def
-        {
-            /// <summary>
-            /// Create a new instance of the weapon_gameplay_def struct.
-            /// </summary>
-            /// <param name="binFile"> The DC file this weapon_gameplay_def instance is being read from. </param>
-            /// <param name="Address"> The start address of the structure in the DC file. </param>
-            /// <param name="Name"> The name associated with the current weapon_gameplay_def instance. </param>
-            public weapon_gameplay_def(byte[] binFile, long Address, SID Name)
-            {
-                //#
-                //## Variable Initializations
-                //#
-                #region [variable initializations]
-                this.Name = Name;
-                this.Address = Address;
-
-                RawData = GetSubArray(binFile, (int) Address, Size);
-
-
-                UnknownInt_at0x00 = 0;
-				UnknownInt_at0x04 = 0;
-				UnknownInt_at0x08 = 0;
-			
-				UnknownFloat_at0x0C = 0;
-				FirearmGameplayDef_Pointer = 0;
-				BlindfireAutoTargetDef_Pointer = 0;
-			
-				UnknownLong_at0x20 = 0;
-				GrenadeGameplayDef_Pointer = 0;
-			
-				MeleeGameplayDef_Pointer = 0;
-			
-				UnknownLong_at0x38 = 0;
-				UnknownLong_at0x40 = 0;
-				UnknownLong_at0x48 = 0;
-				UnknownByteArray_at0x50_s0x08 = null;
-			
-				Hud2ReticleDef_Pointer = 0;
-				UnknownLong_at0x60 = 0;
-				ZoomCameraDoFSettingsSP = 0;
-				ZoomSniperCameraDoFSettingsSP = SID.Empty;
-				UnknownLong_at0x78 = 0;
-				ScreenEffectSettings_Pointer = 0;
-				UnknownByteArray_at0x88_s0x08 = null;
-
-
-
-
-
-
-                //#
-                //## Offset Initializations
-                //#
-                Offsets = new[]
-                {
-                    0x00, // unknownInt_at0x00 (Unknown uint)
-					0x04, // unknownInt_at0x04 (Unknown uint)
-					0x08, // unknownInt_at0x08 (Unknown uint)
-				
-					0x0C, // unknownFloat_at0x0C (unknown, usually set to -1, but the bow has it set to zero)
-					0x10, // firearmGameplayDef_Ptr (firearm-gameplay-def*)
-					0x18, // blindfireAutoTargetDef_Ptr (blindfire-auto-target-def*)
-				
-					0x20, // unknownLong_at0x20 (Unknown ulong)
-					0x28, // grenadeGameplayDef_Ptr (grenade-gameplay-def*)
-				
-					0x30, // meleeGameplayDef_Ptr (melee-gameplay-def*)
-				
-					0x38, // unknownLong_at0x38 (Unknown ulong)
-					0x40, // unknownLong_at0x40 (Unknown ulong)
-					0x48, // unknownLong_at0x48 (Unknown ulong)
-					0x50, // unknownByteArray_at0x50_s0x08 (Unknown byte Array)
-				
-					0x58, // hud2ReticleDef_Ptr (hud2-reticle-def*)
-					0x60, // unknownLong_at0x60 (Unknown ulong)
-					0x68, // zoomCameraDoFSettingsSP (*zoom-camera-dof-settings-sp*)
-					0x70, // zoomSniperCameraDoFSettingsSP (*zoom-sniper-camera-dof-settings-sp*)
-					0x78, // unknownLong_at0x78 (Unknown ulong)
-					0x80, // screenEffectSettings_Ptr (screen-effect-settings*)
-					0x88  // unknownByteArray_at0x88_s0x08 (Unknown byte Array)
-                };
-
-                
-
-
-                
-                //#
-                //## Assign Property Values
-                //#
-                var that = this.MemberwiseClone();
-                var properties = that.GetType().GetProperties();
-
-                for (var i = 0; i < properties.Length; i++)
-                {
-                    properties[i].SetValue(that, ReadPropertyValueByType(RawData, properties[i], Offsets[i]));
-                }
-
-                this = (weapon_gameplay_def) that;
-                #endregion
-            }
-
-            
-            //#
-            //## Offset Declarations
-            //#
-            /// <summary> HUD2 Reticle Definition structure offset. </summary>
-            private readonly int[] Offsets;
-
-
-
-
-            //#
-            //## Variable Declarations
-            //#
-            #region [Variable Declarations]
-
-            //# #| Public Fields |#
-            /// <summary> The name associated with the current weapon_gameplay_def instance. </summary>
-            public SID Name;
-
-            /// <summary> The start address of the structure in the DC file. </summary>
-            public long Address;
-
-            /// <summary> Size of the current structure type. </summary>
-            public const int Size =  0x90; // The size of the structure;
-
-            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
-            public byte[] RawData;
-
-            
-            //# #| Public Properties |#
-            /// <summary> Unknown uint <summary/>
-			public uint UnknownInt_at0x00 { get; set; }
-
-			/// <summary> Unknown uint <summary/>
-			public uint UnknownInt_at0x04 { get; set; }
-
-			/// <summary> Unknown uint <summary/>
-			public uint UnknownInt_at0x08 { get; set; }
-
-			
-			/// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
-			public float UnknownFloat_at0x0C { get; set; }
-
-			/// <summary> firearm-gameplay-def* <summary/>
-			public ulong FirearmGameplayDef_Pointer { get; set; }
-
-			/// <summary> blindfire-auto-target-def* <summary/>
-			public ulong BlindfireAutoTargetDef_Pointer { get; set; }
-
-			
-			/// <summary> Unknown ulong <summary/>
-			public ulong UnknownLong_at0x20 { get; set; }
-
-			/// <summary> grenade-gameplay-def* <summary/>
-			public ulong GrenadeGameplayDef_Pointer { get; set; }
-
-			
-			/// <summary> melee-gameplay-def* <summary/>
-			public ulong MeleeGameplayDef_Pointer { get; set; }
-
-			
-			/// <summary> Unknown ulong <summary/>
-			public ulong UnknownLong_at0x38 { get; set; }
-
-			/// <summary> Unknown ulong <summary/>
-			public ulong UnknownLong_at0x40 { get; set; }
-
-			/// <summary> Unknown ulong <summary/>
-			public ulong UnknownLong_at0x48 { get; set; }
-
-			/// <summary> Unknown byte Array <summary/>
-			public byte[] UnknownByteArray_at0x50_s0x08 { get; set; }
-
-			
-			/// <summary> hud2-reticle-def* <summary/>
-			public ulong Hud2ReticleDef_Pointer { get; set; }
-
-			/// <summary> Unknown ulong <summary/>
-			public ulong UnknownLong_at0x60 { get; set; }
-
-			/// <summary> *zoom-camera-dof-settings-sp* <summary/>
-			public ulong ZoomCameraDoFSettingsSP { get; set; }
-
-			/// <summary> *zoom-sniper-camera-dof-settings-sp* <summary/>
-			public SID ZoomSniperCameraDoFSettingsSP { get; set; }
-
-			/// <summary> Unknown ulong <summary/>
-			public ulong UnknownLong_at0x78 { get; set; }
-
-			/// <summary> screen-effect-settings* <summary/>
-			public ulong ScreenEffectSettings_Pointer { get; set; }
-
-			/// <summary> Unknown byte Array <summary/>
-			public byte[] UnknownByteArray_at0x88_s0x08 { get; set; }
-            #endregion [variable declarations]
-        }
-
-
-
-        
-        /// <summary>
         /// Initialize a new instance of the firearm-gameplay-def struct.
         /// </summary>
         public struct firearm_gameplay_def
@@ -1055,94 +850,212 @@ namespace NaughtyDogDCReader
 
 
 
-
         /// <summary>
-        /// 
+        /// Initialize a new instance of the weapon-gameplay-def struct.
         /// </summary>
-        public struct MeleeWeaponGameplayDef
+        public struct weapon_gameplay_def
         {
-            public MeleeWeaponGameplayDef(byte[] binFile, long Address, SID Name)
+            /// <summary>
+            /// Create a new instance of the weapon_gameplay_def struct.
+            /// </summary>
+            /// <param name="binFile"> The DC file this weapon_gameplay_def instance is being read from. </param>
+            /// <param name="Address"> The start address of the structure in the DC file. </param>
+            /// <param name="Name"> The name associated with the current weapon_gameplay_def instance. </param>
+            public weapon_gameplay_def(byte[] binFile, long Address, SID Name)
             {
+                //#
+                //## Variable Initializations
+                //#
+                #region [variable initializations]
                 this.Name = Name;
                 this.Address = Address;
+
+                RawData = GetSubArray(binFile, (int) Address, Size);
+
+
+                UnknownInt_at0x00 = 0;
+				UnknownInt_at0x04 = 0;
+				UnknownInt_at0x08 = 0;
+			
+				UnknownFloat_at0x0C = 0;
+				FirearmGameplayDef_Pointer = 0;
+				BlindfireAutoTargetDef_Pointer = 0;
+			
+				UnknownLong_at0x20 = 0;
+				GrenadeGameplayDef_Pointer = 0;
+			
+				MeleeGameplayDef_Pointer = 0;
+			
+				UnknownLong_at0x38 = 0;
+				UnknownLong_at0x40 = 0;
+				UnknownLong_at0x48 = 0;
+				UnknownByteArray_at0x50_s0x08 = null;
+			
+				Hud2ReticleDef_Pointer = 0;
+				UnknownLong_at0x60 = 0;
+				ZoomCameraDoFSettingsSP = 0;
+				ZoomSniperCameraDoFSettingsSP = SID.Empty;
+				UnknownLong_at0x78 = 0;
+				ScreenEffectSettings_Pointer = 0;
+				UnknownByteArray_at0x88_s0x08 = null;
+
+
+
+
+
+
+                //#
+                //## Offset Initializations
+                //#
+                Offsets = new[]
+                {
+                    0x00, // unknownInt_at0x00 (Unknown uint)
+					0x04, // unknownInt_at0x04 (Unknown uint)
+					0x08, // unknownInt_at0x08 (Unknown uint)
+				
+					0x0C, // unknownFloat_at0x0C (unknown, usually set to -1, but the bow has it set to zero)
+					0x10, // firearmGameplayDef_Ptr (firearm-gameplay-def*)
+					0x18, // blindfireAutoTargetDef_Ptr (blindfire-auto-target-def*)
+				
+					0x20, // unknownLong_at0x20 (Unknown ulong)
+					0x28, // grenadeGameplayDef_Ptr (grenade-gameplay-def*)
+				
+					0x30, // meleeGameplayDef_Ptr (melee-gameplay-def*)
+				
+					0x38, // unknownLong_at0x38 (Unknown ulong)
+					0x40, // unknownLong_at0x40 (Unknown ulong)
+					0x48, // unknownLong_at0x48 (Unknown ulong)
+					0x50, // unknownByteArray_at0x50_s0x08 (Unknown byte Array)
+				
+					0x58, // hud2ReticleDef_Ptr (hud2-reticle-def*)
+					0x60, // unknownLong_at0x60 (Unknown ulong)
+					0x68, // zoomCameraDoFSettingsSP (*zoom-camera-dof-settings-sp*)
+					0x70, // zoomSniperCameraDoFSettingsSP (*zoom-sniper-camera-dof-settings-sp*)
+					0x78, // unknownLong_at0x78 (Unknown ulong)
+					0x80, // screenEffectSettings_Ptr (screen-effect-settings*)
+					0x88  // unknownByteArray_at0x88_s0x08 (Unknown byte Array)
+                };
+
+                
+
+
+                
+                //#
+                //## Assign Property Values
+                //#
+                var that = this.MemberwiseClone();
+                var properties = that.GetType().GetProperties();
+
+                for (var i = 0; i < properties.Length; i++)
+                {
+                    properties[i].SetValue(that, ReadPropertyValueByType(RawData, properties[i], Offsets[i]));
+                }
+
+                this = (weapon_gameplay_def) that;
+                #endregion
             }
 
+            
+            //#
+            //## Offset Declarations
+            //#
+            /// <summary> HUD2 Reticle Definition structure offset. </summary>
+            private readonly int[] Offsets;
+
+
+
+
+            //#
+            //## Variable Declarations
+            //#
+            #region [Variable Declarations]
+
+            //# #| Public Fields |#
+            /// <summary> The name associated with the current weapon_gameplay_def instance. </summary>
             public SID Name;
+
+            /// <summary> The start address of the structure in the DC file. </summary>
             public long Address;
+
+            /// <summary> Size of the current structure type. </summary>
+            public const int Size =  0x90; // The size of the structure;
+
+            /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
+            public byte[] RawData;
+
+            
+            //# #| Public Properties |#
+            /// <summary> Unknown uint <summary/>
+			public uint UnknownInt_at0x00 { get; set; }
+
+			/// <summary> Unknown uint <summary/>
+			public uint UnknownInt_at0x04 { get; set; }
+
+			/// <summary> Unknown uint <summary/>
+			public uint UnknownInt_at0x08 { get; set; }
+
+			
+			/// <summary> unknown, usually set to -1, but the bow has it set to zero <summary/>
+			public float UnknownFloat_at0x0C { get; set; }
+
+			/// <summary> firearm-gameplay-def* <summary/>
+			public ulong FirearmGameplayDef_Pointer { get; set; }
+
+			/// <summary> blindfire-auto-target-def* <summary/>
+			public ulong BlindfireAutoTargetDef_Pointer { get; set; }
+
+			
+			/// <summary> Unknown ulong <summary/>
+			public ulong UnknownLong_at0x20 { get; set; }
+
+			/// <summary> grenade-gameplay-def* <summary/>
+			public ulong GrenadeGameplayDef_Pointer { get; set; }
+
+			
+			/// <summary> melee-gameplay-def* <summary/>
+			public ulong MeleeGameplayDef_Pointer { get; set; }
+
+			
+			/// <summary> Unknown ulong <summary/>
+			public ulong UnknownLong_at0x38 { get; set; }
+
+			/// <summary> Unknown ulong <summary/>
+			public ulong UnknownLong_at0x40 { get; set; }
+
+			/// <summary> Unknown ulong <summary/>
+			public ulong UnknownLong_at0x48 { get; set; }
+
+			/// <summary> Unknown byte Array <summary/>
+			public byte[] UnknownByteArray_at0x50_s0x08 { get; set; }
+
+			
+			/// <summary> hud2-reticle-def* <summary/>
+			public ulong Hud2ReticleDef_Pointer { get; set; }
+
+			/// <summary> Unknown ulong <summary/>
+			public ulong UnknownLong_at0x60 { get; set; }
+
+			/// <summary> *zoom-camera-dof-settings-sp* <summary/>
+			public ulong ZoomCameraDoFSettingsSP { get; set; }
+
+			/// <summary> *zoom-sniper-camera-dof-settings-sp* <summary/>
+			public SID ZoomSniperCameraDoFSettingsSP { get; set; }
+
+			/// <summary> Unknown ulong <summary/>
+			public ulong UnknownLong_at0x78 { get; set; }
+
+			/// <summary> screen-effect-settings* <summary/>
+			public ulong ScreenEffectSettings_Pointer { get; set; }
+
+			/// <summary> Unknown byte Array <summary/>
+			public byte[] UnknownByteArray_at0x88_s0x08 { get; set; }
+            #endregion [variable declarations]
         }
 
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public struct GrenadeGameplayDef
-        {
-            public GrenadeGameplayDef(byte[] binFile, long Address, SID Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-            }
-
-            public SID Name;
-            public long Address;
-        }
 
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public struct BlindfireAutoTargetDef
-        {
-            public BlindfireAutoTargetDef(byte[] binFile, long Address, SID Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-            }
-
-            public SID Name;
-            public long Address;
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public struct FirearmDamageMovementDef
-        {
-            public FirearmDamageMovementDef(byte[] binFile, long Address, SID Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-            }
-
-            public SID Name;
-            public long Address;
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public struct FirearmStatBarDef
-        {
-            public FirearmStatBarDef(byte[] binFile, long Address, SID Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-            }
-
-            public SID Name;
-            public long Address;
-        }
-
-
-
-
-        
         /// <summary>
         /// Initialize a new instance of the hud2-reticle-def struct.
         /// </summary>
@@ -1261,6 +1174,93 @@ namespace NaughtyDogDCReader
         }
 
 
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct MeleeWeaponGameplayDef
+        {
+            public MeleeWeaponGameplayDef(byte[] binFile, long Address, SID Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public SID Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct GrenadeGameplayDef
+        {
+            public GrenadeGameplayDef(byte[] binFile, long Address, SID Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public SID Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct BlindfireAutoTargetDef
+        {
+            public BlindfireAutoTargetDef(byte[] binFile, long Address, SID Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public SID Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct FirearmDamageMovementDef
+        {
+            public FirearmDamageMovementDef(byte[] binFile, long Address, SID Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public SID Name;
+            public long Address;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct FirearmStatBarDef
+        {
+            public FirearmStatBarDef(byte[] binFile, long Address, SID Name)
+            {
+                this.Name = Name;
+                this.Address = Address;
+            }
+
+            public SID Name;
+            public long Address;
+        }
+
+
         
 
         
@@ -1376,7 +1376,6 @@ namespace NaughtyDogDCReader
                 this = (look2) that;
                 #endregion
             }
-
 
             
             //#

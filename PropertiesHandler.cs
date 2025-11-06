@@ -347,7 +347,13 @@ namespace NaughtyDogDCReader
             SubItemButtons = null;
             HeaderSelection = null;
             SubItemSelection = null;
+
+            Venat.Controls.Remove(PropertiesPanelScrollBar);
             PropertiesPanelScrollBar = null;
+
+            Venat.Controls.Remove(PropertiesEditorScrollBar);
+            PropertiesEditorScrollBar = null;
+
 
             IndentationDepth = 0;
         }
@@ -615,14 +621,17 @@ namespace NaughtyDogDCReader
                 // "Reset" the previous button
                 HeaderSelection.Font = new Font(HeaderSelection.Font.FontFamily, HeaderSelection.Font.Size, HeaderSelection.Font.Style ^ FontStyle.Underline);
 
-                // Move the scroll bar if we're wrapping around from one end to the other
-                if (HeaderSelection == HeaderItemButtons.Last() && sender == HeaderItemButtons.First())
+                if (PropertiesPanelScrollBar != null)
                 {
-                    ForceScrollPropertyPanelButtons(PropertiesPanelScrollBar.Minimum);
-                }
-                else if (sender == HeaderItemButtons.Last() && HeaderSelection == HeaderItemButtons.First())
-                {
-                    ForceScrollPropertyPanelButtons(PropertiesPanelScrollBar.Maximum);
+                    // Move the scroll bar if we're wrapping around from one end to the other
+                    if (HeaderSelection == HeaderItemButtons.Last() && sender == HeaderItemButtons.First())
+                    {
+                        ForceScrollPropertyPanelButtons(PropertiesPanelScrollBar.Minimum);
+                    }
+                    else if (sender == HeaderItemButtons.Last() && HeaderSelection == HeaderItemButtons.First())
+                    {
+                        ForceScrollPropertyPanelButtons(PropertiesPanelScrollBar.Maximum);
+                    }
                 }
             }
 
@@ -896,6 +905,7 @@ namespace NaughtyDogDCReader
                     };
 
                     PropertiesEditorScrollBar.Location = new Point((PropertiesEditor.Location.X + PropertiesEditor.Width) - PropertiesEditorScrollBar.Width, PropertiesEditor.Location.Y + GroupBoxContentsOffset);
+                    PropertiesEditorScrollBar.Scroll += ScrollPropertyEditorRows;
 
                     Venat.Controls.Add(PropertiesEditorScrollBar);
 

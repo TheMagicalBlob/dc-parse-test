@@ -198,7 +198,7 @@ namespace NaughtyDogDCReader
                 //#
                 DCFile = File.ReadAllBytes(binPath);
 
-                // TODO: make sure there's no difference betweeen path versions! //!
+                // TODO: make sure there's no difference between path versions! //!
                 // Check whether or not the script is a basic empty one
                 if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
                 {
