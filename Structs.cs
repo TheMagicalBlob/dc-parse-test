@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -85,7 +86,7 @@ namespace NaughtyDogDCReader
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
 #endif
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-                StatusLabelMammet(new[] { "Reading Script...", emptyStr, emptyStr });
+                UpdateStatusLabel(new[] { "Reading Script...", emptyStr, emptyStr });
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
@@ -164,42 +165,47 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// A collection of whatever-the-fuck naughty dog felt like including. This may be annoying.
         /// </summary>
-        public struct Map
+        public struct map
         {
-            public Map(byte[] binFile, long Address, SID Name)
+            public map(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
 
-                var mapLength = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
-                if (mapLength < 1)
+                Length = BitConverter.ToInt64(GetSubArray(binFile, (int) Address), 0);
+
+                StructNames = new SID[Length];
+
+                Structs = new object[Length];
+
+
+                if (Length < 1)
                 {
                     echo($"  # Empty Map Structures. ({Name.DecodedID})");
-                    Items = Array.Empty<object[]>();
                     return;
                 }
                 var mapNamesArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
                 var mapStructsArrayPtr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 16), 0);
 
-                Items = new object[mapLength][];
-                Items[0] = new object[2];
 
-
-
-                for (var arrayIndex = 0; arrayIndex < mapLength; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
+                for (var arrayIndex = 0; arrayIndex < Length; mapStructsArrayPtr += 8, mapNamesArrayPtr += 8, arrayIndex++)
                 {
                     var structAddress = (int)BitConverter.ToInt64(GetSubArray(binFile, (int)mapStructsArrayPtr), 0);
 
                     var structTypeID = SID.Parse(GetSubArray(binFile, structAddress - 8));
                     var structName   = SID.Parse(GetSubArray(binFile, (int)mapNamesArrayPtr));
 
-                    Items[arrayIndex] = new object[2]
-                    {
-                        structTypeID,
-                        LoadMappedDCStructs(binFile, structTypeID, structAddress, structName)
-                    };
+                    StructNames[arrayIndex] = structName;
+
+                    Structs[arrayIndex] = LoadMappedDCStructs(binFile, structTypeID, structAddress, structName);
                 }
             }
+
+            /*
+             * 0x00: Map array length
+             * 0x08: Pointer to array of encoded names for each entry
+             * 0x10: Pointer to an array of pointers ton
+            */
 
 
             /// <summary>
@@ -209,15 +215,20 @@ namespace NaughtyDogDCReader
 
             public long Address;
 
+            public long Length;
 
-            /// <summary>
-            /// A jagged object array of header items and their type id (not in that order...) <br/>
-            /// 
-            /// <br/> 0: the map item's struct type.
-            /// <br/> 1: the struct itself.
-            /// </summary>
-            public object[][] Items { get; set; }
+
+
+            public SID[] StructNames;
+
+            public object[] Structs;
         }
+
+        private struct map_entry
+        {
+
+        }
+
 
 
 
@@ -280,7 +291,7 @@ namespace NaughtyDogDCReader
                     symbols.Add(new[] { SIDBase.DecodeSIDHash(hashes.Last()[0]), SIDBase.DecodeSIDHash(hashes.Last()[1]) });
                 }
                 echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
-                StatusLabelMammet(new[] { null, null, emptyStr });
+                UpdateStatusLabel(new[] { null, null, emptyStr });
 
                 Symbols = symbols.ToArray();
                 Hashes = hashes.ToArray();
@@ -978,7 +989,7 @@ namespace NaughtyDogDCReader
             public long Address;
 
             /// <summary> Size of the current structure type. </summary>
-            public const int Size =  0x90; // The size of the structure;
+            public const int Size = 0x90; // The size of the structure;
 
             /// <summary> The raw binary data of the current StructureTemplate instance. </summary>
             public byte[] RawData;

@@ -99,11 +99,11 @@ namespace NaughtyDogDCReader
             // 
             this.SeperatorLine1.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine1.IsSeparatorLine = false;
+            this.SeperatorLine1.IsSeparatorLine = true;
             this.SeperatorLine1.Location = new System.Drawing.Point(3, 120);
             this.SeperatorLine1.Name = "SeperatorLine1";
             this.SeperatorLine1.Size = new System.Drawing.Size(411, 17);
-            this.SeperatorLine1.StretchToFitForm = false;
+            this.SeperatorLine1.StretchToFitForm = true;
             this.SeperatorLine1.TabIndex = 13;
             this.SeperatorLine1.Text = "---------------------------------------------------------------------------------" +
     "";
@@ -178,11 +178,11 @@ namespace NaughtyDogDCReader
             // 
             this.SeperatorLine0.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.SeperatorLine0.IsSeparatorLine = false;
+            this.SeperatorLine0.IsSeparatorLine = true;
             this.SeperatorLine0.Location = new System.Drawing.Point(2, 52);
             this.SeperatorLine0.Name = "SeperatorLine0";
             this.SeperatorLine0.Size = new System.Drawing.Size(411, 17);
-            this.SeperatorLine0.StretchToFitForm = false;
+            this.SeperatorLine0.StretchToFitForm = true;
             this.SeperatorLine0.TabIndex = 20;
             this.SeperatorLine0.Text = "---------------------------------------------------------------------------------" +
     "";

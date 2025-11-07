@@ -347,9 +347,9 @@ namespace NaughtyDogDCReader
             this.scriptSelectionLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.scriptSelectionLabel.ForeColor = System.Drawing.Color.Gold;
             this.scriptSelectionLabel.IsSeparatorLine = false;
-            this.scriptSelectionLabel.Location = new System.Drawing.Point(7, 246);
+            this.scriptSelectionLabel.Location = new System.Drawing.Point(7, 242);
             this.scriptSelectionLabel.Name = "scriptSelectionLabel";
-            this.scriptSelectionLabel.Size = new System.Drawing.Size(526, 19);
+            this.scriptSelectionLabel.Size = new System.Drawing.Size(526, 25);
             this.scriptSelectionLabel.StretchToFitForm = false;
             this.scriptSelectionLabel.TabIndex = 20;
             this.scriptSelectionLabel.Text = "Selected Script: [None]";

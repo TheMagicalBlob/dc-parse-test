@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -7,9 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace NaughtyDogDCReader
 {
@@ -69,10 +66,35 @@ namespace NaughtyDogDCReader
         public static long DCFileMainDataLength;
 
 
+
         /// <summary>
         /// Static refference to the active DC binary's header struct.
         /// </summary>
         public static DCFileHeader DCScript;
+
+
+        
+        public static readonly Type[] WholeNumericalTypes = new[]
+        {
+            typeof(sbyte),
+            typeof(byte),
+            typeof(short),
+            typeof(ushort),
+            typeof(int),
+            typeof(uint),
+            //typeof(nint),
+            //typeof(nuint),
+            typeof(long),
+            typeof(ulong)
+        };
+
+
+        public static readonly Type[] AdvancedNumericalTypes = new[]
+        {
+            typeof(decimal),
+            typeof(double),
+            typeof(float)
+        };
 
 
         /// <summary>
@@ -137,7 +159,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         private static void CloseBinFile()
         {
-            ReloadCloseButtonsMammet(false);
+            SetReloadCloseButtonsEnabledStatus(false);
 
             ResetSelectionLabel();
             ResetStatusLabel();
@@ -151,9 +173,12 @@ namespace NaughtyDogDCReader
 
                 if (DCScript.Entries != null)
                 {
-                    Venat.OptionsMenuDropdownBtn.TabIndex -= DCScript.Entries.Length;
-                    Venat.MinimizeBtn.TabIndex -= DCScript.Entries.Length;
-                    Venat.ExitBtn.TabIndex -= DCScript.Entries.Length;
+                    var len = DCScript.Entries.Length;
+
+                    echo ($"Decrementing relavant button tab indexes by [{len}].");
+                    Venat.OptionsMenuDropdownBtn.TabIndex -= len;
+                    Venat.MinimizeBtn.TabIndex -= len;
+                    Venat.ExitBtn.TabIndex -= len;
                 }
             }
         }
@@ -167,12 +192,12 @@ namespace NaughtyDogDCReader
 
         private void StartBinParseThread()
         {
-            if (binThread != null && binThread.ThreadState != System.Threading.ThreadState.Unstarted)
+            if (DCParseThread != null && DCParseThread.ThreadState != System.Threading.ThreadState.Unstarted)
             {
                 try
                 {
                     echo("Bin thread already active, killing thread.");
-                    binThread.Abort();
+                    DCParseThread.Abort();
                 }
                 catch (ThreadAbortException) { echo("Bin thread killed."); }
                 catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting bin thread."); }
@@ -180,76 +205,66 @@ namespace NaughtyDogDCReader
             }
 
             // Create and start the thread
-            (binThread = new Thread(ThreadedBinFileParse)).Start();
-        }
-
-
-        /// <summary>
-        /// //! Write Me
-        /// </summary>
-        private void ThreadedBinFileParse()
-        {
-            var binPath = ActiveFilePath?.ToString() ?? "null";
-
-            try
+            (DCParseThread = new Thread(() =>
             {
-                //#
-                //## Load & Parse provided DC file.
-                //#
-                DCFile = File.ReadAllBytes(binPath);
+                var binPath = ActiveFilePath?.ToString() ?? "null";
 
-                // TODO: make sure there's no difference between path versions! //!
-                // Check whether or not the script is a basic empty one
-                if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
+                #if !DEBUG
+                try
+                #endif
                 {
-                    StatusLabelMammet(new[] { "Empty DC File Loaded." });
-                    ResetSelectionLabel();
-                    return;
+                    //#
+                    //## Load & Parse provided DC file.
+                    //#
+                    DCFile = File.ReadAllBytes(binPath);
+
+                    // TODO: make sure there's no difference between path versions! //!
+                    // Check whether or not the script is a basic empty one
+                    if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
+                    {
+                        UpdateStatusLabel(new[] { "Empty DC File Loaded." });
+                        ResetSelectionLabel();
+                        return;
+                    }
+
+
+
+                    DCScript = new DCFileHeader(DCFile, ActiveFileName);
+
+                    //#
+                    //## Setup Form
+                    //#
+                    echo("\nFinished!");
+                    UpdateStatusLabel(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
+                    PopulatePropertiesPanel(ActiveFileName, DCScript);
+
+                    SetReloadCloseButtonsEnabledStatus(true);
+                    UpdateStatusLabel(new[] { "Viewing Script" });
+
                 }
+                #if !DEBUG
+                // File in use, probably
+                catch (IOException dang)
+                {
+                    echo($"\n{dang.GetType()}: Selected file is either in use, or doesn't exist.\nMessage: [{dang.Message}]");
 
+                    CTCloseBinFile();
+                    StatusLabelMammet(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+                }
+                // File in use, probably
+                catch (Exception nani)
+                {
+                    echo($"\nERROR: Selected file is either in use, or doesn't exist.\nMessage: [{nani.Message}]");
 
-
-                DCScript = new DCFileHeader(DCFile, ActiveFileName);
-
-                //#
-                //## Setup Form
-                //#
-                echo("\nFinished!");
-                StatusLabelMammet(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
-                PropertiesPanelMammet(ActiveFileName, DCScript);
-
-                ReloadCloseButtonsMammet(true);
-                StatusLabelMammet(new[] { "Viewing Script" });
-
+                    CTCloseBinFile();
+                    StatusLabelMammet(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+                }
+                #endif
             }
-            // File in use, probably
-            catch (IOException dang)
-            {
-                catchError("Error loading DC file; file may be in use, or simply not exist.", $"\nERROR: Selected file is either in use, or doesn't exist. ({dang.Message})");
-            }/*
-            // Thread has been killed (not sure why I'm still bothering to check for this)
-            catch (ThreadAbortException)
-            {
-                catchError("DC Parse aborted (seemingly intentionally?)", $"\nERROR: Selected file is either in use, or doesn't exist.");
-            }
-            catch (Exception fuck)
-            {
-                var intErr = $"ERROR: An unexpected {fuck.GetType()} occured while parsing the provided DC .bin file.";
-                var mainErr = $"Unhandled Error Parsing DC File!";
-
-                catchError(mainErr + $" ({fuck.GetType()})", '\n' + intErr);
-                MessageBox.Show(intErr, mainErr);
-            }
-*/
-
-            void catchError(string mainMessage, string internalMessage)
-            {
-                echo(internalMessage);
-                CTCloseBinFile();
-
-                StatusLabelMammet(new[] { mainMessage, emptyStr, emptyStr });
-            }
+            )).Start();
         }
+
+
 
 
 
@@ -272,7 +287,7 @@ namespace NaughtyDogDCReader
                 //## Mapped Structures
                 //#
                 // map == [ struct len, sid[]* ids, struct*[] * data ]
-                case KnownSIDs.map: return new Map(DCFile, Address, name);
+                case KnownSIDs.map: return new map(DCFile, Address, name);
 
                 case KnownSIDs.weapon_gameplay_def: return new weapon_gameplay_def(DCFile, Address, name);
 

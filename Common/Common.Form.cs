@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace NaughtyDogDCReader
@@ -58,9 +57,13 @@ namespace NaughtyDogDCReader
         /// <summary> The initial width (in pixels) of the Abort button. Used when switching from "abort/close file" modes. </summary>
         private static int BaseAbortButtonWidth;
 
+        /// <summary>
+        /// //! Make sure this is actually consistent across each patch version
+        /// </summary>
         private static readonly byte[] EmptyDCFileHash = new byte[] { 0x1c, 0xd3, 0xe2, 0x12, 0xe6, 0xed, 0xda, 0xac, 0xd4, 0x3c, 0xac, 0x53, 0x55, 0x34, 0x19, 0x85, 0x2e, 0x3a, 0x7c, 0x1b, 0x28, 0x36, 0x15, 0xef, 0xea, 0x20, 0x74, 0x5e, 0x98, 0xe8, 0x7b, 0x95 };
 
         public const string emptyStr = "";
+
 
 
 
@@ -228,7 +231,10 @@ namespace NaughtyDogDCReader
         public static Label ScriptStatusLabel;
         public static Label ScriptSelectionLabel;
 
+
         /// <summary>
+        /// A list of changes made to the loaded DC file, for undoing crap.
+        /// <br/> <br/>
         /// 0: Address
         ///<br/>
         /// 1: Original Data
@@ -473,136 +479,6 @@ namespace NaughtyDogDCReader
             Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
         }
         #endregion
-        
-
-
-
-
-
-
-
-
-
-
-        //#
-        //## Threading-Related Variables (threads, delegates, and mammets)
-        //#
-        private static Thread binThread;
-
-        /// <summary> Cross-thread form interaction delegate. </summary>
-        public delegate void binThreadFormWand(bool args); //! god I need to read about delegates lmao
-        /// <summary> //! </summary>
-        private delegate void binThreadLabelWand(string[] details);
-        private delegate void generalBinThreadWand();
-        /// <summary> //! </summary>
-        public delegate string[] binThreadFormWandOutputRead();
-
-
-
-
-        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand((details) =>
-        {
-            StatusDetails = details;
-        });
-
-        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(() =>
-        {
-            StatusDetails = null;
-        });
-
-
-        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand((details) =>
-        {
-            SelectionDetails = details;
-        });
-
-        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(() =>
-        {
-            SelectionDetails = null;
-        });
-
-
-
-
-        private readonly binThreadFormWand reloadCloseButtonsMammet = new binThreadFormWand((isEnabled) =>
-        {
-            if (Venat.CloseBtn == null)
-            {
-                echo($"ERROR: {nameof(Venat.CloseBtn)} was null!");
-                return;
-            }
-
-            // Enable/Disable the button, and update the button with the strikeout style property
-            Venat.CloseBtn.Enabled = isEnabled;
-            Venat.CloseBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
-
-
-            if (Venat.ReloadScriptBtn == null)
-            {
-                echo($"ERROR: {nameof(Venat.ReloadScriptBtn)} was null!");
-                return;
-            }
-
-            Venat.ReloadScriptBtn.Enabled = isEnabled;
-            Venat.ReloadScriptBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
-        });
-
-
-        
-        private readonly generalBinThreadWand CloseBinFileMammet = new generalBinThreadWand(() =>
-        {
-            CloseBinFile();
-        });
-
-
-
-
-
-
-
-
-
-
-        //#
-        //## Mammet Shorthand Functions
-        //#
-        #region [Mammet Shorthand Functions]
-
-        public static void ReloadCloseButtonsMammet(bool enabled)
-        {
-            Venat?.Invoke(Venat.reloadCloseButtonsMammet, new object[] { enabled });
-        }
-
-        public static void PropertiesPanelMammet(object dcFileName, DCFileHeader dcEntries)
-        {
-            Venat?.Invoke(Panels?.propertiesPanelMammet, new object[] { dcFileName, dcEntries });
-        }
-
-
-        /// <summary>
-        /// Update the yellow status/info label from a different thread through the statusLabelMammet
-        /// </summary>
-        /// <param name="details">
-        /// A string[3] containing the details for the status label.
-        /// <br/> 
-        /// </param>
-        public static void StatusLabelMammet(string[] details)
-        {
-            Venat?.Invoke(Venat.statusLabelMammet, new object[] { details });
-        }
-
-
-        /// <summary>
-        /// Update the yellow status/info label from a different thread through the statusLabelMammet
-        /// </summary>
-        /// <param name="details">
-        /// A string[3] containing the details for the slection label.
-        /// <br/> 
-        public static void SelectionLabelMammet(string[] details)
-        {
-            Venat?.Invoke(Venat.selectionLabelMammet, new[] { details });
-        }
-        #endregion [mammet shorthand functions]
         #endregion
     }
 }

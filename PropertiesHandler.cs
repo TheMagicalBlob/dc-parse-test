@@ -22,16 +22,16 @@ namespace NaughtyDogDCReader
         public PropertiesHandler()
         {
             GroupBoxContentsOffset = 7;
-            DefaultPropertyButtonHeight = 23;
-            DefaultPropertyEditorRowHeight = 23;
+            DefaultPropertiesPanelButtonHeight = 23;
+            DefaultPropertiesEditorRowHeight = 23;
 
             Changes = new List<object[]>();
 
 
-            propertiesPanelMammet = PopulatePropertiesPanelWithStructItems;
+            populatePropertiesPanel = PopulatePropertiesPanelWithStructItems;
 
             // Newline
-            propertiesWindowNewLineMammet = (message, _) =>
+            propertiesWindowNewLineMammet = (message) =>
             {
                 PropertiesWindow.AppendLine(message, false);
                 PropertiesWindow.Update();
@@ -45,7 +45,7 @@ namespace NaughtyDogDCReader
             };
 
             // Default W/ Indent
-            propertiesWindowMammet = (message, _) =>
+            propertiesWindowMammet = (message) =>
             {
                 if (message[0] != '\n')
                 {
@@ -55,9 +55,10 @@ namespace NaughtyDogDCReader
                 PropertiesWindow.AppendLine(message.Replace("\n", "\n" + Indentation));
                 PropertiesWindow.Update();
             };
+
+            spawnVariableEditorBox = SpawnVariableEditorBox;
+            displayStructContents = DisplayStructContents;
         }
-
-
 
 
 
@@ -71,10 +72,16 @@ namespace NaughtyDogDCReader
         //#
         //## Properties Panels Functionality Variables
         //#
+
+        /// <summary>
+        /// 
+        /// </summary>
         private Button[] HeaderItemButtons;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private List<Button> SubItemButtons;
-
 
 
         /// <summary>
@@ -119,16 +126,18 @@ namespace NaughtyDogDCReader
         private Button _subItemSelection;
 
 
+
+
         /// <summary>
         /// The (vertical) scroll bar used to navigate the buttons populating the PropertiesPanel when they bleed passed the bottom of the group box
         /// </summary>
         private ScrollBar PropertiesPanelScrollBar;
 
-
         /// <summary>
         /// The (vertical) scroll bar used to navigate the rows populating the PropertiesEditor when they bleed passed the bottom of the group box
         /// </summary>
         private ScrollBar PropertiesEditorScrollBar;
+
 
 
 
@@ -139,43 +148,22 @@ namespace NaughtyDogDCReader
             set => Indentation = new string(' ', value > 0 ? value * 4 : 0);
         }
 
-
         private string Indentation = emptyStr;
 
-
-
-
-        private readonly Type[] WholeNumericalTypes = new[]
-        {
-            typeof(int),
-            typeof(uint),
-            typeof(long),
-            typeof(ulong),
-            typeof(byte),
-            typeof(sbyte),
-        };
-
-
-        private readonly Type[] AdvancedNumericalTypes = new[]
-        {
-            typeof(decimal),
-            typeof(double),
-            typeof(float),
-        };
 
 
 
         /// <summary>
         /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
         /// </summary>
-        private readonly int DefaultPropertyButtonHeight;
+        private readonly int DefaultPropertiesPanelButtonHeight;
 
         
 
         /// <summary>
         /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
         /// </summary>
-        private readonly int DefaultPropertyEditorRowHeight;
+        private readonly int DefaultPropertiesEditorRowHeight;
 
 
         /// <summary>
@@ -191,17 +179,23 @@ namespace NaughtyDogDCReader
         //#
 
         /// <summary> //! </summary>
-        public delegate void PropertiesWindowOutputWand(string msg, int line);
+        public delegate void PropertiesWindowOutputWand(string msg);
+        public delegate void PropertiesWindowOutputWandSpecificLine(string msg, int line);
 
         /// <summary> //! </summary>
-        public delegate void PropertiesPanelWand(string dcFileName, DCFileHeader dcEntries);
+        public delegate void PropertiesPanelPopulation(string dcFileName, DCFileHeader dcEntries);
+        public delegate void PropertiesPanelInteractionWand(object property);
 
 
-        private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
-        private readonly PropertiesWindowOutputWand propertiesWindowSpecificLineMammet;
         private readonly PropertiesWindowOutputWand propertiesWindowMammet;
+        private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
+        private readonly PropertiesWindowOutputWandSpecificLine propertiesWindowSpecificLineMammet;
 
-        public PropertiesPanelWand propertiesPanelMammet;
+
+        public readonly PropertiesPanelPopulation populatePropertiesPanel;
+
+        public PropertiesPanelInteractionWand spawnVariableEditorBox;
+        public PropertiesPanelInteractionWand displayStructContents;
         #endregion
 
 
@@ -333,30 +327,6 @@ namespace NaughtyDogDCReader
         }
 
 
-
-        /// <summary>
-        /// Reset all instance members in the current PropertiesHandler (clear all added controls, reset static ones to default states, clear variables)
-        /// </summary>
-        public void Reset()
-        {
-            PropertiesWindow.Clear();
-            PropertiesPanel.Controls.Clear();
-            PropertiesEditor.Controls.Clear();
-
-            HeaderItemButtons = null;
-            SubItemButtons = null;
-            HeaderSelection = null;
-            SubItemSelection = null;
-
-            Venat.Controls.Remove(PropertiesPanelScrollBar);
-            PropertiesPanelScrollBar = null;
-
-            Venat.Controls.Remove(PropertiesEditorScrollBar);
-            PropertiesEditorScrollBar = null;
-
-
-            IndentationDepth = 0;
-        }
 
 
 
@@ -669,7 +639,7 @@ namespace NaughtyDogDCReader
                 ForeColor = Color.White,
 
                 FlatStyle = 0,
-                Height = DefaultPropertyButtonHeight
+                Height = DefaultPropertiesPanelButtonHeight
             };
 
             // Assign basic form functionality event handlers
@@ -699,7 +669,10 @@ namespace NaughtyDogDCReader
 
             HeaderItemButtons = new Button[dcEntries.Length];
 
-            var cumulativeButtonHeight = DefaultPropertyButtonHeight * dcEntries.Length;
+            
+            //-## Check whether or not the ScrollBar needs to be added 
+            var cumulativeButtonHeight = DefaultPropertiesPanelButtonHeight * dcEntries.Length;
+
             if (cumulativeButtonHeight >= PropertiesPanel.Height - GroupBoxContentsOffset) // minus 7 to half-assedly account for the stupid top border of the group box.
             {
                 if (PropertiesPanelScrollBar == null)
@@ -709,13 +682,13 @@ namespace NaughtyDogDCReader
                         Name = "PropertiesPanelScrollBar",
                         Height = PropertiesPanel.Height - GroupBoxContentsOffset,
                         Width = 20, // Default width's a bit fat
-                        Maximum = cumulativeButtonHeight - (PropertiesPanel.Height - DefaultPropertyButtonHeight) - GroupBoxContentsOffset,
-                        SmallChange = DefaultPropertyButtonHeight
-                        //LargeChange = DefaultPropertyButtonHeight * 4, // Not sure which context this one's even used in, honestly
+                        Maximum = cumulativeButtonHeight - (PropertiesPanel.Height - DefaultPropertiesPanelButtonHeight) - GroupBoxContentsOffset,
+                        SmallChange = DefaultPropertiesPanelButtonHeight
+                        //LargeChange = DefaultPropertyButtonHeight * 4, // Not sure which context the LargeChange is even used in, honestly
                     };
 
                     PropertiesPanelScrollBar.Location = new Point((PropertiesPanel.Location.X + PropertiesPanel.Width) - (PropertiesPanelScrollBar.Width + 1), PropertiesPanel.Location.Y + GroupBoxContentsOffset);
-                    PropertiesPanelScrollBar.Scroll += ScrollPropertyPanelButtons;
+                    PropertiesPanelScrollBar.Scroll += ScrollPropertiesPanelButtons;
 
                     Venat.Controls.Add(PropertiesPanelScrollBar);
 
@@ -776,60 +749,13 @@ namespace NaughtyDogDCReader
         /// <param name="dcArrayObj"></param>
         private void PopulatePropertiesPanelWithArrayItems(string dcArrayName, object dcArrayObj)
         {
-            //! Finish this copy-pasted code
             MessageBox.Show("WRONG FUNCTION CALLED, DUMBASS");
-            return;
-
-            Button currentButton;
-            var dcEntries = (dynamic[])((dynamic)dcArrayObj).Entries;
-            var dcLen = dcEntries.Length;
-
-            HeaderItemButtons = new Button[dcEntries.Length];
-
-
-            for (var i = 0; i < dcLen; ++i)
-            {
-                var dcEntry = dcEntries[i];
-                PropertiesPanel.Controls.Add(currentButton = NewPropertiesPanelButton());
-                currentButton.Location = new Point(1, 7 + (currentButton.Height * i));
-
-
-                // Apply header item name as button text
-                currentButton.Text = dcEntry.Name.DecodedID;
-
-                // Apply header item type name as button name
-                currentButton.Name = dcEntry.Type.DecodedID;
-
-
-                // Style the control
-                currentButton.FlatAppearance.BorderSize = 0;
-                currentButton.Width = currentButton.Parent.Width - 2;
-
-
-                // Save the index of the header item tied to the control via the button's Tag property
-                currentButton.Tag = i;
-
-
-                // Apply event handlers to the control
-                //currentButton.Click += (button, _) => HighlightHeaderButton(button as Button);
-                currentButton.GotFocus += (button, _) => HighlightHeaderButton(button as Button);
-
-                currentButton.PreviewKeyDown += LoadArrayContentsIntoPropertiesWindow;
-                currentButton.DoubleClick += LoadHeaderItemContentsOnEnterIfUnloaded;
-
-                HeaderItemButtons[i] = currentButton;
-            }
-
-            // Adjust the tab indexes of buttons intended to be after the property buttons
-            Venat.OptionsMenuDropdownBtn.TabIndex += dcLen;
-            Venat.MinimizeBtn.TabIndex += dcLen;
-            Venat.ExitBtn.TabIndex += dcLen;
         }
 
 
-        public void ScrollPropertyPanelButtons(object _, ScrollEventArgs offset)
+        public void ScrollPropertiesPanelButtons(object _, ScrollEventArgs offset)
         {
-            foreach (Control button in PropertiesPanel.Controls)
+            foreach (Button button in PropertiesPanel.Controls)
             {
                 button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
             }
@@ -854,7 +780,7 @@ namespace NaughtyDogDCReader
             }
 
 
-            ScrollPropertyPanelButtons(null, new ScrollEventArgs((ScrollEventType) scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
+            ScrollPropertiesPanelButtons(null, new ScrollEventArgs((ScrollEventType) scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
             PropertiesPanel.Update();
         }
 
@@ -870,26 +796,36 @@ namespace NaughtyDogDCReader
         //## PropertiesEditor-related function declarations
         //#
 
-        private void PopulatePropertiesEditorWithStructItems(object dcStruct)
+        private void PopulatePropertiesEditorWithStructItems(object DCStruct)
         {
-            var totalHeight = 8; // Start with 8 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
+            var totalHeight = GroupBoxContentsOffset + 1; // Start with 8 (assuming GroupBoxContentsOffset's still 7) to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
 
-            var type = dcStruct.GetType();
+            var type = DCStruct.GetType();
             object[][] properties;
+
             PropertiesEditor.Controls.Clear();
 
 
-            if (type == typeof(Map))
+            if (type == typeof(map))
             {
-                properties = ((Map) dcStruct).Items.Select(item => new object [] { ((SID) ((dynamic) item[1]).Name).DecodedID, item[1] }).ToArray();
+                var dcSruct = (map) DCStruct;
+                properties = new object[dcSruct.Length][];
+
+                for (var i = 0; i < dcSruct.Length; i++)
+                {
+                    properties[i] = new object[] { dcSruct.StructNames[i].DecodedID, dcSruct.Structs[i], displayStructContents };
+                }
             }
             else {
-                properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(dcStruct) }).ToArray();
+                properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(DCStruct), new[] { WholeNumericalTypes, AdvancedNumericalTypes }.Any(datatypes => datatypes.Contains(property.GetType())) ? spawnVariableEditorBox : displayStructContents}).ToArray();
             }
 
             
 
-            var cumulativeButtonHeight = DefaultPropertyEditorRowHeight * properties.Length;
+
+            //-## Check whether or not the ScrollBar needs to be added 
+            var cumulativeButtonHeight = DefaultPropertiesEditorRowHeight * properties.Length;
+
             if (cumulativeButtonHeight >= PropertiesEditor.Height - GroupBoxContentsOffset) // minus ~7 to half-assedly account for the stupid top border of the group box.
             {
                 if (PropertiesEditorScrollBar == null)
@@ -899,9 +835,9 @@ namespace NaughtyDogDCReader
                         Name = "PropertiesEditorScrollBar",
                         Height = PropertiesEditor.Height - GroupBoxContentsOffset,
                         Width = 20, // Default width's a bit fat
-                        Maximum = cumulativeButtonHeight - (PropertiesEditor.Height - DefaultPropertyEditorRowHeight) - GroupBoxContentsOffset,
-                        SmallChange = DefaultPropertyEditorRowHeight
-                        //LargeChange = DefaultPropertyEditorRowHeight * 4, // Not sure which context this one's even used in, honestly
+                        Maximum = cumulativeButtonHeight - (PropertiesEditor.Height - DefaultPropertiesEditorRowHeight) - GroupBoxContentsOffset,
+                        SmallChange = DefaultPropertiesEditorRowHeight
+                        //LargeChange = DefaultPropertyEditorRowHeight * 4, // Not sure which context the LargeChange is even used in, honestly
                     };
 
                     PropertiesEditorScrollBar.Location = new Point((PropertiesEditor.Location.X + PropertiesEditor.Width) - PropertiesEditorScrollBar.Width, PropertiesEditor.Location.Y + GroupBoxContentsOffset);
@@ -916,7 +852,7 @@ namespace NaughtyDogDCReader
 
             foreach (var property in properties)
             {
-                var newRow = NewPropertiesEditorRow(property[0], property[1]);
+                var newRow = NewPropertiesEditorRow(property[0], property[1], (PropertiesPanelInteractionWand) property[2]);
                     
                 PropertiesEditor.Controls.Add(newRow[0]);
                 newRow[0].Location = new Point(2, totalHeight);
@@ -932,7 +868,7 @@ namespace NaughtyDogDCReader
         
         private void PopulatePropertiesEditorWithArrayItems(string ArrayName, object ArrayStruct)
         {
-            UpdateSelectionLabel(new[] { null, null, ArrayName });
+            UpdateSelectionLabel(new string[] { null, null, ArrayName });
 
             int dcLen = ((dynamic) ArrayStruct).Entries.Length;
 
@@ -945,54 +881,52 @@ namespace NaughtyDogDCReader
 
         
 
-        private Control[] NewPropertiesEditorRow(object propertyName, object propertyValue)
+        private Control[] NewPropertiesEditorRow(object propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
         {
-            var nameBox = new TextBox()
+            var nameBtn = new Button()
             {
                 Font = TextFont,
                 BackColor = AppColourLight,
                 ForeColor = Color.White,
                 Padding = Padding.Empty,
-                
-                Height = DefaultPropertyEditorRowHeight,
+                FlatStyle = FlatStyle.Flat,
+
+                Height = DefaultPropertiesEditorRowHeight,
                 Width = ((PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0)) / 3) - 2,
-              
+
                 Text = propertyName as string
             };
 
             // Assign basic form functionality event handlers
-            nameBox.MouseDown += MouseDownFunc;
-            nameBox.MouseUp += MouseUpFunc;
-            nameBox.Click += (_, __) =>
-            {
+            nameBtn.MouseDown += MouseDownFunc;
+            nameBtn.MouseUp += MouseUpFunc;
 
-            };
-
-
-
-
-            var valueBox = new TextBox()
+                
+            var valueBtn = new Button()
             {
                 Font = TextFont,
                 BackColor = AppColourLight,
                 ForeColor = Color.White,
                 Padding = Padding.Empty,
+                FlatStyle = FlatStyle.Flat,
 
-                Height = DefaultPropertyEditorRowHeight,
-                Width = (PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0)) - nameBox.Width - 2,
+                Height = DefaultPropertiesEditorRowHeight,
+                Width = (PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0)) - nameBtn.Width - 2,
 
                 Text = FormatPropertyValueAsString(propertyName as string, propertyValue, 0)
             };
 
             // Assign basic form functionality event handlers
-            valueBox.MouseDown += MouseDownFunc;
-            valueBox.MouseUp += MouseUpFunc;
+            valueBtn.MouseDown += MouseDownFunc;
+            valueBtn.MouseUp += MouseUpFunc;
+
+            valueBtn.Click += (_, __) => propertyEvent(propertyValue);
 
 
 
-            return new Control [] { nameBox, valueBox };
+            return new Control[] { nameBtn, valueBtn };
         }
-        
+
         public void ScrollPropertyEditorRows(object _, ScrollEventArgs offset)
         {
             foreach (Control button in PropertiesEditor.Controls)
@@ -1013,6 +947,51 @@ namespace NaughtyDogDCReader
         }
 
 
+
+
+
+
+        //#
+        //## Other Miscellaneous Function Declarations
+        //#
+        #region [Other Miscellaneous Function Declarations]
+        
+        private void SpawnVariableEditorBox(object property)
+        {
+
+        }
+
+        private void DisplayStructContents(object property)
+        {
+
+        }
+
+
+
+        /// <summary>
+        /// Reset all instance members in the current PropertiesHandler (clear all added controls, reset static ones to default states, clear variables)
+        /// </summary>
+        public void Reset()
+        {
+            PropertiesWindow.Clear();
+            PropertiesPanel.Controls.Clear();
+            PropertiesEditor.Controls.Clear();
+
+            HeaderItemButtons = null;
+            SubItemButtons = null;
+            HeaderSelection = null;
+            SubItemSelection = null;
+
+            Venat.Controls.Remove(PropertiesPanelScrollBar);
+            PropertiesPanelScrollBar = null;
+
+            Venat.Controls.Remove(PropertiesEditorScrollBar);
+            PropertiesEditorScrollBar = null;
+
+
+            IndentationDepth = 0;
+        }
         #endregion
+        #endregion (function declarations)
     }
 }
