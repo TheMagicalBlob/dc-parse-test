@@ -23,6 +23,108 @@ namespace NaughtyDogDCReader
 
 
 
+        
+
+
+
+
+
+
+
+        //==================================\\
+        //--|   Function Delcarations   |---\\
+        //==================================\\
+        #region [Function Delcarations]
+        #pragma warning disable IDE1006
+        private void main(string DCFilePath)
+        {
+            InitializeComponent();
+            InitializeAdditionalEventHandlers_Main(this);
+
+            VersionLabel.Text += Version;
+            logWindow.Clear();
+            propertiesWindow.Clear();
+
+            var controls = this.Controls.Cast<Control>().ToArray();
+            for (var i = 0; i < controls.Length; ++i)
+            {
+                controls[i].TabIndex = 0;
+                controls[i].TabStop = false;
+            }
+
+
+            // Set global object refs used in various static functions (maybe change that...)
+            Refresh();
+            Venat = this;
+            Azem = new OptionsPage();
+            Panels = new PropertyHandlers();
+            Bingus = new DebugPanel();
+
+
+            PropertiesPanel = propertiesPanel;
+            PropertiesWindow = propertiesWindow;
+            PropertiesEditor = propertiesEditor;
+
+            ScriptStatusLabel = scriptStatusLabel;
+            ScriptSelectionLabel = scriptSelectionLabel;
+            Update();
+
+
+
+            // Check various expected paths for the required sidbase.bin file
+            var workingDirectory = Directory.GetCurrentDirectory();
+            if (!new[]
+            {
+                $@"{workingDirectory}\sidbase.bin",
+                $@"{workingDirectory}\sid\sidbase.bin",
+                $@"{workingDirectory}\sid1\sidbase.bin",
+                $@"{workingDirectory}\..\sidbase.bin"
+            }
+            .Any(path =>
+            {
+                if (File.Exists(path))
+                {
+                    SIDBase.LoadSIDBase(path);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }))
+            // Bitch if it isn't found so the user knows to load one manually
+            {
+                echo($"No valid sidbase.bin file was found in/around \"{workingDirectory}\".");
+                UpdateStatusLabel(new[] { "WARNING: No sidbase.bin found; please provide one to decode hashed strings." });
+            }
+
+
+            BaseAbortButtonWidth = CloseBtn.Size.Width;
+
+
+
+            // Immediately load the provided script if the tool was started with the path one as the first argument
+            if (DCFilePath != null)
+            {
+                void DelayedDCFileLoad(object _, PaintEventArgs __)
+                {
+                    Paint -= DelayedDCFileLoad;
+
+                    Update();
+                    LoadBinFile(DCFilePath);
+                }
+
+                Paint += DelayedDCFileLoad;
+            }
+        }
+        #pragma warning restore IDE1006
+
+        #endregion (function declarations)
+
+
+
+
+
 
 
 
@@ -113,7 +215,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         private void FormKeyboardInputHandler(string sender, Keys arg, bool ctrl, bool shift)
         {
-            echo($"Input [{arg}] Recieved by Control [{sender}]");
+            echo($"Input [{arg}] Received by Control [{sender}]");
 
             /*
             switch (arg)
@@ -141,7 +243,7 @@ namespace NaughtyDogDCReader
 
                 #if DEBUG
                 default:
-                    echo($"Misc Input Recieved: [{arg}]");
+                    echo($"Misc Input Received: [{arg}]");
                 break;
                 #endif
             }
@@ -176,95 +278,5 @@ namespace NaughtyDogDCReader
             */
         }
         #endregion
-
-
-
-
-
-
-
-        //==================================\\
-        //--|   Function Delcarations   |---\\
-        //==================================\\
-        #region [Function Delcarations]
-        #pragma warning disable IDE1006
-        private void main(string DCFilePath)
-        {
-            InitializeComponent();
-            InitializeAdditionalEventHandlers_Main(this);
-
-            VersionLabel.Text += Version;
-            logWindow.Clear();
-            propertiesWindow.Clear();
-
-
-
-            // Set global object refs used in various static functions (maybe change that...)
-            Refresh();
-            Venat = this;
-            Azem = new OptionsPage();
-            Panels = new PropertiesHandler();
-            Bingus = new DebugPanel();
-
-
-            PropertiesPanel = propertiesPanel;
-            PropertiesWindow = propertiesWindow;
-            PropertiesEditor = propertiesEditor;
-
-            ScriptStatusLabel = scriptStatusLabel;
-            ScriptSelectionLabel = scriptSelectionLabel;
-            Update();
-
-
-
-            // Check various expected paths for the required sidbase.bin file
-            var workingDirectory = Directory.GetCurrentDirectory();
-            if (!new[]
-            {
-                $@"{workingDirectory}\sidbase.bin",
-                $@"{workingDirectory}\sid\sidbase.bin",
-                $@"{workingDirectory}\sid1\sidbase.bin",
-                $@"{workingDirectory}\..\sidbase.bin"
-            }
-            .Any(path =>
-            {
-                if (File.Exists(path))
-                {
-                    SIDBase.LoadSIDBase(path);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }))
-            // Bitch if it isn't found so the user knows to load one manually
-            {
-                echo($"No valid sidbase.bin file was found in/around \"{workingDirectory}\".");
-                UpdateStatusLabel(new[] { "WARNING: No sidbase.bin found; please provide one before loading a DC file." });
-            }
-
-
-            BaseAbortButtonWidth = CloseBtn.Size.Width;
-
-
-
-            // Immediately load the provided script if the tool was started with the path one as the first argument
-            if (DCFilePath != null)
-            {
-                void DelayedDCFileLoad(object _, PaintEventArgs __)
-                {
-                    Paint -= DelayedDCFileLoad;
-
-                    Update();
-                    LoadBinFile(DCFilePath);
-                }
-
-                Paint += DelayedDCFileLoad;
-            }
-        }
-        #pragma warning restore IDE1006
-
-        #endregion (function declarations)
     }
 }

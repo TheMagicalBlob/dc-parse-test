@@ -235,26 +235,23 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// 
         /// </summary>
-        public struct SymbolArrayDef
+        public struct symbol_array
         {
-            public SymbolArrayDef(byte[] binFile, long Address, SID Name)
+            public symbol_array(byte[] binFile, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
 
-                Symbols = new List<string>();
-                Hashes = new List<long>();
-
-
                 var arrayLen = BitConverter.ToInt64(GetSubArray(binFile, (int)Address), 0);
                 var arrayAddr = BitConverter.ToInt64(GetSubArray(binFile, (int)Address + 8), 0);
+
+                Symbols = new SID[arrayLen];
 
                 for (var i = 0; i < arrayLen; arrayAddr += 8, i++)
                 {
                     var dat = GetSubArray(binFile, (int)arrayAddr);
 
-                    Hashes.Add(BitConverter.ToInt64(dat, 0));
-                    Symbols.Add(SIDBase.DecodeSIDHash(dat));
+                    Symbols[i] = SID.Parse(dat);
                 }
             }
 
@@ -262,8 +259,7 @@ namespace NaughtyDogDCReader
             public SID Name;
             public long Address;
 
-            public List<string> Symbols { get; set; }
-            public List<long> Hashes { get; set; }
+            public SID[] Symbols { get; set; }
         }
 
 

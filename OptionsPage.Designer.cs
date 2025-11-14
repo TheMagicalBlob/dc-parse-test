@@ -41,6 +41,7 @@ namespace NaughtyDogDCReader
             this.SidbasePathTextBox = new NaughtyDogDCReader.TextBox();
             this.DCFilePathTextBox = new NaughtyDogDCReader.TextBox();
             this.SeperatorLine0 = new NaughtyDogDCReader.Label();
+            this.label1 = new NaughtyDogDCReader.Label();
             this.SuspendLayout();
             // 
             // Title
@@ -75,7 +76,7 @@ namespace NaughtyDogDCReader
             this.ShowUnresolvedSIDsCheckBox.AutoSize = true;
             this.ShowUnresolvedSIDsCheckBox.Font = new System.Drawing.Font("Gadugi", 9.25F);
             this.ShowUnresolvedSIDsCheckBox.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.ShowUnresolvedSIDsCheckBox.Location = new System.Drawing.Point(10, 30);
+            this.ShowUnresolvedSIDsCheckBox.Location = new System.Drawing.Point(8, 32);
             this.ShowUnresolvedSIDsCheckBox.Name = "ShowUnresolvedSIDsCheckBox";
             this.ShowUnresolvedSIDsCheckBox.Size = new System.Drawing.Size(156, 20);
             this.ShowUnresolvedSIDsCheckBox.TabIndex = 12;
@@ -100,7 +101,7 @@ namespace NaughtyDogDCReader
             this.SeperatorLine1.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.SeperatorLine1.IsSeparatorLine = true;
-            this.SeperatorLine1.Location = new System.Drawing.Point(3, 120);
+            this.SeperatorLine1.Location = new System.Drawing.Point(3, 227);
             this.SeperatorLine1.Name = "SeperatorLine1";
             this.SeperatorLine1.Size = new System.Drawing.Size(411, 17);
             this.SeperatorLine1.StretchToFitForm = true;
@@ -114,7 +115,7 @@ namespace NaughtyDogDCReader
             this.DownloadSourceBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.DownloadSourceBtn.Font = new System.Drawing.Font("Gadugi", 7F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))));
             this.DownloadSourceBtn.ForeColor = System.Drawing.SystemColors.Window;
-            this.DownloadSourceBtn.Location = new System.Drawing.Point(291, 179);
+            this.DownloadSourceBtn.Location = new System.Drawing.Point(291, 291);
             this.DownloadSourceBtn.Name = "DownloadSourceBtn";
             this.DownloadSourceBtn.Size = new System.Drawing.Size(120, 22);
             this.DownloadSourceBtn.TabIndex = 15;
@@ -128,7 +129,7 @@ namespace NaughtyDogDCReader
             this.Title2.Font = new System.Drawing.Font("Gadugi", 8F, System.Drawing.FontStyle.Bold);
             this.Title2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.Title2.IsSeparatorLine = false;
-            this.Title2.Location = new System.Drawing.Point(183, 137);
+            this.Title2.Location = new System.Drawing.Point(183, 249);
             this.Title2.Name = "Title2";
             this.Title2.Size = new System.Drawing.Size(43, 14);
             this.Title2.StretchToFitForm = false;
@@ -141,7 +142,7 @@ namespace NaughtyDogDCReader
             this.CreditsLabel.Font = new System.Drawing.Font("Gadugi", 7.5F, System.Drawing.FontStyle.Bold);
             this.CreditsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.CreditsLabel.IsSeparatorLine = false;
-            this.CreditsLabel.Location = new System.Drawing.Point(8, 158);
+            this.CreditsLabel.Location = new System.Drawing.Point(8, 270);
             this.CreditsLabel.Name = "CreditsLabel";
             this.CreditsLabel.Size = new System.Drawing.Size(277, 75);
             this.CreditsLabel.StretchToFitForm = false;
@@ -153,7 +154,7 @@ namespace NaughtyDogDCReader
             this.SidbasePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.SidbasePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
             this.SidbasePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.SidbasePathTextBox.Location = new System.Drawing.Point(6, 71);
+            this.SidbasePathTextBox.Location = new System.Drawing.Point(6, 180);
             this.SidbasePathTextBox.Name = "SidbasePathTextBox";
             this.SidbasePathTextBox.ReadOnly = true;
             this.SidbasePathTextBox.Size = new System.Drawing.Size(403, 24);
@@ -166,7 +167,7 @@ namespace NaughtyDogDCReader
             this.DCFilePathTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.DCFilePathTextBox.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Italic);
             this.DCFilePathTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.DCFilePathTextBox.Location = new System.Drawing.Point(6, 95);
+            this.DCFilePathTextBox.Location = new System.Drawing.Point(6, 204);
             this.DCFilePathTextBox.Name = "DCFilePathTextBox";
             this.DCFilePathTextBox.ReadOnly = true;
             this.DCFilePathTextBox.Size = new System.Drawing.Size(403, 24);
@@ -179,7 +180,7 @@ namespace NaughtyDogDCReader
             this.SeperatorLine0.Font = new System.Drawing.Font("Cambria", 8F);
             this.SeperatorLine0.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.SeperatorLine0.IsSeparatorLine = true;
-            this.SeperatorLine0.Location = new System.Drawing.Point(2, 52);
+            this.SeperatorLine0.Location = new System.Drawing.Point(2, 166);
             this.SeperatorLine0.Name = "SeperatorLine0";
             this.SeperatorLine0.Size = new System.Drawing.Size(411, 17);
             this.SeperatorLine0.StretchToFitForm = true;
@@ -187,23 +188,37 @@ namespace NaughtyDogDCReader
             this.SeperatorLine0.Text = "---------------------------------------------------------------------------------" +
     "";
             // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Cambria", 8F);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
+            this.label1.IsSeparatorLine = true;
+            this.label1.Location = new System.Drawing.Point(2, 19);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(411, 17);
+            this.label1.StretchToFitForm = true;
+            this.label1.TabIndex = 21;
+            this.label1.Text = "---------------------------------------------------------------------------------" +
+    "";
+            // 
             // OptionsPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
-            this.ClientSize = new System.Drawing.Size(415, 237);
-            this.Controls.Add(this.SeperatorLine0);
-            this.Controls.Add(this.DCFilePathTextBox);
-            this.Controls.Add(this.SidbasePathTextBox);
-            this.Controls.Add(this.CreditsLabel);
-            this.Controls.Add(this.Title2);
-            this.Controls.Add(this.DownloadSourceBtn);
-            this.Controls.Add(this.SeperatorLine1);
-            this.Controls.Add(this.dummy);
+            this.ClientSize = new System.Drawing.Size(415, 350);
             this.Controls.Add(this.ShowUnresolvedSIDsCheckBox);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.Title);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.DCFilePathTextBox);
+            this.Controls.Add(this.SidbasePathTextBox);
+            this.Controls.Add(this.SeperatorLine1);
+            this.Controls.Add(this.SeperatorLine0);
+            this.Controls.Add(this.CreditsLabel);
+            this.Controls.Add(this.Title2);
+            this.Controls.Add(this.DownloadSourceBtn);
+            this.Controls.Add(this.dummy);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "OptionsPage";
@@ -235,5 +250,6 @@ namespace NaughtyDogDCReader
         #endregion
 
         private Label SeperatorLine0;
+        private Label label1;
     }
 }

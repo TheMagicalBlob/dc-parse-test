@@ -15,13 +15,16 @@ namespace NaughtyDogDCReader
         public OptionsPage()
         {
             InitializeComponent();
-            InitializeAdditionalEventHandlers_OptionsPage(this); // Set Event Handlers and Other Form-Related Crap
+            InitializeAdditionalEventHandlers(this, CloseBtn, new SubformExitFunction((_, __) => { SaveOptions(); Visible = false; }), ref HSeparatorLines, ref VSeparatorLines); // Set Event Handlers and Other Form-Related Crap
 
             LoadOptions();
         }
 
 
-
+        
+        //=================================\\
+        //--|   Variable Declarations   |--\\
+        //=================================\\
         #region [Variable Declarations]
 
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
@@ -29,7 +32,6 @@ namespace NaughtyDogDCReader
 
         /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
         public Point[][] VSeparatorLines;
-
         #endregion (variable declarations)
 
 
@@ -185,100 +187,11 @@ namespace NaughtyDogDCReader
         //=====================================\\
         #region [Options-Related Functions]
 
-        /// <summary>
-        /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
-        /// </summary>
-        public void InitializeAdditionalEventHandlers_OptionsPage(Form azem)
-        {
-            var controls = azem.Controls.Cast<Control>().ToArray();
-
-            var hSeparatorLineScanner = new List<Point[]>();
-            var vSeparatorLineScanner = new List<Point[]>();
-
-
-            // Apply the seperator drawing function to any seperator lines
-            foreach (var line in azem.Controls.OfType<NaughtyDogDCReader.Label>())
-            {
-                if (line.IsSeparatorLine)
-                {
-                    // Horizontal Lines
-                    hSeparatorLineScanner.Add(new Point[2] {
-                        new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-                        new Point(((NaughtyDogDCReader.Label)line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
-                    });
-
-                    Controls.Remove(line);
-                }
-            }
-
-            if (hSeparatorLineScanner.Count > 0)
-            {
-                HSeparatorLines = hSeparatorLineScanner.ToArray();
-            }
-            if (vSeparatorLineScanner.Count > 0)
-            {
-                VSeparatorLines = vSeparatorLineScanner.ToArray();
-            }
-
-
-            Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
-
-
-
-
-
-            // Anonomously Create and Set CloseBtn Event Handler
-            CloseBtn.Click += new EventHandler((sender, e) =>
-            {
-                // Hide OptionsPage Form
-                Azem.Visible = false;
-                SaveOptions();
-            });
-
-
-            // Set Event Handlers for Form Dragging
-            MouseDown += new MouseEventHandler((sender, e) =>
-            {
-                MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                MouseIsDown = true;
-
-                //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
-
-            });
-            MouseUp += new MouseEventHandler((sender, e) =>
-                MouseIsDown = false
-            );
-            MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
-
-            foreach (Control item in Controls)
-            {
-                item.MouseDown += new MouseEventHandler((sender, e) =>
-                {
-                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                    MouseIsDown = true;
-
-                    //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
-                });
-                item.MouseUp += new MouseEventHandler((sender, e) =>
-                    MouseIsDown = false
-                );
-
-                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
-                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
-                {
-                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-                }
-            }
-
-            //Paint += (azem, yoshiP) => DrawFormDecorations(((Form)azem), yoshiP);
-        }
-
 
         /// <summary>
         /// Mirror Any Non-Default Options to local dc.blb file.
         /// </summary>
-        public void SaveOptions()
+        private void SaveOptions()
         {
             using (var settings = File.Open($"{Directory.GetCurrentDirectory()}\\dc.blb", FileMode.OpenOrCreate, FileAccess.Write))
             {

@@ -68,6 +68,25 @@ namespace NaughtyDogDCReader
 
 
 
+
+        /// <summary>
+        /// The absolute path to the provided DC file.
+        /// </summary>
+        public static string ActiveFilePath
+        {
+            get => _activeFilePath;
+
+            set {
+                _activeFilePath = value;
+
+                ActiveFileName = ActiveFilePath.Substring(ActiveFilePath.LastIndexOf('\\') + 1);
+            }
+        }
+        private static string _activeFilePath = "No Script Selected";
+
+
+        
+
         /// <summary>
         /// The name of the provided DC file.
         /// </summary>
@@ -79,18 +98,11 @@ namespace NaughtyDogDCReader
             {
                 _activeFileName = value ?? "null";
 
-                UpdateSelectionLabel(new[] { ActiveFileName, null, null });
+                UpdateStatusLabel(new[] { "Viewing Script " + ActiveFileName, null, null });
             }
         }
         private static string _activeFileName = "No Script Selected";
 
-
-
-
-        /// <summary>
-        /// The absolute path to the provided DC file.
-        /// </summary>
-        public static string ActiveFilePath = "No Script Selected";
 
 
 
@@ -220,7 +232,7 @@ namespace NaughtyDogDCReader
         public static GroupBox PropertiesPanel;
 
         /// <summary> StructBSIdkNameItLater Class Pointer/Reference. </summary>
-        public static PropertiesHandler Panels;
+        public static PropertyHandlers Panels;
 
         /// <summary> Log Window Pointer/Reference.  </summary>
         public static RichTextBox LogWindow;
@@ -241,6 +253,8 @@ namespace NaughtyDogDCReader
         /// </summary>
         public static List<object[]> Changes;
 
+
+        public delegate void SubformExitFunction(object _, EventArgs __);
         #endregion
         #endregion
 
@@ -260,6 +274,87 @@ namespace NaughtyDogDCReader
         //## Form Functionality Functions
         //#
         #region [Form Functionality Functions]
+
+        /// <summary>
+        /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
+        /// </summary>
+        public static void InitializeAdditionalEventHandlers(Form parent, Button CloseBtn, SubformExitFunction ExitFunction, ref Point[][] HSeparatorLines, ref Point[][] VSeparatorLines)
+        {
+            var controls = parent.Controls.Cast<Control>().ToArray();
+
+            var hSeparatorLineScanner = new List<Point[]>();
+            var vSeparatorLineScanner = new List<Point[]>();
+
+
+            // Apply the seperator drawing function to any seperator lines
+            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
+            {
+                if (line.IsSeparatorLine)
+                {
+                    // Horizontal Lines
+                    hSeparatorLineScanner.Add(new Point[2] {
+                        new Point(line.StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+                        new Point(line.StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                    });
+
+                    parent.Controls.Remove(line);
+                }
+            }
+
+            if (hSeparatorLineScanner.Count > 0)
+            {
+                HSeparatorLines = hSeparatorLineScanner.ToArray();
+            }/*
+            if (vSeparatorLineScanner.Count > 0)
+            {
+                VSeparatorLines = vSeparatorLineScanner.ToArray();
+            }*/
+
+
+            parent.Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
+
+
+
+
+
+            // Set CloseBtn event handler to provided delagate
+            CloseBtn.Click += new EventHandler(ExitFunction);
+
+
+            // Set Event Handlers for Form Dragging
+            parent.MouseDown += new MouseEventHandler((sender, e) =>
+            {
+                MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                MouseIsDown = true;
+
+                //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
+
+            });
+            parent.MouseUp += new MouseEventHandler((sender, e) =>
+                MouseIsDown = false
+            );
+            parent.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+
+            foreach (var item in controls)
+            {
+                item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                    MouseIsDown = true;
+                });
+                item.MouseUp += new MouseEventHandler((sender, e) =>
+                    MouseIsDown = false
+                );
+
+                // Avoid Applying MoveForm EventHandler to Text Containters (to retain the ability to drag-select text)
+                if (item.GetType() != typeof(TextBox) && item.GetType() != typeof(RichTextBox))
+                {
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+                }
+            }
+        }
+
 
         /// <summary>
         /// Handle Form Dragging for Borderless Form.
@@ -404,11 +499,8 @@ namespace NaughtyDogDCReader
             // Set appropriate event handlers for the controls on the form as well
             foreach (var item in controls)
             {
-                if (item.Name == "SwapBrowseModeBtn") // lazy fix to avoid the mouse down event confliciting with the button
-                {
-                    continue;
-                }
-
+                item.KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
+                
                 item.MouseDown += new MouseEventHandler((sender, e) =>
                 {
                     MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
@@ -422,6 +514,7 @@ namespace NaughtyDogDCReader
                         Azem.BringToFront();
                     }
                 });
+
 
 
                 // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)

@@ -69,7 +69,7 @@
     <Compile Include="extentions.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="PropertiesHandler.cs" />
+    <Compile Include="PropertyHandlers.cs" />
     <Compile Include="Structs.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -68,13 +68,13 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// Static refference to the active DC binary's header struct.
+        /// Static reference to the active DC binary's header struct.
         /// </summary>
         public static DCFileHeader DCScript;
 
 
         
-        public static readonly Type[] WholeNumericalTypes = new[]
+        public static readonly Type[] BasicNumericalTypes = new[]
         {
             typeof(sbyte),
             typeof(byte),
@@ -95,6 +95,16 @@ namespace NaughtyDogDCReader
             typeof(double),
             typeof(float)
         };
+
+
+        public static readonly Type[] AdditionalDataTypes = new []
+        {
+            typeof(Array),
+            typeof(SID),
+            typeof(weapon_gameplay_def)
+        };
+
+
 
 
         /// <summary>
@@ -142,8 +152,6 @@ namespace NaughtyDogDCReader
                 CloseBinFile();
 
                 ActiveFilePath = DCFilePath;
-                ActiveFileName = DCFilePath.Substring(DCFilePath.LastIndexOf('\\') + 1);
-
                 Venat?.StartBinParseThread();
             }
             else
@@ -167,20 +175,7 @@ namespace NaughtyDogDCReader
             
             DCFile = null;
             
-            if (Venat != null)
-            {
-                Panels.Reset();
-
-                if (DCScript.Entries != null)
-                {
-                    var len = DCScript.Entries.Length;
-
-                    echo ($"Decrementing relavant button tab indexes by [{len}].");
-                    Venat.OptionsMenuDropdownBtn.TabIndex -= len;
-                    Venat.MinimizeBtn.TabIndex -= len;
-                    Venat.ExitBtn.TabIndex -= len;
-                }
-            }
+            Panels?.Reset();
         }
 
         private static void CTCloseBinFile()
@@ -218,8 +213,7 @@ namespace NaughtyDogDCReader
                     //#
                     DCFile = File.ReadAllBytes(binPath);
 
-                    // TODO: make sure there's no difference between path versions! //!
-                    // Check whether or not the script is a basic empty one
+                    // Check whether or not the script is a basic empty one  TODO: make sure there's no difference between path versions! //!
                     if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
                     {
                         UpdateStatusLabel(new[] { "Empty DC File Loaded." });
@@ -227,9 +221,10 @@ namespace NaughtyDogDCReader
                         return;
                     }
 
-
-
+                    // Parse the script's header entries
                     DCScript = new DCFileHeader(DCFile, ActiveFileName);
+
+
 
                     //#
                     //## Setup Form
@@ -249,7 +244,7 @@ namespace NaughtyDogDCReader
                     echo($"\n{dang.GetType()}: Selected file is either in use, or doesn't exist.\nMessage: [{dang.Message}]");
 
                     CTCloseBinFile();
-                    StatusLabelMammet(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+                    UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
                 }
                 // File in use, probably
                 catch (Exception nani)
@@ -257,7 +252,7 @@ namespace NaughtyDogDCReader
                     echo($"\nERROR: Selected file is either in use, or doesn't exist.\nMessage: [{nani.Message}]");
 
                     CTCloseBinFile();
-                    StatusLabelMammet(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+                    UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
                 }
                 #endif
             }
@@ -293,7 +288,7 @@ namespace NaughtyDogDCReader
 
                 case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
 
-                case KnownSIDs.symbol_array: return new SymbolArrayDef(DCFile, Address, name);
+                case KnownSIDs.symbol_array: return new symbol_array(DCFile, Address, name);
 
                 case KnownSIDs.ammo_to_weapon_array: return new ammo_to_weapon_array(DCFile, Address, name);
 
@@ -458,6 +453,14 @@ namespace NaughtyDogDCReader
 
             Changes.Add(new object[] { Offset, convertedValue });
         }
+
+
+
+        /// <summary>
+        /// Determine whether the provided <paramref name="type"/> is a structure.
+        /// </summary>
+        public static bool ObjectIsStruct(Type type) => !type.IsClass && !type.IsSerializable;
+        public static bool ObjectIsStruct(object @object) => ObjectIsStruct(@object.GetType());
         #endregion
 
 
