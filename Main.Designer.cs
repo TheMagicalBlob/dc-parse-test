@@ -148,6 +148,7 @@ namespace NaughtyDogDCReader
             this.propertiesPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.propertiesPanel.Location = new System.Drawing.Point(5, 261);
             this.propertiesPanel.Name = "propertiesPanel";
+            this.propertiesPanel.Padding = new System.Windows.Forms.Padding(0);
             this.propertiesPanel.Size = new System.Drawing.Size(531, 363);
             this.propertiesPanel.TabIndex = 19;
             this.propertiesPanel.TabStop = false;
@@ -375,7 +376,7 @@ namespace NaughtyDogDCReader
             this.VersionLabel.IsSeparatorLine = false;
             this.VersionLabel.Location = new System.Drawing.Point(214, 3);
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(58, 13);
+            this.VersionLabel.Size = new System.Drawing.Size(64, 13);
             this.VersionLabel.StretchToFitForm = false;
             this.VersionLabel.TabIndex = 18;
             this.VersionLabel.Text = "Ver.";

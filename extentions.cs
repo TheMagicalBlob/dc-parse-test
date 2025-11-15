@@ -90,5 +90,23 @@ namespace NaughtyDogDCReader
         }
         private bool _stretchToFitForm = false;
     }
+
+
+    public class PropertyButton : System.Windows.Forms.Button
+    {
+        /// <summary>
+        /// The property associated with the current PropertyWindow button;
+        /// </summary>
+        public object DCProperty
+        {
+            get => _dcProperty;
+
+            set {
+                _dcProperty = value;
+            }
+        }
+
+        private object _dcProperty;
+    }
     #endregion
 }
