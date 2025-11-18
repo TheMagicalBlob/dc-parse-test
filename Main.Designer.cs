@@ -239,7 +239,6 @@ namespace NaughtyDogDCReader
             // propertiesEditor
             // 
             this.propertiesEditor.BackColor = System.Drawing.Color.Black;
-            this.propertiesEditor.Controls.Add(this.propertiesEditorContainer);
             this.propertiesEditor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.propertiesEditor.Location = new System.Drawing.Point(546, 232);
             this.propertiesEditor.Name = "propertiesEditor";
@@ -411,6 +410,7 @@ namespace NaughtyDogDCReader
             // 
             // propertiesEditorContainer
             // 
+            this.propertiesEditorContainer.Controls.Add(this.propertiesEditor);
             this.propertiesEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.propertiesEditorContainer.Location = new System.Drawing.Point(0, 0);
             this.propertiesEditorContainer.Name = "propertiesEditorContainer";
@@ -424,7 +424,6 @@ namespace NaughtyDogDCReader
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(890, 628);
             this.Controls.Add(this.propertiesPanelContainer);
-            this.Controls.Add(this.propertiesEditor);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label5);
