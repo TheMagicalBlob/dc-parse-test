@@ -84,13 +84,7 @@ namespace NaughtyDogDCReader
 
         private void button1_Click(object sender, EventArgs e)
         {
-            new[] { BasicNumericalTypes, AdvancedNumericalTypes, AdditionalDataTypes }.All(item => { 
-            foreach (var type in item)
-            {
-                echo($"{type.Name} is struct? == {ObjectIsStruct(type)}");
-            }
-            echo(""); return true; });
-            echo("\n");
+
         }
 
         private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -132,6 +126,16 @@ namespace NaughtyDogDCReader
                 {
 
                 }
+            }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            var label = Venat.Controls.Find("TestLabel", true).FirstOrDefault();
+
+            if (label != default)
+            {
+                label.Visible ^= true;
             }
         }
     }

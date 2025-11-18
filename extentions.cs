@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NaughtyDogDCReader
 {
@@ -51,6 +53,21 @@ namespace NaughtyDogDCReader
     }
 
 
+
+    public class GroupBox : System.Windows.Forms.GroupBox
+    {
+        public GroupBox() : base()
+        {
+            Paint += RemoveGroupBoxBorderAndText;
+        }
+
+        private void RemoveGroupBoxBorderAndText(object sender, System.Windows.Forms.PaintEventArgs e)
+        {
+            e.Graphics.Clear(((GroupBox) sender).BackColor);
+        }
+
+        public static readonly int GroupBoxContentsOffset = 7;
+    }
 
 
 

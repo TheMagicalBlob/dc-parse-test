@@ -43,6 +43,7 @@ namespace NaughtyDogDCReader
             this.showBasicPropertiesWindow = new System.Windows.Forms.CheckBox();
             this.label1 = new NaughtyDogDCReader.Label();
             this.Title = new NaughtyDogDCReader.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // CloseBtn
@@ -158,12 +159,24 @@ namespace NaughtyDogDCReader
             this.Title.TabIndex = 0;
             this.Title.Text = "Debug Options";
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(12, 109);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(43, 17);
+            this.checkBox1.TabIndex = 50;
+            this.checkBox1.Text = "idfk";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // DebugPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(335, 170);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.showBasicPropertiesWindow);
             this.Controls.Add(this.debugShowInvalidSIDsCheckBox);
@@ -201,5 +214,6 @@ namespace NaughtyDogDCReader
         private Button button1;
         private CheckBox debugShowInvalidSIDsCheckBox;
         private CheckBox showBasicPropertiesWindow;
+        private CheckBox checkBox1;
     }
 }

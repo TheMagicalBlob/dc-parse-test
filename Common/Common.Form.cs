@@ -221,26 +221,30 @@ namespace NaughtyDogDCReader
 
         /// <summary> OptionsPage Form Pointer/Reference. </summary>
         public static OptionsPage Azem;
+
+        /// <summary> Debug options panel form Pointer/Reference. </summary>
+        public static DebugPanel Bingus;
         
-        /// <summary> Properties Window (the output one) Pointer/Reference Because I'm Lazy. </summary>
-        public static RichTextBox PropertiesWindow;
-
-        /// <summary> Properties Editor Pointer/Reference. </summary>
-        public static GroupBox PropertiesEditor;
-
-        /// <summary> Properties Panel GroupBox Pointer/Reference. </summary>
-        public static GroupBox PropertiesPanel;
 
         /// <summary> StructBSIdkNameItLater Class Pointer/Reference. </summary>
         public static PropertyHandlers Panels;
 
+        /// <summary> Properties Panel GroupBox Pointer/Reference. </summary>
+        public static GroupBox PropertiesPanel;
+
+        /// <summary> Properties Editor Pointer/Reference. </summary>
+        public static GroupBox PropertiesEditor;
+
+
+        /// <summary> Properties Window (the output one) Pointer/Reference Because I'm Lazy. </summary>
+        public static RichTextBox PropertiesWindow;
+
         /// <summary> Log Window Pointer/Reference.  </summary>
         public static RichTextBox LogWindow;
 
-        /// <summary> Debug options panel form Pointer/Reference. </summary>
-        public static DebugPanel Bingus;
 
         public static Label ScriptStatusLabel;
+
         public static Label ScriptSelectionLabel;
 
 

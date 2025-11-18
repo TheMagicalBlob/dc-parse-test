@@ -2,8 +2,6 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace NaughtyDogDCReader
@@ -32,7 +30,7 @@ namespace NaughtyDogDCReader
 
 
         //==================================\\
-        //--|   Function Delcarations   |---\\
+        //--|   Function Declarations   |---\\
         //==================================\\
         #region [Function Delcarations]
         #pragma warning disable IDE1006
@@ -116,8 +114,10 @@ namespace NaughtyDogDCReader
 
                 Paint += DelayedDCFileLoad;
             }
+
         }
-        #pragma warning restore IDE1006
+
+#pragma warning restore IDE1006
 
         #endregion (function declarations)
 

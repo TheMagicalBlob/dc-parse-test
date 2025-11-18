@@ -39,14 +39,15 @@ namespace NaughtyDogDCReader
             this.MinimizeBtn = new System.Windows.Forms.Button();
             this.CloseBtn = new System.Windows.Forms.Button();
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
-            this.propertiesPanel = new System.Windows.Forms.GroupBox();
             this.dummy0 = new System.Windows.Forms.Button();
             this.dummy1 = new System.Windows.Forms.Button();
             this.debugPanelBtn = new System.Windows.Forms.Button();
             this.SidBaseBrowseBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.propertiesEditor = new System.Windows.Forms.GroupBox();
+            this.propertiesPanelContainer = new System.Windows.Forms.Panel();
+            this.propertiesPanel = new NaughtyDogDCReader.GroupBox();
+            this.propertiesEditor = new NaughtyDogDCReader.GroupBox();
             this.label5 = new NaughtyDogDCReader.Label();
             this.label6 = new NaughtyDogDCReader.Label();
             this.label4 = new NaughtyDogDCReader.Label();
@@ -59,6 +60,9 @@ namespace NaughtyDogDCReader
             this.SeperatorLine2 = new NaughtyDogDCReader.Label();
             this.VersionLabel = new NaughtyDogDCReader.Label();
             this.scriptStatusLabel = new NaughtyDogDCReader.Label();
+            this.propertiesEditorContainer = new System.Windows.Forms.Panel();
+            this.propertiesPanelContainer.SuspendLayout();
+            this.propertiesEditor.SuspendLayout();
             this.SuspendLayout();
             // 
             // BinFileBrowseBtn
@@ -142,17 +146,6 @@ namespace NaughtyDogDCReader
             this.ReloadScriptBtn.UseVisualStyleBackColor = false;
             this.ReloadScriptBtn.Click += new System.EventHandler(this.ReloadBinFile);
             // 
-            // propertiesPanel
-            // 
-            this.propertiesPanel.BackColor = System.Drawing.Color.Black;
-            this.propertiesPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.propertiesPanel.Location = new System.Drawing.Point(5, 261);
-            this.propertiesPanel.Name = "propertiesPanel";
-            this.propertiesPanel.Padding = new System.Windows.Forms.Padding(0);
-            this.propertiesPanel.Size = new System.Drawing.Size(531, 363);
-            this.propertiesPanel.TabIndex = 19;
-            this.propertiesPanel.TabStop = false;
-            // 
             // dummy0
             // 
             this.dummy0.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
@@ -222,9 +215,31 @@ namespace NaughtyDogDCReader
             this.button2.TabIndex = 53;
             this.button2.UseVisualStyleBackColor = false;
             // 
+            // propertiesPanelContainer
+            // 
+            this.propertiesPanelContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.propertiesPanelContainer.Controls.Add(this.propertiesPanel);
+            this.propertiesPanelContainer.Location = new System.Drawing.Point(6, 264);
+            this.propertiesPanelContainer.Name = "propertiesPanelContainer";
+            this.propertiesPanelContainer.Size = new System.Drawing.Size(530, 359);
+            this.propertiesPanelContainer.TabIndex = 0;
+            // 
+            // propertiesPanel
+            // 
+            this.propertiesPanel.BackColor = System.Drawing.Color.Black;
+            this.propertiesPanel.CausesValidation = false;
+            this.propertiesPanel.Cursor = System.Windows.Forms.Cursors.Default;
+            this.propertiesPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.propertiesPanel.Location = new System.Drawing.Point(0, 0);
+            this.propertiesPanel.Name = "propertiesPanel";
+            this.propertiesPanel.Size = new System.Drawing.Size(530, 359);
+            this.propertiesPanel.TabIndex = 19;
+            this.propertiesPanel.TabStop = false;
+            // 
             // propertiesEditor
             // 
             this.propertiesEditor.BackColor = System.Drawing.Color.Black;
+            this.propertiesEditor.Controls.Add(this.propertiesEditorContainer);
             this.propertiesEditor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.propertiesEditor.Location = new System.Drawing.Point(546, 232);
             this.propertiesEditor.Name = "propertiesEditor";
@@ -348,7 +363,7 @@ namespace NaughtyDogDCReader
             this.scriptSelectionLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.scriptSelectionLabel.ForeColor = System.Drawing.Color.Gold;
             this.scriptSelectionLabel.IsSeparatorLine = false;
-            this.scriptSelectionLabel.Location = new System.Drawing.Point(7, 242);
+            this.scriptSelectionLabel.Location = new System.Drawing.Point(7, 236);
             this.scriptSelectionLabel.Name = "scriptSelectionLabel";
             this.scriptSelectionLabel.Size = new System.Drawing.Size(526, 25);
             this.scriptSelectionLabel.StretchToFitForm = false;
@@ -394,12 +409,21 @@ namespace NaughtyDogDCReader
             this.scriptStatusLabel.TabIndex = 0;
             this.scriptStatusLabel.Text = "Status: [Inactive]";
             // 
+            // propertiesEditorContainer
+            // 
+            this.propertiesEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.propertiesEditorContainer.Location = new System.Drawing.Point(0, 0);
+            this.propertiesEditorContainer.Name = "propertiesEditorContainer";
+            this.propertiesEditorContainer.Size = new System.Drawing.Size(338, 391);
+            this.propertiesEditorContainer.TabIndex = 0;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(890, 628);
+            this.Controls.Add(this.propertiesPanelContainer);
             this.Controls.Add(this.propertiesEditor);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -421,7 +445,6 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.propertiesWindow);
             this.Controls.Add(this.scriptSelectionLabel);
             this.Controls.Add(this.SeperatorLine2);
-            this.Controls.Add(this.propertiesPanel);
             this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.MinimizeBtn);
@@ -429,6 +452,8 @@ namespace NaughtyDogDCReader
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Main";
+            this.propertiesPanelContainer.ResumeLayout(false);
+            this.propertiesEditor.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -469,6 +494,8 @@ namespace NaughtyDogDCReader
         public GroupBox propertiesEditor;
         public Label scriptStatusLabel;
         public Label scriptSelectionLabel;
+        private Panel propertiesPanelContainer;
+        private Panel propertiesEditorContainer;
     }
 }
 
