@@ -95,7 +95,12 @@ namespace NaughtyDogDCReader
                 {
                     DisplayHighlightedPropertyDetails(ActiveProperties[(int) value.Tag]);
                 }
+                else {
+                    echo ("Null property button selection provided!!");
+                }
+
                 _headerSelection = value;
+                echo('\n');
             }
         }
         private PropertyButton _headerSelection;
@@ -472,7 +477,10 @@ namespace NaughtyDogDCReader
             }
 
 
-            PropertySelection = PropertyButtons.First();
+            if (PropertyButtons.Any())
+            {
+                //PropertySelection = PropertyButtons.First();
+            }
         }
 
         
@@ -575,7 +583,7 @@ namespace NaughtyDogDCReader
 
             if (PropertyButtons.Any())
             {
-                PropertySelection = PropertyButtons.First();
+                //PropertySelection = PropertyButtons.First();
             }
         }
 
@@ -736,7 +744,7 @@ namespace NaughtyDogDCReader
                         properties[i] = new object[] { dcStruct.StructNames[i].DecodedID, dcStruct.Structs[i], printStructPropertyDetails };
                     }
                 }
-                if (type == typeof(symbol_array))
+                else if (type == typeof(symbol_array))
                 {
                     var dcStruct = (symbol_array) Struct;
                     properties = new object[dcStruct.Symbols.Length][];
@@ -747,6 +755,7 @@ namespace NaughtyDogDCReader
                     }
                 }
                 else {
+                    echo("building default properties bodge");
                     properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetType()) ? printStructPropertyDetails : spawnVariableEditorBox }).ToArray();
                 }
             }
@@ -760,11 +769,10 @@ namespace NaughtyDogDCReader
             CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * properties.Length);
 
 
-
             foreach (var property in properties)
             {
                 // Create the applicable buttons
-                var newRow = NewPropertiesEditorRow(property[0], property[1], (PropertiesPanelInteractionWand) property[2]);
+                var newRow = NewPropertiesEditorRow(property[0]?.ToString() ?? null, property[1], (PropertiesPanelInteractionWand) property[2]);
                     
                 PropertiesEditor.Controls.Add(newRow);
                 newRow.Location = new Point(2, totalHeight);
@@ -788,9 +796,15 @@ namespace NaughtyDogDCReader
 
         
 
-        private Control NewPropertiesEditorRow(object propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
+        private Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
         {
             Button newRow = null;
+            var formattedPropertyValue = FormatPropertyValueAsString(propertyValue);
+
+            if (propertyName != null)
+            {
+                formattedPropertyValue = $"{propertyName}: {formattedPropertyValue}";
+            }
 
             newRow = new Button()
             {
@@ -801,16 +815,16 @@ namespace NaughtyDogDCReader
                 FlatStyle = FlatStyle.Flat,
 
                 Height = DefaultPropertiesEditorRowHeight,
-                Width = (PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0)) - 2,
+                Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
 
-                Text = FormatPropertyValueAsString(propertyValue)
+                Text = formattedPropertyValue
             };
 
             // Assign basic form functionality event handlers
             newRow.MouseDown += MouseDownFunc;
             newRow.MouseUp += MouseUpFunc;
                 
-            newRow.Click += (_, __) => propertyEvent(propertyValue);
+            newRow.DoubleClick += (_, __) => propertyEvent(propertyValue);
 
 
 
@@ -1062,18 +1076,43 @@ namespace NaughtyDogDCReader
         {
             if (property != null)
             {
-                if (property.GetType() == typeof(DCHeaderItem))
+                var type = property.GetType();
+
+                if (ObjectIsStruct(property))
                 {
-                    PopulatePropertiesEditorWithStructItems(((DCHeaderItem) property).Struct);
-                    PrintHeaderItemDetailDisplay((DCHeaderItem) property);
+                    if (type == typeof(DCHeaderItem))
+                    {
+                        echo($"button property is dcHeaderItem \"{((DCHeaderItem) property).Name}\".");
+
+                        if (PropertiesEditor.Visible)
+                        {
+                            PopulatePropertiesEditorWithStructItems(((DCHeaderItem) property).Struct);
+                        }
+                        else {
+                            PrintHeaderItemDetailDisplay((DCHeaderItem) property);
+                        }
+                    }
+                    else
+                    {
+                        echo($"button property is unnamed struct of type \"{type}\".");
+                        if (PropertiesEditor.Visible)
+                        {
+                            PopulatePropertiesEditorWithStructItems(property);
+                        }
+                        else {
+                            PrintStructPropertyDetails(property);
+                        }
+                    }
                 }
-                else
-                {
-                    PopulatePropertiesEditorWithStructItems(property);
-                    PrintStructPropertyDetails(property);
+                else {
+                    //! handle numerical values
+                    echo($"Button property is \"{type}\"");
+                    LogWindow.AppendLine("Non.");
                 }
             }
-
+            else {
+                echo("Null property.");
+            }
         }
 
 
