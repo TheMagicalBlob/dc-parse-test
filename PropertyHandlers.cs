@@ -725,7 +725,44 @@ namespace NaughtyDogDCReader
 
         private void PopulatePropertiesEditorWithStructItems(object Struct)
         {
-            var totalHeight = 2; // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
+            Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
+            {
+                Button newRow = null;
+                var formattedPropertyValue = FormatPropertyValueAsString(propertyValue);
+
+                if (propertyName != null)
+                {
+                    formattedPropertyValue = $"{propertyName}: {formattedPropertyValue}";
+                }
+
+                newRow = new Button()
+                {
+                    Font = TextFont,
+                    BackColor = AppColourLight,
+                    ForeColor = Color.White,
+                    Padding = Padding.Empty,
+                    FlatStyle = FlatStyle.Flat,
+
+                    Height = DefaultPropertiesEditorRowHeight,
+                    Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
+
+                    Text = formattedPropertyValue
+                };
+
+                // Assign basic form functionality event handlers
+                newRow.MouseDown += MouseDownFunc;
+                newRow.MouseUp += MouseUpFunc;
+                
+                newRow.DoubleClick += (_, __) => propertyEvent(propertyValue);
+
+
+
+                return newRow;
+            }
+
+
+            // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
+            var totalHeight = 2;
 
             var type = Struct.GetType();
             object[][] properties;
@@ -768,6 +805,7 @@ namespace NaughtyDogDCReader
 
             CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * properties.Length);
 
+            
 
             foreach (var property in properties)
             {
@@ -782,54 +820,10 @@ namespace NaughtyDogDCReader
         }
 
         
-        private void PopulatePropertiesEditorWithArrayItems(string ArrayName, object ArrayStruct)
-        {
-            UpdateSelectionLabel(new string[] { null, null, ArrayName });
 
-            int dcLen = ((dynamic) ArrayStruct).Entries.Length;
-
-            for (var i = 0; i < dcLen; ++i)
-            {
-
-            }
-        }
 
         
 
-        private Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
-        {
-            Button newRow = null;
-            var formattedPropertyValue = FormatPropertyValueAsString(propertyValue);
-
-            if (propertyName != null)
-            {
-                formattedPropertyValue = $"{propertyName}: {formattedPropertyValue}";
-            }
-
-            newRow = new Button()
-            {
-                Font = TextFont,
-                BackColor = AppColourLight,
-                ForeColor = Color.White,
-                Padding = Padding.Empty,
-                FlatStyle = FlatStyle.Flat,
-
-                Height = DefaultPropertiesEditorRowHeight,
-                Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
-
-                Text = formattedPropertyValue
-            };
-
-            // Assign basic form functionality event handlers
-            newRow.MouseDown += MouseDownFunc;
-            newRow.MouseUp += MouseUpFunc;
-                
-            newRow.DoubleClick += (_, __) => propertyEvent(propertyValue);
-
-
-
-            return newRow;
-        }
 
 
         public void ScrollPropertyEditorRows(object _, ScrollEventArgs offset)
@@ -923,7 +917,7 @@ namespace NaughtyDogDCReader
 
                 // ## String ID's
                 case var type when type == typeof(SID):
-                    returnString = ((SID) Value).DecodedID;
+                    returnString = "SID_" + ((SID) Value).DecodedID;
                     break;
 
 
@@ -1002,7 +996,7 @@ namespace NaughtyDogDCReader
                 default:
                     if (PropertiesEditor.Visible)
                     {
-                        returnString = $"Struct \"{Value.GetType().Name}\"";
+                        returnString = Value.GetType().Name;
                     }
                     else {
                         var str = "\nType: " + ((dynamic)Value).Name.DecodedID + '\n';
