@@ -63,6 +63,8 @@ namespace NaughtyDogDCReader
             PropertiesWindow = propertiesWindow;
             PropertiesEditor = propertiesEditor;
 
+            LogWindow = logWindow;
+
             ScriptStatusLabel = scriptStatusLabel;
             ScriptSelectionLabel = scriptSelectionLabel;
             Update();

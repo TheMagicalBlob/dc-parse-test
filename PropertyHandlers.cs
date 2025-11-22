@@ -728,12 +728,6 @@ namespace NaughtyDogDCReader
             Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
             {
                 Button newRow = null;
-                var formattedPropertyValue = FormatPropertyValueAsString(propertyValue);
-
-                if (propertyName != null)
-                {
-                    formattedPropertyValue = $"{propertyName}: {formattedPropertyValue}";
-                }
 
                 newRow = new Button()
                 {
@@ -746,7 +740,7 @@ namespace NaughtyDogDCReader
                     Height = DefaultPropertiesEditorRowHeight,
                     Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
 
-                    Text = formattedPropertyValue
+                    Text = $"{propertyName}: {FormatPropertyValueAsString(propertyValue)}"
                 };
 
                 // Assign basic form functionality event handlers
@@ -769,42 +763,13 @@ namespace NaughtyDogDCReader
 
             PropertiesEditor.Controls.Clear();
 
-            if (ObjectIsStruct(type))
+            if (!ObjectIsStruct(type))
             {
-                if (type == typeof(map))
-                {
-                    var dcStruct = (map) Struct;
-                    properties = new object[dcStruct.Length][];
-
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        properties[i] = new object[] { dcStruct.StructNames[i].DecodedID, dcStruct.Structs[i], printStructPropertyDetails };
-                    }
-                }
-                else if (type == typeof(symbol_array))
-                {
-                    var dcStruct = (symbol_array) Struct;
-                    properties = new object[dcStruct.Symbols.Length][];
-
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        properties[i] = new object[] { null, dcStruct.Symbols[i].DecodedID, spawnVariableEditorBox };
-                    }
-                }
-                else {
-                    echo("building default properties bodge");
-                    properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetType()) ? printStructPropertyDetails : spawnVariableEditorBox }).ToArray();
-                }
-            }
-            else {
-                properties = new object[][] { new object[] { type, Struct, spawnVariableEditorBox } };
+                throw new Exception($"ERROR: Object of type \"{type.Name}\" is not a struct");
             }
 
 
-            
-
-            CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * properties.Length);
-
+            properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetType()) ? printStructPropertyDetails : spawnVariableEditorBox }).ToArray();
             
 
             foreach (var property in properties)
@@ -817,6 +782,9 @@ namespace NaughtyDogDCReader
 
                 totalHeight += newRow.Height;
             }
+            
+            
+            CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * PropertiesEditor.Controls.Count);
         }
 
         
@@ -917,7 +885,7 @@ namespace NaughtyDogDCReader
 
                 // ## String ID's
                 case var type when type == typeof(SID):
-                    returnString = "SID_" + ((SID) Value).DecodedID;
+                    returnString = $"{{{((SID) Value).DecodedID}}}";
                     break;
 
 
@@ -953,26 +921,36 @@ namespace NaughtyDogDCReader
                     {
                         var depth = type.ToString().Count(item => item == '[');
                         var len = ((Array) Value).Length;
+                        var indentIndex = 1;
                         
-                        returnString = type.Name + " {{\n";
-                        for (var indentIndex = 0; indentIndex < depth; ++indentIndex)
+                        string printArrayContents(object item)
                         {
-                            foreach (var item in (Array) Value)
+                            var itemType = item.GetType();
+                            var retStr = string.Empty;
+
+                            echo($"Item {itemType} base type: [{itemType.BaseType}]");
+
+                            if (itemType.BaseType == typeof(Array))
                             {
-                                var itemType = item.GetType();
-                                echo($"Item {itemType} base type: [{itemType.BaseType}]");
-
-                                if (itemType.BaseType == typeof(Array))
+                                foreach (var subItem in (Array) item)
                                 {
-                                    foreach (var subItem in (Array) item)
-                                    {
-
-                                    }
+                                    ++indentIndex;
+                                    retStr += printArrayContents(subItem);
+                                    --indentIndex;
                                 }
-                                returnString += $"{new string(' ', 4 * indentIndex)}{FormatPropertyValueAsString(item)},\n";
                             }
 
+                            retStr += $"{new string(' ', 4 * indentIndex)}{FormatPropertyValueAsString(item)},\n";
+
+                            return retStr;
                         }
+
+                        returnString = type.Name + " {\n";
+                        foreach (var item in (Array) Value)
+                        {
+                            returnString += printArrayContents(item);
+                        }
+
                         returnString += '}';
                     }
                     break;
@@ -1004,7 +982,7 @@ namespace NaughtyDogDCReader
                         foreach (var property in Value.GetType().GetProperties())
                         {
                             // Print the name of the property
-                            str += $"{SpaceOutStructName(property.Name)}: [";
+                            str += $"{SpaceOutStructName(property.Name)}: [\n";
 
                             var val = property.GetValue(Value);
                             str += $"{FormatPropertyValueAsString(val).Replace("\n", "\n" + Indentation)}\n";

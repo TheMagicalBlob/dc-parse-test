@@ -2,7 +2,7 @@
 {
     public partial class Main
     {
-        public const string Version = "0.190.735  "
+        public const string Version = "0.192.741  "
    ;
     }
 }
