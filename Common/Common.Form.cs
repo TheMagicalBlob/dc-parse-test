@@ -450,7 +450,7 @@ namespace NaughtyDogDCReader
 
         /// <summary>
         /// Post-InitializeComponent Configuration. <br/><br/>
-        /// Create Assign Anonomous Event Handlers to Parent and Children.
+        /// Create Assign Anonymous Event Handlers to Parent and Children.
         /// </summary>
         public void InitializeAdditionalEventHandlers_Main(Main Venat)
         {
@@ -461,7 +461,7 @@ namespace NaughtyDogDCReader
 
 
 
-            // Apply the seperator drawing function to any seperator lines
+            // Apply the separator drawing function to any separator lines
             foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
             {
                 if (line.IsSeparatorLine)
@@ -521,7 +521,7 @@ namespace NaughtyDogDCReader
 
 
 
-                // Avoid applying MouseMove and KeyDown event handlers to text containters (to retain the ability to drag-select text)
+                // Avoid applying MouseMove and KeyDown event handlers to text containers (to retain the ability to drag-select text)
                 if (item.GetType() == typeof(NaughtyDogDCReader.TextBox) || item.GetType() == typeof(NaughtyDogDCReader.RichTextBox))
                 {
                     item.KeyDown += (sender, arg) =>
@@ -538,6 +538,34 @@ namespace NaughtyDogDCReader
                 {
                     item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
                 }
+            }
+
+
+
+            // Tabstop test
+            for (var i = 0; i < controls.Length; ++i)
+            {
+                controls[i].TabStop = false;
+                controls[i].TabIndex = int.MaxValue - 1;
+            }
+            foreach (var dummy in new[] { dummy0, dummy1 })
+            {
+                dummy.TabIndex = 0;
+                dummy.TabStop  = true;
+                dummy.PreviewKeyDown += (_, keyEvent) =>
+                {
+                    if (keyEvent.KeyCode == Keys.Return)
+                    {
+                        Panels?.LoadHighlightedProperty();
+                    }
+                    
+
+                    // Go back to displaying the properties of the current structure's declaring struct
+                    else if (keyEvent.KeyCode == Keys.Back)
+                    {
+                        Panels?.GoBack();
+                    }
+                };
             }
 
 

@@ -21,9 +21,9 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Details on the initial header array for the provided DC file, as well as an array of any present HeaderItems.
         /// </summary>
-        public struct DCFileHeader
+        public struct DC
         {
-            public DCFileHeader(byte[] DCFile, string ScriptName)
+            public DC(byte[] DCFile, string ScriptName)
             {
                 //#
                 //## Variable Initializations
@@ -76,7 +76,7 @@ namespace NaughtyDogDCReader
                 BinFileLength = BitConverter.ToInt64(DCFile, 0x8);
                 TableLength = BitConverter.ToInt32(DCFile, 0x14);
 
-                Entries = new DCHeaderItem[TableLength];
+                Entries = new Item[TableLength];
 
 
                 //#
@@ -90,7 +90,7 @@ namespace NaughtyDogDCReader
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    Entries[tableIndex] = new DCHeaderItem(DCFile, addr);
+                    Entries[tableIndex] = new Item(DCFile, addr);
                 }
 
 #if false
@@ -110,55 +110,57 @@ namespace NaughtyDogDCReader
             public long BinFileLength;
             public int TableLength;
 
-            /// <summary> An array of the DCHeaderItems parsed from the provided DC file. </summary>
-            public DCHeaderItem[] Entries;
-        }
+            /// <summary> An array of the DCFileHeader.HeaderItems parsed from the provided DC file. </summary>
+            public Item[] Entries;
 
 
-        /// <summary>
-        /// An individual item (module?) from the array at the beginning of the DC file.
-        /// </summary>
-        public struct DCHeaderItem
-        {
-            public DCHeaderItem(byte[] DCFile, int Address)
+            /// <summary>
+            /// An individual item (module?) from the array at the beginning of the DC file.
+            /// </summary>
+            public struct Item
             {
-                this.Address = Address;
+                public Item(byte[] DCFile, int Address)
+                {
+                    this.Address = Address;
 
-                Name = SID.Parse(GetSubArray(DCFile, this.Address));
-                Type = SID.Parse(GetSubArray(DCFile, this.Address + 8));
+                    Name = SID.Parse(GetSubArray(DCFile, this.Address));
+                    Type = SID.Parse(GetSubArray(DCFile, this.Address + 8));
 
-                StructAddress = BitConverter.ToInt64(GetSubArray(DCFile, this.Address + 16), 0);
+                    StructAddress = BitConverter.ToInt64(GetSubArray(DCFile, this.Address + 16), 0);
 
 
-                Struct = LoadMappedDCStructs(Main.DCFile, Type, StructAddress, Name);
+                    Struct = LoadMappedDCStructs(Main.DCFile, Type, StructAddress, Name);
+                }
+
+
+                /// <summary>
+                /// The Address of this Header Item in the DC file.
+                /// </summary>
+                public int Address;
+
+                /// <summary>
+                /// The name of the current entry in the DC file header.
+                /// </summary>
+                public SID Name;
+
+                /// <summary>
+                /// The struct type of the current entry in the DC file header.
+                /// </summary>
+                public SID Type { get; set; }
+
+                /// <summary>
+                /// The address of the struct pointed to by tbe current dc header entry.
+                /// </summary>
+                public long StructAddress { get; set; }
+
+                /// <summary>
+                /// The actual mapped structure object.
+                /// </summary>
+                public object Struct { get; private set; }
             }
-
-
-            /// <summary>
-            /// The Address of this Header Item in the DC file.
-            /// </summary>
-            public int Address;
-
-            /// <summary>
-            /// The name of the current entry in the DC file header.
-            /// </summary>
-            public SID Name;
-
-            /// <summary>
-            /// The struct type of the current entry in the DC file header.
-            /// </summary>
-            public SID Type { get; set; }
-
-            /// <summary>
-            /// The address of the struct pointed to by tbe current dc header entry.
-            /// </summary>
-            public long StructAddress { get; set; }
-
-            /// <summary>
-            /// The actual mapped structure object.
-            /// </summary>
-            public object Struct { get; private set; }
         }
+
+
 
 
 
@@ -219,9 +221,9 @@ namespace NaughtyDogDCReader
 
 
 
-            public SID[] StructNames;
+            public SID[] StructNames { get; set; }
 
-            public object[] Structs;
+            public object[] Structs { get; set; }
         }
 
         private struct map_entry

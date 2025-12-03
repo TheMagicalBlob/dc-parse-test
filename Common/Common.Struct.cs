@@ -70,7 +70,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Static reference to the active DC binary's header struct.
         /// </summary>
-        public static DCFileHeader DCScript;
+        public static DC DCScript;
 
 
         
@@ -222,7 +222,7 @@ namespace NaughtyDogDCReader
                     }
 
                     // Parse the script's header entries
-                    DCScript = new DCFileHeader(DCFile, ActiveFileName);
+                    DCScript = new DC(DCFile, ActiveFileName);
 
 
 

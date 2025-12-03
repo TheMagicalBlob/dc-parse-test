@@ -38,7 +38,7 @@ namespace NaughtyDogDCReader
 
             populatePropertiesPanelWithHeaderItemContents = PopulatePropertiesPanelWithHeaderItemContents;
 
-            populatePropertiesPanelWithStructItems        = PopulatePropertiesPanelWithStructContents;
+            //populatePropertiesPanelWithStructItems        = PopulatePropertiesPanelWithStructContents;
 
 
 
@@ -59,7 +59,7 @@ namespace NaughtyDogDCReader
             };
 
             spawnVariableEditorBox = SpawnVariableEditorBox;
-            printStructPropertyDetails = PrintStructPropertyDetails;
+            populatePropertiesPanelWithClickedItemsContents = PopulatePropertiesPanelWithStructContents;
         }
 
 
@@ -88,22 +88,21 @@ namespace NaughtyDogDCReader
         /// </summary>
         private PropertyButton PropertySelection
         {
-            get => _headerSelection;
+            get => _propertySelection;
 
             set {
                 if (value != null)
                 {
-                    DisplayHighlightedPropertyDetails(ActiveProperties[(int) value.Tag]);
+                    DisplayHighlightedPropertyDetails(value.Tag);
                 }
                 else {
                     echo ("Null property button selection provided!!");
                 }
 
-                _headerSelection = value;
-                echo('\n');
+                _propertySelection = value;
             }
         }
-        private PropertyButton _headerSelection;
+        private PropertyButton _propertySelection;
 
 
 
@@ -125,8 +124,6 @@ namespace NaughtyDogDCReader
 
         private readonly List<object[]> History;
 
-
-        private object[] ActiveProperties;
 
 
 
@@ -168,9 +165,10 @@ namespace NaughtyDogDCReader
         public delegate void PropertiesWindowOutputWand(string msg);
 
         /// <summary> //! </summary>
-        public delegate void InitialPropertiesPanelPopulation(string dcFileName, DCFileHeader dcEntries);
-        public delegate void PropertiesPanelPopulation(string dcFileName, object structProperty);
-        public delegate void PropertiesPanelInteractionWand(object property);
+        public delegate void InitialPropertiesPanelPopulation(string dcFileName, DC dcEntries);
+        public delegate void SubsequentPropertiesPanelPopulation(string structName, object structProperty);
+
+        public delegate void PropertyEditorClickHandler(string propertyName, object property);
 
 
         private readonly PropertiesWindowOutputWand propertiesWindowMammet;
@@ -178,10 +176,9 @@ namespace NaughtyDogDCReader
 
 
         public readonly InitialPropertiesPanelPopulation populatePropertiesPanelWithHeaderItemContents;
-        public readonly PropertiesPanelPopulation populatePropertiesPanelWithStructItems;
 
-        public PropertiesPanelInteractionWand spawnVariableEditorBox;
-        public PropertiesPanelInteractionWand printStructPropertyDetails;
+        public PropertyEditorClickHandler spawnVariableEditorBox;
+        public PropertyEditorClickHandler populatePropertiesPanelWithClickedItemsContents;
         #endregion
 
 
@@ -328,7 +325,7 @@ namespace NaughtyDogDCReader
         /// Populate the property window with details about the highlighted header item
         /// </summary>
         /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
-        private void PrintHeaderItemDetailDisplay(DCHeaderItem @struct)
+        private void PrintHeaderItemDetailDisplay(DC.Item @struct)
         {
             //#
             //## Grab basic data about the current item and clear the current properties window contents 
@@ -409,17 +406,17 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcScript"></param>
-        private void PopulatePropertiesPanelWithHeaderItemContents(string dcFileName, DCFileHeader dcScript)
+        private void PopulatePropertiesPanelWithHeaderItemContents(string dcFileName, DC dcScript)
         {
             PropertyButton currentButton;
 
             
             var dcEntries = dcScript.Entries;
             var dcLen = dcEntries.Length;
-            ActiveProperties = dcEntries.Select(entry => entry.Struct).ToArray();
 
             PropertyButtons = new PropertyButton[dcEntries.Length];
             PropertiesPanel.Controls.Clear();
+            PropertiesEditor?.Controls?.Clear();
 
             
             //-## Create and add the scroll bar if the controls are going to overflow the group box's height
@@ -453,9 +450,10 @@ namespace NaughtyDogDCReader
                 }
 
 
-                // Save the index of the header item tied to the control via the button's Tag property
-                currentButton.Tag = i;
+                // Save the index of the header item tied to the control via the button's TabIndex property
+                currentButton.TabIndex = i;
 
+                currentButton.Tag = dcEntry;
 
 
 
@@ -473,6 +471,13 @@ namespace NaughtyDogDCReader
                     }
                 };
 
+                currentButton.DoubleClick += (_, __) =>
+                {
+                    History.Add(new object[] { dcFileName, dcScript });
+
+                    PopulatePropertiesPanelWithStructContents(dcEntry.Name.DecodedID, dcEntry.Struct);
+                };
+
                 PropertyButtons[i] = currentButton;
             }
 
@@ -486,18 +491,19 @@ namespace NaughtyDogDCReader
         
 
 
-        private void PopulatePropertiesPanelWithStructContents(string structureName, object structure)
+        private void PopulatePropertiesPanelWithStructContents(string currentStuctName, object currentStruct)
         {
             PropertyButton currentButton;
 
-            var structType = structure.GetType();
-            ActiveProperties = structType.GetProperties();
-            var propertyCount = ActiveProperties.Length;
+            var structType = currentStruct.GetType();
+            var properties = structType.GetProperties();
+            var propertyCount = properties.Length;
 
 
             PropertyButtons = new PropertyButton[propertyCount];
             
             PropertiesPanel.Controls.Clear();
+            PropertiesEditor?.Controls?.Clear();
 
 
             //-## Create and add the scroll bar if the controls are going to overflow the group box's height
@@ -507,7 +513,7 @@ namespace NaughtyDogDCReader
             // Create and add a button for each property of the provided structure
             for (var i = 0; i < propertyCount; ++i)
             {
-                var property = ActiveProperties[i] as PropertyInfo;
+                var property = properties[i];
                 currentButton = CreatePropertiesPanelButton();
 
 
@@ -533,9 +539,10 @@ namespace NaughtyDogDCReader
                 }
 
 
-                // Save the index of the header item tied to the control via the button's Tag property
-                currentButton.Tag = i;
+                // Save the index of the header item tied to the control via the button's TabIndex property
+                currentButton.TabIndex = i;
 
+                currentButton.Tag = property.GetValue(currentStruct);
 
 
 
@@ -545,37 +552,27 @@ namespace NaughtyDogDCReader
 
                 currentButton.PreviewKeyDown += (_, keyEvent) =>
                 {
-                    if (keyEvent.KeyCode == Keys.Return && ObjectIsStruct(property.PropertyType))
+                    if (keyEvent.KeyCode == Keys.Return/* && ObjectIsStruct(property.PropertyType)*/)
                     {
-                        History.Add(new object[] { structureName, structure });
+                        History.Add(new object[] { currentStuctName, currentStruct });
 
-                        PopulatePropertiesPanelWithStructContents(property.Name, FormatPropertyValueAsString(property.GetValue(structure)));
+                        PopulatePropertiesPanelWithStructContents(property.Name, property);
                     }
+                    
+
 
                     // Go back to displaying the properties of the current structure's declaring struct
                     else if (keyEvent.KeyCode == Keys.Back)
                     {
-                        var lastItem = History.LastOrDefault();
-
-                        if (lastItem != default)
-                        {
-                            if (History.Count == 1)
-                            {
-                                PopulatePropertiesPanelWithHeaderItemContents(lastItem[0].ToString(), (DCFileHeader) lastItem[1]);
-
-                                History.Remove(lastItem);
-                            }
-                            else if (History.Count > 1)
-                            {
-                                PopulatePropertiesPanelWithStructContents(lastItem[0].ToString(), lastItem[1]);
-                                
-                                History.Remove(lastItem);
-                            }
-                            else {
-                                echo("Why the hell is the history empty?");
-                            }
-                        }
+                        GoBack();
                     }
+                };
+
+                currentButton.DoubleClick += (_, __) =>
+                {
+                    History.Add(new object[] { currentStuctName, currentStruct });
+
+                    PopulatePropertiesPanelWithStructContents(property.Name, property);
                 };
 
                 PropertyButtons[i] = currentButton;
@@ -673,7 +670,22 @@ namespace NaughtyDogDCReader
 
             return btn;
         }
+
+
+
+        /// <summary>
+        /// Load the property for the highlighted property button, as if enter was pressed on it.
+        /// </summary>
+        public void LoadHighlightedProperty()
+        {
+            if (PropertySelection == null || PropertySelection.Tag == null)
+            {
+                return;
+            }
+            PopulatePropertiesPanelWithStructContents(PropertySelection.Name, PropertySelection.Tag);
+        }
         
+
 
 
         public void ScrollPropertiesPanelButtons(Control hostBox, ScrollEventArgs offset)
@@ -685,6 +697,9 @@ namespace NaughtyDogDCReader
             hostBox.Update();
         }
         
+
+
+
         public void ForceScrollPropertyPanelScrollBar(int NewValue)
         {
             ScrollEventType scrollEventType;
@@ -704,6 +719,31 @@ namespace NaughtyDogDCReader
 
             ScrollPropertiesPanelButtons(PropertiesPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
             PropertiesPanel.Update();
+        }
+
+
+        public void GoBack()
+        {
+            var lastItem = History.LastOrDefault();
+
+            if (lastItem != default)
+            {
+                if (History.Count == 1)
+                {
+                    PopulatePropertiesPanelWithHeaderItemContents(lastItem[0].ToString(), (DC) lastItem[1]);
+
+                    History.Remove(lastItem);
+                }
+                else if (History.Count > 1)
+                {
+                    PopulatePropertiesPanelWithStructContents(lastItem[0].ToString(), lastItem[1]);
+                                
+                    History.Remove(lastItem);
+                }
+                else {
+                    echo("Why the hell is the history empty?");
+                }
+            }
         }
         #endregion propertiespanel-related function declarations
 
@@ -725,7 +765,7 @@ namespace NaughtyDogDCReader
 
         private void PopulatePropertiesEditorWithStructItems(object Struct)
         {
-            Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertiesPanelInteractionWand propertyEvent)
+            Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertyEditorClickHandler propertyEvent)
             {
                 Button newRow = null;
 
@@ -747,7 +787,7 @@ namespace NaughtyDogDCReader
                 newRow.MouseDown += MouseDownFunc;
                 newRow.MouseUp += MouseUpFunc;
                 
-                newRow.DoubleClick += (_, __) => propertyEvent(propertyValue);
+                newRow.DoubleClick += (_, __) => propertyEvent(propertyName, propertyValue);
 
 
 
@@ -769,13 +809,13 @@ namespace NaughtyDogDCReader
             }
 
 
-            properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetType()) ? printStructPropertyDetails : spawnVariableEditorBox }).ToArray();
+            properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetType()) ? populatePropertiesPanelWithClickedItemsContents : spawnVariableEditorBox }).ToArray();
             
 
             foreach (var property in properties)
             {
                 // Create the applicable buttons
-                var newRow = NewPropertiesEditorRow(property[0]?.ToString() ?? null, property[1], (PropertiesPanelInteractionWand) property[2]);
+                var newRow = NewPropertiesEditorRow(property[0]?.ToString() ?? null, property[1], (PropertyEditorClickHandler) property[2]);
                     
                 PropertiesEditor.Controls.Add(newRow);
                 newRow.Location = new Point(2, totalHeight);
@@ -788,7 +828,15 @@ namespace NaughtyDogDCReader
         }
 
         
+        private void PopulatePropertiesEditorWithArrayItems(object Array)
+        {
 
+        }
+
+        private void PopulatePropertiesEditorWithSingleNumericalValue(object number)
+        {
+
+        }
 
         
 
@@ -998,7 +1046,7 @@ namespace NaughtyDogDCReader
         }
 
 
-        private void SpawnVariableEditorBox(object property)
+        private void SpawnVariableEditorBox(string propertyName, object property)
         {
 
         }
@@ -1044,6 +1092,11 @@ namespace NaughtyDogDCReader
         }
 
 
+
+        /// <summary>
+        /// Populate either the PropertiesEditor or PropertiesWindow
+        /// </summary>
+        /// <param name="property"></param>
         private void DisplayHighlightedPropertyDetails(object property)
         {
             if (property != null)
@@ -1052,35 +1105,46 @@ namespace NaughtyDogDCReader
 
                 if (ObjectIsStruct(property))
                 {
-                    if (type == typeof(DCHeaderItem))
+                    if (PropertiesEditor.Visible)
                     {
-                        echo($"button property is dcHeaderItem \"{((DCHeaderItem) property).Name}\".");
-
-                        if (PropertiesEditor.Visible)
-                        {
-                            PopulatePropertiesEditorWithStructItems(((DCHeaderItem) property).Struct);
-                        }
-                        else {
-                            PrintHeaderItemDetailDisplay((DCHeaderItem) property);
-                        }
+                        PopulatePropertiesEditorWithStructItems(((DC.Item) property).Struct);
                     }
-                    else
-                    {
-                        echo($"button property is unnamed struct of type \"{type}\".");
-                        if (PropertiesEditor.Visible)
+                    else {
+                        if (type == typeof(DC.Item))
                         {
-                            PopulatePropertiesEditorWithStructItems(property);
+                            PrintHeaderItemDetailDisplay((DC.Item) property);
                         }
                         else {
                             PrintStructPropertyDetails(property);
                         }
                     }
+                    
+                    #if DEBUG
+                    if (type == typeof(DC.Item))
+                    {
+                        echo($"button property is DCHeaderItem {((DC.Item) property).Name.DecodedID} of type {type}.");
+                    }
+                    else {
+                        echo($"button property is unnamed struct of type {type}.");
+                    }
+                    #endif
+
+                    return;
                 }
-                else {
-                    //! handle numerical values
-                    echo($"Button property is \"{type}\"");
-                    LogWindow.AppendLine("Non.");
+
+                //-# Object is an Array of any type
+                if (type.BaseType == typeof(System.Array))
+                {
+                    PopulatePropertiesEditorWithArrayItems(property);
+                    return;
                 }
+
+
+                
+                //-# Object is some Numerical Value
+                echo($"Button property is \"{type}\"");
+                LogWindow.AppendLine("Non.");
+                PopulatePropertiesEditorWithSingleNumericalValue(property);
             }
             else {
                 echo("Null property.");

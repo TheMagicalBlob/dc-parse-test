@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using static NaughtyDogDCReader.Main;
 
 namespace NaughtyDogDCReader
@@ -84,7 +85,11 @@ namespace NaughtyDogDCReader
 
         private void button1_Click(object sender, EventArgs e)
         {
+            var jag = new string[][] { new[] {"anus" } };
+            var nrm = new string[] { "sphincter" };
 
+            echo(jag.GetType().BaseType);
+            echo(nrm.GetType().BaseType);
         }
 
         private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)

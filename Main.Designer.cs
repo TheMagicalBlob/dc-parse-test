@@ -46,8 +46,8 @@ namespace NaughtyDogDCReader
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.propertiesPanelContainer = new System.Windows.Forms.Panel();
-            this.propertiesEditorContainer = new System.Windows.Forms.Panel();
             this.propertiesPanel = new NaughtyDogDCReader.GroupBox();
+            this.propertiesEditorContainer = new System.Windows.Forms.Panel();
             this.propertiesEditor = new NaughtyDogDCReader.GroupBox();
             this.label5 = new NaughtyDogDCReader.Label();
             this.label6 = new NaughtyDogDCReader.Label();
@@ -61,6 +61,8 @@ namespace NaughtyDogDCReader
             this.VersionLabel = new NaughtyDogDCReader.Label();
             this.scriptStatusLabel = new NaughtyDogDCReader.Label();
             this.propertiesWindow = new NaughtyDogDCReader.RichTextBox();
+            this.propertyForwardBtn = new System.Windows.Forms.Button();
+            this.propertyBackBtn = new System.Windows.Forms.Button();
             this.propertiesPanelContainer.SuspendLayout();
             this.propertiesEditorContainer.SuspendLayout();
             this.SuspendLayout();
@@ -224,15 +226,6 @@ namespace NaughtyDogDCReader
             this.propertiesPanelContainer.Size = new System.Drawing.Size(530, 359);
             this.propertiesPanelContainer.TabIndex = 0;
             // 
-            // propertiesEditorContainer
-            // 
-            this.propertiesEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.propertiesEditorContainer.Controls.Add(this.propertiesEditor);
-            this.propertiesEditorContainer.Location = new System.Drawing.Point(546, 232);
-            this.propertiesEditorContainer.Name = "propertiesEditorContainer";
-            this.propertiesEditorContainer.Size = new System.Drawing.Size(338, 391);
-            this.propertiesEditorContainer.TabIndex = 0;
-            // 
             // propertiesPanel
             // 
             this.propertiesPanel.BackColor = System.Drawing.Color.Black;
@@ -244,6 +237,15 @@ namespace NaughtyDogDCReader
             this.propertiesPanel.Size = new System.Drawing.Size(530, 359);
             this.propertiesPanel.TabIndex = 19;
             this.propertiesPanel.TabStop = false;
+            // 
+            // propertiesEditorContainer
+            // 
+            this.propertiesEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.propertiesEditorContainer.Controls.Add(this.propertiesEditor);
+            this.propertiesEditorContainer.Location = new System.Drawing.Point(546, 232);
+            this.propertiesEditorContainer.Name = "propertiesEditorContainer";
+            this.propertiesEditorContainer.Size = new System.Drawing.Size(338, 391);
+            this.propertiesEditorContainer.TabIndex = 0;
             // 
             // propertiesEditor
             // 
@@ -265,7 +267,6 @@ namespace NaughtyDogDCReader
             this.label5.Size = new System.Drawing.Size(8, 34);
             this.label5.StretchToFitForm = false;
             this.label5.TabIndex = 51;
-            this.label5.Tag = "";
             this.label5.Text = "---------------------------------------------------------------------------------" +
     "-----------------------------------------------------------------------------";
             // 
@@ -292,7 +293,6 @@ namespace NaughtyDogDCReader
             this.label4.Size = new System.Drawing.Size(539, 10);
             this.label4.StretchToFitForm = true;
             this.label4.TabIndex = 47;
-            this.label4.Tag = "True";
             this.label4.Text = "---------------------------------------------------------------------------------" +
     "----------------------------------------------";
             // 
@@ -417,12 +417,44 @@ namespace NaughtyDogDCReader
             this.propertiesWindow.Visible = false;
             this.propertiesWindow.WordWrap = false;
             // 
+            // propertyForwardBtn
+            // 
+            this.propertyForwardBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.propertyForwardBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.propertyForwardBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
+            this.propertyForwardBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.propertyForwardBtn.Location = new System.Drawing.Point(568, 207);
+            this.propertyForwardBtn.Name = "propertyForwardBtn";
+            this.propertyForwardBtn.Size = new System.Drawing.Size(22, 22);
+            this.propertyForwardBtn.TabIndex = 55;
+            this.propertyForwardBtn.Text = "X";
+            this.propertyForwardBtn.UseVisualStyleBackColor = false;
+            this.propertyForwardBtn.Click += new System.EventHandler(this.propertyForwardBtn_Click);
+            // 
+            // propertyBackBtn
+            // 
+            this.propertyBackBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.propertyBackBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.propertyBackBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.propertyBackBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.propertyBackBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.propertyBackBtn.Location = new System.Drawing.Point(545, 207);
+            this.propertyBackBtn.Name = "propertyBackBtn";
+            this.propertyBackBtn.Size = new System.Drawing.Size(22, 22);
+            this.propertyBackBtn.TabIndex = 54;
+            this.propertyBackBtn.Text = "-";
+            this.propertyBackBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.propertyBackBtn.UseVisualStyleBackColor = false;
+            this.propertyBackBtn.Click += new System.EventHandler(this.propertyBackBtn_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(890, 628);
+            this.Controls.Add(this.propertyForwardBtn);
+            this.Controls.Add(this.propertyBackBtn);
             this.Controls.Add(this.propertiesPanelContainer);
             this.Controls.Add(this.propertiesEditorContainer);
             this.Controls.Add(this.button2);
@@ -496,6 +528,8 @@ namespace NaughtyDogDCReader
         private Panel propertiesPanelContainer;
         private GroupBox propertiesEditor;
         public Panel propertiesEditorContainer;
+        public Button propertyForwardBtn;
+        public Button propertyBackBtn;
     }
 }
 

@@ -105,7 +105,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcEntries"></param>
-        public static void PopulatePropertiesPanel(object dcFileName, DCFileHeader dcEntries)
+        public static void PopulatePropertiesPanel(object dcFileName, DC dcEntries)
         {
             Venat?.Invoke(Panels?.populatePropertiesPanelWithHeaderItemContents, new object[] { dcFileName, dcEntries });
         }

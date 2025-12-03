@@ -43,12 +43,6 @@ namespace NaughtyDogDCReader
             logWindow.Clear();
             propertiesWindow.Clear();
 
-            var controls = this.Controls.Cast<Control>().ToArray();
-            for (var i = 0; i < controls.Length; ++i)
-            {
-                controls[i].TabIndex = 0;
-                controls[i].TabStop = false;
-            }
 
 
             // Set global object refs used in various static functions (maybe change that...)
@@ -219,65 +213,23 @@ namespace NaughtyDogDCReader
         {
             echo($"Input [{arg}] Received by Control [{sender}]");
 
-            /*
-            switch (arg)
+            //! temp
+            if (arg == Keys.Back)
             {
-                case Keys.Down:
-                    if ((int)HeaderSelection.Tag == HeaderItemButtons.Length - 1)
-                    {
-                        HeaderItemButtons[0].Focus();
-                    }
-                    else {
-                        HeaderItemButtons[(int)HeaderSelection.Tag + 1].Focus();
-                    }
-                break;
-
-                case Keys.Up:
-                    if ((int)HeaderSelection.Tag == 0)
-                    {
-                        HeaderItemButtons[HeaderItemButtons.Length - 1].Focus();
-                    }
-                    else {
-                        HeaderItemButtons[(int)HeaderSelection.Tag - 1].Focus();
-                    }
-                break;
-
-
-                #if DEBUG
-                default:
-                    echo($"Misc Input Received: [{arg}]");
-                break;
-                #endif
+                Panels.GoBack();   
             }
+        }
 
+        
 
-            if (HeaderSelection == null && (HeaderItemButtons?.Any() ?? false))
-            {
-                HeaderItemButtons[arg == Keys.Down ? 0 : HeaderItemButtons.Length - 1].Focus();
-            }
-            else {
-                if (arg == Keys.Down)
-                {
-                    if ((int)HeaderSelection.TabIndex == HeaderItemButtons.Length - 1)
-                    {
-                        HeaderItemButtons[0].Focus();
-                    }
-                    else {
-                        HeaderItemButtons[(int)HeaderSelection.TabIndex - 1].Focus();
-                    }
-                }
-                else if (arg == Keys.Up)
-                {
-                    if ((int)HeaderSelection.TabIndex == 0)
-                    {
-                        HeaderItemButtons[HeaderItemButtons.Length - 1].Focus();
-                    }
-                    else {
-                        HeaderItemButtons[(int)HeaderSelection.TabIndex - 1].Focus();
-                    }
-                }
-            }
-            */
+        private void propertyBackBtn_Click(object sender, EventArgs e)
+        {
+            Panels?.GoBack();   
+        }
+
+        private void propertyForwardBtn_Click(object sender, EventArgs e)
+        {
+            Panels?.LoadHighlightedProperty();
         }
         #endregion
     }
