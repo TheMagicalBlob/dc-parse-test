@@ -114,7 +114,7 @@ namespace NaughtyDogDCReader
     {
         public PropertyButton()
         {
-            SetStyle(ControlStyles.StandardDoubleClick, true);
+            SetStyle(ControlStyles.StandardClick | ControlStyles.StandardDoubleClick, true);
         }
 
 
