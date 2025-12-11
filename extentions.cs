@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 
 namespace NaughtyDogDCReader
 {
@@ -111,6 +112,12 @@ namespace NaughtyDogDCReader
 
     public class PropertyButton : System.Windows.Forms.Button
     {
+        public PropertyButton()
+        {
+            SetStyle(ControlStyles.StandardDoubleClick, true);
+        }
+
+
         /// <summary>
         /// The property associated with the current PropertyWindow button;
         /// </summary>

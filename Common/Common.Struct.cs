@@ -70,7 +70,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Static reference to the active DC binary's header struct.
         /// </summary>
-        public static DC DCScript;
+        public static DCScript ActiveDCScript;
 
 
         
@@ -175,7 +175,7 @@ namespace NaughtyDogDCReader
             
             DCFile = null;
             
-            Panels?.Reset();
+            Panels?.ResetPanels();
         }
 
         private static void CTCloseBinFile()
@@ -187,12 +187,12 @@ namespace NaughtyDogDCReader
 
         private void StartBinParseThread()
         {
-            if (DCParseThread != null && DCParseThread.ThreadState != System.Threading.ThreadState.Unstarted)
+            if (DCFileHandlerThread != null && DCFileHandlerThread.ThreadState != System.Threading.ThreadState.Unstarted)
             {
                 try
                 {
                     echo("Bin thread already active, killing thread.");
-                    DCParseThread.Abort();
+                    DCFileHandlerThread.Abort();
                 }
                 catch (ThreadAbortException) { echo("Bin thread killed."); }
                 catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting bin thread."); }
@@ -200,65 +200,44 @@ namespace NaughtyDogDCReader
             }
 
             // Create and start the thread
-            (DCParseThread = new Thread(() =>
-            {
-                var binPath = ActiveFilePath?.ToString() ?? "null";
-
-                #if !DEBUG
-                try
-                #endif
-                {
-                    //#
-                    //## Load & Parse provided DC file.
-                    //#
-                    DCFile = File.ReadAllBytes(binPath);
-
-                    // Check whether or not the script is a basic empty one  TODO: make sure there's no difference between path versions! //!
-                    if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
-                    {
-                        UpdateStatusLabel(new[] { "Empty DC File Loaded." });
-                        ResetSelectionLabel();
-                        return;
-                    }
-
-                    // Parse the script's header entries
-                    DCScript = new DC(DCFile, ActiveFileName);
-
-
-
-                    //#
-                    //## Setup Form
-                    //#
-                    echo("\nFinished!");
-                    UpdateStatusLabel(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
-                    PopulatePropertiesPanel(ActiveFileName, DCScript);
-
-                    SetReloadCloseButtonsEnabledStatus(true);
-                    UpdateStatusLabel(new[] { "Viewing Script" });
-
-                }
-                #if !DEBUG
-                // File in use, probably
-                catch (IOException dang)
-                {
-                    echo($"\n{dang.GetType()}: Selected file is either in use, or doesn't exist.\nMessage: [{dang.Message}]");
-
-                    CTCloseBinFile();
-                    UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
-                }
-                // File in use, probably
-                catch (Exception nani)
-                {
-                    echo($"\nERROR: Selected file is either in use, or doesn't exist.\nMessage: [{nani.Message}]");
-
-                    CTCloseBinFile();
-                    UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
-                }
-                #endif
-            }
-            )).Start();
+            (DCFileHandlerThread = new Thread(DCFileHandlerFunction)).Start();
         }
 
+
+        /// <summary>
+        /// Load the header info for the NaughtyDog DCScript at the provided <paramref name="FilePath"/>.
+        /// </summary>
+        /// <param name="FilePath"></param>
+        public static void LoadProvidedDCFile(string FilePath)
+        {
+            //#
+            //## Load provided DC file.
+            //#
+            DCFile = File.ReadAllBytes(FilePath);
+
+            // Check whether or not the script is a basic empty one  TODO: make sure there's no difference between path versions! //!
+            if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
+            {
+                UpdateStatusLabel(new[] { "Empty DC File Loaded." });
+                ResetSelectionLabel();
+                return;
+            }
+
+            // Parse the script's header entries
+            ActiveDCScript = new DCScript(DCFile, ActiveFileName);
+
+
+
+            //#
+            //## Setup Form
+            //#
+            echo("\nFinished!");
+            UpdateStatusLabel(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
+            PopulatePropertiesPanel(ActiveFileName, ActiveDCScript);
+
+            SetReloadCloseButtonsEnabledStatus(true);
+            UpdateStatusLabel(new[] { "Viewing Script" });
+        }
 
 
 

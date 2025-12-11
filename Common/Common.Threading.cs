@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Drawing;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
+
 
 namespace NaughtyDogDCReader
 {
@@ -11,7 +14,7 @@ namespace NaughtyDogDCReader
         //## Threading-Related Variables (threads, delegates, and mammets)
         //#
         #region [Threading-Related Variables]
-        private static Thread DCParseThread;
+        private static Thread DCFileHandlerThread;
 
         /// <summary> Cross-thread form interaction delegate. </summary>
         public delegate void binThreadFormWand(bool args); //! god I need to read about delegates lmao
@@ -84,11 +87,47 @@ namespace NaughtyDogDCReader
 
 
 
-
         //#
         //## Cross-Thread-Safe Functions
         //#
         #region [Cross-Thread-Safe Functions]
+
+        /// <summary>
+        /// I plan to do more here. Not 100 on it yet though.
+        /// </summary>
+        public static void DCFileHandlerFunction()
+        {
+            var filePath = ActiveFilePath ?? "C:\\[null path!]";
+
+            #if !DEBUG
+            try
+            #endif
+            {
+                //#
+                //## Load & Parse provided DC file.
+                //#
+                LoadProvidedDCFile(filePath);
+            }
+            #if !DEBUG
+            // File in use, probably
+            catch (IOException dang)
+            {
+                echo($"\n{dang.GetType()}: Selected file is either in use, or doesn't exist.\nMessage: [{dang.Message}]");
+
+                CTCloseBinFile();
+                UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+            }
+            // File in use, probably
+            catch (Exception nani)
+            {
+                echo($"\nERROR: Selected file is either in use, or doesn't exist.\nMessage: [{nani.Message}]");
+
+                CTCloseBinFile();
+                UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+            }
+            #endif
+        }
+
 
         /// <summary>
         /// 
@@ -105,9 +144,9 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcEntries"></param>
-        public static void PopulatePropertiesPanel(object dcFileName, DC dcEntries)
+        public static void PopulatePropertiesPanel(object dcFileName, DCScript dcEntries)
         {
-            Venat?.Invoke(Panels?.populatePropertiesPanelWithHeaderItemContents, new object[] { dcFileName, dcEntries });
+            Venat?.Invoke(Panels.populatePropertiesPanelWithHeaderItemContents, new object[] { dcFileName, dcEntries });
         }
 
 

@@ -21,9 +21,9 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Details on the initial header array for the provided DC file, as well as an array of any present HeaderItems.
         /// </summary>
-        public struct DC
+        public struct DCScript
         {
-            public DC(byte[] DCFile, string ScriptName)
+            public DCScript(byte[] DCFile, string ScriptName)
             {
                 //#
                 //## Variable Initializations
@@ -76,7 +76,7 @@ namespace NaughtyDogDCReader
                 BinFileLength = BitConverter.ToInt64(DCFile, 0x8);
                 TableLength = BitConverter.ToInt32(DCFile, 0x14);
 
-                Entries = new Item[TableLength];
+                Entries = new DCEntry[TableLength];
 
 
                 //#
@@ -90,7 +90,7 @@ namespace NaughtyDogDCReader
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    Entries[tableIndex] = new Item(DCFile, addr);
+                    Entries[tableIndex] = new DCEntry(DCFile, addr);
                 }
 
 #if false
@@ -110,16 +110,19 @@ namespace NaughtyDogDCReader
             public long BinFileLength;
             public int TableLength;
 
-            /// <summary> An array of the DCFileHeader.HeaderItems parsed from the provided DC file. </summary>
-            public Item[] Entries;
+
+            /// <summary>
+            /// An array of the DCFileHeader.HeaderItems parsed from the provided DC file.
+            /// </summary>
+            public DCEntry[] Entries;
 
 
             /// <summary>
             /// An individual item (module?) from the array at the beginning of the DC file.
             /// </summary>
-            public struct Item
+            public struct DCEntry
             {
-                public Item(byte[] DCFile, int Address)
+                public DCEntry(byte[] DCFile, int Address)
                 {
                     this.Address = Address;
 
