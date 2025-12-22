@@ -427,7 +427,7 @@ namespace NaughtyDogDCReader
             this.propertyForwardBtn.Name = "propertyForwardBtn";
             this.propertyForwardBtn.Size = new System.Drawing.Size(22, 22);
             this.propertyForwardBtn.TabIndex = 55;
-            this.propertyForwardBtn.Text = "X";
+            this.propertyForwardBtn.Text = ">";
             this.propertyForwardBtn.UseVisualStyleBackColor = false;
             this.propertyForwardBtn.Click += new System.EventHandler(this.propertyForwardBtn_Click);
             // 
@@ -442,7 +442,7 @@ namespace NaughtyDogDCReader
             this.propertyBackBtn.Name = "propertyBackBtn";
             this.propertyBackBtn.Size = new System.Drawing.Size(22, 22);
             this.propertyBackBtn.TabIndex = 54;
-            this.propertyBackBtn.Text = "-";
+            this.propertyBackBtn.Text = "<";
             this.propertyBackBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.propertyBackBtn.UseVisualStyleBackColor = false;
             this.propertyBackBtn.Click += new System.EventHandler(this.propertyBackBtn_Click);

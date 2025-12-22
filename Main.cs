@@ -214,9 +214,15 @@ namespace NaughtyDogDCReader
             echo($"Input [{arg}] Received by Control [{sender}]");
 
             //! temp
-            if (arg == Keys.Back)
+            switch (arg)
             {
-                Panels.GoBack();   
+                case Keys.Back:
+                    Panels.GoBack();   
+                    break;
+
+                default:
+                    echo($"");
+                    break;
             }
         }
 

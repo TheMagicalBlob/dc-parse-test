@@ -489,6 +489,9 @@ namespace NaughtyDogDCReader
                 FirstAndLastPropertyButtons[0] = propertyButtons[0];
                 FirstAndLastPropertyButtons[1] = propertyButtons[1];
             }
+
+             
+            Panels.HighlightPropertyButton();
         }
 
         
@@ -614,9 +617,32 @@ namespace NaughtyDogDCReader
                 FirstAndLastPropertyButtons[0] = propertyButtons[0];
                 FirstAndLastPropertyButtons[1] = propertyButtons[1];
             }
+
+         
+            Panels.HighlightPropertyButton();
         }
 
         
+
+
+        public void HighlightPropertyButton()
+        {
+            var newButton = PropertiesPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+            if ((newButton ?? default) == default)
+            {
+                return;
+            }
+
+
+
+
+            HighlightPropertyButton(newButton);
+
+            // Highlight the button as if it were clicked, so we can continue using the arrow keys without needing to reimplement that functionality we've already deleted
+            PropertiesPanel.Focus();
+            newButton.Select();
+        }
 
 
         /// <summary>
@@ -624,6 +650,20 @@ namespace NaughtyDogDCReader
         /// </summary>
         private void HighlightPropertyButton(PropertyButton newButton)
         {
+            // Default to the first Property Button if any are present
+            if (newButton == null)
+            {
+                newButton = PropertiesPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+                if (newButton == default || newButton == null)
+                {
+                    return;
+                }
+
+                PropertiesPanel.Focus();
+                newButton.Select();
+            }
+
             if (PropertySelection != null)
             {
                 // "Reset" the previous button
