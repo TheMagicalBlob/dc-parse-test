@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using static NaughtyDogDCReader.Main;
@@ -37,7 +38,7 @@ namespace NaughtyDogDCReader
             //## Create the various delegates for the Properties Handler, so we can do shit across multiple threads
             //#
 
-            populatePropertiesPanelWithHeaderItemContents = PopulatePropertiesPanelWithHeaderItemContents;
+            populatePropertiesPanelWithHeaderItemContents = PopulatePropertiesPanelWithModuleEntries;
 
 
             // Newline
@@ -90,10 +91,7 @@ namespace NaughtyDogDCReader
             set {
                 if (value != null)
                 {
-                    DisplayHighlightedPropertyDetails(value.Tag);
-                }
-                else {
-                    echo ("Null property button selection provided!!");
+                    DisplayHighlightedPropertyDetails(value.DCProperty);
                 }
 
                 _propertySelection = value;
@@ -162,7 +160,7 @@ namespace NaughtyDogDCReader
         public delegate void PropertiesWindowOutputWand(string msg);
 
         /// <summary> //! </summary>
-        public delegate void InitialPropertiesPanelPopulation(string dcFileName, DCScript dcEntries);
+        public delegate void InitialPropertiesPanelPopulation(string dcFileName, DCModule dcEntries);
         public delegate void SubsequentPropertiesPanelPopulation(string structName, object structProperty);
 
         public delegate void PropertyEditorClickHandler(string propertyName, object property);
@@ -198,748 +196,6 @@ namespace NaughtyDogDCReader
         //--|   Function Declarations   |--\\
         //=================================\\
         #region [Function Declarations]
-
-        //#
-        //## Event Handler Declarations
-        //#
-        #region [Event Handler Declarations]
-        #endregion [event handlers]
-
-
-
-
-        //#
-        //## Output-related function declarations
-        //#
-        #region [Properties Window-related function declarations]
-
-        /// <summary>
-        /// Replace a specified line in the properties output window with <paramref name="message"/>.
-        /// <br/> Clears the line if no message is provided.
-        /// </summary>
-        public void PrintPropertyDetailNL(object message = null)
-        {
-            if (message == null)
-            {
-                message = emptyStr;
-            }
-
-#if DEBUG
-            // Debug Output
-            echo(message);
-#endif
-
-            // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
-                Venat?.Invoke(propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null" });
-            }
-            catch (Exception dang)
-            {
-                var err = $"Missed {nameof(PrintPropertyDetailNL)} Invocation due to a(n) {dang.GetType()}.";
-                echo(err);
-            }
-        }
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void PrintPropertyDetail(object message = null, int? indentationOverride = null)
-        {
-            var previousIndentation = -1;
-            
-            if (message == null)
-            {
-                message = "null";
-            }
-            if (indentationOverride != null)
-            {
-                previousIndentation = IndentationDepth;
-                IndentationDepth = (int) indentationOverride;
-            }
-
-
-#if DEBUG
-            // Debug Output
-            echo(message);
-#endif
-
-            // This occasionally crashes in a manner that's really annoying to replicate, so meh
-            try {
-                Venat?.Invoke(propertiesWindowMammet, new object[] { message });
-            }
-            catch (Exception dang)
-            {
-                var err = $"Missed {nameof(PrintPropertyDetail)} Invocation due to a(n) {dang.GetType()}.";
-                echo(err);
-            }
-            finally {
-                if (indentationOverride != null)
-                {
-                    IndentationDepth = previousIndentation;
-                }
-            }
-        }
-
-
-
-
-        /// <summary>
-        /// Prepend a space to any capitalized letter that follows a lowercase one.
-        /// </summary>
-        /// <returns> The provided <paramref name="name">, now spaced out rather than camel/pascal-case. </returns>
-        private string SpaceOutStructName(string name)
-        {
-            var str = string.Empty;
-
-            for (var i = 0; i < name.Length; i++)
-            {
-                if (name[i] <= 122u && name[i] >= 97u)
-                {
-                    if (i + 1 != name.Length)
-                    {
-                        if (name[i + 1] >= 65u && name[i + 1] <= 90u)
-                        {
-                            str += $"{name[i]} ";
-                            continue;
-                        }
-                    }
-                }
-
-                str += name[i];
-            }
-
-            return str;
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// Populate the property window with details about the highlighted header item
-        /// </summary>
-        /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
-        private void PrintHeaderItemDetailDisplay(DCScript.DCEntry @struct)
-        {
-            //#
-            //## Grab basic data about the current item and clear the current properties window contents 
-            //#
-            var structType = @struct.Type;
-
-            PropertiesWindow.Clear();
-            UpdateSelectionLabel(new[] { null, @struct.Name.DecodedID });
-
-
-
-
-            // Update Properties Window
-            PrintPropertyDetailNL("\nType: " + structType.DecodedID);
-
-            if (@struct.Struct == null)
-            {
-                PrintPropertyDetailNL("Null structure, for some reason.");
-                return;
-            }
-
-            IndentationDepth = 1;
-            foreach (var property in @struct.Struct.GetType().GetProperties())
-            {
-                // Print the name of the property
-                PrintPropertyDetailNL($"{SpaceOutStructName(property.Name)}: [");
-
-                // Get and format the property value
-                var rawValue = property.GetValue(@struct.Struct);
-                var formattedValue = FormatPropertyValueAsString(rawValue);
-
-                // Print the formatted property value
-                PrintPropertyDetail(Indentation + formattedValue.Replace("\n", "\n" + Indentation));
-
-                PrintPropertyDetailNL("]");
-            }
-        }
-
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dcEntry"></param>
-        /// <returns></returns>
-        private void PrintStructPropertyDetails(object dcEntry)
-        {
-            //## clear the current properties window contents 
-            PropertiesWindow.Clear();
-
-            // Update Properties Window
-            var str = FormatPropertyValueAsString(dcEntry);
-
-#if DEBUG
-            echo(str);
-#endif
-
-            PrintPropertyDetail(str);
-        }
-        #endregion
-
-
-
-
-
-
-
-
-
-        //#
-        //## PropertiesPanel-Related Function Declarations
-        //#
-        #region [PropertiesPanel-Related Function Declarations]
-
-        /// <summary>
-        /// Fill the PropertiesPanel with the <paramref name="ActiveScript"/>'s header structures.
-        /// </summary>
-        /// <param name="ActiveScriptName"></param>
-        /// <param name="ActiveScript"></param>
-        private void PopulatePropertiesPanelWithHeaderItemContents(string ActiveScriptName, DCScript ActiveScript)
-        {
-            //-# Variable Declarations
-            PropertyButton currentButton;
-
-            var entries = ActiveScript.Entries;
-            var entryCount = entries.Length;
-            var cumulativeButtonHeight = DefaultPropertiesPanelButtonHeight * entryCount;
-
-
-            //-## Reset panels to default state
-            ResetPanels();
-
-            //-## Create and add the scroll bar if the controls are going to overflow the group box's height
-            if (cumulativeButtonHeight >= PropertiesPanel.Height)
-            {
-                CreateScrollBarForGroupBox(PropertiesPanel, ref PropertiesPanelScrollBar, cumulativeButtonHeight:cumulativeButtonHeight);
-                
-                FirstAndLastPropertyButtons = new PropertyButton[2];
-            }
-
-
-
-            for (var i = 0; i < entryCount; ++i)
-            {
-                var entry = entries[i];
-                currentButton = CreatePropertiesPanelButton();
-
-                PropertiesPanel.Controls.Add(currentButton);
-                currentButton.Location = new Point(1, currentButton.Height * i);
-
-                
-                // Apply item name as button text
-                currentButton.Text = entry.Name.DecodedID;
-
-                // Apply item type id as button name
-                currentButton.Name = entry.Type.DecodedID;
-
-
-                // Style the control
-                currentButton.FlatAppearance.BorderSize = 0;
-                currentButton.Width = currentButton.Parent.Width - 2;
-
-                if (Venat.Controls.Contains(PropertiesPanelScrollBar))
-                {
-                    // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
-                    currentButton.Width -= PropertiesPanelScrollBar.Width;
-                }
-
-
-                // Save the index of the header item tied to the control via the button's TabIndex property
-                currentButton.TabIndex = i;
-
-                currentButton.Tag = entry;
-
-
-
-                // Apply highlight event handler to buttons
-                currentButton.GotFocus += (button, _) => HighlightPropertyButton(button as PropertyButton);
-
-
-                currentButton.PreviewKeyDown += (_, keyEvent) =>
-                {
-                    if (keyEvent.KeyCode == Keys.Return)
-                    {
-                        History.Add(new object[] { ActiveScriptName, ActiveScript });
-
-                        PopulatePropertiesPanelWithStructContents(entry.Name.DecodedID, entry.Struct);
-                    }
-                };
-
-                currentButton.DoubleClick += (_, __) =>
-                {
-                    History.Add(new object[] { ActiveScriptName, ActiveScript });
-
-                    PopulatePropertiesPanelWithStructContents(entry.Name.DecodedID, entry.Struct);
-                };
-
-            }
-            if (FirstAndLastPropertyButtons != null)
-            {
-                var propertyButtons = PropertiesPanel.Controls.Cast<PropertyButton>().ToArray();
-
-                FirstAndLastPropertyButtons[0] = propertyButtons[0];
-                FirstAndLastPropertyButtons[1] = propertyButtons[1];
-            }
-
-             
-            Panels.HighlightPropertyButton();
-        }
-
-        
-
-
-        /// <summary>
-        /// Fill the PropertiesPanel with entries for the <paramref name="currentStruct"/>'s Properties.
-        /// </summary>
-        /// <param name="currentStuctName"></param>
-        /// <param name="currentStruct"></param>
-        private void PopulatePropertiesPanelWithStructContents(string currentStuctName, object currentStruct)
-        {
-            //-# Variable Declarations
-            PropertyButton currentButton;
-
-            var structType = currentStruct.GetType();
-            var properties = structType.GetProperties();
-            var propertyCount = properties.Length;
-
-            var cumulativeButtonHeight = DefaultPropertiesPanelButtonHeight * propertyCount;
-
-
-
-            //-## Reset panels to default state
-            ResetPanels();
-
-
-            //-## Create and add the scroll bar if the controls are going to overflow the group box's height
-            if (cumulativeButtonHeight >= PropertiesPanel.Height)
-            {
-                CreateScrollBarForGroupBox(PropertiesPanel, ref PropertiesPanelScrollBar, cumulativeButtonHeight:cumulativeButtonHeight);
-                
-                FirstAndLastPropertyButtons = new PropertyButton[2];
-            }
-
-
-
-            // Create and add a button for each property of the provided structure
-            for (var i = 0; i < propertyCount; ++i)
-            {
-                var property = properties[i];
-                currentButton = CreatePropertiesPanelButton();
-
-
-                PropertiesPanel.Controls.Add(currentButton);
-                currentButton.Location = new Point(1, currentButton.Height * i);
-
-                
-                // Apply item name as button text
-                currentButton.Text = property.Name;
-
-                // Apply item type id as button name
-                currentButton.Name = property.GetType().Name;
-
-
-                // Style the control
-                currentButton.FlatAppearance.BorderSize = 0;
-                currentButton.Width = currentButton.Parent.Width - 2;
-
-                if (Venat.Controls.Contains(PropertiesPanelScrollBar))
-                {
-                    // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
-                    currentButton.Width -= PropertiesPanelScrollBar.Width;
-                }
-
-
-                // Save the index of the header item tied to the control via the button's TabIndex property
-                currentButton.TabIndex = i;
-
-                currentButton.Tag = property.GetValue(currentStruct);
-
-
-
-                // Apply highlight event handler to buttons
-                currentButton.GotFocus += (button, _) => HighlightPropertyButton(button as PropertyButton);
-
-
-                currentButton.PreviewKeyDown += (_, keyEvent) =>
-                {
-                    if (keyEvent.KeyCode == Keys.Return)
-                    {
-                        if (ObjectIsStruct(property.PropertyType))
-                        {
-                            History.Add(new object[] { currentStuctName, currentStruct });
-
-                            PopulatePropertiesPanelWithStructContents(property.Name, property);
-                        }
-                        else
-                        {
-                            LogWindow.AppendLine("non.");
-                        }
-                    }
-                    
-
-
-                    // Go back to displaying the properties of the current structure's declaring struct
-                    else if (keyEvent.KeyCode == Keys.Back)
-                    {
-                        GoBack();
-                    }
-                };
-
-                currentButton.DoubleClick += (_, __) =>
-                {
-                    if (ObjectIsStruct(property.PropertyType))
-                    {
-                        History.Add(new object[] { currentStuctName, currentStruct });
-
-                        PopulatePropertiesPanelWithStructContents(property.Name, property);
-                    }
-                    else
-                    {
-                        LogWindow.AppendLine("non.");
-                    }
-                };
-            }
-            
-
-            if (FirstAndLastPropertyButtons != null)
-            {
-                var propertyButtons = PropertiesPanel.Controls.Cast<PropertyButton>().ToArray();
-
-                FirstAndLastPropertyButtons[0] = propertyButtons[0];
-                FirstAndLastPropertyButtons[1] = propertyButtons[1];
-            }
-
-         
-            Panels.HighlightPropertyButton();
-        }
-
-        
-
-
-        public void HighlightPropertyButton()
-        {
-            var newButton = PropertiesPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
-
-            if ((newButton ?? default) == default)
-            {
-                return;
-            }
-
-
-
-
-            HighlightPropertyButton(newButton);
-
-            // Highlight the button as if it were clicked, so we can continue using the arrow keys without needing to reimplement that functionality we've already deleted
-            PropertiesPanel.Focus();
-            newButton.Select();
-        }
-
-
-        /// <summary>
-        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
-        /// </summary>
-        private void HighlightPropertyButton(PropertyButton newButton)
-        {
-            // Default to the first Property Button if any are present
-            if (newButton == null)
-            {
-                newButton = PropertiesPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
-
-                if (newButton == default || newButton == null)
-                {
-                    return;
-                }
-
-                PropertiesPanel.Focus();
-                newButton.Select();
-            }
-
-            if (PropertySelection != null)
-            {
-                // "Reset" the previous button
-                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
-
-                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
-                if (PropertiesPanelScrollBar != null)
-                {
-                    var newValue = PropertiesPanelScrollBar.Value;
-
-                    // Handle wrapping from one end to another
-                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0]) // Wrap to top
-                    {
-                        newValue = PropertiesPanelScrollBar.Minimum;
-                    }
-                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0]) // Wrap to bottom
-                    {
-                        newValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
-                    }
-                    else
-                    {
-                        // Handle moving to slightly-offscreen buttons
-                        if (newButton.Location.Y <= 0)
-                        {
-                            newValue = PropertiesPanelScrollBar.Value + newButton.Location.Y; // Scroll up a little
-                        }
-                        else if (newButton.Location.Y + newButton.Height >= PropertiesPanel.Size.Height)
-                        {
-                            newValue = PropertiesPanelScrollBar.Value + (newButton.Location.Y - PropertiesPanel.Height) + newButton.Height + 2; // Scroll down a little
-                        }
-
-
-
-                        // Lazily catch overflow/underflow issues
-                        if (newValue < 0)
-                        {
-                            newValue = 0;
-                        }
-                        else if (newValue >= PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1))
-                        {
-                            newValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
-                        }
-                    }
-                    
-                    ForceScrollPropertyPanelScrollBar(newValue); 
-                }
-            }
-
-
-
-            (PropertySelection = newButton)
-            .Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
-        }
-
-        
-
-        private PropertyButton CreatePropertiesPanelButton()
-        {
-            var btn = new PropertyButton()
-            {
-                Font = MainFont,
-                BackColor = AppColour,
-                ForeColor = Color.White,
-
-                FlatStyle = 0,
-                Height = DefaultPropertiesPanelButtonHeight
-            };
-
-            // Assign basic form functionality event handlers
-            btn.MouseDown += MouseDownFunc;
-            btn.MouseUp += MouseUpFunc;
-            btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
-            btn.DoubleClick += new EventHandler((sender, e) => { }); //!
-
-
-            return btn;
-        }
-
-
-
-        /// <summary>
-        /// Load the property for the highlighted property button, as if enter was pressed on it.
-        /// </summary>
-        public void LoadHighlightedProperty()
-        {
-            if (PropertySelection == null || PropertySelection.Tag == null)
-            {
-                return;
-            }
-            PopulatePropertiesPanelWithStructContents(PropertySelection.Name, PropertySelection.Tag);
-        }
-        
-
-
-
-        public void ScrollPropertiesPanelButtons(Control hostBox, ScrollEventArgs offset)
-        {
-            foreach (Control button in hostBox.Controls)
-            {
-                button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
-            }
-            hostBox.Update();
-        }
-        
-
-
-
-        public void ForceScrollPropertyPanelScrollBar(int NewValue)
-        {
-            ScrollEventType scrollEventType;
-
-            if (NewValue < PropertiesPanelScrollBar.Value)
-            {
-                scrollEventType = ScrollEventType.SmallDecrement; // Going Up
-            }
-            else if (NewValue > PropertiesPanelScrollBar.Value)
-            {
-                scrollEventType = ScrollEventType.SmallIncrement; // Going Down
-            }
-            else {
-                return;
-            }
-
-
-            ScrollPropertiesPanelButtons(PropertiesPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
-            PropertiesPanel.Update();
-        }
-
-
-        public void GoBack()
-        {
-            var lastItem = History.LastOrDefault();
-
-            if (lastItem != default)
-            {
-                if (History.Count == 1)
-                {
-                    PopulatePropertiesPanelWithHeaderItemContents(lastItem[0].ToString(), (DCScript) lastItem[1]);
-
-                    History.Remove(lastItem);
-                }
-                else if (History.Count > 1)
-                {
-                    PopulatePropertiesPanelWithStructContents(lastItem[0].ToString(), lastItem[1]);
-                                
-                    History.Remove(lastItem);
-                }
-                else {
-                    echo("Why the hell is the history empty?");
-                }
-            }
-        }
-        #endregion propertiespanel-related function declarations
-
-
-
-
-
-
-
-
-
-
-
-
-        //==========================================================\\
-        //--|   PropertiesEditor-Related Function Declarations   |--\\
-        //==========================================================\\
-        #region [PropertiesEditor-Related Function Declarations]
-
-        private void PopulatePropertiesEditorWithStructItems(object Struct)
-        {
-            Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertyEditorClickHandler propertyEvent)
-            {
-                Button newRow = null;
-
-                newRow = new Button()
-                {
-                    Font = TextFont,
-                    BackColor = AppColourLight,
-                    ForeColor = Color.White,
-                    Padding = Padding.Empty,
-                    FlatStyle = FlatStyle.Flat,
-
-                    Height = DefaultPropertiesEditorRowHeight,
-                    Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
-
-                    Text = $"{propertyName}: {FormatPropertyValueAsString(propertyValue)}"
-                };
-
-                // Assign basic form functionality event handlers
-                newRow.MouseDown += MouseDownFunc;
-                newRow.MouseUp += MouseUpFunc;
-                
-                newRow.DoubleClick += (_, __) => propertyEvent(propertyName, propertyValue);
-
-
-
-                return newRow;
-            }
-
-
-            // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
-            var totalHeight = 2;
-
-            var type = Struct.GetType();
-            object[][] properties;
-
-            PropertiesEditor.Controls.Clear();
-
-            if (!ObjectIsStruct(type))
-            {
-                throw new Exception($"ERROR: Object of type \"{type.Name}\" is not a struct");
-            }
-
-
-            properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetType()) ? populatePropertiesPanelWithClickedItemsContents : spawnVariableEditorBox }).ToArray();
-            
-
-            foreach (var property in properties)
-            {
-                // Create the applicable buttons
-                var newRow = NewPropertiesEditorRow(property[0]?.ToString() ?? null, property[1], (PropertyEditorClickHandler) property[2]);
-                    
-                PropertiesEditor.Controls.Add(newRow);
-                newRow.Location = new Point(2, totalHeight);
-
-                totalHeight += newRow.Height;
-            }
-            
-            
-            CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * PropertiesEditor.Controls.Count);
-        }
-
-        
-        private void PopulatePropertiesEditorWithArrayItems(object Array)
-        {
-
-        }
-
-        private void PopulatePropertiesEditorWithSingleNumericalValue(object number)
-        {
-
-        }
-
-        
-
-
-
-        public void ScrollPropertyEditorRows(object _, ScrollEventArgs offset)
-        {
-            foreach (Control button in PropertiesEditor.Controls)
-            {
-                button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
-            }
-            PropertiesEditor.Update();
-        }
-
-        
-        public void ForceScrollPropertyEditorRows(int Incrementation)
-        {
-            foreach (Control button in PropertiesEditor.Controls)
-            {
-                button.Location = new Point(button.Location.X, button.Location.Y - (PropertiesEditorScrollBar.Value - (PropertiesEditorScrollBar.Value += Incrementation)));
-            }
-            PropertiesEditor.Update();
-        }
-        #endregion propertiesEditor-related function declarations
-
-
-
-
-
-
-
         //#
         //## Miscellaneous Function Declarations
         //#
@@ -1164,39 +420,50 @@ namespace NaughtyDogDCReader
         /// <param name="property"></param>
         private void DisplayHighlightedPropertyDetails(object property)
         {
-            if (property != null)
+            if (property == null)
             {
-                var type = property.GetType();
+                echo("Null property.");
+                return;
+            }
 
-                if (ObjectIsStruct(property))
+
+
+            var type = property.GetType();
+
+            if (ObjectIsStruct(property))
+            {
+                #if DEBUG
+                if (type == typeof(DCModule.DCEntry))
                 {
-                    if (PropertiesEditor.Visible)
-                    {
-                        PopulatePropertiesEditorWithStructItems(((DCScript.DCEntry) property).Struct);
-                    }
-                    else {
-                        if (type == typeof(DCScript.DCEntry))
-                        {
-                            PrintHeaderItemDetailDisplay((DCScript.DCEntry) property);
-                        }
-                        else {
-                            PrintStructPropertyDetails(property);
-                        }
-                    }
-                    
-                    #if DEBUG
-                    if (type == typeof(DCScript.DCEntry))
-                    {
-                        echo($"button property is DCHeaderItem {((DCScript.DCEntry) property).Name.DecodedID} of type {type}.");
-                    }
-                    else {
-                        echo($"button property is unnamed struct of type {type}.");
-                    }
-                    #endif
+                    echo($"button property is DCHeaderItem {((DCModule.DCEntry) property).Name.DecodedID} of type {type}.");
+                }
+                else {
+                    echo($"button property is unnamed struct of type {type}.");
+                }
+                #endif
 
-                    return;
+                if (PropertiesEditor.Visible)
+                {
+                    if (type == typeof(DCModule.DCEntry))
+                    {
+                        PopulatePropertiesEditorWithStructItems(((DCModule.DCEntry) property).Struct);
+                    }
+                    else {
+                        PopulatePropertiesEditorWithStructItems(property);
+                    }
+                }
+                else {
+                    if (type == typeof(DCModule.DCEntry))
+                    {
+                        PrintHeaderItemDetailDisplay((DCModule.DCEntry) property);
+                    }
+                    else {
+                        PrintStructPropertyDetails(property);
+                    }
                 }
 
+            }
+            else {
                 //-# Object is an Array of any type
                 if (type.BaseType == typeof(System.Array))
                 {
@@ -1210,9 +477,6 @@ namespace NaughtyDogDCReader
                 echo($"Button property is \"{type}\"");
                 LogWindow.AppendLine("Non.");
                 PopulatePropertiesEditorWithSingleNumericalValue(property);
-            }
-            else {
-                echo("Null property.");
             }
         }
 
@@ -1236,6 +500,776 @@ namespace NaughtyDogDCReader
             PropertiesEditorScrollBar = null;
 
             IndentationDepth = 0;
+        }
+        #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+        //#
+        //## PropertiesPanel-Related Function Declarations
+        //#
+        #region [PropertiesPanel-Related Function Declarations]
+
+        /// <summary>
+        /// Fill the PropertiesPanel with the <paramref name="LoadedModule"/>'s header structures.
+        /// </summary>
+        /// <param name="LoadedModuleName"> The name of the loaded module; specifically the file name, since the modules' names aren't stored anywhere inside them. </param>
+        /// <param name="LoadedModule">  </param>
+        private void PopulatePropertiesPanelWithModuleEntries(string LoadedModuleName, DCModule LoadedModule)
+        {
+            //-# Variable Declarations
+            PropertyButton currentButton;
+
+            var entries = LoadedModule.Entries;
+            var entryCount = entries.Length;
+            var cumulativeButtonHeight = DefaultPropertiesPanelButtonHeight * entryCount;
+
+
+            //-## Reset panels to default state
+            ResetPanels();
+
+            //-## Create and add the scroll bar if the controls are going to overflow the group box's height
+            if (cumulativeButtonHeight >= PropertiesPanel.Height)
+            {
+                CreateScrollBarForGroupBox(PropertiesPanel, ref PropertiesPanelScrollBar, cumulativeButtonHeight:cumulativeButtonHeight);
+                
+                FirstAndLastPropertyButtons = new PropertyButton[2];
+            }
+
+
+
+            // Create and "style" a button for each property in the provided structure
+            for (var i = 0; i < entryCount; ++i)
+            {
+                var entry = entries[i];
+                currentButton = CreatePropertiesPanelButton();
+
+                PropertiesPanel.Controls.Add(currentButton);
+                currentButton.Location = new Point(1, currentButton.Height * i);
+
+                
+                // Apply item name as button text
+                currentButton.Text = entry.Name.DecodedID;
+
+                // Apply item type id as button name
+                currentButton.Name = entry.Type.DecodedID;
+
+
+                // Style the control
+                currentButton.FlatAppearance.BorderSize = 0;
+                currentButton.Width = currentButton.Parent.Width - 2;
+
+                if (Venat.Controls.Contains(PropertiesPanelScrollBar))
+                {
+                    // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
+                    currentButton.Width -= PropertiesPanelScrollBar.Width;
+                }
+
+
+                // Save the index of the header item tied to the control via the button's TabIndex property
+                currentButton.TabIndex = i;
+
+                currentButton.DCProperty = entry;
+
+
+
+                // Apply highlight event handler to buttons
+                currentButton.GotFocus += (button, _) => HighlightPropertyButton(button as PropertyButton);
+
+
+                currentButton.PreviewKeyDown += (_, keyEvent) =>
+                {
+                    if (keyEvent.KeyCode == Keys.Return)
+                    {
+                        History.Add(new object[] { LoadedModuleName, LoadedModule });
+
+                        PopulatePropertiesPanelWithStructContents(entry.Name.DecodedID, entry.Struct);
+                    }
+                };
+
+                currentButton.DoubleClick += (_, __) =>
+                {
+                    History.Add(new object[] { LoadedModuleName, LoadedModule });
+
+                    PopulatePropertiesPanelWithStructContents(entry.Name.DecodedID, entry.Struct);
+                };
+
+            }
+            if (FirstAndLastPropertyButtons != null)
+            {
+                var propertyButtons = PropertiesPanel.Controls.Cast<PropertyButton>().ToArray();
+
+                FirstAndLastPropertyButtons[0] = propertyButtons[0];
+                FirstAndLastPropertyButtons[1] = propertyButtons[1];
+            }
+
+             
+            Panels.HighlightPropertyButton();
+        }
+
+        
+
+
+        /// <summary>
+        /// Fill the PropertiesPanel with entries for the <paramref name="currentStruct"/>'s Properties.
+        /// </summary>
+        /// <param name="currentStuctName">  </param>
+        /// <param name="currentStruct"></param>
+        private void PopulatePropertiesPanelWithStructContents(string currentStuctName, object currentStruct)
+        {
+            //-# Variable Declarations
+            PropertyButton currentButton;
+
+            var structType = currentStruct.GetType();
+            var properties = structType.GetProperties();
+            var propertyCount = properties.Length;
+
+            var cumulativeButtonHeight = DefaultPropertiesPanelButtonHeight * propertyCount;
+
+
+
+            //-## Reset panels to default state
+            ResetPanels();
+
+
+            //-## Create and add the scroll bar if the controls are going to overflow the group box's height
+            if (cumulativeButtonHeight >= PropertiesPanel.Height)
+            {
+                CreateScrollBarForGroupBox(PropertiesPanel, ref PropertiesPanelScrollBar, cumulativeButtonHeight:cumulativeButtonHeight);
+                
+                FirstAndLastPropertyButtons = new PropertyButton[2];
+            }
+
+
+
+            // Create and add a button for each property of the provided structure
+            for (var i = 0; i < propertyCount; ++i)
+            {
+                currentButton = CreatePropertiesPanelButton();
+
+                var property = properties[i];
+                var propertyType = property.PropertyType;
+                var propertyValue = property.GetValue(currentStruct);
+                var propertyName = propertyType.Name;
+
+                PropertiesPanel.Controls.Add(currentButton);
+
+
+
+                currentButton.Location = new Point(1, currentButton.Height * i);
+
+                
+                // Apply item name as button text
+                currentButton.Text = property.Name;
+
+                // Apply item type id as button name
+                currentButton.Name = propertyName;
+
+
+                // Style the control
+                currentButton.FlatAppearance.BorderSize = 0;
+                currentButton.Width = currentButton.Parent.Width - 2;
+
+                if (Venat.Controls.Contains(PropertiesPanelScrollBar))
+                {
+                    // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
+                    currentButton.Width -= PropertiesPanelScrollBar.Width;
+                }
+
+
+                // Save the index of the header item tied to the control via the button's TabIndex property
+                currentButton.TabIndex = i;
+
+                currentButton.DCProperty = propertyValue;
+
+
+
+                // Apply highlight event handler to buttons
+                currentButton.GotFocus += (button, _) => HighlightPropertyButton(button as PropertyButton);
+
+
+                currentButton.PreviewKeyDown += (_, keyEvent) =>
+                {
+                    if (keyEvent.KeyCode == Keys.Return)
+                    {
+                        if (ObjectIsStruct(propertyValue)) 
+                        {
+                            History.Add(new object[] { currentStuctName, currentStruct });
+
+                            PopulatePropertiesPanelWithStructContents(property.Name, propertyValue);
+                        }
+                        else
+                        {
+                            LogWindow.AppendLine("non.");
+                        }
+                    }
+                    
+
+
+                    // Go back to displaying the properties of the current structure's declaring struct
+                    else if (keyEvent.KeyCode == Keys.Back)
+                    {
+                        GoBack();
+                    }
+                };
+
+                currentButton.DoubleClick += (_, __) =>
+                {
+                    if (ObjectIsStruct(propertyValue))
+                    {
+                        History.Add(new object[] { currentStuctName, currentStruct });
+
+                        PopulatePropertiesPanelWithStructContents(property.Name, propertyValue);
+                    }
+                    else
+                    {
+                        LogWindow.AppendLine("non.");
+                    }
+                };
+            }
+            
+
+            if (FirstAndLastPropertyButtons != null)
+            {
+                var propertyButtons = PropertiesPanel.Controls.Cast<PropertyButton>().ToArray();
+
+                FirstAndLastPropertyButtons[0] = propertyButtons[0];
+                FirstAndLastPropertyButtons[1] = propertyButtons[1];
+            }
+
+         
+            Panels.HighlightPropertyButton();
+        }
+
+        
+
+        private void PopulatePropertiesPanelWithArrayContents(Array array)
+        {
+            for (var i = 0; i < array.Length; ++i)
+            {
+
+            }
+        }
+
+
+
+
+
+
+        public void HighlightPropertyButton()
+        {
+            var newButton = PropertiesPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+            if ((newButton ?? default) == default)
+            {
+                return;
+            }
+
+
+
+
+            HighlightPropertyButton(newButton);
+
+            // Highlight the button as if it were clicked, so we can continue using the arrow keys without needing to reimplement that functionality we've already deleted
+            PropertiesPanel.Focus();
+            newButton.Select();
+        }
+
+
+        /// <summary>
+        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
+        /// </summary>
+        private void HighlightPropertyButton(PropertyButton newButton)
+        {
+            // Default to the first Property Button if any are present
+            if (newButton == null)
+            {
+                newButton = PropertiesPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+                if (newButton == default || newButton == null)
+                {
+                    return;
+                }
+
+                PropertiesPanel.Focus();
+                newButton.Select();
+            }
+
+            if (PropertySelection != null)
+            {
+                // "Reset" the previous button
+                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
+
+                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
+                if (PropertiesPanelScrollBar != null)
+                {
+                    var newValue = PropertiesPanelScrollBar.Value;
+
+                    // Handle wrapping from one end to another
+                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0]) // Wrap to top
+                    {
+                        newValue = PropertiesPanelScrollBar.Minimum;
+                    }
+                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0]) // Wrap to bottom
+                    {
+                        newValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
+                    }
+                    else
+                    {
+                        // Handle moving to slightly-offscreen buttons
+                        if (newButton.Location.Y <= 0)
+                        {
+                            newValue = PropertiesPanelScrollBar.Value + newButton.Location.Y; // Scroll up a little
+                        }
+                        else if (newButton.Location.Y + newButton.Height >= PropertiesPanel.Size.Height)
+                        {
+                            newValue = PropertiesPanelScrollBar.Value + (newButton.Location.Y - PropertiesPanel.Height) + newButton.Height + 2; // Scroll down a little
+                        }
+
+
+
+                        // Lazily catch overflow/underflow issues
+                        if (newValue < 0)
+                        {
+                            newValue = 0;
+                        }
+                        else if (newValue >= PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1))
+                        {
+                            newValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
+                        }
+                    }
+                    
+                    ForceScrollPropertyPanelScrollBar(newValue); 
+                }
+            }
+
+
+
+            (PropertySelection = newButton)
+            .Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
+        }
+
+        
+
+        private PropertyButton CreatePropertiesPanelButton()
+        {
+            var btn = new PropertyButton()
+            {
+                // Set button styling
+                Font = MainFont,
+                BackColor = AppColour,
+                ForeColor = Color.White,
+
+                FlatStyle = 0,
+                Height = DefaultPropertiesPanelButtonHeight
+            };
+
+            // Assign basic form functionality event handlers
+            btn.MouseDown += MouseDownFunc;
+            btn.MouseUp += MouseUpFunc;
+            btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            btn.MouseClick += new MouseEventHandler((_, eventArgs) =>
+            {
+                //! Richg-click dropdown menu functionality maybe
+            });
+
+
+            return btn;
+        }
+
+
+
+        /// <summary>
+        /// Load the property for the highlighted property button, as if enter was pressed on it.
+        /// </summary>
+        public void LoadHighlightedProperty()
+        {
+            if (PropertySelection == null || PropertySelection.DCProperty == null)
+            {
+                return;
+            }
+            PopulatePropertiesPanelWithStructContents(PropertySelection.Name, PropertySelection.DCProperty);
+        }
+        
+
+
+
+        public void ScrollPropertiesPanelButtons(Control hostBox, ScrollEventArgs offset)
+        {
+            foreach (Control button in hostBox.Controls)
+            {
+                button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
+            }
+            hostBox.Update();
+        }
+        
+
+
+
+        public void ForceScrollPropertyPanelScrollBar(int NewValue)
+        {
+            ScrollEventType scrollEventType;
+
+            if (NewValue < PropertiesPanelScrollBar.Value)
+            {
+                scrollEventType = ScrollEventType.SmallDecrement; // Going Up
+            }
+            else if (NewValue > PropertiesPanelScrollBar.Value)
+            {
+                scrollEventType = ScrollEventType.SmallIncrement; // Going Down
+            }
+            else {
+                return;
+            }
+
+
+            ScrollPropertiesPanelButtons(PropertiesPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
+            PropertiesPanel.Update();
+        }
+
+
+        public void GoBack()
+        {
+            var lastItem = History.LastOrDefault();
+
+            if (lastItem != default)
+            {
+                if (History.Count == 1)
+                {
+                    PopulatePropertiesPanelWithModuleEntries(lastItem[0].ToString(), (DCModule) lastItem[1]);
+
+                    History.Remove(lastItem);
+                }
+                else if (History.Count > 1)
+                {
+                    PopulatePropertiesPanelWithStructContents(lastItem[0].ToString(), lastItem[1]);
+                                
+                    History.Remove(lastItem);
+                }
+                else {
+                    echo("Why the hell is the history empty?");
+                }
+            }
+        }
+        #endregion propertiespanel-related function declarations
+
+
+
+
+
+
+
+
+
+
+
+
+        //==========================================================\\
+        //--|   PropertiesEditor-Related Function Declarations   |--\\
+        //==========================================================\\
+        #region [PropertiesEditor-Related Function Declarations]
+
+        private void PopulatePropertiesEditorWithStructItems(object Struct)
+        {
+            Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertyEditorClickHandler propertyEvent)
+            {
+                Button newRow = null;
+
+                newRow = new Button()
+                {
+                    Font = TextFont,
+                    BackColor = AppColourLight,
+                    ForeColor = Color.White,
+                    Padding = Padding.Empty,
+                    FlatStyle = FlatStyle.Flat,
+
+                    Height = DefaultPropertiesEditorRowHeight,
+                    Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
+
+                    Text = $"{propertyName}: {FormatPropertyValueAsString(propertyValue)}"
+                };
+
+                // Assign basic form functionality event handlers
+                newRow.MouseDown += MouseDownFunc;
+                newRow.MouseUp += MouseUpFunc;
+                
+                newRow.DoubleClick += (_, __) => propertyEvent(propertyName, propertyValue);
+
+
+
+                return newRow;
+            }
+
+
+            // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
+            var totalHeight = 2;
+
+            var type = Struct.GetType();
+            object[][] properties;
+
+            PropertiesEditor.Controls.Clear();
+
+            if (!ObjectIsStruct(Struct))
+            {
+                throw new Exception($"ERROR: Object of type \"{Struct.GetType().Name}\" is not a struct");
+            }
+
+
+            properties = type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property) ? populatePropertiesPanelWithClickedItemsContents : spawnVariableEditorBox }).ToArray();
+            
+
+            foreach (var property in properties)
+            {
+                // Create the applicable buttons
+                var newRow = NewPropertiesEditorRow(property[0]?.ToString() ?? null, property[1], (PropertyEditorClickHandler) property[2]);
+                    
+                PropertiesEditor.Controls.Add(newRow);
+                newRow.Location = new Point(2, totalHeight);
+
+                totalHeight += newRow.Height;
+            }
+            
+            
+            CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * PropertiesEditor.Controls.Count);
+        }
+
+        
+        private void PopulatePropertiesEditorWithArrayItems(object Array)
+        {
+
+        }
+
+        private void PopulatePropertiesEditorWithSingleNumericalValue(object number)
+        {
+
+        }
+
+        
+
+
+
+        public void ScrollPropertyEditorRows(object _, ScrollEventArgs offset)
+        {
+            foreach (Control button in PropertiesEditor.Controls)
+            {
+                button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
+            }
+            PropertiesEditor.Update();
+        }
+
+        
+        public void ForceScrollPropertyEditorRows(int Incrementation)
+        {
+            foreach (Control button in PropertiesEditor.Controls)
+            {
+                button.Location = new Point(button.Location.X, button.Location.Y - (PropertiesEditorScrollBar.Value - (PropertiesEditorScrollBar.Value += Incrementation)));
+            }
+            PropertiesEditor.Update();
+        }
+        #endregion propertiesEditor-related function declarations
+
+
+
+        
+
+
+
+
+
+
+
+
+        //#
+        //## Output-related function declarations
+        //#
+        #region [Properties Window-related function declarations]
+
+        /// <summary>
+        /// Replace a specified line in the properties output window with <paramref name="message"/>.
+        /// <br/> Clears the line if no message is provided.
+        /// </summary>
+        public void PrintPropertyDetailNL(object message = null)
+        {
+            if (message == null)
+            {
+                message = emptyStr;
+            }
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(propertiesWindowNewLineMammet, new object[] { message?.ToString() ?? "null" });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed {nameof(PrintPropertyDetailNL)} Invocation due to a(n) {dang.GetType()}.";
+                echo(err);
+            }
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void PrintPropertyDetail(object message = null, int? indentationOverride = null)
+        {
+            var previousIndentation = -1;
+            
+            if (message == null)
+            {
+                message = "null";
+            }
+            if (indentationOverride != null)
+            {
+                previousIndentation = IndentationDepth;
+                IndentationDepth = (int) indentationOverride;
+            }
+
+
+#if DEBUG
+            // Debug Output
+            echo(message);
+#endif
+
+            // This occasionally crashes in a manner that's really annoying to replicate, so meh
+            try {
+                Venat?.Invoke(propertiesWindowMammet, new object[] { message });
+            }
+            catch (Exception dang)
+            {
+                var err = $"Missed {nameof(PrintPropertyDetail)} Invocation due to a(n) {dang.GetType()}.";
+                echo(err);
+            }
+            finally {
+                if (indentationOverride != null)
+                {
+                    IndentationDepth = previousIndentation;
+                }
+            }
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Prepend a space to any capitalized letter that follows a lowercase one.
+        /// </summary>
+        /// <returns> The provided <paramref name="name">, now spaced out rather than camel/pascal-case. </returns>
+        private string SpaceOutStructName(string name)
+        {
+            var str = string.Empty;
+
+            for (var i = 0; i < name.Length; i++)
+            {
+                if (name[i] <= 122u && name[i] >= 97u)
+                {
+                    if (i + 1 != name.Length)
+                    {
+                        if (name[i + 1] >= 65u && name[i + 1] <= 90u)
+                        {
+                            str += $"{name[i]} ";
+                            continue;
+                        }
+                    }
+                }
+
+                str += name[i];
+            }
+
+            return str;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Populate the property window with details about the highlighted header item
+        /// </summary>
+        /// <param name="itemIndex"> The index of the item in the HeaderItems array or whatever the fuck I named it, fight me. </param>
+        private void PrintHeaderItemDetailDisplay(DCModule.DCEntry @struct)
+        {
+            //#
+            //## Grab basic data about the current item and clear the current properties window contents 
+            //#
+            var structType = @struct.Type;
+
+            PropertiesWindow.Clear();
+            UpdateSelectionLabel(new[] { null, @struct.Name.DecodedID });
+
+
+
+
+            // Update Properties Window
+            PrintPropertyDetailNL("\nType: " + structType.DecodedID);
+
+            if (@struct.Struct == null)
+            {
+                PrintPropertyDetailNL("Null structure, for some reason.");
+                return;
+            }
+
+            IndentationDepth = 1;
+            foreach (var property in @struct.Struct.GetType().GetProperties())
+            {
+                // Print the name of the property
+                PrintPropertyDetailNL($"{SpaceOutStructName(property.Name)}: [");
+
+                // Get and format the property value
+                var rawValue = property.GetValue(@struct.Struct);
+                var formattedValue = FormatPropertyValueAsString(rawValue);
+
+                // Print the formatted property value
+                PrintPropertyDetail(Indentation + formattedValue.Replace("\n", "\n" + Indentation));
+
+                PrintPropertyDetailNL("]");
+            }
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dcEntry"></param>
+        /// <returns></returns>
+        private void PrintStructPropertyDetails(object dcEntry)
+        {
+            //## clear the current properties window contents 
+            PropertiesWindow.Clear();
+
+            // Update Properties Window
+            var str = FormatPropertyValueAsString(dcEntry);
+
+#if DEBUG
+            echo(str);
+#endif
+
+            PrintPropertyDetail(str);
         }
         #endregion
         #endregion (function declarations)

@@ -70,7 +70,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Static reference to the active DC binary's header struct.
         /// </summary>
-        public static DCScript ActiveDCScript;
+        public static DCModule ActiveDCScript;
 
 
         
@@ -199,8 +199,14 @@ namespace NaughtyDogDCReader
                 echo();
             }
 
+
             // Create and start the thread
-            (DCFileHandlerThread = new Thread(DCFileHandlerFunction)).Start();
+            DCFileHandlerThread = new Thread(DCFileHandlerFunction)
+            {
+                IsBackground = true,
+                Name = nameof(DCFileHandlerThread)
+            };
+            DCFileHandlerThread.Start();
         }
 
 
@@ -224,7 +230,7 @@ namespace NaughtyDogDCReader
             }
 
             // Parse the script's header entries
-            ActiveDCScript = new DCScript(DCFile, ActiveFileName);
+            ActiveDCScript = new DCModule(DCFile, ActiveFileName);
 
 
 
@@ -436,10 +442,34 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// Determine whether the provided <paramref name="type"/> is a structure.
+        /// Determine whether the provided object is a structure.
         /// </summary>
+        #if DEBUG
+        public static bool ObjectIsStruct(object obj)
+        {
+            if (obj == null)
+            {
+                echo($"Null object provided for {nameof(ObjectIsStruct)}(); defaulting to false.");
+                return false;
+            }
+
+            var objectType = obj.GetType();
+
+            if (objectType.IsArray)
+            {
+                objectType = objectType.GetElementType();
+
+                echo("ARRAY BS");
+            }
+            var @bool = !objectType.IsClass && !objectType.IsSerializable;
+
+            echo ($"type \"{objectType}\" is {(@bool ? string.Empty : "not ")}a struct\n");
+
+            return @bool;
+        }
+        #else
         public static bool ObjectIsStruct(Type type) => !type.IsClass && !type.IsSerializable;
-        public static bool ObjectIsStruct(object @object) => ObjectIsStruct(@object.GetType());
+        #endif
         #endregion
 
 
@@ -765,7 +795,6 @@ namespace NaughtyDogDCReader
             {
                 if (bytesToDecode.Sum(@byte => @byte) == 0)
                 {
-                    echo($"Null SID provided.");
                     return "(null sid)";
                 }
 

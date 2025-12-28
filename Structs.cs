@@ -21,48 +21,34 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Details on the initial header array for the provided DC file, as well as an array of any present HeaderItems.
         /// </summary>
-        public struct DCScript
+        public class DCModule
         {
-            public DCScript(byte[] DCFile, string ScriptName)
+            public DCModule(byte[] DCModule, string ModuleName)
             {
-                //#
-                //## Variable Initializations
-                //#
-                unkInt0 = 0;
-
-                headerTableStartPointerAddr = 0x18;
-                HeaderTableStartPointer = 0;
-
-                BinFileLength = 0;
-                TableLength = 0;
-
-                Entries = null;
-
-                //#
-                //## Read file magic from header
-                //#
-                if (!DCFile.Take(8).ToArray().SequenceEqual(new byte[] { 0x30, 0x30, 0x43, 0x44, 0x01, 0x00, 0x00, 0x00 }))
-                {
-                    echo($"ERROR; Invalid File Provided: Invalid file magic.");
-                    return;
-                }
-
-
                 //#
                 //## Run a few basic integrity checks
                 //#
-                var integrityCheck = SID.Parse(GetSubArray(DCFile, 0x20));
-                if (integrityCheck.RawID != KnownSIDs.array)
+
+                // Read file magic from header
+                var currentMagic = DCModule.Take(8).ToArray();
+                if (!currentMagic.SequenceEqual(expectedMagic))
                 {
-                    echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20, aborting.");
+                    echo($"ERROR; Invalid File Provided: Invalid file magic. 0x{BitConverter.ToUInt64(currentMagic, 0):X} != 0x{BitConverter.ToUInt64(expectedMagic, 0):X}");
                     return;
                 }
-                if ((unkInt0 = BitConverter.ToInt32(DCFile, 0x10)) != 1)
+
+                var integrityCheck = SID.Parse(GetSubArray(DCModule, 0x20));
+                if (integrityCheck.RawID != KnownSIDs.array)
+                {
+                    echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20. Expected encoded id of type \"map\"; Aborting.");
+                    return;
+                }
+                if ((unkInt0 = BitConverter.ToInt32(DCModule, 0x10)) != 1)
                 {
                     echo($"ERROR; Unexpected Value \"{unkInt0}\" read at 0x10, aborting.");
                     return;
                 }
-                if ((HeaderTableStartPointer = BitConverter.ToInt64(DCFile, headerTableStartPointerAddr)) != 0x28)
+                if ((HeaderTableStartPointer = BitConverter.ToInt64(DCModule, headerTableStartPointerAddr)) != 0x28)
                 {
                     echo($"ERROR; Unexpected Value \"{HeaderTableStartPointer}\" read at {headerTableStartPointerAddr}, aborting.");
                     return;
@@ -73,8 +59,8 @@ namespace NaughtyDogDCReader
                 //#
                 //## Read remaining header info
                 //#
-                BinFileLength = BitConverter.ToInt64(DCFile, 0x8);
-                TableLength = BitConverter.ToInt32(DCFile, 0x14);
+                BinFileLength = BitConverter.ToInt64(DCModule, 0x8);
+                TableLength = BitConverter.ToInt32(DCModule, 0x14);
 
                 Entries = new DCEntry[TableLength];
 
@@ -90,7 +76,7 @@ namespace NaughtyDogDCReader
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
-                    Entries[tableIndex] = new DCEntry(DCFile, addr);
+                    Entries[tableIndex] = new DCEntry(DCModule, addr);
                 }
 
 #if false
@@ -102,7 +88,8 @@ namespace NaughtyDogDCReader
             //#
             //## Variable Declarations
             //#
-            private readonly int headerTableStartPointerAddr; // 0x18
+            private readonly byte[] expectedMagic = new byte[] { 0x30, 0x30, 0x43, 0x44, 0x01, 0x00, 0x00, 0x00 };
+            private readonly int headerTableStartPointerAddr = 0x18; // 0x18
 
             public readonly int unkInt0;
             public readonly long HeaderTableStartPointer;

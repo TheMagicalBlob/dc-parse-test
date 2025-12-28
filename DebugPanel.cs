@@ -83,13 +83,24 @@ namespace NaughtyDogDCReader
             eh(this.Controls);
         }
 
+        public struct eatPant
+        {
+            public eatPant(object _ = null)
+            {
+                hello = "howdy";
+            }
+
+            public string hello;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            var jag = new string[][] { new[] {"anus" } };
-            var nrm = new string[] { "sphincter" };
+            var f = new eatPant();
+            var j = new[] { new eatPant() };
 
-            echo(jag.GetType().BaseType);
-            echo(nrm.GetType().BaseType);
+
+            echo ($"non array: {ObjectIsStruct(f)}");
+            echo ($"array: {ObjectIsStruct(j)}");
         }
 
         private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)

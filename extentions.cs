@@ -110,6 +110,10 @@ namespace NaughtyDogDCReader
     }
 
 
+    /// <summary>
+    /// Custom Button class extension for use of additional PropertyWindow-Specific features.<br/>
+    /// (DCProperty property for better readablity, rather than using the "Tag" property)
+    /// </summary>
     public class PropertyButton : System.Windows.Forms.Button
     {
         public PropertyButton()
