@@ -95,6 +95,7 @@ namespace NaughtyDogDCReader
             this.debugDisableLinesBtn.TabIndex = 45;
             this.debugDisableLinesBtn.Text = "noline";
             this.debugDisableLinesBtn.UseVisualStyleBackColor = true;
+            this.debugDisableLinesBtn.CheckedChanged += new System.EventHandler(this.debugDisableLinesBtn_CheckedChanged);
             // 
             // button1
             // 

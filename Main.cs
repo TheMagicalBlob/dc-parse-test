@@ -143,9 +143,9 @@ namespace NaughtyDogDCReader
             }
 #else
             LoadBinFile(
-                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
+                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\characters.bin"
                 //@"C:\Users\blob\LocalModding\Bin Reversing\working (1.07)\weapon-mods.bin"
-                //@"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
+                @"C:\Users\blob\LocalModding\Bin Reversing\_Scripts\weapon-gameplay.bin"
             );
 #endif
         }
@@ -235,7 +235,7 @@ namespace NaughtyDogDCReader
 
         private void propertyForwardBtn_Click(object sender, EventArgs e)
         {
-            Panels?.LoadHighlightedProperty();
+            Panels?.LoadPropertyForHighlightedPropertyButton();
         }
         #endregion
     }

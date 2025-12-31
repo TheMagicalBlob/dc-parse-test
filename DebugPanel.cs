@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using static NaughtyDogDCReader.Main;
 
 namespace NaughtyDogDCReader
@@ -58,6 +57,10 @@ namespace NaughtyDogDCReader
         {
 #if DEBUG
             noDraw ^= true;
+
+            Venat.CreateGraphics().Clear(BackColor);
+            Venat.Refresh();
+
             CreateGraphics().Clear(BackColor);
             Refresh();
 #endif
@@ -83,24 +86,20 @@ namespace NaughtyDogDCReader
             eh(this.Controls);
         }
 
-        public struct eatPant
+        private struct anus
         {
-            public eatPant(object _ = null)
-            {
-                hello = "howdy";
-            }
 
-            public string hello;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var f = new eatPant();
-            var j = new[] { new eatPant() };
+            var y = new anus[] { new anus(), new anus() };
+            var m = new object[] { "", new anus() };
 
+            echo(ObjectIsStruct(new anus()));
 
-            echo ($"non array: {ObjectIsStruct(f)}");
-            echo ($"array: {ObjectIsStruct(j)}");
+            echo(ObjectIsStruct(y));
+            echo(ObjectIsStruct(m));
         }
 
         private void debugShowInvalidSIDsCheckBox_CheckedChanged(object sender, EventArgs e)

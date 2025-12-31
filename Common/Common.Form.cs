@@ -542,33 +542,6 @@ namespace NaughtyDogDCReader
 
 
 
-            // Tabstop test
-            for (var i = 0; i < controls.Length; ++i)
-            {
-                controls[i].TabStop = false;
-                controls[i].TabIndex = int.MaxValue - 1;
-            }
-            foreach (var dummy in new[] { dummy0, dummy1 })
-            {
-                dummy.TabIndex = 0;
-                dummy.TabStop  = true;
-                dummy.PreviewKeyDown += (_, keyEvent) =>
-                {
-                    if (keyEvent.KeyCode == Keys.Return)
-                    {
-                        Panels?.LoadHighlightedProperty();
-                    }
-                    
-
-                    // Go back to displaying the properties of the current structure's declaring struct
-                    else if (keyEvent.KeyCode == Keys.Back)
-                    {
-                        Panels?.GoBack();
-                    }
-                };
-            }
-
-
 
 
             MinimizeBtn.Click += new EventHandler((sender, e) => Venat.WindowState = FormWindowState.Minimized);
