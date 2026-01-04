@@ -248,7 +248,7 @@ namespace NaughtyDogDCReader
             //#
             echo("\nFinished!");
             UpdateStatusLabel(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
-            PopulatePropertiesPanel(ActiveFileName, ActiveDCScript);
+            PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCScript);
 
             SetReloadCloseButtonsEnabledStatus(true);
             UpdateStatusLabel(new[] { "Viewing Script" });

@@ -35,9 +35,7 @@ namespace NaughtyDogDCReader
             //## Create the various delegates for the Properties Handler, so we can do shit across multiple threads
             //#
 
-            populatePropertiesPanelWithHeaderItemContents = pp_SetupPropertiesPanelPopulation;
-
-            populatePropertiesPanelWithClickedItemsContents = pp_SetupPropertiesPanelPopulation;
+            setupPropertiesPanelPopulation = pp_SetupPropertiesPanelPopulation;
 
             spawnVariableEditorBox = SpawnVariableEditorBox;
 
@@ -160,20 +158,18 @@ namespace NaughtyDogDCReader
         public delegate void PropertiesWindowOutputWand(string msg);
 
         /// <summary> //! </summary>
-        public delegate void InitialPropertiesPanelPopulation(string dcFileName, DCModule dcEntries);
         public delegate void SubsequentPropertiesPanelPopulation(string structName, object structProperty);
 
-        public delegate void PropertyEditorClickHandler(string propertyName, object property);
+        public delegate void PropertyPanelEventHandler(string propertyName, object property);
 
 
         private readonly PropertiesWindowOutputWand propertiesWindowMammet;
         private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
 
 
-        public readonly InitialPropertiesPanelPopulation populatePropertiesPanelWithHeaderItemContents;
+        public readonly PropertyPanelEventHandler setupPropertiesPanelPopulation;
 
-        public PropertyEditorClickHandler spawnVariableEditorBox;
-        public PropertyEditorClickHandler populatePropertiesPanelWithClickedItemsContents;
+        public PropertyPanelEventHandler spawnVariableEditorBox;
         #endregion
 
 
@@ -509,6 +505,10 @@ namespace NaughtyDogDCReader
                     {
                         handleDoubleClickOrEnterInputsOnPropertyButton(entry);
                     }
+                    if (keyEvent.KeyCode == Keys.Back)
+                    {
+                        GoBack();
+                    }
                 };
 
                 currentButton.DoubleClick += (_, __) => handleDoubleClickOrEnterInputsOnPropertyButton(entry);
@@ -528,24 +528,10 @@ namespace NaughtyDogDCReader
         }
 
 
-        /// <summary>
-        /// Fill the PropertiesPanel with the <paramref name="LoadedModule"/>'s header structures.
-        /// </summary>
-        /// <param name="LoadedModuleName"> The name of the loaded module; specifically the file name, since the modules' names aren't stored anywhere inside them. </param>
-        /// <param name="LoadedModule">  </param>
-
-        
-
-
-        /// <summary>
-        /// Fill the PropertiesPanel with entries for the <paramref name="currentStruct"/>'s Properties.
-        /// </summary>
-        /// <param name="currentStuctName"></param>
-        /// <param name="currentStruct"></param>
-        
 
 
         
+
         /// <summary>
         /// //!
         /// </summary>
@@ -790,7 +776,7 @@ namespace NaughtyDogDCReader
 
         private void pe_PopulatePropertiesEditorWithStructItems(object Struct)
         {
-            Control NewPropertiesEditorRow(string propertyName, object propertyValue, PropertyEditorClickHandler propertyEvent)
+            Control NewPropertiesEditorRowFromStructProperty(string propertyName, object propertyValue, PropertyPanelEventHandler propertyEvent)
             {
                 Button newRow = null;
 
@@ -805,7 +791,7 @@ namespace NaughtyDogDCReader
                     Height = DefaultPropertiesEditorRowHeight,
                     Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
 
-                    Text = $"{propertyName}: {FormatPropertyValueAsString(propertyValue)}"
+                    Text = $"{propertyName??"null"}: {FormatPropertyValueAsString(propertyValue)}"
                 };
 
                 // Assign basic form functionality event handlers
@@ -835,10 +821,19 @@ namespace NaughtyDogDCReader
 
             
 
-            foreach (var property in type.GetProperties().Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetValue(Struct)) ? populatePropertiesPanelWithClickedItemsContents : spawnVariableEditorBox }))
+            foreach (var property in type.GetProperties().Select(property =>
+            {
+                var propertyValue = property.GetValue(Struct);
+                return new object []
+                {
+                    property.Name, // Button text
+                    propertyValue, // Associated struct/property
+                    ObjectIsStruct(propertyValue) ? setupPropertiesPanelPopulation : spawnVariableEditorBox // Event on double-click or enter
+                };
+            }))
             {
                 // Create the applicable buttons
-                var newRow = NewPropertiesEditorRow(property[0]?.ToString() ?? null, property[1], (PropertyEditorClickHandler) property[2]);
+                var newRow = NewPropertiesEditorRowFromStructProperty(propertyName: property[0]?.ToString() ?? null, propertyValue:property[1], propertyEvent:(PropertyPanelEventHandler) property[2]);
                     
                 PropertiesEditor.Controls.Add(newRow);
                 newRow.Location = new Point(2, totalHeight);
@@ -853,12 +848,122 @@ namespace NaughtyDogDCReader
         
         private void pe_PopulatePropertiesEditorWithArrayItems(Array Array)
         {
+            Control NewPropertiesEditorRowFromArrayItem(string memberName, object memberValue, PropertyPanelEventHandler propertyEvent)
+            {
+                Button newRow = null;
 
+                newRow = new Button()
+                {
+                    Font = TextFont,
+                    BackColor = AppColourLight,
+                    ForeColor = Color.White,
+                    Padding = Padding.Empty,
+                    FlatStyle = FlatStyle.Flat,
+
+                    Height = DefaultPropertiesEditorRowHeight,
+                    Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
+
+                    Text = $"{memberName}: {FormatPropertyValueAsString(memberValue)}"
+                };
+
+                // Assign basic form functionality event handlers
+                newRow.MouseDown += MouseDownFunc;
+                newRow.MouseUp += MouseUpFunc;
+                
+                newRow.DoubleClick += (_, __) => propertyEvent('#' + memberName.ToString(), memberValue);
+
+
+                return newRow;
+            }
+
+
+            // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
+            var totalHeight = 2;
+
+            var type = Array.GetType();
+
+            PropertiesEditor.Controls.Clear();
+
+            if (!type.IsArray)
+            {
+                throw new Exception($"ERROR: Object of type \"{type.Name}\" is not an array.");
+            }
+
+
+            
+
+            foreach (var item in Array)
+            {
+                // .Select(property => new object [] { property.Name, property.GetValue(Struct), ObjectIsStruct(property.GetValue(Struct)) ? populatePropertiesPanelWithClickedItemsContents : spawnVariableEditorBox })
+
+                PropertyPanelEventHandler propertyEvent;
+                Control newRow;
+                string propertyName;
+                var itemType = item.GetType();
+
+                if (itemType.IsArray || ObjectIsStruct(item))
+                {
+                    propertyEvent = setupPropertiesPanelPopulation;
+                    propertyName = itemType.IsArray ? itemType.GetElementType().Name : itemType.Name;
+                }
+                else
+                {
+                    propertyEvent = spawnVariableEditorBox;
+                    propertyName = itemType.Name;
+                }
+
+
+
+                // Create the applicable buttons
+                PropertiesEditor.Controls.Add(newRow = NewPropertiesEditorRowFromArrayItem(propertyName, item, propertyEvent));
+
+                newRow.Location = new Point(2, totalHeight);
+
+                totalHeight += newRow.Height;
+            }
+            
+            
+            CreateScrollBarForGroupBox(PropertiesEditor, ref PropertiesEditorScrollBar, DefaultPropertiesEditorRowHeight * PropertiesEditor.Controls.Count);
         }
 
-        private void pe_PopulatePropertiesEditorWithSingleNumericalValue(object number)
+        private void pe_PopulatePropertiesEditorWithSingleNumericalValue(object value)
         {
+            
+            Control NewPropertiesEditorRowFromArrayItem(string memberName, object memberValue, PropertyPanelEventHandler propertyEvent)
+            {
+                Button newRow = null;
+                
+                newRow = new Button()
+                {
+                    Font = TextFont,
+                    BackColor = AppColourLight,
+                    ForeColor = Color.White,
+                    Padding = Padding.Empty,
+                    FlatStyle = FlatStyle.Flat,
 
+                    Height = DefaultPropertiesEditorRowHeight,
+                    Width = PropertiesEditor.Width - (PropertiesEditorScrollBar != null ? 20 : 0) - 2,
+
+                    Text = $"{memberName}: {FormatPropertyValueAsString(memberValue)}"
+                };
+
+                // Assign basic form functionality event handlers
+                newRow.MouseDown += MouseDownFunc;
+                newRow.MouseUp += MouseUpFunc;
+                
+                newRow.DoubleClick += (_, __) => propertyEvent('#' + memberName.ToString(), memberValue);
+
+                return newRow;
+            }
+
+
+
+
+            var row = NewPropertiesEditorRowFromArrayItem(value.GetType().Name, value, spawnVariableEditorBox);
+
+            PropertiesEditor.Controls.Add(row);
+
+            row.Location = new Point(2, 2);
         }
 
         
@@ -1129,15 +1234,18 @@ namespace NaughtyDogDCReader
 
 
 
+
                 // ## Basic Numerical Values
                 case var val when BasicNumericalTypes.Contains(val):
                     returnString = $"0x{Value:X}";
                     break;
 
+
                 // ## "Advanced" Numerical Values
                 case var val when AdvancedNumericalTypes.Contains(val):
                     returnString = $"{Value:F}";
                     break;
+
 
 
 
@@ -1167,8 +1275,10 @@ namespace NaughtyDogDCReader
                     break;
 
 
+
+
                 // ## Arrays
-                case var type when type.Name.Contains("[]"):
+                case var type when type.IsArray:
                 {
                     if (PropertiesEditor.Visible)
                     {

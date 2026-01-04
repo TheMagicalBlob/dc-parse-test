@@ -230,7 +230,7 @@ namespace NaughtyDogDCReader
 
         private void propertyBackBtn_Click(object sender, EventArgs e)
         {
-            Panels?.GoBack();   
+            Panels.GoBack();   
         }
 
         private void propertyForwardBtn_Click(object sender, EventArgs e)
