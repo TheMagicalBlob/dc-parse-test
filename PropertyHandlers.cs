@@ -35,9 +35,9 @@ namespace NaughtyDogDCReader
             //## Create the various delegates for the Properties Handler, so we can do shit across multiple threads
             //#
 
-            setupPropertiesPanelPopulation = pp_SetupPropertiesPanelPopulation;
+            setupPropertiesPanelPopulation = (args) => pp_SetupPropertiesPanelPopulation(args[0].ToString(), args[1]);
 
-            spawnVariableEditorBox = SpawnVariableEditorBox;
+            spawnVariableEditorBox = (args) => SpawnVariableEditorBox(args[0]);
 
 
 
@@ -160,7 +160,7 @@ namespace NaughtyDogDCReader
         /// <summary> //! </summary>
         public delegate void SubsequentPropertiesPanelPopulation(string structName, object structProperty);
 
-        public delegate void PropertyPanelEventHandler(string propertyName, object property);
+        public delegate void PropertyPanelEventHandler(params object[] args);
 
 
         private readonly PropertiesWindowOutputWand propertiesWindowMammet;
@@ -198,9 +198,9 @@ namespace NaughtyDogDCReader
         #region [Miscellaneous Function Declarations]
 
 
-        private void SpawnVariableEditorBox(string propertyName, object property)
+        private void SpawnVariableEditorBox(object Button)
         {
-
+            echo("BUTTON " + Button.ToString());
         }
 
 
@@ -385,13 +385,14 @@ namespace NaughtyDogDCReader
             }
             else if (moduleOrPropertyType.IsArray)
             {
+                var ind = 0;
                 entries = (ModuleOrProperty as Array).Cast<object>().Select(arrayItem =>
                 {
                     var type = arrayItem.GetType();
                     return new object[]
                     {
                         arrayItem,
-                        $"Unnamed {type.Name}",
+                        $"{type.Name} #{ind++}",
                         type.Name
 
                     };
@@ -507,7 +508,7 @@ namespace NaughtyDogDCReader
                     }
                     if (keyEvent.KeyCode == Keys.Back)
                     {
-                        GoBack();
+                        pp_GoBack();
                     }
                 };
 
@@ -717,7 +718,14 @@ namespace NaughtyDogDCReader
         }
 
 
-        public void GoBack()
+
+
+
+
+        /// <summary>
+        /// Return to the most recent item in the History
+        /// </summary>
+        public void pp_GoBack()
         {
             var lastItem = History.LastOrDefault();
 
@@ -735,11 +743,12 @@ namespace NaughtyDogDCReader
                                 
                     History.Remove(lastItem);
                 }
-                else {
-                    echo("Why the hell is the history empty?");
-                }
             }
         }
+
+
+
+
 
         
         /// <summary>
@@ -747,11 +756,10 @@ namespace NaughtyDogDCReader
         /// </summary>
         public void LoadPropertyForHighlightedPropertyButton()
         {
-            if (PropertySelection == null || PropertySelection.DCProperty == null)
+            if (PropertySelection != null && PropertySelection.DCProperty != null)
             {
-                return;
+                pp_SetupPropertiesPanelPopulation(PropertySelection.Name, PropertySelection.DCProperty);
             }
-            pp_SetupPropertiesPanelPopulation(PropertySelection.Name, PropertySelection.DCProperty);
         }
         #endregion propertiespanel-related function declarations
 
@@ -776,11 +784,11 @@ namespace NaughtyDogDCReader
 
         private void pe_PopulatePropertiesEditorWithStructItems(object Struct)
         {
-            Control NewPropertiesEditorRowFromStructProperty(string propertyName, object propertyValue, PropertyPanelEventHandler propertyEvent)
+            PropertyButton NewPropertiesEditorRowFromStructProperty(string propertyName, object propertyValue, PropertyPanelEventHandler propertyEvent)
             {
-                Button newRow = null;
+                PropertyButton newRow = null;
 
-                newRow = new Button()
+                newRow = new PropertyButton()
                 {
                     Font = TextFont,
                     BackColor = AppColourLight,
@@ -848,11 +856,11 @@ namespace NaughtyDogDCReader
         
         private void pe_PopulatePropertiesEditorWithArrayItems(Array Array)
         {
-            Control NewPropertiesEditorRowFromArrayItem(string memberName, object memberValue, PropertyPanelEventHandler propertyEvent)
+            PropertyButton NewPropertiesEditorRowFromArrayItem(string memberName, object memberValue, PropertyPanelEventHandler propertyEvent)
             {
-                Button newRow = null;
+                PropertyButton newRow = null;
 
-                newRow = new Button()
+                newRow = new PropertyButton()
                 {
                     Font = TextFont,
                     BackColor = AppColourLight,
@@ -865,6 +873,7 @@ namespace NaughtyDogDCReader
 
                     Text = $"{memberName}: {FormatPropertyValueAsString(memberValue)}"
                 };
+
 
                 // Assign basic form functionality event handlers
                 newRow.MouseDown += MouseDownFunc;
@@ -929,11 +938,11 @@ namespace NaughtyDogDCReader
         private void pe_PopulatePropertiesEditorWithSingleNumericalValue(object value)
         {
             
-            Control NewPropertiesEditorRowFromArrayItem(string memberName, object memberValue, PropertyPanelEventHandler propertyEvent)
+            PropertyButton NewPropertiesEditorRowFromArrayItem(string memberName, object memberValue, PropertyPanelEventHandler propertyEvent)
             {
-                Button newRow = null;
+                PropertyButton newRow = null;
                 
-                newRow = new Button()
+                newRow = new PropertyButton()
                 {
                     Font = TextFont,
                     BackColor = AppColourLight,
