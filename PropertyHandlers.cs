@@ -90,7 +90,7 @@ namespace NaughtyDogDCReader
             set {
                 if (value != null)
                 {
-                    DisplayHighlightedPropertyDetails(value.DCProperty);
+                    LoadSelectionProperties(value.DCProperty);
                 }
 
                 _propertySelection = value;
@@ -498,7 +498,7 @@ namespace NaughtyDogDCReader
         /// Populate either the PropertiesEditor or PropertiesWindow with information about the highlighted PropertyButton's 
         /// </summary>
         /// <param name="property"></param>
-        private void DisplayHighlightedPropertyDetails(object property)
+        private void LoadSelectionProperties(object property)
         {
             if (property == null)
             {
@@ -513,20 +513,20 @@ namespace NaughtyDogDCReader
             if (ObjectIsStruct(property))
             {
                 //-# Object is a struct
-                pe_PopulatePropertiesEditorWithStructItems(property);
+                pe_PopulatePanelWithStructItems(property);
             }
             else {
                 //-# Object is an Array of any type
                 if (type.IsArray)
                 {
-                    pe_PopulatePropertiesEditorWithArrayItems(property as Array);
+                    pe_PopulatePanelWithArrayItems(property as Array);
                     return;
                 }
 
 
                 
                 //-# Object is some Numerical Value
-                pe_PopulatePropertiesEditorWithSingleNumericalValue(property);
+                pe_PopulatePanelWithSingleNumericalValue(property);
             }
         }
 
@@ -748,7 +748,7 @@ namespace NaughtyDogDCReader
         //==========================================================\\
         #region [PropertiesEditor-Related Function Declarations]
 
-        private void pe_PopulatePropertiesEditorWithStructItems(object Struct)
+        private void pe_PopulatePanelWithStructItems(object Struct)
         {
             // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
             var totalHeight = 2;
@@ -790,7 +790,8 @@ namespace NaughtyDogDCReader
         }
 
         
-        private void pe_PopulatePropertiesEditorWithArrayItems(Array Array)
+
+        private void pe_PopulatePanelWithArrayItems(Array Array)
         {
             // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
             var totalHeight = 2;
@@ -841,7 +842,8 @@ namespace NaughtyDogDCReader
         }
 
 
-        private void pe_PopulatePropertiesEditorWithSingleNumericalValue(object value, string name = null)
+
+        private void pe_PopulatePanelWithSingleNumericalValue(object value, string name = null)
         {
             var row = NewPropertiesEditorRow(value, spawnVariableEditorBox, name ?? value.GetType().Name);
 
@@ -851,6 +853,10 @@ namespace NaughtyDogDCReader
         }
 
         
+
+
+
+
 
         /// <summary>
         /// 
@@ -901,6 +907,11 @@ namespace NaughtyDogDCReader
 
         
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyEditorRow"></param>
+        /// <param name="memberName"></param>
         private void SpawnVariableEditorBox(object propertyEditorRow, string memberName = null)
         {
             if (memberName == null)
@@ -916,8 +927,9 @@ namespace NaughtyDogDCReader
             var editor = new TextBox()
             {
                 Size = parent.Size,
-                
+                TextAlign = HorizontalAlignment.Center,
                 Name = "TemporaryVariableEditorBox for " + memberName,
+                Text = FormatPropertyValueAsString(parent.DCProperty)
             };
 
             parent.Controls.Add(editor);
