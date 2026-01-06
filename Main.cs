@@ -53,9 +53,9 @@ namespace NaughtyDogDCReader
             Bingus = new DebugPanel();
 
 
-            PropertiesPanel = propertiesPanel;
+            PropertiesPanel = propertySelectionPanel;
             PropertiesWindow = propertiesWindow;
-            PropertiesEditor = propertiesEditor;
+            PropertiesEditor = propertyEditorPanel;
 
             LogWindow = logWindow;
 

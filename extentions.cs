@@ -85,7 +85,11 @@ namespace NaughtyDogDCReader
         /// <summary> Create a new winforms TextBox control. </summary>
         public TextBox()
         {
-
+            BackColor = Color.FromArgb(42, 42, 42);
+            Font = TextFont;
+            ForeColor = SystemColors.Window;
+            TabIndex = 3;
+            TabStop = false;
         }
 
 
