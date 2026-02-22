@@ -72,7 +72,7 @@ namespace NaughtyDogDCReader
             e.Graphics.Clear(((GroupBox) sender).BackColor);
         }
 
-        public static readonly int GroupBoxContentsOffset = 7;
+        public static readonly int GroupBoxContentsOffset = 6;
     }
 
 

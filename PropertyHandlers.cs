@@ -228,7 +228,8 @@ namespace NaughtyDogDCReader
 
             hostBoxScrollBarReference.BringToFront();
                 
-            hostBoxScrollBarReference.Maximum = cumulativeButtonHeight - groupBox.Height + DefaultPropertiesPanelButtonHeight + 2;
+            hostBoxScrollBarReference.Maximum = (cumulativeButtonHeight - groupBox.Height) + (GroupBox.GroupBoxContentsOffset * 2);
+
             hostBoxScrollBarReference.SmallChange = DefaultPropertiesPanelButtonHeight;
         }
 
@@ -344,7 +345,7 @@ namespace NaughtyDogDCReader
             }
 
             entryCount = entries.Length;
-            cumulativeButtonHeight = DefaultPropertiesPanelButtonHeight * entryCount;
+            cumulativeButtonHeight = (DefaultPropertiesPanelButtonHeight * entryCount) - 1; // I don't know why it's off by a pixel and I'm sick of fucking with it.
 
 
 
@@ -377,13 +378,16 @@ namespace NaughtyDogDCReader
                 }
                 else
                 {
-                    LogWindow.AppendLine("unhandled");
+                    LogWindow.AppendLine("unhandled doubleclick bs");
                 }
             }
 
 
 
-            // Create and "style" a button for each property in the provided structure
+
+
+
+            //##-> Create and "style" a button for each property in the provided structure
             for (var i = 0; i < entryCount; ++i)
             {
                 var entry = entries[i];
@@ -573,19 +577,16 @@ namespace NaughtyDogDCReader
                     // Handle wrapping from one end to another
                     if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0]) // Wrap to top
                     {
-                        LogWindow.AppendLine("ANUS 0");
                         newScrollBarValue = PropertiesPanelScrollBar.Minimum;
                     }
                     else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0]) // Wrap to bottom
                     {
-                        LogWindow.AppendLine($"newButton: {newButton.Text} | PropertySelection: {PropertySelection.Text} ({FirstAndLastPropertyButtons[1].Text} & {newButton == FirstAndLastPropertyButtons[1]})");
                         newScrollBarValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
                     }
                     else {
                         // Handle moving to slightly-offscreen buttons
                         if (newButton.Location.Y <= 0)
                         {
-                            LogWindow.AppendLine("ANUS 2");
                             newScrollBarValue = PropertiesPanelScrollBar.Value + newButton.Location.Y; // Scroll up a little
                         }
                         else if (newButton.Location.Y + newButton.Height >= PropertiesPanel.Size.Height)
@@ -599,17 +600,15 @@ namespace NaughtyDogDCReader
                         // Lazily catch overflow/underflow issues
                         if (newScrollBarValue < 0)
                         {
-                            LogWindow.AppendLine("ANUS 4");
                             newScrollBarValue = 0;
                         }
                         else if (newScrollBarValue >= PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1))
                         {
-                            LogWindow.AppendLine("ANUS 5");
                             newScrollBarValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
                         }
                     }
                     
-                    ForceScrollPropertiesPanelScrollBar(newScrollBarValue); 
+                    ForceScrollPropertiesPanelScrollBar(newScrollBarValue);
                 }
             }
 
