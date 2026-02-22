@@ -23,6 +23,11 @@ namespace NaughtyDogDCReader
         /// </summary>
         public class DCModule
         {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="DCModule"></param>
+            /// <param name="ModuleName"></param>
             public DCModule(byte[] DCModule, string ModuleName)
             {
                 //#
@@ -104,15 +109,21 @@ namespace NaughtyDogDCReader
             public DCEntry[] Entries;
 
 
+
             /// <summary>
             /// An individual item (module?) from the array at the beginning of the DC file.
             /// </summary>
             public struct DCEntry
             {
+                /// <summary>
+                /// //!
+                /// </summary>
+                /// <param name="DCFile"></param>
+                /// <param name="Address"> The address of the b </param>
                 public DCEntry(byte[] DCFile, int Address)
                 {
                     this.Address = Address;
-
+                    
                     Name = SID.Parse(GetSubArray(DCFile, this.Address));
                     Type = SID.Parse(GetSubArray(DCFile, this.Address + 8));
 
@@ -215,11 +226,9 @@ namespace NaughtyDogDCReader
 
             public object[] Structs { get; set; }
         }
+        
 
-        private struct map_entry
-        {
 
-        }
 
 
 

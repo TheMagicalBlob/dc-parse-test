@@ -97,11 +97,11 @@ namespace NaughtyDogDCReader
         };
 
 
+        //! tf is this one for?
         public static readonly Type[] AdditionalDataTypes = new []
         {
             typeof(Array),
             typeof(SID),
-            typeof(weapon_gameplay_def)
         };
 
 
@@ -266,9 +266,9 @@ namespace NaughtyDogDCReader
         /// <param name="Address"> The address of the DC struct in the <paramref name="DCFile"/>. </param>
         /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
         /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
-        private static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, object Name = null)
+        private static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, SID Name = null)
         {
-            var name = (SID)(Name ?? SID.Empty);
+            var name = Name ?? SID.Empty;
 
             switch (Type.RawID)
             {
