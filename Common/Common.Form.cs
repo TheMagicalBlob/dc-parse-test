@@ -230,14 +230,14 @@ namespace NaughtyDogDCReader
         public static PropertyHandlers Panels;
 
         /// <summary> Properties Panel GroupBox Pointer/Reference. </summary>
-        public static GroupBox PropertiesPanel;
+        public static GroupBox PropertySelectionPanel;
 
         /// <summary> Properties Editor Pointer/Reference. </summary>
-        public static GroupBox PropertiesEditor;
+        public static GroupBox PropertyEditorPanel;
 
 
         /// <summary> Properties Window (the output one) Pointer/Reference Because I'm Lazy. </summary>
-        public static RichTextBox PropertiesWindow;
+        public static RichTextBox PropertyWindow;
 
         /// <summary> Log Window Pointer/Reference.  </summary>
         public static RichTextBox LogWindow;
