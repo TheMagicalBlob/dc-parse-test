@@ -21,7 +21,7 @@ namespace NaughtyDogDCReader
         public static bool OptionsPageIsOpen => Azem?.Visible ?? false;
 
 #if DEBUG
-        public static bool DebugPanelIsOpen => Bingus?.Visible ?? false;
+        public static bool DebugOptionsPageIsOpen => Bingus?.Visible ?? false;
 #endif
 
         /// <summary> If true, show the string representation of the raw SID's instead of UNKNOWN_SID_64 when an id can not be decoded. </summary>
@@ -223,11 +223,11 @@ namespace NaughtyDogDCReader
         public static OptionsPage Azem;
 
         /// <summary> Debug options panel form Pointer/Reference. </summary>
-        public static DebugPanel Bingus;
+        public static DebugOptionsPage Bingus;
         
 
         /// <summary> StructBSIdkNameItLater Class Pointer/Reference. </summary>
-        public static PropertyHandlers Panels;
+        public static PropertyPanels Panels;
 
         /// <summary> Properties Panel GroupBox Pointer/Reference. </summary>
         public static GroupBox PropertySelectionPanel;

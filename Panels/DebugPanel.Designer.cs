@@ -6,7 +6,7 @@ using static NaughtyDogDCReader.Main;
 
 namespace NaughtyDogDCReader
 {
-    partial class DebugPanel
+    partial class DebugOptionsPage
     {
         /// <summary>
         /// Required designer variable.
@@ -171,7 +171,7 @@ namespace NaughtyDogDCReader
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // DebugPanel
+            // DebugOptionsPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -189,7 +189,7 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.Title);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "DebugPanel";
+            this.Name = "DebugOptionsPage";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form1";
             this.ResumeLayout(false);

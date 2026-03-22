@@ -41,7 +41,7 @@ namespace NaughtyDogDCReader
             this.ReloadScriptBtn = new System.Windows.Forms.Button();
             this.dummy0 = new System.Windows.Forms.Button();
             this.dummy1 = new System.Windows.Forms.Button();
-            this.debugPanelBtn = new System.Windows.Forms.Button();
+            this.DebugOptionsPageBtn = new System.Windows.Forms.Button();
             this.SidBaseBrowseBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -170,17 +170,17 @@ namespace NaughtyDogDCReader
             this.dummy1.TabIndex = 1;
             this.dummy1.UseVisualStyleBackColor = false;
             // 
-            // debugPanelBtn
+            // DebugOptionsPageBtn
             // 
-            this.debugPanelBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
-            this.debugPanelBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.debugPanelBtn.Location = new System.Drawing.Point(698, 5);
-            this.debugPanelBtn.Name = "debugPanelBtn";
-            this.debugPanelBtn.Size = new System.Drawing.Size(59, 23);
-            this.debugPanelBtn.TabIndex = 45;
-            this.debugPanelBtn.Text = "DEBUG";
-            this.debugPanelBtn.UseVisualStyleBackColor = false;
-            this.debugPanelBtn.Click += new System.EventHandler(this.ToggleDebugPanel);
+            this.DebugOptionsPageBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
+            this.DebugOptionsPageBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.DebugOptionsPageBtn.Location = new System.Drawing.Point(698, 5);
+            this.DebugOptionsPageBtn.Name = "DebugOptionsPageBtn";
+            this.DebugOptionsPageBtn.Size = new System.Drawing.Size(59, 23);
+            this.DebugOptionsPageBtn.TabIndex = 45;
+            this.DebugOptionsPageBtn.Text = "DEBUG";
+            this.DebugOptionsPageBtn.UseVisualStyleBackColor = false;
+            this.DebugOptionsPageBtn.Click += new System.EventHandler(this.ToggleDebugOptionsPage);
             // 
             // SidBaseBrowseBtn
             // 
@@ -467,7 +467,7 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.BinFileBrowseBtn);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.logWindow);
-            this.Controls.Add(this.debugPanelBtn);
+            this.Controls.Add(this.DebugOptionsPageBtn);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dummy1);
@@ -510,7 +510,7 @@ namespace NaughtyDogDCReader
         private Button dummy0;
         private Button dummy1;
         private Label label2;
-        private Button debugPanelBtn;
+        private Button DebugOptionsPageBtn;
         private RichTextBox logWindow;
         private Label label4;
         private Button SidBaseBrowseBtn;

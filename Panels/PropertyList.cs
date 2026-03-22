@@ -1,0 +1,483 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using static NaughtyDogDCReader.Main;
+
+namespace NaughtyDogDCReader
+{
+    public partial class PropertyPanels
+    {
+        //#
+        //## PropertiesPanel-Related Function Declarations
+        //#
+        #region [PropertiesPanel-Related Function Declarations]
+
+        private void pp_SetupPropertiesPanelPopulation(object ModuleOrProperty, string SelectionName)
+        {
+            //-# Variable Declarations
+            object[][] entries;
+            PropertyButton currentButton;
+            int entryCount, cumulativeButtonHeight;
+            var moduleOrPropertyType = ModuleOrProperty.GetType();
+
+            echo($"\nPopulating PropertiesPanel with contents of an item of type \"{moduleOrPropertyType.Name}\".");
+
+            if (ModuleOrProperty == null)
+            {
+                echo($"ERROR: null object provided for population (type: {moduleOrPropertyType})");
+                ResetPanels(); // Reset panels to default state
+                return;
+            }
+
+
+
+            // Grab the relevant properties from whatever-the-fuck was passed
+            // 0: Struct/Property/Array Item
+            // 1: Text for the button (struct/property name)
+            // 2: Name of the button (struct/property type)
+            if (moduleOrPropertyType == typeof(DCModule))
+            {
+                entries = (ModuleOrProperty as DCModule).Entries.Select(entry => new object[]
+                {
+                    entry.Struct,
+                    entry.Name.DecodedID,
+                    entry.Type.DecodedID
+
+                }).ToArray();
+            }
+            else if (moduleOrPropertyType.IsArray)
+            {
+                var ind = 0;
+                entries = (ModuleOrProperty as Array).Cast<object>().Select(arrayItem =>
+                {
+                    var type = arrayItem.GetType();
+                    return new object[]
+                    {
+                        arrayItem,
+                        $"{type.Name} #{ind++}",
+                        type.Name
+
+                    };
+
+                }).ToArray();
+            }
+            else if (ObjectIsStruct(ModuleOrProperty))
+            {
+                entries = moduleOrPropertyType.GetProperties().Select(property =>
+                {
+                    var type = property.GetType();
+                    return new object[]
+                    {
+                        property.GetValue(ModuleOrProperty),
+                        property.Name,
+                        property.GetType().Name
+                    };
+
+                }).ToArray();
+            }
+            else
+            {
+                throw new Exception($"ERROR: Invalid object passed for PropertyPanel population process. (type provided: {moduleOrPropertyType})");
+            }
+
+            entryCount = entries.Length;
+            cumulativeButtonHeight = (DefaultPropertiesPanelButtonHeight * entryCount) - 1; // I don't know why it's off by a pixel and I'm sick of fucking with it.
+
+
+
+
+
+
+
+            //-## Reset panels to default state
+            ResetPanels();
+
+            //-## Create and add the scroll bar if the controls are going to overflow the group box's height
+            if (cumulativeButtonHeight >= PropertySelectionPanel.Height)
+            {
+                CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertiesPanelScrollBar, cumulativeButtonHeight: cumulativeButtonHeight);
+
+                FirstAndLastPropertyButtons = new PropertyButton[2];
+            }
+
+
+
+            void handleDoubleClickOrEnterInputsOnPropertyButton(object[] entry)
+            {
+                var entryPropertyOrObject = entry[0];
+
+                if (ObjectIsStruct(entryPropertyOrObject) || entryPropertyOrObject.GetType().IsArray)
+                {
+                    History.Add(new object[] { SelectionName, ModuleOrProperty });
+
+                    pp_SetupPropertiesPanelPopulation(entryPropertyOrObject, entry[1].ToString());
+                }
+                else
+                {
+                    LogWindow.AppendLine("unhandled doubleclick bs");
+                }
+            }
+
+
+
+
+
+
+            //##-> Create and "style" a button for each property in the provided structure
+            for (var i = 0; i < entryCount; ++i)
+            {
+                var entry = entries[i];
+                currentButton = CreatePropertiesPanelButton();
+
+                PropertySelectionPanel.Controls.Add(currentButton);
+                currentButton.Location = new Point(1, currentButton.Height * i);
+
+
+                // Apply item name as button text
+                currentButton.Text = entry[1].ToString();
+
+                // Apply item type id as button name
+                currentButton.Name = entry[2].ToString();
+
+
+                // Style the control
+                currentButton.FlatAppearance.BorderSize = 0;
+                currentButton.Width = currentButton.Parent.Width - 2;
+
+                if (Venat.Controls.Contains(PropertiesPanelScrollBar))
+                {
+                    // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
+                    currentButton.Width -= PropertiesPanelScrollBar.Width;
+                }
+
+
+                // Save the index of the header item tied to the control via the button's TabIndex property
+                currentButton.TabIndex = i;
+
+                currentButton.DCProperty = entry[0];
+
+
+
+                // Apply highlight event handler to buttons
+                currentButton.GotFocus += (button, _) => PropertyButtonHighlighted(button as PropertyButton);
+
+
+
+
+
+                currentButton.PreviewKeyDown += (_, keyEvent) =>
+                {
+                    if (keyEvent.KeyCode == Keys.Return)
+                    {
+                        handleDoubleClickOrEnterInputsOnPropertyButton(entry);
+                    }
+                    if (keyEvent.KeyCode == Keys.Back)
+                    {
+                        pp_GoBack();
+                    }
+                };
+
+                currentButton.DoubleClick += (_, __) => handleDoubleClickOrEnterInputsOnPropertyButton(entry);
+
+            }
+
+            if (FirstAndLastPropertyButtons != null)
+            {
+                var propertyButtons = PropertySelectionPanel.Controls.Cast<PropertyButton>().ToArray();
+
+                FirstAndLastPropertyButtons[0] = propertyButtons[0];
+                FirstAndLastPropertyButtons[1] = propertyButtons.Last();
+            }
+
+
+
+            Panels.ForceHighlightDefaultPropertyButton();
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <returns> Home with the milk </returns>
+        private PropertyButton CreatePropertiesPanelButton()
+        {
+            var btn = new PropertyButton()
+            {
+                // Set button styling
+                Font = MainFont,
+                BackColor = AppColour,
+                ForeColor = Color.White,
+
+                FlatStyle = 0,
+                Height = DefaultPropertiesPanelButtonHeight
+            };
+
+            // Assign basic form functionality event handlers
+            btn.MouseDown += MouseDownFunc;
+            btn.MouseUp += MouseUpFunc;
+            btn.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            btn.MouseClick += new MouseEventHandler((_, eventArgs) =>
+            {
+                //! Right-click dropdown menu functionality maybe
+            });
+
+
+            return btn;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Populate either the PropertiesEditor or PropertiesWindow with information about the highlighted PropertyButton's 
+        /// </summary>
+        /// <param name="property"></param>
+        private void LoadSelectionProperties(object property)
+        {
+            if (property == null)
+            {
+                echo("Null property.");
+                return;
+            }
+
+
+
+            var type = property.GetType();
+
+            if (ObjectIsStruct(property))
+            {
+                //-# Object is a struct
+                pe_PopulatePanelWithStructItems(property);
+            }
+            else
+            {
+                //-# Object is an Array of any type
+                if (type.IsArray)
+                {
+                    pe_PopulatePanelWithArrayItems(property as Array);
+                    return;
+                }
+
+
+
+                //-# Object is some Numerical Value
+                pe_PopulatePanelWithSingleNumericalValue(property);
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
+        /// </summary>
+        private void PropertyButtonHighlighted(PropertyButton newButton)
+        {
+            if (newButton == PropertySelection)
+            {
+                return;
+            }
+
+
+            // Default to the first Property Button if any are present
+            if (newButton == null)
+            {
+                LogWindow.AppendLine("New Button was null, you fuckin' dunce");
+                newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+                if (newButton == default || newButton == null)
+                {
+                    return;
+                }
+
+                PropertySelectionPanel.Focus();
+                newButton.Select();
+            }
+
+            if (PropertySelection != null)
+            {
+                // "Reset" the previous button
+                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
+
+                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
+                if (PropertiesPanelScrollBar != null)
+                {
+                    var newScrollBarValue = PropertiesPanelScrollBar.Value;
+
+                    // Wrap to top
+                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
+                    {
+                        newScrollBarValue = PropertiesPanelScrollBar.Minimum;
+                    }
+                    // Wrap to bottom
+                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
+                    {
+                        newScrollBarValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
+                    }
+                    // Handle moving to slightly-offscreen buttons
+                    else
+                    {
+                        // Scroll up a little
+                        if (newButton.Location.Y <= 0)
+                        {
+                            newScrollBarValue = PropertiesPanelScrollBar.Value + newButton.Location.Y;
+                        }
+                        else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
+                        {
+                            // Scroll down a little
+                            newScrollBarValue = PropertiesPanelScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's jsut consistently off by a few pixels, and it's driving me insane
+                        }
+
+
+
+                        // Lazily catch overflow/underflow issues
+                        if (newScrollBarValue < 0)
+                        {
+                            newScrollBarValue = 0;
+                        }
+                        else if (newScrollBarValue >= PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1))
+                        {
+                            newScrollBarValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
+                        }
+                    }
+
+                    ForceScrollPropertiesPanelScrollBar(newScrollBarValue);
+                }
+            }
+
+
+            UpdateSelectionLabel(new[] { null, newButton.Text });
+
+
+            (PropertySelection = newButton)
+            .Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
+        }
+
+
+
+
+        /// <summary>
+        /// Highlight the first/top PropertyButton in the panel
+        /// </summary>
+        public void ForceHighlightDefaultPropertyButton()
+        {
+            var newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+            if (newButton == default)
+            {
+                echo("No property buttons are on the form, so none were highlighted.");
+                return;
+            }
+
+
+
+            PropertyButtonHighlighted(newButton);
+
+            // Highlight the button as if it were clicked, so we can continue using the arrow keys without needing to reimplement that functionality we've already deleted
+            PropertySelectionPanel.Focus();
+            newButton.Select();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        public void ScrollPropertiesPanelButtons(Control hostBox, ScrollEventArgs offset)
+        {
+            foreach (Control button in hostBox.Controls)
+            {
+                button.Location = new Point(button.Location.X, button.Location.Y - (offset.NewValue - offset.OldValue));
+            }
+            hostBox.Update();
+        }
+
+
+
+
+        public void ForceScrollPropertiesPanelScrollBar(int NewValue)
+        {
+            ScrollEventType scrollEventType;
+
+            if (NewValue < PropertiesPanelScrollBar.Value)
+            {
+                scrollEventType = ScrollEventType.SmallDecrement; // Going Up
+            }
+            else if (NewValue > PropertiesPanelScrollBar.Value)
+            {
+                scrollEventType = ScrollEventType.SmallIncrement; // Going Down
+            }
+            else
+            {
+                return;
+            }
+
+
+            ScrollPropertiesPanelButtons(PropertySelectionPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
+            PropertySelectionPanel.Update();
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Return to the most recent item in the History
+        /// </summary>
+        public void pp_GoBack()
+        {
+            var lastItem = History.LastOrDefault();
+
+            if (lastItem != default)
+            {
+                if (History.Count == 1)
+                {
+                    pp_SetupPropertiesPanelPopulation((DCModule) lastItem[1], lastItem[0].ToString());
+
+                    History.Remove(lastItem);
+                }
+                else if (History.Count > 1)
+                {
+                    pp_SetupPropertiesPanelPopulation(lastItem[1], lastItem[0].ToString());
+
+                    History.Remove(lastItem);
+                }
+            }
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Load the property (or struct, but I'm not going to clarify that literally every time...) for the highlighted property button, as if enter was pressed on it.
+        /// </summary>
+        public void LoadPropertyForHighlightedPropertyButton()
+        {
+            if (PropertySelection != null && PropertySelection.DCProperty != null)
+            {
+                pp_SetupPropertiesPanelPopulation(PropertySelection.DCProperty, PropertySelection.Name);
+            }
+        }
+        #endregion propertiespanel-related function declarations
+    }
+}

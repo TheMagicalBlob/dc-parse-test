@@ -60,16 +60,19 @@
     <Compile Include="Common\Common.Threading.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DebugPanel.cs">
+    <Compile Include="Panels\DebugPanel.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DebugPanel.Designer.cs">
+    <Compile Include="Panels\DebugPanel.Designer.cs">
       <DependentUpon>DebugPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="extentions.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="PropertyHandlers.cs" />
+    <Compile Include="Panels\PropertyEditor.cs" />
+    <Compile Include="Panels\PropertyList.cs" />
+    <Compile Include="Panels\PropertyWindow.cs" />
+    <Compile Include="Panels\PropertyPanels.cs" />
     <Compile Include="Structs.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,7 +96,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="DebugPanel.resx">
+    <EmbeddedResource Include="Panels\DebugPanel.resx">
       <DependentUpon>DebugPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
@@ -125,5 +128,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

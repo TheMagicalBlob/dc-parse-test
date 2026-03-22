@@ -9,13 +9,13 @@ namespace NaughtyDogDCReader
     public partial class Main : Form
     {
         /// <summary>
-        /// 
+        /// Iniialize the GUI with a preselected script to be loaded immediately.
         /// </summary>
         /// <param name="path"> The path to the DC Script to be loaded on-boot. </param>
         public Main(string path) => main(path);
 
         /// <summary>
-        /// 
+        /// Iniialize the GUI without any preselected script.
         /// </summary>
         public Main() => main(null);
 
@@ -34,6 +34,7 @@ namespace NaughtyDogDCReader
         //==================================\\
         #region [Function Delcarations]
         #pragma warning disable IDE1006
+
         private void main(string DCFilePath)
         {
             InitializeComponent();
@@ -49,8 +50,8 @@ namespace NaughtyDogDCReader
             Refresh();
             Venat = this;
             Azem = new OptionsPage();
-            Panels = new PropertyHandlers();
-            Bingus = new DebugPanel();
+            Panels = new PropertyPanels();
+            Bingus = new DebugOptionsPage();
 
 
             PropertySelectionPanel = propertySelectionPanel;
@@ -109,11 +110,8 @@ namespace NaughtyDogDCReader
 
                 Paint += DelayedDCFileLoad;
             }
-
         }
-
-#pragma warning restore IDE1006
-
+        #pragma warning restore IDE1006
         #endregion (function declarations)
 
 
@@ -173,7 +171,7 @@ namespace NaughtyDogDCReader
         }
 
 
-        private void ToggleDebugPanel(object sender, EventArgs e)
+        private void ToggleDebugOptionsPage(object sender, EventArgs e)
         {
             Bingus.Visible ^= true;
             Bingus.Location = new Point(Venat.Location.X + ((Venat.Size.Width - Azem.Size.Width) / 2), Venat.Location.Y + SubformVerticalOffset);

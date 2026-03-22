@@ -9,9 +9,9 @@ using static NaughtyDogDCReader.Main;
 
 namespace NaughtyDogDCReader
 {
-    public partial class DebugPanel : Form
+    public partial class DebugOptionsPage : Form
     {
-        public DebugPanel()
+        public DebugOptionsPage()
         {
             InitializeComponent();
             InitializeAdditionalEventHandlers(this, CloseBtn, new SubformExitFunction((_, __) => { SaveOptions(); Visible = false; }), ref HSeparatorLines, ref VSeparatorLines); // Set Event Handlers and Other Form-Related Crap

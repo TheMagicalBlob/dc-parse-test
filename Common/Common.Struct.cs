@@ -279,7 +279,7 @@ namespace NaughtyDogDCReader
 
                 case KnownSIDs.weapon_gameplay_def: return new weapon_gameplay_def(DCFile, Address, name);
 
-                case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
+                //case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
 
                 case KnownSIDs.symbol_array: return new symbol_array(DCFile, Address, name);
 
@@ -300,10 +300,14 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
+
         //#
-        //## 
+        //## //! NAME ME
         //#
-        #region []
+        #region [//! NAME ME]
 
         /// <summary>
         /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="Address"/> specified.
@@ -332,6 +336,9 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
         /// <summary>
         /// //!
         /// </summary>
@@ -351,6 +358,9 @@ namespace NaughtyDogDCReader
 
 
         
+
+
+
         /// <summary>
         /// Reads a string from <paramref name="buffer"/> at the specified <paramref name="startAddress"/>, until the string terminator is read. <br/>
         /// Encoding: Converts the bytes to a char, so whatever string encoding format that results in.
@@ -380,9 +390,14 @@ namespace NaughtyDogDCReader
 
 
 
-        
 
-
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Array"></param>
+        /// <param name="Property"></param>
+        /// <param name="Offset"></param>
+        /// <returns></returns>
         public static object ReadPropertyValueByType(byte[] Array, System.Reflection.PropertyInfo Property, int Offset)
         {
             var type = Property.PropertyType.Name;
@@ -436,6 +451,9 @@ namespace NaughtyDogDCReader
                     return BitConverter.ToInt32(Array, Offset);
             }
         }
+
+
+
 
 
 
@@ -525,6 +543,9 @@ namespace NaughtyDogDCReader
 
             Changes.Add(new object[] { Offset, convertedValue });
         }
+
+
+
 
 
 
