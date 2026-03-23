@@ -60,11 +60,11 @@
     <Compile Include="Common\Common.Threading.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Panels\DebugPanel.cs">
+    <Compile Include="Panels\DebugOptionsPage.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Panels\DebugPanel.Designer.cs">
-      <DependentUpon>DebugPanel.cs</DependentUpon>
+    <Compile Include="Panels\DebugOptionsPage.Designer.cs">
+      <DependentUpon>DebugOptionsPage.cs</DependentUpon>
     </Compile>
     <Compile Include="extentions.cs">
       <SubType>Component</SubType>
@@ -96,8 +96,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Panels\DebugPanel.resx">
-      <DependentUpon>DebugPanel.cs</DependentUpon>
+    <EmbeddedResource Include="Panels\DebugOptionsPage.resx">
+      <DependentUpon>DebugOptionsPage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
