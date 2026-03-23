@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace NaughtyDogDCReader
@@ -23,7 +24,7 @@ namespace NaughtyDogDCReader
                     Application.Run(new Main(path));
                 }
                 else {
-                    string complain = "Invalid file path provided to tool; starting without a preselected DC Script.";
+                    var complain = "Invalid file path provided to tool; starting without a preselected DC Script.";
                     
                     Console.WriteLine(complain);
                     System.Diagnostics.Debug.WriteLine(complain);
@@ -31,9 +32,9 @@ namespace NaughtyDogDCReader
                     MessageBox.Show(complain, "How did you even manage that?");
                 }
             }
-            
-
-            Application.Run(new Main());
+            else {
+                Application.Run(new Main());
+            }
         }
     }
 }

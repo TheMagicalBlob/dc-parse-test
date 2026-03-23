@@ -17,7 +17,11 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Iniialize the GUI without any preselected script.
         /// </summary>
-        public Main() => main(null);
+        public Main()
+        {
+            throw new Exception("retard");
+            main(null);
+        }
 
 
 
