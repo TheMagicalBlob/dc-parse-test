@@ -9,13 +9,11 @@ namespace NaughtyDogDCReader
 {
     public partial class Main
     {
-        //=================================\\
-        //--|   Variable Declarations   |--\\
-        //=================================\\
-        #region [Variable Declarations]
-        //#
-        //## Global Look/Feel-Related Variables
-        //#
+        //==========================================================\\
+        //--|   Global Look/Feel-Related Variable Declarations   |--\\
+        //==========================================================\\
+        #region [Global Look/Feel-Related Variable Declarations]
+
 
         public static Color AppColour = Color.FromArgb(20, 20, 20);
         public static Color AppColourLight = Color.FromArgb(42, 42, 42);
@@ -31,7 +29,9 @@ namespace NaughtyDogDCReader
         public static int SubformVerticalOffset = 50;
 
 #if DEBUG
-        /// <summary> Disable drawing of form border/separator lines </summary>
+        /// <summary>
+        /// Disable drawing of form border/separator lines.
+        /// </summary>
         public static bool noDraw;
 #endif
         #endregion

@@ -12,15 +12,11 @@ namespace NaughtyDogDCReader
 {
     public partial class Main
     {
-        //=================================\\
-        //--|   Variable Declarations   |--\\
-        //=================================\\
-        #region [Variable Declarations]
-        
-        //#
-        //## Script Parsing Globals
-        //#
-        #region [Script Parsing Globals]
+        //=======================================================\\
+        //--|   Script Parsing Global Variable Declarations   |--\\
+        //=======================================================\\
+        #region [Script Parsing Global Variable Declarations]
+
 
         /// <summary>
         /// The loaded DC Script binary as a byte array. <br/>
@@ -128,7 +124,6 @@ namespace NaughtyDogDCReader
         }
         #endregion
 
-        #endregion
 
         
 

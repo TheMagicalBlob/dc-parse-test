@@ -11,18 +11,23 @@ namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
-
         //==========================================================\\
         //--|   PropertiesEditor-Related Function Declarations   |--\\
         //==========================================================\\
         #region [PropertiesEditor-Related Function Declarations]
 
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Struct"></param>
+        /// <exception cref="Exception"></exception>
         private void pe_PopulatePanelWithStructItems(object Struct)
         {
             // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
             var totalHeight = 2;
             var type = Struct.GetType();
 
+            // Grab the actual struct if the provided struct obj is a DC Header Entry (//! CLUNKY!)
             if (type == typeof(DCModule.DCEntry))
             {
                 Struct = ((DCModule.DCEntry) Struct).Struct;
@@ -30,6 +35,7 @@ namespace NaughtyDogDCReader
             }
 
 
+            // Make sure the passed object is actually a struct
             if (!ObjectIsStruct(Struct))
             {
                 throw new Exception($"ERROR: Object of type \"{Struct.GetType().Name}\" is not a struct");
@@ -60,6 +66,16 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Array"></param>
+        /// <exception cref="Exception"></exception>
         private void pe_PopulatePanelWithArrayItems(Array Array)
         {
             // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
@@ -88,8 +104,7 @@ namespace NaughtyDogDCReader
                     propertyEvent = setupPropertiesPanelPopulation;
                     propertyName = itemType.IsArray ? itemType.GetElementType().Name : itemType.Name;
                 }
-                else
-                {
+                else {
                     propertyEvent = spawnVariableEditorBox;
                     propertyName = itemType.Name;
                 }
@@ -112,6 +127,14 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="name"></param>
         private void pe_PopulatePanelWithSingleNumericalValue(object value, string name = null)
         {
             var row = NewPropertiesEditorRow(value, spawnVariableEditorBox, name ?? value.GetType().Name);
@@ -126,9 +149,8 @@ namespace NaughtyDogDCReader
 
 
 
-
         /// <summary>
-        /// 
+        /// //!
         /// </summary>
         /// <param name="memberName"></param>
         /// <param name="memberValue"></param>
@@ -175,9 +197,189 @@ namespace NaughtyDogDCReader
 
 
 
+        /// <summary>
+        /// Get a formatted string representation for the property's value.
+        /// <br/><br/>
+        /// 
+        /// Whole Numerical Values: <br/>
+        /// - formats as a hex number if <paramref name="PropertyName"/> indicates the property's a pointer <br/>
+        /// - otherwise formats as a basic integer value <br/>
+        /// <br/><br/>
+        /// 
+        /// Advanced Numerical Values: <br/>
+        /// - formats as a float. Meh, it works.
+        /// <br/><br/>
+        /// 
+        /// Strings: <br/>
+        /// - Either returns the string, or (empty string) / (null string) if applicable.
+        /// <br/><br/>
+        /// 
+        /// Advanced Numerical Values: <br/>
+        /// - formats as a float. Meh, it works.
+        /// <br/><br/>
+        /// 
+        /// <br/>
+        /// </summary>
+        /// <param name="Value"></param>
+        /// <param name="IndentationOverride"></param>
+        /// <returns></returns>
+        private string FormatPropertyValueAsString(object Value)
+        {
+            if (Value == null)
+            {
+                return "null";
+            }
+            var returnString = string.Empty;
+
+
+
+            switch (Value.GetType())
+            {
+                // ## Booleans
+                case var val when val == typeof(bool):
+                    returnString = val.ToString();
+                    break;
+
+
+
+
+                // ## Basic Numerical Values
+                case var val when BasicNumericalTypes.Contains(val):
+                    returnString = $"0x{Value:X}";
+                    break;
+
+
+                // ## "Advanced" Numerical Values
+                case var val when AdvancedNumericalTypes.Contains(val):
+                    returnString = $"{Value:F}";
+                    break;
+
+
+
+
+                // ## String ID's
+                case var type when type == typeof(SID):
+                    returnString = $"{{{((SID) Value).DecodedID}}}";
+                    break;
+
+
+
+
+                // ## Strings
+                case var type when type == typeof(string):
+                    if (Value == null)
+                    {
+                        returnString = "(null string)";
+                        break;
+                    }
+
+                    if (Value.ToString().Length < 1)
+                    {
+                        returnString = "(empty string)";
+                        break;
+                    }
+
+                    returnString = Value.ToString();
+                    break;
+
+
+
+
+                // ## Arrays
+                case var type when type.IsArray:
+                {
+                    if (PropertyEditorPanel.Visible)
+                    {
+                        var ind = type.Name.IndexOf(']');
+                        returnString = type.Name.Remove(ind) + ((Array) Value).Length + type.Name.Substring(ind); // insert the array length into the type name
+                    }
+                    else
+                    {
+                        var depth = type.ToString().Count(item => item == '[');
+                        var len = ((Array) Value).Length;
+                        var indentIndex = 1;
+
+                        string printArrayContents(object item)
+                        {
+                            var itemType = item.GetType();
+                            var retStr = string.Empty;
+
+                            echo($"Item {itemType} base type: [{itemType.BaseType}]");
+
+                            if (itemType.BaseType == typeof(Array))
+                            {
+                                foreach (var subItem in (Array) item)
+                                {
+                                    ++indentIndex;
+                                    retStr += printArrayContents(subItem);
+                                    --indentIndex;
+                                }
+                            }
+
+                            retStr += $"{new string(' ', 4 * indentIndex)}{FormatPropertyValueAsString(item)},\n";
+
+                            return retStr;
+                        }
+
+                        returnString = type.Name + " {\n";
+                        foreach (var item in (Array) Value)
+                        {
+                            returnString += printArrayContents(item);
+                        }
+
+                        returnString += '}';
+                    }
+                    break;
+                }
+
+
+
+
+                // ## Unknown Struct
+                case var type when type == typeof(UnmappedStructure):
+                    returnString = $"Unknown Struct {((UnmappedStructure) Value).TypeID.DecodedID} @ 0x{((UnmappedStructure) Value).Address:X}";
+                    break;
+
+
+
+
+                // Hopefully structs
+                default:
+                    if (PropertyEditorPanel.Visible)
+                    {
+                        returnString = Value.GetType().Name;
+                    }
+                    else
+                    {
+                        var str = "\nType: " + ((dynamic)Value).Name.DecodedID + '\n';
+
+                        foreach (var property in Value.GetType().GetProperties())
+                        {
+                            // Print the name of the property
+                            str += $"{SpaceOutStructName(property.Name)}: [\n";
+
+                            var val = property.GetValue(Value);
+                            str += $"{FormatPropertyValueAsString(val).Replace("\n", "\n" + Indentation)}\n";
+                        }
+
+                        returnString = str;
+                    }
+                    break;
+            }
+
+
+            return returnString;
+        }
+
+
+
+
+
+
+
 
         /// <summary>
-        /// 
+        /// //!
         /// </summary>
         /// <param name="propertyEditorRow"></param>
         /// <param name="memberName"></param>
@@ -214,6 +416,11 @@ namespace NaughtyDogDCReader
 
 
 
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="eventArgs"></param>
         private void ParseEditedVariableString(object editor, PreviewKeyDownEventArgs eventArgs)
         {
 
@@ -225,6 +432,12 @@ namespace NaughtyDogDCReader
 
 
 
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="_"></param>
+        /// <param name="offset"></param>
         public void ScrollPropertyEditorRows(object _, ScrollEventArgs offset)
         {
             foreach (Control button in PropertyEditorPanel.Controls)
@@ -236,6 +449,15 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Incrementation"></param>
         public void ForceScrollPropertyEditorRows(int Incrementation)
         {
             foreach (Control button in PropertyEditorPanel.Controls)

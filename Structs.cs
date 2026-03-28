@@ -13349,16 +13349,12 @@ public struct UnmappedStructure
             {
                 this.Name = Name;
                 this.Address = Address;
-
-                LongMessage = $"Unmapped Structure [\n\tType: {Type.DecodedID}\n\tName: {Name.DecodedID}\n\tAddress: 0x{Address.ToString("X").PadLeft(8, '0')}\n]";
-                ShortMessage = $"Type \"{Type.DecodedID}\" not yet mapped.";
+                TypeID = Type;
             }
 
+            public SID TypeID;
             public SID Name;
             public long Address;
-
-            public readonly string LongMessage;
-            public string ShortMessage { get; private set; }
         }
         #endregion
     }

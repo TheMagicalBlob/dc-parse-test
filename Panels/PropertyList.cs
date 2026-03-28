@@ -11,11 +11,17 @@ namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
-        //#
-        //## PropertiesPanel-Related Function Declarations
-        //#
+        //=========================================================\\
+        //--|   PropertiesPanel-Related Function Declarations   |--\\
+        //=========================================================\\
         #region [PropertiesPanel-Related Function Declarations]
 
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="ModuleOrProperty"></param>
+        /// <param name="SelectionName"></param>
+        /// <exception cref="Exception"></exception>
         private void pp_SetupPropertiesPanelPopulation(object ModuleOrProperty, string SelectionName)
         {
             //-# Variable Declarations
@@ -163,7 +169,7 @@ namespace NaughtyDogDCReader
 
 
                 // Apply highlight event handler to buttons
-                currentButton.GotFocus += (button, _) => PropertyButtonHighlighted(button as PropertyButton);
+                currentButton.GotFocus += (button, _) => HighlightPropertyButton(button as PropertyButton);
 
 
 
@@ -177,7 +183,7 @@ namespace NaughtyDogDCReader
                     }
                     if (keyEvent.KeyCode == Keys.Back)
                     {
-                        pp_GoBack();
+                        pl_GoBack();
                     }
                 };
 
@@ -260,8 +266,7 @@ namespace NaughtyDogDCReader
                 //-# Object is a struct
                 pe_PopulatePanelWithStructItems(property);
             }
-            else
-            {
+            else {
                 //-# Object is an Array of any type
                 if (type.IsArray)
                 {
@@ -279,10 +284,12 @@ namespace NaughtyDogDCReader
 
 
 
+
+
         /// <summary>
         /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
         /// </summary>
-        private void PropertyButtonHighlighted(PropertyButton newButton)
+        private void HighlightPropertyButton(PropertyButton newButton)
         {
             if (newButton == PropertySelection)
             {
@@ -352,7 +359,7 @@ namespace NaughtyDogDCReader
                         }
                     }
 
-                    ForceScrollPropertiesPanelScrollBar(newScrollBarValue);
+                    ForceScrollPropertiesListScrollBar(newScrollBarValue);
                 }
             }
 
@@ -363,6 +370,8 @@ namespace NaughtyDogDCReader
             (PropertySelection = newButton)
             .Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
         }
+
+
 
 
 
@@ -382,7 +391,7 @@ namespace NaughtyDogDCReader
 
 
 
-            PropertyButtonHighlighted(newButton);
+            HighlightPropertyButton(newButton);
 
             // Highlight the button as if it were clicked, so we can continue using the arrow keys without needing to reimplement that functionality we've already deleted
             PropertySelectionPanel.Focus();
@@ -394,13 +403,12 @@ namespace NaughtyDogDCReader
 
 
 
-
-
-
-
-
-
-        public void ScrollPropertiesPanelButtons(Control hostBox, ScrollEventArgs offset)
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="hostBox"></param>
+        /// <param name="offset"></param>
+        public void ScrollPropertiesListButtons(Control hostBox, ScrollEventArgs offset)
         {
             foreach (Control button in hostBox.Controls)
             {
@@ -412,7 +420,13 @@ namespace NaughtyDogDCReader
 
 
 
-        public void ForceScrollPropertiesPanelScrollBar(int NewValue)
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="NewValue"></param>
+        public void ForceScrollPropertiesListScrollBar(int NewValue)
         {
             ScrollEventType scrollEventType;
 
@@ -424,13 +438,12 @@ namespace NaughtyDogDCReader
             {
                 scrollEventType = ScrollEventType.SmallIncrement; // Going Down
             }
-            else
-            {
+            else {
                 return;
             }
 
 
-            ScrollPropertiesPanelButtons(PropertySelectionPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
+            ScrollPropertiesListButtons(PropertySelectionPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
             PropertySelectionPanel.Update();
         }
 
@@ -442,7 +455,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Return to the most recent item in the History
         /// </summary>
-        public void pp_GoBack()
+        public void pl_GoBack()
         {
             var lastItem = History.LastOrDefault();
 

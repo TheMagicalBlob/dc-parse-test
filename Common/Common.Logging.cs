@@ -10,15 +10,10 @@ namespace NaughtyDogDCReader
 {
     public partial class Main
     {
-        //===================================\\
-        //---|   Function Declarations   |---\\
-        //===================================\\
-        #region [Function Declarations]
-
-        //#
-        //## Logging/Output functionality
-        //#
-        #region [Logging/Output Functionality]
+        //=======================================================\\
+        //---|   Logging/Output Functionality Declarations   |---\\
+        //=======================================================\\
+        #region [Logging/Output Functionality Declarations]
 
         /// <summary>
         /// Echo a provided string (or string representation of an object) to the standard console output.
@@ -38,6 +33,16 @@ namespace NaughtyDogDCReader
             }
 #endif
         }
+
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="message"></param>
         public static void echoSl(object message = null)
         {
 #if DEBUG
@@ -75,6 +80,9 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
         /// <summary>
         /// Reset the ScriptStatusLabel to it's default value.
         /// </summary>
@@ -105,6 +113,9 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
         /// <summary>
         /// Reset the ScriptSelectionLabel to it's default value.
         /// </summary>
@@ -113,6 +124,5 @@ namespace NaughtyDogDCReader
             SelectionDetails = null;
         }
         #endregion
-        #endregion [Global Functions]
     }
 }

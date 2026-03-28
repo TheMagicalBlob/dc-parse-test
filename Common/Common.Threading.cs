@@ -3,17 +3,17 @@ using System.IO;
 using System.Linq;
 using System.Drawing;
 using System.Threading;
-using System.Security.Cryptography;
 
 
 namespace NaughtyDogDCReader
 {
     public partial class Main
     {
-        //#
-        //## Threading-Related Variables (threads, delegates, and mammets)
-        //#
+        //=====================================================================================\\
+        //--|   Threading-Related Variable Declarations (threads, delegates, and mammets)   |--\\
+        //=====================================================================================\\
         #region [Threading-Related Variables]
+        
         private static Thread DCFileHandlerThread;
 
         /// <summary> Cross-thread form interaction delegate. </summary>
@@ -71,7 +71,6 @@ namespace NaughtyDogDCReader
             CloseBinFile();
         });
         #endregion
-        
 
 
 
@@ -84,13 +83,10 @@ namespace NaughtyDogDCReader
 
 
 
-
-
-
-        //#
-        //## Cross-Thread-Safe Functions
-        //#
-        #region [Cross-Thread-Safe Functions]
+        //===================================================\\
+        //--|   Cross-Thread-Safe Function Declarations   |--\\
+        //===================================================\\
+        #region [Cross-Thread-Safe Function Declarations]
 
         /// <summary>
         /// I plan to do more here. Not 100 on it yet though.

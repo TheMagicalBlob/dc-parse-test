@@ -68,7 +68,6 @@ namespace NaughtyDogDCReader
         //=================================\\
         #region [Variable Declarations]
 
-
         //#
         //## Properties Panels Functionality Variables
         //#
@@ -181,23 +180,17 @@ namespace NaughtyDogDCReader
 
 
 
-
-
-
-
-
-
-
-        //=================================\\
-        //--|   Function Declarations   |--\\
-        //=================================\\
-        #region [Function Declarations]
-
-        //#
-        //## Miscellaneous Function Declarations
-        //#
+        //===============================================\\
+        //--|   Miscellaneous Function Declarations   |--\\
+        //===============================================\\
         #region [Miscellaneous Function Declarations]
 
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="groupBox"></param>
+        /// <param name="hostBoxScrollBarReference"></param>
+        /// <param name="cumulativeButtonHeight"></param>
         private void CreateScrollBarForGroupBox(Control groupBox, ref VScrollBar hostBoxScrollBarReference, int cumulativeButtonHeight)
         {
             if (!Venat.Controls.Contains(hostBoxScrollBarReference))
@@ -215,7 +208,7 @@ namespace NaughtyDogDCReader
 
                     hostBoxScrollBarReference.Location = new Point((groupBox.Parent.Location.X + groupBox.Width) - (hostBoxScrollBarReference.Width + 1), groupBox.Parent.Location.Y);
 
-                    hostBoxScrollBarReference.Scroll += (_, args) => ScrollPropertiesPanelButtons(groupBox, args);
+                    hostBoxScrollBarReference.Scroll += (_, args) => ScrollPropertiesListButtons(groupBox, args);
                 }
 
                 Venat.Controls.Add(hostBoxScrollBarReference);
@@ -255,45 +248,5 @@ namespace NaughtyDogDCReader
             IndentationDepth = 0;
         }
         #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-        #endregion (function declarations)
     }
 }

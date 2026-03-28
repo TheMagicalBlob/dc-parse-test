@@ -268,16 +268,12 @@ namespace NaughtyDogDCReader
 
 
 
-        
-        //===================================\\
-        //---|   Function Delcarations   |---\\
-        //===================================\\
-        #region [Function Delcarations]
 
-        //#
-        //## Form Functionality Functions
-        //#
-        #region [Form Functionality Functions]
+        //======================================================\\
+        //---|   Form Functionality Function Delcarations   |---\\
+        //======================================================\\
+        #region [Form Functionality Function Delcarations]
+
 
         /// <summary>
         /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
@@ -360,6 +356,10 @@ namespace NaughtyDogDCReader
         }
 
 
+
+
+
+
         /// <summary>
         /// Handle Form Dragging for Borderless Form.
         /// </summary>
@@ -386,6 +386,16 @@ namespace NaughtyDogDCReader
             }
         }
 
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public static void MouseDownFunc(object sender = null, EventArgs e = null)
         {
             if (Venat != null)
@@ -395,6 +405,16 @@ namespace NaughtyDogDCReader
             }
         }
 
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public static void MouseUpFunc(object sender = null, EventArgs e = null)
         {
             MouseIsDown = false;
@@ -404,6 +424,11 @@ namespace NaughtyDogDCReader
                 Azem?.BringToFront();
             }
         }
+
+
+
+
+
 
 
 
@@ -445,6 +470,11 @@ namespace NaughtyDogDCReader
                 Point.Empty
             });
         }
+
+
+
+
+
 
 
 
@@ -576,7 +606,6 @@ namespace NaughtyDogDCReader
 
             Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
         }
-        #endregion
         #endregion
     }
 }
