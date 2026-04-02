@@ -445,23 +445,23 @@ namespace NaughtyDogDCReader
             }
 #endif
 
-            yoshiP.Graphics.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
+            yoshiP.Graphics?.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
 
 
             //## Draw Vertical Lines
             foreach (var line in (venat as dynamic).VSeparatorLines ?? Array.Empty<Point[]>())
             {
-                yoshiP?.Graphics.DrawLine(FormDecorationPen, line[0], line[1]);
+                yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
             }
 
             //## Draw Horizontal Lines
             foreach (var line in (venat as dynamic).HSeparatorLines ?? Array.Empty<Point[]>())
             {
-                yoshiP?.Graphics.DrawLine(FormDecorationPen, line[0], line[1]);
+                yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
             }
 
             // Draw a thin (1 pixel) border around the form with the current Pen
-            yoshiP?.Graphics.DrawLines(FormDecorationPen, new[]
+            yoshiP?.Graphics?.DrawLines(FormDecorationPen, new[]
             {
                 Point.Empty,
                 new Point(venat.Width-1, 0),

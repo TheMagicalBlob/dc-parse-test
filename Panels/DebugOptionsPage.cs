@@ -114,7 +114,7 @@ namespace NaughtyDogDCReader
             var @checked = ((CheckBox)sender).Checked;
 
             Venat.propertiesWindow.Visible = @checked;
-            Venat.propertiesEditorContainer.Visible = !@checked;
+            Venat.PropertyEditorContainer.Visible = !@checked;
         }
 
         

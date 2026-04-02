@@ -23,8 +23,8 @@ namespace NaughtyDogDCReader
             //#
             //## Properties Handler Variable Declarations
             //#
-            DefaultPropertiesPanelButtonHeight = 23;
-            DefaultPropertiesEditorRowHeight = 23;
+            DefaultPropertyListButtonHeight = 23;
+            DefaultPropertyEditorRowHeight = 23;
 
             Changes = new List<object[]>();
             History = new List<object[]>();
@@ -35,7 +35,7 @@ namespace NaughtyDogDCReader
             //## Create the various delegates for the Properties Handler, so we can do shit across multiple threads
             //#
 
-            setupPropertiesPanelPopulation = pp_SetupPropertiesPanelPopulation;
+            setupPropertyListPopulation = SetupPropertyListPopulation;
 
             spawnVariableEditorBox = SpawnVariableEditorBox;
 
@@ -88,7 +88,7 @@ namespace NaughtyDogDCReader
             set {
                 if (value != null)
                 {
-                    LoadSelectionProperties(value.DCProperty);
+                    LoadSelectionPropertiesIntoPropertyEditor(value.DCProperty);
                 }
 
                 _propertySelection = value;
@@ -101,16 +101,16 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// The (vertical) scroll bar used to navigate the buttons populating the PropertiesPanel when they bleed passed the bottom of the group box
+        /// The (vertical) scroll bar used to navigate the buttons populating the PropertyList when they bleed passed the bottom of the group box
         /// </summary>
-        public VScrollBar PropertiesPanelScrollBar;
-        public int PaddingForPropertiesPanelScrollBar;
+        public VScrollBar PropertyListScrollBar;
+        public int PaddingForPropertyListScrollBar;
 
         /// <summary>
-        /// The (vertical) scroll bar used to navigate the rows populating the PropertiesEditor when they bleed passed the bottom of the group box
+        /// The (vertical) scroll bar used to navigate the rows populating the PropertyEditor when they bleed passed the bottom of the group box
         /// </summary>
-        private VScrollBar PropertiesEditorScrollBar;
-        private int PaddingForPropertiesEditorScrollBar;
+        private VScrollBar PropertyEditorScrollBar;
+        private int PaddingForPropertyEditorScrollBar;
 
 
 
@@ -134,14 +134,14 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
         /// </summary>
-        private readonly int DefaultPropertiesPanelButtonHeight;
+        private readonly int DefaultPropertyListButtonHeight;
 
         
 
         /// <summary>
         /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
         /// </summary>
-        private readonly int DefaultPropertiesEditorRowHeight;
+        private readonly int DefaultPropertyEditorRowHeight;
 
 
 
@@ -166,7 +166,7 @@ namespace NaughtyDogDCReader
         private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
 
 
-        public readonly PropertyPanelEventHandler setupPropertiesPanelPopulation;
+        public readonly PropertyPanelEventHandler setupPropertyListPopulation;
 
         public PropertyPanelEventHandler spawnVariableEditorBox;
         #endregion
@@ -208,7 +208,7 @@ namespace NaughtyDogDCReader
 
                     hostBoxScrollBarReference.Location = new Point((groupBox.Parent.Location.X + groupBox.Width) - (hostBoxScrollBarReference.Width + 1), groupBox.Parent.Location.Y);
 
-                    hostBoxScrollBarReference.Scroll += (_, args) => ScrollPropertiesListButtons(groupBox, args);
+                    hostBoxScrollBarReference.Scroll += (_, args) => ScrollPropertyListButtons(groupBox, args);
                 }
 
                 Venat.Controls.Add(hostBoxScrollBarReference);
@@ -219,7 +219,7 @@ namespace NaughtyDogDCReader
                 
             hostBoxScrollBarReference.Maximum = (cumulativeButtonHeight - groupBox.Height) + (GroupBox.GroupBoxContentsOffset * 2);
 
-            hostBoxScrollBarReference.SmallChange = DefaultPropertiesPanelButtonHeight;
+            hostBoxScrollBarReference.SmallChange = DefaultPropertyListButtonHeight;
         }
 
 
@@ -239,11 +239,11 @@ namespace NaughtyDogDCReader
             FirstAndLastPropertyButtons = null;
             PropertySelection = null;
 
-            Venat.Controls.Remove(PropertiesPanelScrollBar);
-            PropertiesPanelScrollBar = null;
+            Venat.Controls.Remove(PropertyListScrollBar);
+            PropertyListScrollBar = null;
 
-            Venat.Controls.Remove(PropertiesEditorScrollBar);
-            PropertiesEditorScrollBar = null;
+            Venat.Controls.Remove(PropertyEditorScrollBar);
+            PropertyEditorScrollBar = null;
 
             IndentationDepth = 0;
         }

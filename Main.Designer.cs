@@ -47,7 +47,7 @@ namespace NaughtyDogDCReader
             this.button2 = new System.Windows.Forms.Button();
             this.propertiesPanelContainer = new System.Windows.Forms.Panel();
             this.propertySelectionPanel = new NaughtyDogDCReader.GroupBox();
-            this.propertiesEditorContainer = new System.Windows.Forms.Panel();
+            this.PropertyEditorContainer = new System.Windows.Forms.Panel();
             this.propertyEditorPanel = new NaughtyDogDCReader.GroupBox();
             this.label5 = new NaughtyDogDCReader.Label();
             this.label6 = new NaughtyDogDCReader.Label();
@@ -64,7 +64,7 @@ namespace NaughtyDogDCReader
             this.propertyForwardBtn = new System.Windows.Forms.Button();
             this.propertyBackBtn = new System.Windows.Forms.Button();
             this.propertiesPanelContainer.SuspendLayout();
-            this.propertiesEditorContainer.SuspendLayout();
+            this.PropertyEditorContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // BinFileBrowseBtn
@@ -238,14 +238,14 @@ namespace NaughtyDogDCReader
             this.propertySelectionPanel.TabIndex = 19;
             this.propertySelectionPanel.TabStop = false;
             // 
-            // propertiesEditorContainer
+            // PropertyEditorContainer
             // 
-            this.propertiesEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.propertiesEditorContainer.Controls.Add(this.propertyEditorPanel);
-            this.propertiesEditorContainer.Location = new System.Drawing.Point(546, 232);
-            this.propertiesEditorContainer.Name = "propertiesEditorContainer";
-            this.propertiesEditorContainer.Size = new System.Drawing.Size(338, 391);
-            this.propertiesEditorContainer.TabIndex = 0;
+            this.PropertyEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.PropertyEditorContainer.Controls.Add(this.propertyEditorPanel);
+            this.PropertyEditorContainer.Location = new System.Drawing.Point(546, 232);
+            this.PropertyEditorContainer.Name = "PropertyEditorContainer";
+            this.PropertyEditorContainer.Size = new System.Drawing.Size(338, 391);
+            this.PropertyEditorContainer.TabIndex = 0;
             // 
             // propertyEditorPanel
             // 
@@ -456,7 +456,7 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.propertyForwardBtn);
             this.Controls.Add(this.propertyBackBtn);
             this.Controls.Add(this.propertiesPanelContainer);
-            this.Controls.Add(this.propertiesEditorContainer);
+            this.Controls.Add(this.PropertyEditorContainer);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label5);
@@ -485,7 +485,7 @@ namespace NaughtyDogDCReader
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Main";
             this.propertiesPanelContainer.ResumeLayout(false);
-            this.propertiesEditorContainer.ResumeLayout(false);
+            this.PropertyEditorContainer.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -527,7 +527,7 @@ namespace NaughtyDogDCReader
         public Label scriptSelectionLabel;
         private Panel propertiesPanelContainer;
         private GroupBox propertyEditorPanel;
-        public Panel propertiesEditorContainer;
+        public Panel PropertyEditorContainer;
         public Button propertyForwardBtn;
         public Button propertyBackBtn;
     }

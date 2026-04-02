@@ -12,9 +12,9 @@ namespace NaughtyDogDCReader
     public partial class PropertyPanels
     {
         //=========================================================\\
-        //--|   PropertiesPanel-Related Function Declarations   |--\\
+        //--|   PropertyList-Related Function Declarations   |--\\
         //=========================================================\\
-        #region [PropertiesPanel-Related Function Declarations]
+        #region [PropertyList-Related Function Declarations]
 
         /// <summary>
         /// //!
@@ -22,7 +22,7 @@ namespace NaughtyDogDCReader
         /// <param name="ModuleOrProperty"></param>
         /// <param name="SelectionName"></param>
         /// <exception cref="Exception"></exception>
-        private void pp_SetupPropertiesPanelPopulation(object ModuleOrProperty, string SelectionName)
+        private void SetupPropertyListPopulation(object ModuleOrProperty, string SelectionName)
         {
             //-# Variable Declarations
             object[][] entries;
@@ -30,7 +30,7 @@ namespace NaughtyDogDCReader
             int entryCount, cumulativeButtonHeight;
             var moduleOrPropertyType = ModuleOrProperty.GetType();
 
-            echo($"\nPopulating PropertiesPanel with contents of an item of type \"{moduleOrPropertyType.Name}\".");
+            echo($"\nPopulating PropertyList with contents of an item of type \"{moduleOrPropertyType.Name}\".");
 
             if (ModuleOrProperty == null)
             {
@@ -91,7 +91,7 @@ namespace NaughtyDogDCReader
             }
 
             entryCount = entries.Length;
-            cumulativeButtonHeight = (DefaultPropertiesPanelButtonHeight * entryCount) - 1; // I don't know why it's off by a pixel and I'm sick of fucking with it.
+            cumulativeButtonHeight = (DefaultPropertyListButtonHeight * entryCount) - 1; // I don't know why it's off by a pixel and I'm sick of fucking with it.
 
 
 
@@ -105,7 +105,7 @@ namespace NaughtyDogDCReader
             //-## Create and add the scroll bar if the controls are going to overflow the group box's height
             if (cumulativeButtonHeight >= PropertySelectionPanel.Height)
             {
-                CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertiesPanelScrollBar, cumulativeButtonHeight: cumulativeButtonHeight);
+                CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertyListScrollBar, cumulativeButtonHeight: cumulativeButtonHeight);
 
                 FirstAndLastPropertyButtons = new PropertyButton[2];
             }
@@ -120,7 +120,7 @@ namespace NaughtyDogDCReader
                 {
                     History.Add(new object[] { SelectionName, ModuleOrProperty });
 
-                    pp_SetupPropertiesPanelPopulation(entryPropertyOrObject, entry[1].ToString());
+                    SetupPropertyListPopulation(entryPropertyOrObject, entry[1].ToString());
                 }
                 else
                 {
@@ -137,7 +137,7 @@ namespace NaughtyDogDCReader
             for (var i = 0; i < entryCount; ++i)
             {
                 var entry = entries[i];
-                currentButton = CreatePropertiesPanelButton();
+                currentButton = CreatePropertyListButton();
 
                 PropertySelectionPanel.Controls.Add(currentButton);
                 currentButton.Location = new Point(1, currentButton.Height * i);
@@ -154,10 +154,10 @@ namespace NaughtyDogDCReader
                 currentButton.FlatAppearance.BorderSize = 0;
                 currentButton.Width = currentButton.Parent.Width - 2;
 
-                if (Venat.Controls.Contains(PropertiesPanelScrollBar))
+                if (Venat.Controls.Contains(PropertyListScrollBar))
                 {
                     // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
-                    currentButton.Width -= PropertiesPanelScrollBar.Width;
+                    currentButton.Width -= PropertyListScrollBar.Width;
                 }
 
 
@@ -213,7 +213,7 @@ namespace NaughtyDogDCReader
         /// //!
         /// </summary>
         /// <returns> Home with the milk </returns>
-        private PropertyButton CreatePropertiesPanelButton()
+        private PropertyButton CreatePropertyListButton()
         {
             var btn = new PropertyButton()
             {
@@ -223,7 +223,7 @@ namespace NaughtyDogDCReader
                 ForeColor = Color.White,
 
                 FlatStyle = 0,
-                Height = DefaultPropertiesPanelButtonHeight
+                Height = DefaultPropertyListButtonHeight
             };
 
             // Assign basic form functionality event handlers
@@ -238,47 +238,6 @@ namespace NaughtyDogDCReader
 
 
             return btn;
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// Populate either the PropertiesEditor or PropertiesWindow with information about the highlighted PropertyButton's 
-        /// </summary>
-        /// <param name="property"></param>
-        private void LoadSelectionProperties(object property)
-        {
-            if (property == null)
-            {
-                echo("Null property.");
-                return;
-            }
-
-
-
-            var type = property.GetType();
-
-            if (ObjectIsStruct(property))
-            {
-                //-# Object is a struct
-                pe_PopulatePanelWithStructItems(property);
-            }
-            else {
-                //-# Object is an Array of any type
-                if (type.IsArray)
-                {
-                    pe_PopulatePanelWithArrayItems(property as Array);
-                    return;
-                }
-
-
-
-                //-# Object is some Numerical Value
-                pe_PopulatePanelWithSingleNumericalValue(property);
-            }
         }
 
 
@@ -318,19 +277,19 @@ namespace NaughtyDogDCReader
                 PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
 
                 // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
-                if (PropertiesPanelScrollBar != null)
+                if (PropertyListScrollBar != null)
                 {
-                    var newScrollBarValue = PropertiesPanelScrollBar.Value;
+                    var newScrollBarValue = PropertyListScrollBar.Value;
 
                     // Wrap to top
                     if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
                     {
-                        newScrollBarValue = PropertiesPanelScrollBar.Minimum;
+                        newScrollBarValue = PropertyListScrollBar.Minimum;
                     }
                     // Wrap to bottom
                     else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
                     {
-                        newScrollBarValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
+                        newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
                     }
                     // Handle moving to slightly-offscreen buttons
                     else
@@ -338,12 +297,12 @@ namespace NaughtyDogDCReader
                         // Scroll up a little
                         if (newButton.Location.Y <= 0)
                         {
-                            newScrollBarValue = PropertiesPanelScrollBar.Value + newButton.Location.Y;
+                            newScrollBarValue = PropertyListScrollBar.Value + newButton.Location.Y;
                         }
                         else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
                         {
                             // Scroll down a little
-                            newScrollBarValue = PropertiesPanelScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's jsut consistently off by a few pixels, and it's driving me insane
+                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's jsut consistently off by a few pixels, and it's driving me insane
                         }
 
 
@@ -353,13 +312,13 @@ namespace NaughtyDogDCReader
                         {
                             newScrollBarValue = 0;
                         }
-                        else if (newScrollBarValue >= PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1))
+                        else if (newScrollBarValue >= PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
                         {
-                            newScrollBarValue = PropertiesPanelScrollBar.Maximum - (PropertiesPanelScrollBar.LargeChange - 1);
+                            newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
                         }
                     }
 
-                    ForceScrollPropertiesListScrollBar(newScrollBarValue);
+                    ForceScrollPropertyListScrollBar(newScrollBarValue);
                 }
             }
 
@@ -408,7 +367,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="hostBox"></param>
         /// <param name="offset"></param>
-        public void ScrollPropertiesListButtons(Control hostBox, ScrollEventArgs offset)
+        public void ScrollPropertyListButtons(Control hostBox, ScrollEventArgs offset)
         {
             foreach (Control button in hostBox.Controls)
             {
@@ -426,15 +385,15 @@ namespace NaughtyDogDCReader
         /// //!
         /// </summary>
         /// <param name="NewValue"></param>
-        public void ForceScrollPropertiesListScrollBar(int NewValue)
+        public void ForceScrollPropertyListScrollBar(int NewValue)
         {
             ScrollEventType scrollEventType;
 
-            if (NewValue < PropertiesPanelScrollBar.Value)
+            if (NewValue < PropertyListScrollBar.Value)
             {
                 scrollEventType = ScrollEventType.SmallDecrement; // Going Up
             }
-            else if (NewValue > PropertiesPanelScrollBar.Value)
+            else if (NewValue > PropertyListScrollBar.Value)
             {
                 scrollEventType = ScrollEventType.SmallIncrement; // Going Down
             }
@@ -443,7 +402,7 @@ namespace NaughtyDogDCReader
             }
 
 
-            ScrollPropertiesListButtons(PropertySelectionPanel, new ScrollEventArgs(scrollEventType, PropertiesPanelScrollBar.Value, PropertiesPanelScrollBar.Value = NewValue));
+            ScrollPropertyListButtons(PropertySelectionPanel, new ScrollEventArgs(scrollEventType, PropertyListScrollBar.Value, PropertyListScrollBar.Value = NewValue));
             PropertySelectionPanel.Update();
         }
 
@@ -463,13 +422,13 @@ namespace NaughtyDogDCReader
             {
                 if (History.Count == 1)
                 {
-                    pp_SetupPropertiesPanelPopulation((DCModule) lastItem[1], lastItem[0].ToString());
+                    SetupPropertyListPopulation((DCModule) lastItem[1], lastItem[0].ToString());
 
                     History.Remove(lastItem);
                 }
                 else if (History.Count > 1)
                 {
-                    pp_SetupPropertiesPanelPopulation(lastItem[1], lastItem[0].ToString());
+                    SetupPropertyListPopulation(lastItem[1], lastItem[0].ToString());
 
                     History.Remove(lastItem);
                 }
@@ -488,9 +447,9 @@ namespace NaughtyDogDCReader
         {
             if (PropertySelection != null && PropertySelection.DCProperty != null)
             {
-                pp_SetupPropertiesPanelPopulation(PropertySelection.DCProperty, PropertySelection.Name);
+                SetupPropertyListPopulation(PropertySelection.DCProperty, PropertySelection.Name);
             }
         }
-        #endregion propertiespanel-related function declarations
+        #endregion PropertyList-related function declarations
     }
 }
