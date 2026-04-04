@@ -11,10 +11,66 @@ namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
-        //=========================================================\\
-        //--|   PropertyList-Related Function Declarations   |--\\
-        //=========================================================\\
-        #region [PropertyList-Related Function Declarations]
+        //==============================================\\
+        //--|   PropertyList Variable Declarations   |--\\
+        //==============================================\\
+        #region [PropertyList Variable Declarations]
+
+        /// <summary>
+        /// Used in handling wrapping around the property list
+        /// </summary>
+        private PropertyButton[] FirstAndLastPropertyButtons;
+
+
+        /// <summary>
+        /// The selected/highlighted button out of the loaded header item buttons
+        /// </summary>
+        private PropertyButton PropertySelection
+        {
+            get => _propertySelection;
+
+            set
+            {
+                if (value != null)
+                {
+                    LoadPropertyListSelectionIntoPropertyEditor(value.DCProperty);
+                }
+                else
+                {
+                    //! bitch & moan
+                }
+
+                _propertySelection = value;
+            }
+        }
+        private PropertyButton _propertySelection;
+
+
+
+
+
+        /// <summary>
+        /// The (vertical) scroll bar used to navigate the buttons populating the PropertyList when they bleed passed the bottom of the group box
+        /// </summary>
+        public VScrollBar PropertyListScrollBar;
+        public int PaddingForPropertyListScrollBar;
+        #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+        //==============================================\\
+        //--|   PropertyList Function Declarations   |--\\
+        //==============================================\\
+        #region [PropertyList Function Declarations]
 
         /// <summary>
         /// //!
@@ -183,7 +239,7 @@ namespace NaughtyDogDCReader
                     }
                     if (keyEvent.KeyCode == Keys.Back)
                     {
-                        pl_GoBack();
+                        GoBack();
                     }
                 };
 
@@ -412,9 +468,9 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// Return to the most recent item in the History
+        /// Return to the previously displayed structure in the Property List
         /// </summary>
-        public void pl_GoBack()
+        public void GoBack()
         {
             var lastItem = History.LastOrDefault();
 

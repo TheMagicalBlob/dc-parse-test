@@ -9,13 +9,12 @@ namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
-
         //================================\\
         //--|   Class Initialization   |--\\
         //================================\\
+
         /// <summary>
         /// Initialize a new instance of the PropertiesHandler class.<br/><br/>
-        /// 
         /// Used for management of the PropertiesPanel and PropertiesWindow (struct buttons & details display).
         /// </summary>
         public PropertyPanels()
@@ -71,40 +70,6 @@ namespace NaughtyDogDCReader
         //#
         //## Properties Panels Functionality Variables
         //#
-
-        /// <summary>
-        /// So far only used in handling wrapping
-        /// </summary>
-        private PropertyButton[] FirstAndLastPropertyButtons;
-
-
-        /// <summary>
-        /// The selected/highlighted button out of the loaded header item buttons
-        /// </summary>
-        private PropertyButton PropertySelection
-        {
-            get => _propertySelection;
-
-            set {
-                if (value != null)
-                {
-                    LoadSelectionPropertiesIntoPropertyEditor(value.DCProperty);
-                }
-
-                _propertySelection = value;
-            }
-        }
-        private PropertyButton _propertySelection;
-
-
-
-
-
-        /// <summary>
-        /// The (vertical) scroll bar used to navigate the buttons populating the PropertyList when they bleed passed the bottom of the group box
-        /// </summary>
-        public VScrollBar PropertyListScrollBar;
-        public int PaddingForPropertyListScrollBar;
 
         /// <summary>
         /// The (vertical) scroll bar used to navigate the rows populating the PropertyEditor when they bleed passed the bottom of the group box

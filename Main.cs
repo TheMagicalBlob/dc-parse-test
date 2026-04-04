@@ -218,7 +218,7 @@ namespace NaughtyDogDCReader
             switch (arg)
             {
                 case Keys.Back:
-                    Panels.pl_GoBack();   
+                    Panels.GoBack();   
                     break;
 
                 default:
@@ -231,7 +231,7 @@ namespace NaughtyDogDCReader
 
         private void propertyBackBtn_Click(object sender, EventArgs e)
         {
-            Panels.pl_GoBack();   
+            Panels.GoBack();   
         }
 
         private void propertyForwardBtn_Click(object sender, EventArgs e)

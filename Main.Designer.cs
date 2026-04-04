@@ -49,6 +49,8 @@ namespace NaughtyDogDCReader
             this.propertySelectionPanel = new NaughtyDogDCReader.GroupBox();
             this.PropertyEditorContainer = new System.Windows.Forms.Panel();
             this.propertyEditorPanel = new NaughtyDogDCReader.GroupBox();
+            this.propertyForwardBtn = new System.Windows.Forms.Button();
+            this.propertyBackBtn = new System.Windows.Forms.Button();
             this.label5 = new NaughtyDogDCReader.Label();
             this.label6 = new NaughtyDogDCReader.Label();
             this.label4 = new NaughtyDogDCReader.Label();
@@ -61,8 +63,6 @@ namespace NaughtyDogDCReader
             this.VersionLabel = new NaughtyDogDCReader.Label();
             this.scriptStatusLabel = new NaughtyDogDCReader.Label();
             this.propertiesWindow = new NaughtyDogDCReader.RichTextBox();
-            this.propertyForwardBtn = new System.Windows.Forms.Button();
-            this.propertyBackBtn = new System.Windows.Forms.Button();
             this.propertiesPanelContainer.SuspendLayout();
             this.PropertyEditorContainer.SuspendLayout();
             this.SuspendLayout();
@@ -257,6 +257,36 @@ namespace NaughtyDogDCReader
             this.propertyEditorPanel.TabIndex = 20;
             this.propertyEditorPanel.TabStop = false;
             // 
+            // propertyForwardBtn
+            // 
+            this.propertyForwardBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.propertyForwardBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.propertyForwardBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
+            this.propertyForwardBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.propertyForwardBtn.Location = new System.Drawing.Point(29, 238);
+            this.propertyForwardBtn.Name = "propertyForwardBtn";
+            this.propertyForwardBtn.Size = new System.Drawing.Size(22, 22);
+            this.propertyForwardBtn.TabIndex = 55;
+            this.propertyForwardBtn.Text = ">";
+            this.propertyForwardBtn.UseVisualStyleBackColor = false;
+            this.propertyForwardBtn.Click += new System.EventHandler(this.propertyForwardBtn_Click);
+            // 
+            // propertyBackBtn
+            // 
+            this.propertyBackBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
+            this.propertyBackBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.propertyBackBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.propertyBackBtn.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.propertyBackBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.propertyBackBtn.Location = new System.Drawing.Point(6, 238);
+            this.propertyBackBtn.Name = "propertyBackBtn";
+            this.propertyBackBtn.Size = new System.Drawing.Size(22, 22);
+            this.propertyBackBtn.TabIndex = 54;
+            this.propertyBackBtn.Text = "<";
+            this.propertyBackBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.propertyBackBtn.UseVisualStyleBackColor = false;
+            this.propertyBackBtn.Click += new System.EventHandler(this.propertyBackBtn_Click);
+            // 
             // label5
             // 
             this.label5.Font = new System.Drawing.Font("Cambria", 8F);
@@ -356,12 +386,12 @@ namespace NaughtyDogDCReader
             this.scriptSelectionLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.scriptSelectionLabel.ForeColor = System.Drawing.Color.Gold;
             this.scriptSelectionLabel.IsSeparatorLine = false;
-            this.scriptSelectionLabel.Location = new System.Drawing.Point(7, 236);
+            this.scriptSelectionLabel.Location = new System.Drawing.Point(547, 108);
             this.scriptSelectionLabel.Name = "scriptSelectionLabel";
-            this.scriptSelectionLabel.Size = new System.Drawing.Size(526, 25);
+            this.scriptSelectionLabel.Size = new System.Drawing.Size(334, 64);
             this.scriptSelectionLabel.StretchToFitForm = false;
             this.scriptSelectionLabel.TabIndex = 20;
-            this.scriptSelectionLabel.Text = "Selected Script: [None]";
+            this.scriptSelectionLabel.Text = "Angine\r\nDe\r\nPoitrine";
             // 
             // SeperatorLine2
             // 
@@ -416,36 +446,6 @@ namespace NaughtyDogDCReader
             this.propertiesWindow.Text = "recto verso";
             this.propertiesWindow.Visible = false;
             this.propertiesWindow.WordWrap = false;
-            // 
-            // propertyForwardBtn
-            // 
-            this.propertyForwardBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.propertyForwardBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.propertyForwardBtn.Font = new System.Drawing.Font("Gadugi", 8.25F, System.Drawing.FontStyle.Bold);
-            this.propertyForwardBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.propertyForwardBtn.Location = new System.Drawing.Point(568, 207);
-            this.propertyForwardBtn.Name = "propertyForwardBtn";
-            this.propertyForwardBtn.Size = new System.Drawing.Size(22, 22);
-            this.propertyForwardBtn.TabIndex = 55;
-            this.propertyForwardBtn.Text = ">";
-            this.propertyForwardBtn.UseVisualStyleBackColor = false;
-            this.propertyForwardBtn.Click += new System.EventHandler(this.propertyForwardBtn_Click);
-            // 
-            // propertyBackBtn
-            // 
-            this.propertyBackBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(183)))), ((int)(((byte)(245)))));
-            this.propertyBackBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.propertyBackBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.propertyBackBtn.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.propertyBackBtn.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.propertyBackBtn.Location = new System.Drawing.Point(545, 207);
-            this.propertyBackBtn.Name = "propertyBackBtn";
-            this.propertyBackBtn.Size = new System.Drawing.Size(22, 22);
-            this.propertyBackBtn.TabIndex = 54;
-            this.propertyBackBtn.Text = "<";
-            this.propertyBackBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.propertyBackBtn.UseVisualStyleBackColor = false;
-            this.propertyBackBtn.Click += new System.EventHandler(this.propertyBackBtn_Click);
             // 
             // Main
             // 

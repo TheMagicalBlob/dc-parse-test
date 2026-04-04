@@ -21,7 +21,7 @@ namespace NaughtyDogDCReader
         /// Populate either the PropertyEditor or PropertiesWindow with information about the highlighted PropertyButton's 
         /// </summary>
         /// <param name="property"></param>
-        private void LoadSelectionPropertiesIntoPropertyEditor(object property)
+        private void LoadPropertyListSelectionIntoPropertyEditor(object property)
         {
             if (property == null)
             {
