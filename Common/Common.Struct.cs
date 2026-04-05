@@ -140,6 +140,10 @@ namespace NaughtyDogDCReader
         //===================================\\
         #region [Function Declarations]
 
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="DCFilePath"></param>
         private static void LoadBinFile(string DCFilePath)
         {
             if (File.Exists(DCFilePath))
@@ -157,6 +161,9 @@ namespace NaughtyDogDCReader
         
 
 
+
+
+
         /// <summary>
         /// Reset the GUI and all relevant globals to their original states. //! (ideally...)
         /// </summary>
@@ -164,8 +171,8 @@ namespace NaughtyDogDCReader
         {
             SetReloadCloseButtonsEnabledStatus(false);
 
-            ResetSelectionLabel();
-            ResetStatusLabel();
+            CTResetSelectionLabel();
+            CTResetStatusLabel();
 
             
             DCFile = null;
@@ -175,16 +182,12 @@ namespace NaughtyDogDCReader
 
 
 
-        private static void CTCloseBinFile()
-        {
-            Venat?.Invoke(Venat.CloseBinFileMammet);
-        }
-
-        
 
 
 
-
+        /// <summary>
+        /// //!
+        /// </summary>
         private void StartBinParseThread()
         {
             if (DCFileHandlerThread != null && DCFileHandlerThread.ThreadState != System.Threading.ThreadState.Unstarted)
@@ -228,8 +231,8 @@ namespace NaughtyDogDCReader
             // Check whether or not the script is a basic empty one  TODO: make sure there's no difference between path versions! //!
             if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
             {
-                UpdateStatusLabel(new[] { "Empty DC File Loaded." });
-                ResetSelectionLabel();
+                CTUpdateStatusLabel("Empty DC File Loaded.");
+                CTResetSelectionLabel();
                 return;
             }
 
@@ -242,18 +245,20 @@ namespace NaughtyDogDCReader
             //## Setup Form
             //#
             echo("\nFinished!");
-            UpdateStatusLabel(new[] { "Finished Loading dc File, populating properties panel...", emptyStr, emptyStr });
+            CTUpdateStatusLabel("Finished Loading dc File, populating properties panel...");
             PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCScript);
 
             SetReloadCloseButtonsEnabledStatus(true);
-            UpdateStatusLabel(new[] { "Viewing Script" });
+            CTUpdateStatusLabel("Viewing Script");
         }
 
 
 
 
+
+
         /// <summary>
-        /// //! WRITE A DESCRIPTION FOR ME!                                                                                          no.
+        /// //!
         /// </summary>
         /// 
         /// <param name="DCFile"> The whole DC file, loaded as a byte array. </param>
@@ -300,9 +305,9 @@ namespace NaughtyDogDCReader
 
 
         //#
-        //## //! NAME ME
+        //## Miscellaneous Small Struct-Related Functions
         //#
-        #region [//! NAME ME]
+        #region [Miscellaneous Small Struct-Related Functions]
 
         /// <summary>
         /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="Address"/> specified.
@@ -474,9 +479,9 @@ namespace NaughtyDogDCReader
                 }
             }
 
-            if (StatusDetails?.Length > 1 && StatusDetails[1] == "Invalid Input Value")
+            if (StatusDetails?.Length > 1 && StatusDetails == "Invalid Input Value")
             {
-                UpdateStatusLabel(new[] { null, string.Empty });
+                CTUpdateStatusLabel("");
             }
 
 
@@ -529,7 +534,7 @@ namespace NaughtyDogDCReader
             // Handle invalid inputs
             if (convertedValue == null)
             {
-                UpdateStatusLabel(new[] { null, "Invalid Input Value" });
+                CTUpdateStatusLabel("Invalid Input Value");
                 return;
             }
 

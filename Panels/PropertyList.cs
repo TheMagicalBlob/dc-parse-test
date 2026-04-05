@@ -71,6 +71,91 @@ namespace NaughtyDogDCReader
         //--|   PropertyList Function Declarations   |--\\
         //==============================================\\
         #region [PropertyList Function Declarations]
+        
+        /// <summary>
+        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
+        /// </summary>
+        private void HighlightPropertyButton(PropertyButton newButton)
+        {
+            if (newButton == PropertySelection)
+            {
+                return;
+            }
+
+
+            // Default to the first Property Button if any are present
+            if (newButton == null)
+            {
+                LogWindow.AppendLine("New Button was null, you fuckin' dunce");
+                newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+                if (newButton == default || newButton == null)
+                {
+                    return;
+                }
+
+                PropertySelectionPanel.Focus();
+                newButton.Select();
+            }
+
+            if (PropertySelection != null)
+            {
+                // "Reset" the previous button
+                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
+
+                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
+                if (PropertyListScrollBar != null)
+                {
+                    var newScrollBarValue = PropertyListScrollBar.Value;
+
+                    // Wrap to top
+                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
+                    {
+                        newScrollBarValue = PropertyListScrollBar.Minimum;
+                    }
+                    // Wrap to bottom
+                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
+                    {
+                        newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
+                    }
+
+                    // Handle moving to slightly-offscreen buttons
+                    else {
+                        // Scroll up a little
+                        if (newButton.Location.Y <= 0)
+                        {
+                            newScrollBarValue = PropertyListScrollBar.Value + newButton.Location.Y;
+                        }
+                        else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
+                        {
+                            // Scroll down a little
+                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's jsut consistently off by a few pixels, and it's driving me insane
+                        }
+
+
+
+                        // Lazily catch overflow/underflow issues
+                        if (newScrollBarValue < 0)
+                        {
+                            newScrollBarValue = 0;
+                        }
+                        else if (newScrollBarValue >= PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
+                        {
+                            newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
+                        }
+                    }
+
+                    ForceScrollPropertyListScrollBar(newScrollBarValue);
+                }
+            }
+
+            var variableType = newButton.DCProperty.GetType();
+            CTUpdateSelectionLabel($"Type: {variableType.Name}\nAddress: 0x{variableType.GetProperty("Address", variableType).GetValue(newButton.DCProperty):X}");
+
+
+            PropertySelection = newButton;
+            PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
+        }
 
         /// <summary>
         /// //!
@@ -155,10 +240,10 @@ namespace NaughtyDogDCReader
 
 
 
-            //-## Reset panels to default state
+            //##-> Reset panels to default state
             ResetPanels();
 
-            //-## Create and add the scroll bar if the controls are going to overflow the group box's height
+            //##-> Create and add the scroll bar if the controls are going to overflow the group box's height
             if (cumulativeButtonHeight >= PropertySelectionPanel.Height)
             {
                 CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertyListScrollBar, cumulativeButtonHeight: cumulativeButtonHeight);
@@ -178,8 +263,7 @@ namespace NaughtyDogDCReader
 
                     SetupPropertyListPopulation(entryPropertyOrObject, entry[1].ToString());
                 }
-                else
-                {
+                else {
                     LogWindow.AppendLine("unhandled doubleclick bs");
                 }
             }
@@ -301,90 +385,6 @@ namespace NaughtyDogDCReader
 
 
 
-        /// <summary>
-        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
-        /// </summary>
-        private void HighlightPropertyButton(PropertyButton newButton)
-        {
-            if (newButton == PropertySelection)
-            {
-                return;
-            }
-
-
-            // Default to the first Property Button if any are present
-            if (newButton == null)
-            {
-                LogWindow.AppendLine("New Button was null, you fuckin' dunce");
-                newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
-
-                if (newButton == default || newButton == null)
-                {
-                    return;
-                }
-
-                PropertySelectionPanel.Focus();
-                newButton.Select();
-            }
-
-            if (PropertySelection != null)
-            {
-                // "Reset" the previous button
-                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
-
-                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
-                if (PropertyListScrollBar != null)
-                {
-                    var newScrollBarValue = PropertyListScrollBar.Value;
-
-                    // Wrap to top
-                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
-                    {
-                        newScrollBarValue = PropertyListScrollBar.Minimum;
-                    }
-                    // Wrap to bottom
-                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
-                    {
-                        newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
-                    }
-                    // Handle moving to slightly-offscreen buttons
-                    else
-                    {
-                        // Scroll up a little
-                        if (newButton.Location.Y <= 0)
-                        {
-                            newScrollBarValue = PropertyListScrollBar.Value + newButton.Location.Y;
-                        }
-                        else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
-                        {
-                            // Scroll down a little
-                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's jsut consistently off by a few pixels, and it's driving me insane
-                        }
-
-
-
-                        // Lazily catch overflow/underflow issues
-                        if (newScrollBarValue < 0)
-                        {
-                            newScrollBarValue = 0;
-                        }
-                        else if (newScrollBarValue >= PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
-                        {
-                            newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
-                        }
-                    }
-
-                    ForceScrollPropertyListScrollBar(newScrollBarValue);
-                }
-            }
-
-
-            UpdateSelectionLabel(new[] { null, newButton.Text });
-
-
-            (PropertySelection = newButton)
-            .Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
-        }
 
 
 

@@ -45,12 +45,6 @@ namespace NaughtyDogDCReader
         /// <summary> Variable for Smooth Form Dragging. </summary>
         public static Point MouseDif;
 
-        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private Point[][] HSeparatorLines;
-
-        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private Point[][] VSeparatorLines;
-
         /// <summary> The difference in size (horizontally, in pixels) of the Abort/Close File button when it changes from one to the other. </summary>
         private static readonly int AbortButtonWidthDifference = 20; //! Lazy
 
@@ -98,7 +92,7 @@ namespace NaughtyDogDCReader
             {
                 _activeFileName = value ?? "null";
 
-                UpdateStatusLabel(new[] { "Viewing Script " + ActiveFileName, null, null });
+                CTUpdateStatusLabel("Viewing Script " + ActiveFileName);
             }
         }
         private static string _activeFileName = "No Script Selected";
@@ -110,65 +104,74 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// //!
         /// </summary>
-        private static string[] StatusDetails
+        private static string StatusDetails
         {
             get => _statusDetails;
 
-            set
-            {
-                if (value == null || value.Length < 1)
-                {
-                    _statusDetails = Array.Empty<string>();
-                    ScriptStatusLabel.Text = "Status: [Inactive]";
-                    return;
-                }
+            set {
+                _statusDetails = value;
 
-
-
-                if (_statusDetails != Array.Empty<string>() && value.Length <= _statusDetails.Length)
-                {
-                    // Update changed array members only
-                    for (var i = 0; i < value.Length; i++)
-                    {
-                        if (value[i] != null)
-                        {
-                            _statusDetails[i] = value[i];
-                        }
-                    }
-                }
-                else
-                {
-                    _statusDetails = value;
-                }
-
-
-
-                ScriptStatusLabel.Text = $"Status: {_statusDetails[0]} ";
-
-                for (var i = 1; i < _statusDetails.Length; i++)
-                {
-                    if ((StatusDetails[i]?.Length ?? 0) > 0)
-                    {
-                        ScriptStatusLabel.Text += " | " + _statusDetails[i];
-                        Venat?.Update();
-                    }
-                }
+                ScriptStatusLabel.Text = _statusDetails;
             }
+            //{
+            //    if (value == null || value.Length < 1)
+            //    {
+            //        _statusDetails = Array.Empty<string>();
+            //        ScriptStatusLabel.Text = "Status: [Inactive]";
+            //        return;
+            //    }
+
+
+
+            //    if (_statusDetails != Array.Empty<string>() && value.Length <= _statusDetails.Length)
+            //    {
+            //        // Update changed array members only
+            //        for (var i = 0; i < value.Length; i++)
+            //        {
+            //            if (value[i] != null)
+            //            {
+            //                _statusDetails[i] = value[i];
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        _statusDetails = value;
+            //    }
+
+
+
+            //    ScriptStatusLabel.Text = $"Status: {_statusDetails[0]} ";
+
+            //    for (var i = 1; i < _statusDetails.Length; i++)
+            //    {
+            //        if ((StatusDetails[i]?.Length ?? 0) > 0)
+            //        {
+            //            ScriptStatusLabel.Text += " | " + _statusDetails[i];
+            //            Venat?.Update();
+            //        }
+            //    }
+            //}
         }
-        private static string[] _statusDetails = Array.Empty<string>();
+        private static string _statusDetails = string.Empty;
 
 
 
 
         /// <summary>
-        /// //!
+        /// THE FUCK? //!
         /// </summary>
-        private static string[] SelectionDetails
+        private static string SelectionDetails
         {
             get => _selectionDetails;
 
-            set
-            {
+            set {
+                _selectionDetails = value ?? "null";
+
+                ScriptSelectionLabel.Text = _selectionDetails;
+            }
+
+/*            {
                 if (value == null || value.Length < 1)
                 {
                     _selectionDetails = Array.Empty<string>();
@@ -210,9 +213,9 @@ namespace NaughtyDogDCReader
                         Venat?.Update();
                     }
                 }
-            }
+            }*/
         }
-        private static string[] _selectionDetails = Array.Empty<string>();
+        private static string _selectionDetails = string.Empty;
 
 
 
@@ -273,42 +276,138 @@ namespace NaughtyDogDCReader
         //---|   Form Functionality Function Delcarations   |---\\
         //======================================================\\
         #region [Form Functionality Function Delcarations]
-
-
+        
         /// <summary>
-        /// Create and subscribe to various event handlers for additional form functionality. (fck your properties panel's event handler window, let me write code)
+        /// Post-InitializeComponent Configuration. <br/><br/>
+        /// Create Assign Anonymous Event Handlers to Parent and Children.
         /// </summary>
-        public static void InitializeAdditionalEventHandlers(Form parent, Button CloseBtn, SubformExitFunction ExitFunction, ref Point[][] HSeparatorLines, ref Point[][] VSeparatorLines)
+        public void InitializeAdditionalEventHandlers(Main Venat)
         {
-            var controls = parent.Controls.Cast<Control>().ToArray();
-
-            var hSeparatorLineScanner = new List<Point[]>();
-            var vSeparatorLineScanner = new List<Point[]>();
+            var controls = Venat.Controls.Cast<Control>().ToArray();
 
 
-            // Apply the seperator drawing function to any seperator lines
-            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
+            // Setup variables used for decorations like the SeparatorLines and border
+            InitializeFormDecorations(Venat, controls);
+
+
+            // Set appropriate event handlers for the controls on the form as well
+            foreach (var item in controls)
             {
-                if (line.IsSeparatorLine)
-                {
-                    // Horizontal Lines
-                    hSeparatorLineScanner.Add(new Point[2] {
-                        new Point(line.StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-                        new Point(line.StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
-                    });
+                item.KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
-                    parent.Controls.Remove(line);
+                item.MouseDown += new MouseEventHandler((sender, e) =>
+                {
+                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
+                    MouseIsDown = true;
+                });
+                item.MouseUp += new MouseEventHandler((sender, e) =>
+                {
+                    MouseIsDown = false;
+                    if (OptionsPageIsOpen)
+                    {
+                        Azem.BringToFront();
+                    }
+                });
+
+
+
+                // Avoid applying MouseMove and KeyDown event handlers to text containers (to retain the ability to drag-select text)
+                if (item.GetType() == typeof(NaughtyDogDCReader.TextBox) || item.GetType() == typeof(NaughtyDogDCReader.RichTextBox))
+                {
+                    item.KeyDown += (sender, arg) =>
+                    {
+                        if (arg.KeyData == Keys.Escape)
+                        {
+                            BinFileBrowseBtn.Focus();
+                            Focus();
+                        }
+                    };
+                }
+                // Add the event handler to everything that's not a text container
+                else
+                {
+                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
                 }
             }
 
-            if (hSeparatorLineScanner.Count > 0)
+
+
+
+
+            MinimizeBtn.Click += new EventHandler((sender, e) => Venat.WindowState = FormWindowState.Minimized);
+            MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(90, 100, 255));
+            MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(0, 0, 0));
+            ExitBtn.Click += new EventHandler((sender, e) => Environment.Exit(0));
+            ExitBtn.MouseEnter += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(230, 100, 100));
+            ExitBtn.MouseLeave += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(0, 0, 0));
+
+
+            // Set Event Handlers for Form Dragging
+            MouseDown += new MouseEventHandler((sender, e) =>
             {
-                HSeparatorLines = hSeparatorLineScanner.ToArray();
-            }/*
-            if (vSeparatorLineScanner.Count > 0)
+                MouseDif = new Point(MousePosition.X - Location.X, MousePosition.Y - Location.Y);
+
+                MouseIsDown = true;
+            });
+
+            MouseUp += new MouseEventHandler((sender, e) =>
             {
-                VSeparatorLines = vSeparatorLineScanner.ToArray();
-            }*/
+                MouseIsDown = false;
+
+                if (OptionsPageIsOpen)
+                {
+                    Azem?.BringToFront();
+                }
+            });
+
+            MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+
+            KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
+
+            Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Create and subscribe to various event handlers for additional form functionality.
+        /// </summary>
+        public void InitializeAdditionalEventHandlersForSubform(Form parent, Button CloseBtn, SubformExitFunction ExitFunction, ref Point[][] HSeparatorLines, ref Point[][] VSeparatorLines)
+        {
+            var controls = parent.Controls.Cast<Control>().ToArray();
+
+            InitializeFormDecorations(parent, controls);
+
+            //var hSeparatorLineScanner = new List<Point[]>();
+            //var vSeparatorLineScanner = new List<Point[]>();
+
+
+            //// Apply the seperator drawing function to any seperator lines
+            //foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
+            //{
+            //    if (line.IsSeparatorLine)
+            //    {
+            //        // Horizontal Lines
+            //        hSeparatorLineScanner.Add(new Point[2] {
+            //            new Point(line.StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+            //            new Point(line.StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+            //        });
+
+            //        parent.Controls.Remove(line);
+            //    }
+            //}
+
+            //if (hSeparatorLineScanner.Count > 0)
+            //{
+            //    HSeparatorLines = hSeparatorLineScanner.ToArray();
+            //}
+            //if (vSeparatorLineScanner.Count > 0)
+            //{
+            //    VSeparatorLines = vSeparatorLineScanner.ToArray();
+            //}
 
 
             parent.Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
@@ -343,7 +442,9 @@ namespace NaughtyDogDCReader
                     MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                     MouseIsDown = true;
                 });
+
                 item.MouseUp += new MouseEventHandler((sender, e) =>
+
                     MouseIsDown = false
                 );
 
@@ -423,188 +524,6 @@ namespace NaughtyDogDCReader
             {
                 Azem?.BringToFront();
             }
-        }
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// Draw a thin border over the for edges on repaint.
-        /// <br/>Draw a thin line from one end of the painted control to the other.
-        ///</summary>
-        public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
-        {
-#if DEBUG
-            if (noDraw)
-            {
-                return;
-            }
-#endif
-
-            yoshiP.Graphics?.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
-
-
-            //## Draw Vertical Lines
-            foreach (var line in (venat as dynamic).VSeparatorLines ?? Array.Empty<Point[]>())
-            {
-                yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
-            }
-
-            //## Draw Horizontal Lines
-            foreach (var line in (venat as dynamic).HSeparatorLines ?? Array.Empty<Point[]>())
-            {
-                yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
-            }
-
-            // Draw a thin (1 pixel) border around the form with the current Pen
-            yoshiP?.Graphics?.DrawLines(FormDecorationPen, new[]
-            {
-                Point.Empty,
-                new Point(venat.Width-1, 0),
-                new Point(venat.Width-1, venat.Height-1),
-                new Point(0, venat.Height-1),
-                Point.Empty
-            });
-        }
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// Post-InitializeComponent Configuration. <br/><br/>
-        /// Create Assign Anonymous Event Handlers to Parent and Children.
-        /// </summary>
-        public void InitializeAdditionalEventHandlers_Main(Main Venat)
-        {
-            var controls = Venat.Controls.Cast<Control>().ToArray();
-
-            var hSeparatorLineScanner = new List<Point[]>();
-            var vSeparatorLineScanner = new List<Point[]>();
-
-
-
-            // Apply the separator drawing function to any separator lines
-            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
-            {
-                if (line.IsSeparatorLine)
-                {
-                    if (line.Size.Width > line.Size.Height)
-                    {
-                        // Horizontal Lines
-                        hSeparatorLineScanner.Add(new Point[2] {
-                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
-                        });
-
-                        Controls.Remove(line);
-                    }
-                    else {
-                        // Vertical Lines (the + 3 is to center the line with the displayed lines in the editor)
-                        vSeparatorLineScanner.Add(new Point[2] {
-                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.Y),
-                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
-                        });
-
-                        Controls.Remove(line);
-                    }
-                }
-            }
-
-            if (hSeparatorLineScanner.Count > 0)
-            {
-                HSeparatorLines = hSeparatorLineScanner.ToArray();
-            }
-            if (vSeparatorLineScanner.Count > 0)
-            {
-                VSeparatorLines = vSeparatorLineScanner.ToArray();
-            }
-
-
-
-
-            // Set appropriate event handlers for the controls on the form as well
-            foreach (var item in controls)
-            {
-                item.KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
-                
-                item.MouseDown += new MouseEventHandler((sender, e) =>
-                {
-                    MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
-                    MouseIsDown = true;
-                });
-                item.MouseUp += new MouseEventHandler((sender, e) =>
-                {
-                    MouseIsDown = false;
-                    if (OptionsPageIsOpen)
-                    {
-                        Azem.BringToFront();
-                    }
-                });
-
-
-
-                // Avoid applying MouseMove and KeyDown event handlers to text containers (to retain the ability to drag-select text)
-                if (item.GetType() == typeof(NaughtyDogDCReader.TextBox) || item.GetType() == typeof(NaughtyDogDCReader.RichTextBox))
-                {
-                    item.KeyDown += (sender, arg) =>
-                    {
-                        if (arg.KeyData == Keys.Escape)
-                        {
-                            BinFileBrowseBtn.Focus();
-                            Focus();
-                        }
-                    };
-                }
-                // Add the event handler to everything that's not a text container
-                else
-                {
-                    item.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-                }
-            }
-
-
-
-
-
-            MinimizeBtn.Click += new EventHandler((sender, e) => Venat.WindowState = FormWindowState.Minimized);
-            MinimizeBtn.MouseEnter += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(90, 100, 255));
-            MinimizeBtn.MouseLeave += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(0, 0, 0));
-            ExitBtn.Click += new EventHandler((sender, e) => Environment.Exit(0));
-            ExitBtn.MouseEnter += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(230, 100, 100));
-            ExitBtn.MouseLeave += new EventHandler((sender, e) => ((Control) sender).ForeColor = Color.FromArgb(0, 0, 0));
-
-
-            // Set Event Handlers for Form Dragging
-            MouseDown += new MouseEventHandler((sender, e) =>
-            {
-                MouseDif = new Point(MousePosition.X - Location.X, MousePosition.Y - Location.Y);
-
-                MouseIsDown = true;
-            });
-
-            MouseUp += new MouseEventHandler((sender, e) =>
-            {
-                MouseIsDown = false;
-
-                if (OptionsPageIsOpen)
-                {
-                    Azem?.BringToFront();
-                }
-            });
-
-            MouseMove += new MouseEventHandler((sender, e) => MoveForm());
-
-            KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
-
-            Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
         }
         #endregion
     }

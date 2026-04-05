@@ -30,6 +30,7 @@ namespace NaughtyDogDCReader
 
 
 
+
             //#
             //## Create the various delegates for the Properties Handler, so we can do shit across multiple threads
             //#
@@ -37,24 +38,6 @@ namespace NaughtyDogDCReader
             setupPropertyListPopulation = SetupPropertyListPopulation;
 
             spawnVariableEditorBox = SpawnVariableEditorBox;
-
-
-
-            // Newline
-            propertiesWindowNewLineMammet = (message) =>
-            {
-                PropertyWindow.AppendLine(message, false);
-                PropertyWindow.Update();
-            };
-
-
-            // Newline W/ Indent
-            propertiesWindowMammet = (message) =>
-            {
-                PropertyWindow.AppendLine(message.Replace("\n", "\n" + Indentation));
-                PropertyWindow.Update();
-            };
-
         }
 
 
@@ -70,30 +53,7 @@ namespace NaughtyDogDCReader
         //#
         //## Properties Panels Functionality Variables
         //#
-
-        /// <summary>
-        /// The (vertical) scroll bar used to navigate the rows populating the PropertyEditor when they bleed passed the bottom of the group box
-        /// </summary>
-        private VScrollBar PropertyEditorScrollBar;
-        private int PaddingForPropertyEditorScrollBar;
-
-
-
         private readonly List<object[]> History;
-
-
-
-
-        private int IndentationDepth
-        {
-            get => Indentation.Length < 4 ? 0 : Indentation.Length / 4;
-            
-            set => Indentation = new string(' ', value > 0 ? value * 4 : 0);
-        }
-
-        private string Indentation = emptyStr;
-
-
 
 
         /// <summary>
@@ -101,7 +61,6 @@ namespace NaughtyDogDCReader
         /// </summary>
         private readonly int DefaultPropertyListButtonHeight;
 
-        
 
         /// <summary>
         /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
@@ -113,23 +72,10 @@ namespace NaughtyDogDCReader
 
 
 
-
         //#
         //## Threading-Related Variables (threads, delegates, and mammets)
         //#
-
-        /// <summary> //! </summary>
-        public delegate void PropertiesWindowOutputWand(string msg);
-
-        /// <summary> //! </summary>
-        //public delegate void SubsequentPropertiesPanelPopulation(object structProperty, string structName);
-
         public delegate void PropertyPanelEventHandler(object MemberValue, string MemberName);
-
-
-        private readonly PropertiesWindowOutputWand propertiesWindowMammet;
-        private readonly PropertiesWindowOutputWand propertiesWindowNewLineMammet;
-
 
         public readonly PropertyPanelEventHandler setupPropertyListPopulation;
 
@@ -209,8 +155,39 @@ namespace NaughtyDogDCReader
 
             Venat.Controls.Remove(PropertyEditorScrollBar);
             PropertyEditorScrollBar = null;
+        }
 
-            IndentationDepth = 0;
+
+
+
+
+
+        /// <summary>
+        /// Prepend a space to any capitalized letter that follows a lowercase one.
+        /// </summary>
+        /// <returns> The provided <paramref name="StructName">, now spaced out rather than camel/pascal-case. </returns>
+        private string SpaceOutStructName(string StructName)
+        {
+            var str = string.Empty;
+
+            for (var charIndex = 0; charIndex < StructName.Length; charIndex++)
+            {
+                if (StructName[charIndex] <= 122u && StructName[charIndex] >= 97u)
+                {
+                    if (charIndex + 1 != StructName.Length)
+                    {
+                        if (StructName[charIndex + 1] >= 65u && StructName[charIndex + 1] <= 90u)
+                        {
+                            str += $"{StructName[charIndex]} ";
+                            continue;
+                        }
+                    }
+                }
+
+                str += StructName[charIndex];
+            }
+
+            return str;
         }
         #endregion
     }

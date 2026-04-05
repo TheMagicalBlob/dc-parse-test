@@ -42,7 +42,7 @@ namespace NaughtyDogDCReader
         private void main(string DCFilePath)
         {
             InitializeComponent();
-            InitializeAdditionalEventHandlers_Main(this);
+            InitializeAdditionalEventHandlers(this);
 
             VersionLabel.Text += Version;
             logWindow.Clear();
@@ -93,7 +93,7 @@ namespace NaughtyDogDCReader
             // Bitch if it isn't found so the user knows to load one manually
             {
                 echo($"No valid sidbase.bin file was found in/around \"{workingDirectory}\".");
-                UpdateStatusLabel(new[] { "WARNING: No sidbase.bin found; please provide one to decode hashed strings." });
+                UpdateStatusLabel("!! WARNING: No sidbase.bin found; please provide one to decode hashed strings.");
             }
 
 
@@ -185,15 +185,15 @@ namespace NaughtyDogDCReader
 
         private void ReloadBinFile(object sender, EventArgs e)
         {
-            var filePath = ActiveFilePath;
-
-            if (File.Exists(filePath))
+            CloseBinFile();
+            
+            if (File.Exists(ActiveFilePath))
             {
-                CloseBinFile();
-                LoadBinFile(filePath);
+                LoadBinFile(ActiveFilePath);
             }
             else {
-                UpdateStatusLabel(new[] { "ERROR: Unable to reload DC File. (File no longer exists.)", emptyStr, emptyStr });
+                LogWindow?.AppendLine("!! ERROR: Unable to reload DC File. (File no longer exists.)");
+                UpdateStatusLabel("ERROR; UNABLE TO RELOAD");
             }
         }
 

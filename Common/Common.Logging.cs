@@ -67,7 +67,7 @@ namespace NaughtyDogDCReader
         /// Update the yellow status/info label with the provided string
         /// </summary>
         /// <param name="details"> The string[] to update the label's text with. </param>
-        public static void SetStatusLabelDetails(string[] details)
+        public static void UpdateStatusLabel(string details)
         {
             if ((details?.Length ?? 0) < 1)
             {
@@ -81,12 +81,10 @@ namespace NaughtyDogDCReader
 
 
 
-
-
         /// <summary>
         /// Reset the ScriptStatusLabel to it's default value.
         /// </summary>
-        public static void ResetStatusLabelDetails()
+        public static void ResetStatusLabel()
         {
             StatusDetails = null;
         }
@@ -100,7 +98,7 @@ namespace NaughtyDogDCReader
         /// Update the yellow status/info label with the provided string
         /// </summary>
         /// <param name="details"> The string to update the label's text with. </param>
-        public static void SetSelectionLabelDetails(string[] details)
+        public static void UpdateSelectionLabel(string details)
         {
             if ((details?.Length ?? 0) < 1)
             {
@@ -119,7 +117,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Reset the ScriptSelectionLabel to it's default value.
         /// </summary>
-        public static void ResetSelectionLabelDetails()
+        public static void ResetSelectionLabel()
         {
             SelectionDetails = null;
         }

@@ -15,7 +15,7 @@ namespace NaughtyDogDCReader
         public OptionsPage()
         {
             InitializeComponent();
-            InitializeAdditionalEventHandlers(this, CloseBtn, new SubformExitFunction((_, __) => { SaveOptions(); Visible = false; }), ref HSeparatorLines, ref VSeparatorLines); // Set Event Handlers and Other Form-Related Crap
+            Venat.InitializeAdditionalEventHandlersForSubform(this, CloseBtn, new SubformExitFunction((_, __) => { SaveOptions(); Visible = false; }), ref HSeparatorLines, ref VSeparatorLines); // Set Event Handlers and Other Form-Related Crap
 
             LoadOptions();
         }

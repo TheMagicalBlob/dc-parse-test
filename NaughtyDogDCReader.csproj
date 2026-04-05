@@ -71,7 +71,6 @@
     </Compile>
     <Compile Include="Panels\PropertyEditor.cs" />
     <Compile Include="Panels\PropertyList.cs" />
-    <Compile Include="Panels\PropertyWindow.cs" />
     <Compile Include="Panels\PropertyPanels.cs" />
     <Compile Include="Structs.cs">
       <SubType>Form</SubType>

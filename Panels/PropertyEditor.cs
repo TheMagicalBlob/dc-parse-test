@@ -12,6 +12,15 @@ namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
+        /// <summary>
+        /// The (vertical) scroll bar used to navigate the rows populating the PropertyEditor when they bleed passed the bottom of the group box
+        /// </summary>
+        private VScrollBar PropertyEditorScrollBar;
+        private int PaddingForPropertyEditorScrollBar;
+
+
+
+
         //==========================================================\\
         //--|   PropertyEditor-Related Function Declarations   |--\\
         //==========================================================\\
@@ -420,25 +429,7 @@ namespace NaughtyDogDCReader
 
                 // Hopefully structs
                 default:
-                    if (PropertyEditorPanel.Visible)
-                    {
-                        returnString = Value.GetType().Name;
-                    }
-                    else
-                    {
-                        var str = "\nType: " + ((dynamic)Value).Name.DecodedID + '\n';
-
-                        foreach (var property in Value.GetType().GetProperties())
-                        {
-                            // Print the name of the property
-                            str += $"{SpaceOutStructName(property.Name)}: [\n";
-
-                            var val = property.GetValue(Value);
-                            str += $"{FormatPropertyValueAsString(val).Replace("\n", "\n" + Indentation)}\n";
-                        }
-
-                        returnString = str;
-                    }
+                    returnString = Value.GetType().Name;
                     break;
             }
 

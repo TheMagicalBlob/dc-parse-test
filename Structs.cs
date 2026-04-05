@@ -78,7 +78,7 @@ namespace NaughtyDogDCReader
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
 #endif
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-                UpdateStatusLabel(new[] { "Reading Script...", emptyStr, emptyStr });
+                UpdateStatusLabel("Reading Script...");
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
@@ -289,7 +289,6 @@ namespace NaughtyDogDCReader
                     symbols.Add(new[] { SIDBase.DecodeSIDHash(hashes.Last()[0]), SIDBase.DecodeSIDHash(hashes.Last()[1]) });
                 }
                 echo($"  # Finished Parsing Ammo-to-Weapon Structures.");
-                UpdateStatusLabel(new[] { null, null, emptyStr });
 
                 Symbols = symbols.ToArray();
                 Hashes = hashes.ToArray();

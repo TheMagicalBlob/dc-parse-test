@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +27,14 @@ namespace NaughtyDogDCReader
         public static Font TextFont = new Font("Segoe UI Semibold", 7.5f); // For option controls with customized contents
         public static Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
 
+
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        private Point[][] HSeparatorLines;
+
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        private Point[][] VSeparatorLines;
+
+
         public static int SubformVerticalOffset = 50;
 
 #if DEBUG
@@ -34,6 +43,119 @@ namespace NaughtyDogDCReader
         /// </summary>
         public static bool noDraw;
 #endif
+        #endregion
+
+
+
+
+
+
+
+
+
+
+        //===============================================\\
+        //--|   UI Decoration Function Declarations   |--\\
+        //===============================================\\
+        #region [UI Decoration Function Declarations]
+
+        /// <summary>
+        /// Draw a thin border over the for edges on repaint.
+        /// <br/>Draw a thin line from one end of the painted control to the other.
+        ///</summary>
+        public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
+        {
+#if DEBUG
+            if (noDraw)
+            {
+                return;
+            }
+#endif
+
+            yoshiP.Graphics?.Clear(venat.BackColor); // Clear line bounds with the current form's background colour
+
+
+            //## Draw Vertical Lines
+            foreach (var line in (venat as dynamic).VSeparatorLines ?? Array.Empty<Point[]>())
+            {
+                yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
+            }
+
+            //## Draw Horizontal Lines
+            foreach (var line in (venat as dynamic).HSeparatorLines ?? Array.Empty<Point[]>())
+            {
+                yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
+            }
+
+            // Draw a thin (1 pixel) border around the form with the current Pen
+            yoshiP?.Graphics?.DrawLines(FormDecorationPen, new[]
+            {
+                Point.Empty,
+                new Point(venat.Width-1, 0),
+                new Point(venat.Width-1, venat.Height-1),
+                new Point(0, venat.Height-1),
+                Point.Empty
+            });
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Venat"></param>
+        /// <param name="controls"></param>
+        private void InitializeFormDecorations(Form Venat, Control[] controls = null)
+        {
+            if (controls == null)
+            {
+                controls = Venat.Controls.Cast<Control>().ToArray();
+            }
+
+            var hSeparatorLineScanner = new List<Point[]>();
+            var vSeparatorLineScanner = new List<Point[]>();
+
+            // Apply the separator drawing function to any separator lines
+            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
+            {
+                if (line.IsSeparatorLine)
+                {
+                    if (line.Size.Width > line.Size.Height)
+                    {
+                        // Horizontal Lines
+                        hSeparatorLineScanner.Add(new Point[2]
+                        {
+                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
+                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                        });
+
+                        Venat.Controls.Remove(line);
+                    }
+                    else {
+                        // Vertical Lines (the + 3 is to center the line with the displayed lines in the editor)
+                        vSeparatorLineScanner.Add(new Point[2]
+                        {
+                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.Y),
+                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
+                        });
+
+                        Venat.Controls.Remove(line);
+                    }
+                }
+            }
+
+            if (hSeparatorLineScanner.Count > 0)
+            {
+                HSeparatorLines = hSeparatorLineScanner.ToArray();
+            }
+            if (vSeparatorLineScanner.Count > 0)
+            {
+                VSeparatorLines = vSeparatorLineScanner.ToArray();
+            }
+        }
         #endregion
     }
 }

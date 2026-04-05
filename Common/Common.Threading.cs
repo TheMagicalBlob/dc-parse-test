@@ -16,29 +16,22 @@ namespace NaughtyDogDCReader
         
         private static Thread DCFileHandlerThread;
 
-        /// <summary> Cross-thread form interaction delegate. </summary>
-        public delegate void binThreadFormWand(bool args); //! god I need to read about delegates lmao
+        public delegate void binThreadFormWand(bool arg); //! god I need to read about delegates lmao
 
-        /// <summary> //! </summary>
-        private delegate void binThreadLabelWand(string[] details);
+        private delegate void binThreadLabelWand(string details);
+
         private delegate void generalBinThreadWand();
 
-        /// <summary> //! </summary>
-        public delegate string[] binThreadFormWandOutputRead();
 
 
 
+        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand(UpdateStatusLabel);
 
-        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand(SetStatusLabelDetails);
+        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(ResetStatusLabel);
 
-        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(ResetStatusLabelDetails);
+        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand(UpdateSelectionLabel);
 
-
-        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand(SetSelectionLabelDetails);
-
-        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(ResetSelectionLabelDetails);
-
-
+        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(ResetSelectionLabel);
 
 
         private readonly binThreadFormWand setReloadCloseButtonsEnabledStatus = new binThreadFormWand((isEnabled) =>
@@ -153,12 +146,12 @@ namespace NaughtyDogDCReader
         /// A string[3] containing the details for the status label.
         /// <br/> 
         /// </param>
-        public static void UpdateStatusLabel(string[] details)
+        public static void CTUpdateStatusLabel(string details)
         {
             Venat?.Invoke(Venat.statusLabelMammet, new object[] { details });
         }
 
-        public static void ResetStatusLabel()
+        public static void CTResetStatusLabel()
         {
             Venat?.Invoke(Venat.statusLabelResetMammet);
         }
@@ -170,13 +163,13 @@ namespace NaughtyDogDCReader
         /// <param name="details">
         /// A string[3] containing the details for the slection label.
         /// <br/> 
-        public static void UpdateSelectionLabel(string[] details)
+        public static void CTUpdateSelectionLabel(string details)
         {
             Venat?.Invoke(Venat.selectionLabelMammet, new[] { details });
         }
 
         
-        public static void ResetSelectionLabel()
+        public static void CTResetSelectionLabel()
         {
             Venat?.Invoke(Venat.selectionLabelResetMammet);
         }
