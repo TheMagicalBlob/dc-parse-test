@@ -38,6 +38,8 @@ namespace NaughtyDogDCReader
             setupPropertyListPopulation = SetupPropertyListPopulation;
 
             spawnVariableEditorBox = SpawnVariableEditorBox;
+
+            editStructureInHexEditor = EditStructureInHexEditor;
         }
 
 
@@ -75,11 +77,28 @@ namespace NaughtyDogDCReader
         //#
         //## Threading-Related Variables (threads, delegates, and mammets)
         //#
+
+        /// <summary>
+        /// Delegate for handling the editing of values upon clicking their corresponding PropertyEditor row
+        /// </summary>
+        /// <param name="MemberValue"></param>
+        /// <param name="MemberName"></param>
         public delegate void PropertyPanelEventHandler(object MemberValue, string MemberName);
+
+        /// <summary>
+        /// Delegate for handling the creation hex editor window for advanced editing of structures.
+        /// </summary>
+        /// <param name="Struct"> The struct to load the raw data of in to the hex editor. </param>
+        public delegate void HexEditorSomethingSomething(object Struct);
+
+
+
 
         public readonly PropertyPanelEventHandler setupPropertyListPopulation;
 
-        public PropertyPanelEventHandler spawnVariableEditorBox;
+        public readonly PropertyPanelEventHandler spawnVariableEditorBox;
+
+        public readonly HexEditorSomethingSomething editStructureInHexEditor;
         #endregion
 
 
@@ -143,7 +162,6 @@ namespace NaughtyDogDCReader
         /// </summary>
         public void ResetPanels()
         {
-            PropertyWindow.Clear();
             PropertySelectionPanel.Controls.Clear();
             PropertyEditorPanel.Controls.Clear();
 

@@ -26,8 +26,9 @@ namespace NaughtyDogDCReader
             string str;
 
             Console.WriteLine(str = message?.ToString() ?? emptyStr);
+            Debug.WriteLineIf(!Console.IsOutputRedirected, str);
 
-            if (!Console.IsInputRedirected)
+            if (!Console.IsOutputRedirected)
             {
                 Debug.WriteLine(str);
             }
@@ -43,20 +44,48 @@ namespace NaughtyDogDCReader
         /// //!
         /// </summary>
         /// <param name="message"></param>
-        public static void echoSl(object message = null)
+        public static void _echo(object message = null)
         {
 #if DEBUG
             string str;
 
             Console.Write(str = message?.ToString() ?? emptyStr);
 
-            if (!Console.IsInputRedirected)
+            if (!Console.IsOutputRedirected)
             {
                 Debug.Write(str);
             }
 #endif
         }
 #pragma warning restore IDE1006
+
+
+
+
+
+
+        /// <summary>
+        /// Print the provided <paramref name="Message"/> to the LogWindow, followed by a newline
+        /// </summary>
+        /// <param name="Message"> The message to Append to the LogWindow's text property. </param>
+        public void Log(string Message)
+        {
+            LogWindow.AppendLine(Message);
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Print the provided <paramref name="Message"/> to the LogWindow.
+        /// </summary>
+        /// <param name="Message"> The message to Append to the LogWindow's text property. </param>
+        public void _Log(string Message)
+        {
+            LogWindow.AppendText(Message);
+        }
 
 
 

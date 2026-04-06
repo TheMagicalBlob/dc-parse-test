@@ -62,6 +62,11 @@ namespace NaughtyDogDCReader
             }
         }
 
+
+
+
+
+
         /// <summary>
         /// Create and add a Property Editor row for each of the provided <paramref name="Struct"/>'s properties.<br/>Defaults to showing basic info if the struct is either unknown or contains no properties
         /// </summary>
@@ -113,34 +118,19 @@ namespace NaughtyDogDCReader
             }
             else {
                 // Create the default buttons for unmapped or empty structures
+                var structType = Struct.GetType();
                 PropertyButton newRow;
-                long Address;
-                string DecodedTypeID;
 
                 // Get from expected UnmappedStructure struct
-                if (Struct.GetType() == typeof(UnmappedStructure))
+                if (structType == typeof(UnmappedStructure))
                 {
-                    var unmappedStruct = (UnmappedStructure) Struct;
-
-                    Address = unmappedStruct.Address;
-
-                    DecodedTypeID = unmappedStruct.TypeID.DecodedID;
                 }
-                // Dynamically get from unknown empty structure
+                // Dynamically get from unknown unmapped structure
                 else {
-                    Address = ((dynamic) Struct).Address;
-
-                    DecodedTypeID = ((dynamic) Struct).TypeID.DecodedID;
                 }
-
-
-                // Struct Address Row
-                PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow(memberValue: Address, memberClickEvent: null, memberName: null));
-                newRow.Location = new Point(2, totalHeight);
-                totalHeight += newRow.Height;
 
                 // Decoded Type ID Row
-                PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow(memberValue: DecodedTypeID, memberClickEvent: null, memberName: null));
+                PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow(memberValue: "Structure contains no properties; use the hex editor or fuck off.", memberClickEvent: null, memberName: null));
                 newRow.Location = new Point(2, totalHeight);
             }
 
@@ -274,6 +264,68 @@ namespace NaughtyDogDCReader
             newRow.DoubleClick += (row, __) => memberClickEvent(row, memberName);
 
             return newRow;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="Struct"> The structure to edit the raw data for. </param>
+        /// <exception cref="NotImplementedException"> Unimplemented. </exception>
+        private void EditStructureInHexEditor(object Struct)
+        {
+            //! Implement hex editor window for structures.
+            //! Attempt to dynamically figure out struct size by finding at lease two more instances of the struct's type id (the one preceeding the address pointed to by the initial map struct)
+            throw new NotImplementedException("//! Implement hex editor window for structures...");
+
+            byte[] data;
+            var dataLength = null as int?;
+            var structType = Struct.GetType();
+
+            if (structType == typeof(UnmappedStructure))
+            {
+                // Don't mind the integer conversion, the addresses are objectively ulong, but will never be larger than a uint in practice
+                Buffer.BlockCopy(DCFile, (int) ((UnmappedStructure) Struct).Address, data, 0, 128);
+
+            }
+            else {
+                var dataField = structType.GetField(nameof(weapon_gameplay_def.RawData));
+
+                if (dataField != null)
+                {
+                    data = (byte[]) dataField.GetValue(Struct);
+
+                    if (data == null || data.Length < 1) // realistically 1 byte would ALSO be an issue for alingment reasons, I'd imagine
+                    {
+                        LogWindow?.AppendLine($"RawData for structure \"{structType.Name}\" returned a{(data == null ? " null" : "n empty")} array. Loading from dc file with unset length instead (be mindful).");
+
+                        data = Array.Empty<byte>();
+                        Buffer.BlockCopy(DCFile, (int) ((UnmappedStructure) Struct).Address, data, 0, 128);
+                    }
+                }
+            }
+
+            LoadHexEditor(data, dataLength);
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// //!
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="length"></param>
+        /// <param name="startAddress"></param>
+        private void LoadHexEditor(byte[] data, int? length, long startAddress = 0)
+        {
+
         }
 
 

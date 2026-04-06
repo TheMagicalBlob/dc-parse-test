@@ -238,10 +238,6 @@ namespace NaughtyDogDCReader
         /// <summary> Properties Editor Pointer/Reference. </summary>
         public static GroupBox PropertyEditorPanel;
 
-
-        /// <summary> Properties Window (the output one) Pointer/Reference Because I'm Lazy. </summary>
-        public static RichTextBox PropertyWindow;
-
         /// <summary> Log Window Pointer/Reference.  </summary>
         public static RichTextBox LogWindow;
 
@@ -364,7 +360,7 @@ namespace NaughtyDogDCReader
 
             KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
-            Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
+            Paint += (venat, yoshiP) => DrawFormDecorations((Main) venat, yoshiP);
         }
 
 
@@ -410,7 +406,7 @@ namespace NaughtyDogDCReader
             //}
 
 
-            parent.Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
+            parent.Paint += (venat, yoshiP) => DrawFormDecorations((Main) venat, yoshiP);
 
 
 

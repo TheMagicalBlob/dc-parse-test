@@ -78,7 +78,7 @@ namespace NaughtyDogDCReader
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
 #endif
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-                UpdateStatusLabel("Reading Script...");
+                CTUpdateStatusLabel("Reading Script...");
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {

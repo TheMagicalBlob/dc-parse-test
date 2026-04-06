@@ -150,7 +150,10 @@ namespace NaughtyDogDCReader
             }
 
             var variableType = newButton.DCProperty.GetType();
-            CTUpdateSelectionLabel($"Type: {variableType.Name}\nAddress: 0x{variableType.GetProperty("Address", variableType).GetValue(newButton.DCProperty):X}");
+            CTUpdateSelectionLabel(
+                $"Type: {variableType.Name}\n" +
+                $"Address: 0x{variableType.GetField("Address").GetValue(newButton.DCProperty):X}"
+            );
 
 
             PropertySelection = newButton;

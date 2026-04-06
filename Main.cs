@@ -12,17 +12,7 @@ namespace NaughtyDogDCReader
         /// Iniialize the GUI with a preselected script to be loaded immediately.
         /// </summary>
         /// <param name="path"> The path to the DC Script to be loaded on-boot. </param>
-        public Main(string path) => main(path);
-
-        /// <summary>
-        /// Iniialize the GUI without any preselected script.
-        /// </summary>
-        public Main()
-        {
-            throw new Exception("retard");
-            main(null);
-        }
-
+        public Main(string path = null) => main(path);
 
 
         
@@ -46,7 +36,6 @@ namespace NaughtyDogDCReader
 
             VersionLabel.Text += Version;
             logWindow.Clear();
-            propertiesWindow.Clear();
 
 
 
@@ -60,7 +49,6 @@ namespace NaughtyDogDCReader
 
             PropertySelectionPanel = propertySelectionPanel;
             PropertyEditorPanel = propertyEditorPanel;
-            PropertyWindow = propertiesWindow;
             LogWindow = logWindow;
 
             ScriptStatusLabel = scriptStatusLabel;
@@ -85,15 +73,14 @@ namespace NaughtyDogDCReader
                     SIDBase.LoadSIDBase(path);
                     return true;
                 }
-                else
-                {
+                else {
                     return false;
                 }
             }))
             // Bitch if it isn't found so the user knows to load one manually
             {
-                echo($"No valid sidbase.bin file was found in/around \"{workingDirectory}\".");
-                UpdateStatusLabel("!! WARNING: No sidbase.bin found; please provide one to decode hashed strings.");
+                echo($"No valid sidbase.bin file was found in \"{workingDirectory}\" or it's immediate subforlders.");
+                LogWindow?.AppendLine("!! WARNING: No sidbase.bin found; please provide one to decode hashed strings.");
             }
 
 

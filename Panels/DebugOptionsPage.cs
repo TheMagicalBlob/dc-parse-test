@@ -15,9 +15,6 @@ namespace NaughtyDogDCReader
         {
             InitializeComponent();
             Venat.InitializeAdditionalEventHandlersForSubform(this, CloseBtn, new SubformExitFunction((_, __) => { SaveOptions(); Visible = false; }), ref HSeparatorLines, ref VSeparatorLines); // Set Event Handlers and Other Form-Related Crap
-
-
-            showBasicPropertiesWindow.Checked = Venat.propertiesWindow.Visible;
         }
 
 
@@ -113,7 +110,6 @@ namespace NaughtyDogDCReader
         {
             var @checked = ((CheckBox)sender).Checked;
 
-            Venat.propertiesWindow.Visible = @checked;
             Venat.PropertyEditorContainer.Visible = !@checked;
         }
 

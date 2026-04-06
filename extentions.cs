@@ -21,15 +21,15 @@ namespace NaughtyDogDCReader
     {
         /// <summary>
         /// Appends Text to The Current Text of A Text Box, Followed By The Standard Line Terminator.
-        /// <br/>Scrolls To Keep The Newest Line In View.
+        /// <br/>
         /// </summary>
         /// <param name="str"> The String to Output. </param>
-        public void AppendLine(string str = "", bool scroll = true)
+        public void AppendLine(string str = "")
         {
             AppendText(str + '\n');
             Update();
 
-            if (scroll)
+            if (Scroll)
             {
                 ScrollToCaret();
             }
@@ -37,24 +37,40 @@ namespace NaughtyDogDCReader
 
 
 
-        public void UpdateLine(string newMsg, int line, bool scroll = true)
+
+        /// <summary>
+        /// Update a specific <paramref name="Line"/> in the LogWindow's output with the provided <paramref name="Message"/>
+        /// </summary>
+        /// <param name="Message"></param>
+        /// <param name="Line"></param>
+        /// <param name="Scroll"></param>
+        public void UpdateLine(string Message, int Line)
         {
-            while (line >= Lines.Length)
+            while (Line >= Lines.Length)
             {
                 AppendText("\n");
             }
 
             var lines = Lines;
-            lines[line] = newMsg ?? " ";
+            lines[Line] = Message ?? " ";
 
             Lines = lines;
+        }
+
+
+        new public void AppendText(string Message)
+        {
+            base.AppendText(Message ?? string.Empty);
+
             Update();
 
-            if (scroll)
+            if (Scroll)
             {
                 ScrollToCaret();
             }
         }
+
+        public bool Scroll;
     }
 
 

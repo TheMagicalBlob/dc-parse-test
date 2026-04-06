@@ -63,7 +63,7 @@ namespace NaughtyDogDCReader
         /// Draw a thin border over the for edges on repaint.
         /// <br/>Draw a thin line from one end of the painted control to the other.
         ///</summary>
-        public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
+        public static void DrawFormDecorations(Main venat, PaintEventArgs yoshiP)
         {
 #if DEBUG
             if (noDraw)
@@ -76,13 +76,13 @@ namespace NaughtyDogDCReader
 
 
             //## Draw Vertical Lines
-            foreach (var line in (venat as dynamic).VSeparatorLines ?? Array.Empty<Point[]>())
+            foreach (var line in venat.VSeparatorLines ?? Array.Empty<Point[]>())
             {
                 yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
             }
 
             //## Draw Horizontal Lines
-            foreach (var line in (venat as dynamic).HSeparatorLines ?? Array.Empty<Point[]>())
+            foreach (var line in venat.HSeparatorLines ?? Array.Empty<Point[]>())
             {
                 yoshiP?.Graphics?.DrawLine(FormDecorationPen, line[0], line[1]);
             }

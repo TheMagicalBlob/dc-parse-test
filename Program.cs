@@ -1,5 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.CodeDom;
+using System.IO.Ports;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 
 namespace NaughtyDogDCReader
@@ -9,32 +10,47 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [STAThread]
+        [System.STAThread]
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            if (args != null && args.Length > 0)
-            {
-                var path = args[0];
-
-                if (System.IO.File.Exists(path))
+            var scriptPath = null as string;
+            try {
+                if (args != null && args.Length > 0)
                 {
-                    Application.Run(new Main(path));
-                }
-                else {
-                    var complain = "Invalid file path provided to tool; starting without a preselected DC Script.";
-                    
-                    Console.WriteLine(complain);
-                    System.Diagnostics.Debug.WriteLine(complain);
+                    if (args[0]?.Length > 0 && System.IO.File.Exists(args[0]))
+                    {
+                        scriptPath = args[0];
+                    }
+                    else {
+                        var message = "Invalid file path provided to tool; starting without a preselected DC Script.";
 
-                    MessageBox.Show(complain, "How did you even manage that?");
+                        System.Console.WriteLine(message);
+                        System.Diagnostics.Debug.WriteLineIf(!System.Console.IsOutputRedirected, message);
+
+                        MessageBox.Show(message, "Dingus.");
+                    }
+
                 }
             }
-            else {
-                Application.Run(new Main());
+            catch (System.Exception err)
+            {
+                var message = err.Message;
+#if DEBUG
+                message += '\n' + err.StackTrace;
+#endif
+                System.Console.WriteLine(message);
+                System.Diagnostics.Debug.WriteLineIf(!System.Console.IsOutputRedirected, message);
+
+#if DEBUG
+                MessageBox.Show(message, "Dingus.");
+#endif
             }
+
+
+            Application.Run(new Main(scriptPath));
         }
     }
 }
