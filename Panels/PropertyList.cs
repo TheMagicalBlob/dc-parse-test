@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
+using static NaughtyDogDCReader.Main.DCModule;
 
 namespace NaughtyDogDCReader
 {
@@ -182,6 +183,12 @@ namespace NaughtyDogDCReader
                 ResetPanels(); // Reset panels to default state
                 return;
             }
+            if (moduleOrPropertyType == typeof(UnmappedStructure))
+            {
+                echo($"Aboring Panel population for {ModuleOrProperty}, as it has not been mapped.");
+                LogWindow?.AppendLine("Stucture not yet mapped. Please use the hex editor instead (with caution).");
+                return;
+            }
 
 
 
@@ -210,7 +217,6 @@ namespace NaughtyDogDCReader
                         arrayItem,
                         $"{type.Name} #{ind++}",
                         type.Name
-
                     };
 
                 }).ToArray();
@@ -229,9 +235,16 @@ namespace NaughtyDogDCReader
 
                 }).ToArray();
             }
-            else
-            {
+            else {
                 throw new Exception($"ERROR: Invalid object passed for PropertyPanel population process. (type provided: {moduleOrPropertyType})");
+            }
+
+
+            if (entries.Length < 1)
+            {
+                echo($"Aborted panel population, as a struct \"{moduleOrPropertyType.Name}\" contains no properties.");
+                LogWindow?.AppendLine("Structure contains no mapped properties to load.");
+                return;
             }
 
             entryCount = entries.Length;
