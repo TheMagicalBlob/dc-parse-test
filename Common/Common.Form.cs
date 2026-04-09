@@ -360,7 +360,7 @@ namespace NaughtyDogDCReader
 
             KeyDown += (sender, arg) => FormKeyboardInputHandler(((Control) sender).Name, arg.KeyData, arg.Control, arg.Shift);
 
-            Paint += (venat, yoshiP) => DrawFormDecorations((Main) venat, yoshiP);
+            Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
         }
 
 
@@ -406,7 +406,7 @@ namespace NaughtyDogDCReader
             //}
 
 
-            parent.Paint += (venat, yoshiP) => DrawFormDecorations((Main) venat, yoshiP);
+            parent.Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
 
 
 

@@ -49,7 +49,7 @@ namespace NaughtyDogDCReader
             this.PropertyEditorContainer = new System.Windows.Forms.Panel();
             this.propertyForwardBtn = new System.Windows.Forms.Button();
             this.propertyBackBtn = new System.Windows.Forms.Button();
-            this.label5 = new NaughtyDogDCReader.Label();
+            this.BackAndLoadButtonsLabel = new NaughtyDogDCReader.Label();
             this.propertySelectionPanel = new NaughtyDogDCReader.GroupBox();
             this.propertyEditorPanel = new NaughtyDogDCReader.GroupBox();
             this.label6 = new NaughtyDogDCReader.Label();
@@ -264,18 +264,18 @@ namespace NaughtyDogDCReader
             this.propertyBackBtn.UseVisualStyleBackColor = false;
             this.propertyBackBtn.Click += new System.EventHandler(this.propertyBackBtn_Click);
             // 
-            // label5
+            // BackAndLoadButtonsLabel
             // 
-            this.label5.Font = new System.Drawing.Font("Segoe UI", 6.5F);
-            this.label5.ForeColor = System.Drawing.Color.Gold;
-            this.label5.IsSeparatorLine = false;
-            this.label5.Location = new System.Drawing.Point(5, 244);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(50, 13);
-            this.label5.StretchToFitForm = false;
-            this.label5.TabIndex = 56;
-            this.label5.Text = "Back    Load";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.BackAndLoadButtonsLabel.Font = new System.Drawing.Font("Segoe UI", 6.5F);
+            this.BackAndLoadButtonsLabel.ForeColor = System.Drawing.Color.Gold;
+            this.BackAndLoadButtonsLabel.IsSeparatorLine = false;
+            this.BackAndLoadButtonsLabel.Location = new System.Drawing.Point(5, 244);
+            this.BackAndLoadButtonsLabel.Name = "BackAndLoadButtonsLabel";
+            this.BackAndLoadButtonsLabel.Size = new System.Drawing.Size(50, 13);
+            this.BackAndLoadButtonsLabel.StretchToFitForm = false;
+            this.BackAndLoadButtonsLabel.TabIndex = 56;
+            this.BackAndLoadButtonsLabel.Text = "Back    Load";
+            this.BackAndLoadButtonsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // propertySelectionPanel
             // 
@@ -373,7 +373,7 @@ namespace NaughtyDogDCReader
             this.label3.Location = new System.Drawing.Point(541, 63);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(8, 616);
-            this.label3.StretchToFitForm = false;
+            this.label3.StretchToFitForm = true;
             this.label3.TabIndex = 22;
             this.label3.Tag = "";
             this.label3.Text = "---------------------------------------------------------------------------------" +
@@ -430,6 +430,7 @@ namespace NaughtyDogDCReader
             this.scriptStatusLabel.StretchToFitForm = false;
             this.scriptStatusLabel.TabIndex = 0;
             this.scriptStatusLabel.Text = "Status: [Inactive]";
+            this.scriptStatusLabel.Visible = false;
             // 
             // Main
             // 
@@ -437,7 +438,7 @@ namespace NaughtyDogDCReader
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(890, 628);
-            this.Controls.Add(this.label5);
+            this.Controls.Add(this.BackAndLoadButtonsLabel);
             this.Controls.Add(this.propertyForwardBtn);
             this.Controls.Add(this.propertyBackBtn);
             this.Controls.Add(this.propertiesPanelContainer);
@@ -511,7 +512,7 @@ namespace NaughtyDogDCReader
         public Panel PropertyEditorContainer;
         public Button propertyForwardBtn;
         public Button propertyBackBtn;
-        private Label label5;
+        private Label BackAndLoadButtonsLabel;
     }
 }
 

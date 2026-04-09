@@ -28,13 +28,6 @@ namespace NaughtyDogDCReader
         public static Font DefaultTextFont = new Font("Segoe UI Semibold", 9f, FontStyle.Italic); // For option controls in default states
 
 
-        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private Point[][] HSeparatorLines;
-
-        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        private Point[][] VSeparatorLines;
-
-
         public static int SubformVerticalOffset = 50;
 
 #if DEBUG
@@ -63,7 +56,7 @@ namespace NaughtyDogDCReader
         /// Draw a thin border over the for edges on repaint.
         /// <br/>Draw a thin line from one end of the painted control to the other.
         ///</summary>
-        public static void DrawFormDecorations(Main venat, PaintEventArgs yoshiP)
+        public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
         {
 #if DEBUG
             if (noDraw)
@@ -119,7 +112,7 @@ namespace NaughtyDogDCReader
             var vSeparatorLineScanner = new List<Point[]>();
 
             // Apply the separator drawing function to any separator lines
-            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
+            foreach (var line in controls.OfType<NaughtyDogDCReader.Label>()) // Ensure a copy of the control array's being iterated through to avoid breaking the loop my removing items it it while iterating over them
             {
                 if (line.IsSeparatorLine)
                 {
@@ -128,32 +121,42 @@ namespace NaughtyDogDCReader
                         // Horizontal Lines
                         hSeparatorLineScanner.Add(new Point[2]
                         {
-                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-                            new Point(((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
+                            new Point(
+                                line.StretchToFitForm ? 1 : line.Location.X,
+                                line.Location.Y + 7
+                            ),
+                            new Point(
+                                line.StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width,
+                                line.Location.Y + 7
+                            )
                         });
-
-                        Venat.Controls.Remove(line);
                     }
                     else {
                         // Vertical Lines (the + 3 is to center the line with the displayed lines in the editor)
                         vSeparatorLineScanner.Add(new Point[2]
                         {
-                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? 1 : line.Location.Y),
-                            new Point(line.Location.X + 3, ((NaughtyDogDCReader.Label) line).StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height)
+                            new Point(
+                                line.Location.X + 3,
+                                line.StretchToFitForm ? 1 : line.Location.Y
+                            ),
+                            new Point(
+                                line.Location.X + 3,
+                                 line.StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height
+                            )
                         });
-
-                        Venat.Controls.Remove(line);
                     }
+
+                    Venat.Controls.Remove(line);
                 }
             }
 
             if (hSeparatorLineScanner.Count > 0)
             {
-                HSeparatorLines = hSeparatorLineScanner.ToArray();
+                Venat.HSeparatorLines = hSeparatorLineScanner.ToArray();
             }
             if (vSeparatorLineScanner.Count > 0)
             {
-                VSeparatorLines = vSeparatorLineScanner.ToArray();
+                Venat.VSeparatorLines = vSeparatorLineScanner.ToArray();
             }
         }
         #endregion

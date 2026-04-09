@@ -127,11 +127,17 @@ namespace NaughtyDogDCReader
 
         public bool StretchToFitForm
         {
-            get => _stretchToFitForm & IsSeparatorLine;
+            get => _stretchToFitForm && IsSeparatorLine;
             set => _stretchToFitForm = value;
         }
         private bool _stretchToFitForm = false;
     }
+
+
+
+
+
+
 
 
     /// <summary>
@@ -165,7 +171,28 @@ namespace NaughtyDogDCReader
 
 
 
-    
+
+
+
+
+    //==============================================================\\
+    //--|   Small Form Class Extention For Separator Line Fix   |---\\
+    //==============================================================\\
+    public class Form : System.Windows.Forms.Form
+    {
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        public Point[][] HSeparatorLines;
+
+        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
+        public Point[][] VSeparatorLines;
+    }
+
+
+
+
+
+
+
 
 
 
@@ -175,9 +202,9 @@ namespace NaughtyDogDCReader
     //--|   SID Class Declaration   |---\\
     //==================================\\
 
-    /// <summary>
-    /// Small class used for handling string id's in a bit more of a convenient manner.
-    /// </summary>
+        /// <summary>
+        /// Small class used for handling string id's in a bit more of a convenient manner.
+        /// </summary>
     public class SID
     {
         //#
