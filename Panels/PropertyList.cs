@@ -30,15 +30,13 @@ namespace NaughtyDogDCReader
         {
             get => _propertySelection;
 
-            set
-            {
+            set {
                 if (value != null)
                 {
                     LoadPropertyListSelectionIntoPropertyEditor(value.DCProperty);
                 }
-                else
-                {
-                    //! bitch & moan
+                else {
+                    echo("Null propertySelection provided; make sure this was just a reset!");
                 }
 
                 _propertySelection = value;
@@ -56,7 +54,6 @@ namespace NaughtyDogDCReader
         public VScrollBar PropertyListScrollBar;
         public int PaddingForPropertyListScrollBar;
         #endregion
-
 
 
 
@@ -87,18 +84,23 @@ namespace NaughtyDogDCReader
             // Default to the first Property Button if any are present
             if (newButton == null)
             {
-                LogWindow.AppendLine("New Button was null, you fuckin' dunce");
+                LogWindow.AppendText("New Button was null, you fuckin' dunce, trying to get a default... ");
                 newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
 
                 if (newButton == default || newButton == null)
                 {
+                    LogWindow.AppendLine($" {nameof(PropertySelectionPanel)} doesn't contain any {nameof(PropertyButton)} controls!!!");
                     return;
                 }
 
+                LogWindow.AppendLine($" Defaulted to the first {nameof(PropertyButton)} in the {nameof(PropertySelectionPanel)}'s controls.");
                 PropertySelectionPanel.Focus();
                 newButton.Select();
             }
 
+
+
+            // words
             if (PropertySelection != null)
             {
                 // "Reset" the previous button
@@ -109,18 +111,20 @@ namespace NaughtyDogDCReader
                 {
                     var newScrollBarValue = PropertyListScrollBar.Value;
 
-                    // Wrap to top
+                    //##-> Handle wrapping from one end of the list to the other
                     if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
                     {
+                        // Wrap to top
                         newScrollBarValue = PropertyListScrollBar.Minimum;
                     }
-                    // Wrap to bottom
                     else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
                     {
+                        // Wrap to bottom
                         newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
                     }
 
-                    // Handle moving to slightly-offscreen buttons
+
+                    //##-> Handle moving to slightly-offscreen buttons
                     else {
                         // Scroll up a little
                         if (newButton.Location.Y <= 0)
@@ -130,7 +134,7 @@ namespace NaughtyDogDCReader
                         else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
                         {
                             // Scroll down a little
-                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's jsut consistently off by a few pixels, and it's driving me insane
+                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's just consistently off by a few pixels, and it's driving me insane
                         }
 
 
@@ -140,7 +144,7 @@ namespace NaughtyDogDCReader
                         {
                             newScrollBarValue = 0;
                         }
-                        else if (newScrollBarValue >= PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
+                        else if (newScrollBarValue > PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
                         {
                             newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
                         }
@@ -160,6 +164,11 @@ namespace NaughtyDogDCReader
             PropertySelection = newButton;
             PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
         }
+
+
+
+
+
 
         /// <summary>
         /// //!
@@ -185,8 +194,8 @@ namespace NaughtyDogDCReader
             }
             if (moduleOrPropertyType == typeof(UnmappedStructure))
             {
-                echo($"Aboring Panel population for {ModuleOrProperty}, as it has not been mapped.");
-                LogWindow?.AppendLine("Stucture not yet mapped. Please use the hex editor instead (with caution).");
+                echo($"Aborting Panel population for {ModuleOrProperty}, as it has not been mapped.");
+                LogWindow?.AppendLine("Structure not yet mapped. Please use the hex editor instead (with caution).");
                 return;
             }
 
@@ -248,8 +257,6 @@ namespace NaughtyDogDCReader
             }
 
             entryCount = entries.Length;
-            cumulativeButtonHeight = (DefaultPropertyListButtonHeight * entryCount) - 1; // I don't know why it's off by a pixel and I'm sick of fucking with it.
-
 
 
 
@@ -260,10 +267,10 @@ namespace NaughtyDogDCReader
             ResetPanels();
 
             //##-> Create and add the scroll bar if the controls are going to overflow the group box's height
-            if (cumulativeButtonHeight >= PropertySelectionPanel.Height)
-            {
-                CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertyListScrollBar, cumulativeButtonHeight: cumulativeButtonHeight);
+            CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertyListScrollBar, entryCount);
 
+            if (PropertyListScrollBar != null)
+            {
                 FirstAndLastPropertyButtons = new PropertyButton[2];
             }
 

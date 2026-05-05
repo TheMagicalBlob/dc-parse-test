@@ -9,19 +9,13 @@ namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
-        //================================\\
-        //--|   Class Initialization   |--\\
-        //================================\\
-
         /// <summary>
         /// Initialize a new instance of the PropertiesHandler class.<br/><br/>
         /// Used for management of the PropertiesPanel and PropertiesWindow (struct buttons & details display).
         /// </summary>
         public PropertyPanels()
         {
-            //#
-            //## Properties Handler Variable Declarations
-            //#
+            //##-> Properties Handler Variable Declarations
             DefaultPropertyListButtonHeight = 23;
             DefaultPropertyEditorRowHeight = 23;
 
@@ -30,17 +24,19 @@ namespace NaughtyDogDCReader
 
 
 
-
-            //#
-            //## Create the various delegates for the Properties Handler, so we can do shit across multiple threads
-            //#
-
+            //##-> Create the various delegates for the Properties Handler, so we can do shit across multiple threads
             setupPropertyListPopulation = SetupPropertyListPopulation;
 
             spawnVariableEditorBox = SpawnVariableEditorBox;
 
             editStructureInHexEditor = EditStructureInHexEditor;
         }
+
+
+
+
+
+
 
 
 
@@ -110,6 +106,8 @@ namespace NaughtyDogDCReader
 
 
 
+
+
         //===============================================\\
         //--|   Miscellaneous Function Declarations   |--\\
         //===============================================\\
@@ -118,38 +116,46 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// //!
         /// </summary>
-        /// <param name="groupBox"></param>
-        /// <param name="hostBoxScrollBarReference"></param>
+        /// <param name="GroupBox"></param>
+        /// <param name="HostBoxScrollBarReference"></param>
         /// <param name="cumulativeButtonHeight"></param>
-        private void CreateScrollBarForGroupBox(Control groupBox, ref VScrollBar hostBoxScrollBarReference, int cumulativeButtonHeight)
+        private void CreateScrollBarForGroupBox(Control GroupBox, ref VScrollBar HostBoxScrollBarReference, int EntryCount)
         {
-            if (!Venat.Controls.Contains(hostBoxScrollBarReference))
+            var cumulativeButtonHeight = (DefaultPropertyListButtonHeight * EntryCount) - 1; // I don't know why it's off by a pixel and I'm sick of fucking with it.
+
+            if (cumulativeButtonHeight < PropertySelectionPanel.Height)
             {
-                if (hostBoxScrollBarReference == null)
+                return;
+            }
+
+
+            if (!Venat.Controls.Contains(HostBoxScrollBarReference))
+            {
+                if (HostBoxScrollBarReference == null)
                 {
-                    hostBoxScrollBarReference = new VScrollBar()
+                    HostBoxScrollBarReference = new VScrollBar()
                     {
                         Name = "PropertiesPanelScrollBar",
-                        Height = groupBox.Height - 2,
+                        Height = GroupBox.Height - 2,
                         Width = 20, // Default width's a bit fat
                         //LargeChange = DefaultPropertyButtonHeight * 4, // Not sure which context the LargeChange is even used in, honestly
                     };
                         
 
-                    hostBoxScrollBarReference.Location = new Point((groupBox.Parent.Location.X + groupBox.Width) - (hostBoxScrollBarReference.Width + 1), groupBox.Parent.Location.Y);
+                    HostBoxScrollBarReference.Location = new Point((GroupBox.Parent.Location.X + GroupBox.Width) - (HostBoxScrollBarReference.Width + 1), GroupBox.Parent.Location.Y);
 
-                    hostBoxScrollBarReference.Scroll += (_, args) => ScrollPropertyListButtons(groupBox, args);
+                    HostBoxScrollBarReference.Scroll += (_, args) => ScrollPropertyListButtons(GroupBox, args);
                 }
 
-                Venat.Controls.Add(hostBoxScrollBarReference);
+                Venat.Controls.Add(HostBoxScrollBarReference);
             }
 
 
-            hostBoxScrollBarReference.BringToFront();
+            HostBoxScrollBarReference.BringToFront();
                 
-            hostBoxScrollBarReference.Maximum = (cumulativeButtonHeight - groupBox.Height) + (GroupBox.GroupBoxContentsOffset * 2);
+            HostBoxScrollBarReference.Maximum = cumulativeButtonHeight - GroupBox.Height + (NaughtyDogDCReader.GroupBox.GroupBoxContentsOffset * 2);
 
-            hostBoxScrollBarReference.SmallChange = DefaultPropertyListButtonHeight;
+            HostBoxScrollBarReference.SmallChange = DefaultPropertyListButtonHeight;
         }
 
 
@@ -186,6 +192,11 @@ namespace NaughtyDogDCReader
         /// <returns> The provided <paramref name="StructName">, now spaced out rather than camel/pascal-case. </returns>
         private string SpaceOutStructName(string StructName)
         {
+            if (!System.Globalization.CultureInfo.CurrentCulture.ToString().ToLower().StartsWith("en"))
+            {
+                echo("Warning- Unexpected culture info. No idea whether this matters. I'm fairly sure it doesn't in this case, though.");
+            }
+
             var str = string.Empty;
 
             for (var charIndex = 0; charIndex < StructName.Length; charIndex++)

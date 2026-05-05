@@ -113,6 +113,9 @@ namespace NaughtyDogDCReader
 
 
 
+
+
+
         //======================================\\
         //--|   Event Handler Declarations   |--\\
         //======================================\\
@@ -191,6 +194,8 @@ namespace NaughtyDogDCReader
         /// Reset the GUI and all relevant globals to their original states. //! (ideally...)
         /// </summary>
         private void CloseBtn_Click(object _, EventArgs __) => CloseBinFile();
+
+
 
 
 

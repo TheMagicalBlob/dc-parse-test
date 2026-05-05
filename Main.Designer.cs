@@ -46,12 +46,12 @@ namespace NaughtyDogDCReader
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.propertiesPanelContainer = new System.Windows.Forms.Panel();
+            this.propertySelectionPanel = new NaughtyDogDCReader.GroupBox();
             this.PropertyEditorContainer = new System.Windows.Forms.Panel();
+            this.propertyEditorPanel = new NaughtyDogDCReader.GroupBox();
             this.propertyForwardBtn = new System.Windows.Forms.Button();
             this.propertyBackBtn = new System.Windows.Forms.Button();
             this.BackAndLoadButtonsLabel = new NaughtyDogDCReader.Label();
-            this.propertySelectionPanel = new NaughtyDogDCReader.GroupBox();
-            this.propertyEditorPanel = new NaughtyDogDCReader.GroupBox();
             this.label6 = new NaughtyDogDCReader.Label();
             this.label4 = new NaughtyDogDCReader.Label();
             this.logWindow = new NaughtyDogDCReader.RichTextBox();
@@ -225,6 +225,18 @@ namespace NaughtyDogDCReader
             this.propertiesPanelContainer.Size = new System.Drawing.Size(530, 359);
             this.propertiesPanelContainer.TabIndex = 0;
             // 
+            // propertySelectionPanel
+            // 
+            this.propertySelectionPanel.BackColor = System.Drawing.Color.Black;
+            this.propertySelectionPanel.CausesValidation = false;
+            this.propertySelectionPanel.Cursor = System.Windows.Forms.Cursors.Default;
+            this.propertySelectionPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.propertySelectionPanel.Location = new System.Drawing.Point(0, 0);
+            this.propertySelectionPanel.Name = "propertySelectionPanel";
+            this.propertySelectionPanel.Size = new System.Drawing.Size(530, 359);
+            this.propertySelectionPanel.TabIndex = 19;
+            this.propertySelectionPanel.TabStop = false;
+            // 
             // PropertyEditorContainer
             // 
             this.PropertyEditorContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -233,6 +245,16 @@ namespace NaughtyDogDCReader
             this.PropertyEditorContainer.Name = "PropertyEditorContainer";
             this.PropertyEditorContainer.Size = new System.Drawing.Size(338, 391);
             this.PropertyEditorContainer.TabIndex = 0;
+            // 
+            // propertyEditorPanel
+            // 
+            this.propertyEditorPanel.BackColor = System.Drawing.Color.Black;
+            this.propertyEditorPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.propertyEditorPanel.Location = new System.Drawing.Point(0, 0);
+            this.propertyEditorPanel.Name = "propertyEditorPanel";
+            this.propertyEditorPanel.Size = new System.Drawing.Size(338, 391);
+            this.propertyEditorPanel.TabIndex = 20;
+            this.propertyEditorPanel.TabStop = false;
             // 
             // propertyForwardBtn
             // 
@@ -276,28 +298,6 @@ namespace NaughtyDogDCReader
             this.BackAndLoadButtonsLabel.TabIndex = 56;
             this.BackAndLoadButtonsLabel.Text = "Back    Load";
             this.BackAndLoadButtonsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // propertySelectionPanel
-            // 
-            this.propertySelectionPanel.BackColor = System.Drawing.Color.Black;
-            this.propertySelectionPanel.CausesValidation = false;
-            this.propertySelectionPanel.Cursor = System.Windows.Forms.Cursors.Default;
-            this.propertySelectionPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.propertySelectionPanel.Location = new System.Drawing.Point(0, 0);
-            this.propertySelectionPanel.Name = "propertySelectionPanel";
-            this.propertySelectionPanel.Size = new System.Drawing.Size(530, 359);
-            this.propertySelectionPanel.TabIndex = 19;
-            this.propertySelectionPanel.TabStop = false;
-            // 
-            // propertyEditorPanel
-            // 
-            this.propertyEditorPanel.BackColor = System.Drawing.Color.Black;
-            this.propertyEditorPanel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.propertyEditorPanel.Location = new System.Drawing.Point(0, 0);
-            this.propertyEditorPanel.Name = "propertyEditorPanel";
-            this.propertyEditorPanel.Size = new System.Drawing.Size(338, 391);
-            this.propertyEditorPanel.TabIndex = 20;
-            this.propertyEditorPanel.TabStop = false;
             // 
             // label6
             // 
@@ -437,7 +437,7 @@ namespace NaughtyDogDCReader
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(890, 628);
+            this.ClientSize = new System.Drawing.Size(890, 650);
             this.Controls.Add(this.BackAndLoadButtonsLabel);
             this.Controls.Add(this.propertyForwardBtn);
             this.Controls.Add(this.propertyBackBtn);

@@ -1,22 +1,36 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
+
 
 namespace NaughtyDogDCReader
 {
     public partial class PropertyPanels
     {
+        //================================================\\
+        //--|   PropertyEditor Variable Declarations   |--\\
+        //================================================\\
+        #region [PropertyEditor Variable Declarations]
+
         /// <summary>
         /// The (vertical) scroll bar used to navigate the rows populating the PropertyEditor when they bleed passed the bottom of the group box
         /// </summary>
         private VScrollBar PropertyEditorScrollBar;
+
         private int PaddingForPropertyEditorScrollBar;
+        #endregion
+
+
+
+
+
+
+
+
 
 
 
@@ -38,26 +52,30 @@ namespace NaughtyDogDCReader
                 return;
             }
 
-
-
             var type = property.GetType();
 
+
+
+            //##-> Display all the structure's properties in the PropertyEditor window
             if (ObjectIsStruct(property))
             {
-                //-# Object is a struct
                 PopulateEditorWithStructProperties(property);
             }
+
+            //##-> Display all the elements of an array as 
+            else if (type.IsArray)
+            {
+                PopulateEditorWithArrayItems(property as Array);
+            }
+
+            //##-> Object is some Numerical Value, hopefully
             else {
-                //-# Object is an Array of any type
-                if (type.IsArray)
+                if (!BasicNumericalTypes.Contains(type) && !AdvancedNumericalTypes.Contains(type))
                 {
-                    PopulateEditorWithArrayItems(property as Array);
-                    return;
+                    throw new NotImplementedException($"An unhandled type of \"{type.Name}\" was provided for {nameof(PropertyEditorPanel)} population.");
                 }
 
 
-
-                //-# Object is some Numerical Value
                 PopulateEditorWithSingleNumericalValue(property);
             }
         }
@@ -78,6 +96,7 @@ namespace NaughtyDogDCReader
             var totalHeight = 2;
             var type = Struct.GetType();
 
+
             // Grab the actual struct if the provided struct obj is a DC Header Entry (//! CLUNKY!)
             if (type == typeof(DCModule.DCEntry))
             {
@@ -85,18 +104,10 @@ namespace NaughtyDogDCReader
                 type = Struct.GetType();
             }
 
-
-            // Make sure the passed object is actually a struct
-            if (!ObjectIsStruct(Struct))
-            {
-                throw new Exception($"ERROR: Object of type \"{Struct.GetType().Name}\" is not a struct");
-            }
-
-
-
-
-
+            // Depopulate the panel first
             PropertyEditorPanel.Controls.Clear();
+
+
 
 
             //##-> Create the applicable buttons
@@ -131,11 +142,11 @@ namespace NaughtyDogDCReader
 
                 // Decoded Type ID Row
                 PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow(memberValue: "Structure contains no properties; use the hex editor or fuck off.", memberClickEvent: null, memberName: null));
-                newRow.Location = new Point(2, totalHeight);
+                //newRow.Location = new Point(2, totalHeight);
             }
 
 
-            CreateScrollBarForGroupBox(PropertyEditorPanel, ref PropertyEditorScrollBar, DefaultPropertyEditorRowHeight * PropertyEditorPanel.Controls.Count);
+            CreateScrollBarForGroupBox(PropertyEditorPanel, ref PropertyEditorScrollBar, PropertyEditorPanel.Controls.Count);
         }
 
 
@@ -196,7 +207,7 @@ namespace NaughtyDogDCReader
             }
 
 
-            CreateScrollBarForGroupBox(PropertyEditorPanel, ref PropertyEditorScrollBar, DefaultPropertyEditorRowHeight * PropertyEditorPanel.Controls.Count);
+            CreateScrollBarForGroupBox(PropertyEditorPanel, ref PropertyEditorScrollBar, PropertyEditorPanel.Controls.Count);
         }
 
 

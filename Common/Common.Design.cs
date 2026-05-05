@@ -58,6 +58,12 @@ namespace NaughtyDogDCReader
         ///</summary>
         public static void DrawFormDecorations(Form venat, PaintEventArgs yoshiP)
         {
+            if (venat == null || yoshiP == null)
+            {
+                echo($"WARNING: One or more provided arguments were null. ({nameof(venat)} == null: {venat == null} / {nameof(yoshiP)} == null: {yoshiP == null})");
+                return;
+            }
+
 #if DEBUG
             if (noDraw)
             {
@@ -141,7 +147,7 @@ namespace NaughtyDogDCReader
                             ),
                             new Point(
                                 line.Location.X + 3,
-                                 line.StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height
+                                line.StretchToFitForm ? line.Parent.Height - 2 : line.Location.Y + line.Height
                             )
                         });
                     }

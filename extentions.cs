@@ -508,7 +508,7 @@ namespace NaughtyDogDCReader
             }
 
 
-            // Build return string.
+            // Build return array.
             for (var ret = new byte[length];; ret[length - 1] = array[index + (length-- - 1)])
             {
                 if (length <= 0)
@@ -613,10 +613,17 @@ namespace NaughtyDogDCReader
 
 
 
-            // Read the string pointer
+
+                //#
+                //## Read the string pointer
+                //#
             readString:
-                var stringPtr = (int)BitConverter.ToInt64(SIDHashTable, scanAddress + 8); // Get the string pointer for the read hasha, located immediately after said hash
-                stringPtr -= HashTableRawLength + 8; // Adjust the string pointer to account for the lookup table being a separate array, and table length being removed
+
+                // Get the string pointer for the read hasha, located immediately after said hash
+                var stringPtr = (int)BitConverter.ToInt64(SIDHashTable, scanAddress + 8);
+
+                // Adjust the string pointer to account for the lookup table being a separate array, and table length being removed
+                stringPtr -= HashTableRawLength + 8; 
 
                 if (stringPtr >= SIDStringTable.Length)
                 {
