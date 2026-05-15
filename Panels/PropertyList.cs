@@ -89,11 +89,11 @@ namespace NaughtyDogDCReader
 
                 if (newButton == default || newButton == null)
                 {
-                    LogWindow.AppendLine($" {nameof(PropertySelectionPanel)} doesn't contain any {nameof(PropertyButton)} controls!!!");
+                    Log($" {nameof(PropertySelectionPanel)} doesn't contain any {nameof(PropertyButton)} controls!!!");
                     return;
                 }
 
-                LogWindow.AppendLine($" Defaulted to the first {nameof(PropertyButton)} in the {nameof(PropertySelectionPanel)}'s controls.");
+                Log($" Defaulted to the first {nameof(PropertyButton)} in the {nameof(PropertySelectionPanel)}'s controls.");
                 PropertySelectionPanel.Focus();
                 newButton.Select();
             }
@@ -195,7 +195,7 @@ namespace NaughtyDogDCReader
             if (moduleOrPropertyType == typeof(UnmappedStructure))
             {
                 echo($"Aborting Panel population for {ModuleOrProperty}, as it has not been mapped.");
-                LogWindow?.AppendLine("Structure not yet mapped. Please use the hex editor instead (with caution).");
+                Log("Structure not yet mapped. Please use the hex editor instead (with caution).");
                 return;
             }
 
@@ -252,7 +252,7 @@ namespace NaughtyDogDCReader
             if (entries.Length < 1)
             {
                 echo($"Aborted panel population, as a struct \"{moduleOrPropertyType.Name}\" contains no properties.");
-                LogWindow?.AppendLine("Structure contains no mapped properties to load.");
+                Log("Structure contains no mapped properties to load.");
                 return;
             }
 
@@ -287,7 +287,7 @@ namespace NaughtyDogDCReader
                     SetupPropertyListPopulation(entryPropertyOrObject, entry[1].ToString());
                 }
                 else {
-                    LogWindow.AppendLine("unhandled doubleclick bs");
+                    Log("unhandled doubleclick bs");
                 }
             }
 

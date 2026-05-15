@@ -149,5 +149,9 @@ namespace NaughtyDogDCReader
                 label.Visible ^= true;
             }
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+        }
     }
 }

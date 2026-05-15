@@ -17,6 +17,7 @@ namespace NaughtyDogDCReader
         //## Form Functionality Globals
         //#
         #region [Form Functionality Globals]
+
         /// <summary> Return the current state of the options page. </summary>
         public static bool OptionsPageIsOpen => Azem?.Visible ?? false;
 
@@ -88,134 +89,17 @@ namespace NaughtyDogDCReader
         {
             get => _activeFileName;
 
-            private set
-            {
+            private set {
                 _activeFileName = value ?? "null";
 
-                CTUpdateStatusLabel("Viewing Script " + ActiveFileName);
+                if (value != null)
+                {
+                    ActiveScriptLabel.Text = ActiveFileName;
+                }
             }
         }
         private static string _activeFileName = "No Script Selected";
 
-
-
-
-
-        /// <summary>
-        /// //!
-        /// </summary>
-        private static string StatusDetails
-        {
-            get => _statusDetails;
-
-            set {
-                _statusDetails = value;
-
-                ScriptStatusLabel.Text = _statusDetails;
-            }
-            //{
-            //    if (value == null || value.Length < 1)
-            //    {
-            //        _statusDetails = Array.Empty<string>();
-            //        ScriptStatusLabel.Text = "Status: [Inactive]";
-            //        return;
-            //    }
-
-
-
-            //    if (_statusDetails != Array.Empty<string>() && value.Length <= _statusDetails.Length)
-            //    {
-            //        // Update changed array members only
-            //        for (var i = 0; i < value.Length; i++)
-            //        {
-            //            if (value[i] != null)
-            //            {
-            //                _statusDetails[i] = value[i];
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        _statusDetails = value;
-            //    }
-
-
-
-            //    ScriptStatusLabel.Text = $"Status: {_statusDetails[0]} ";
-
-            //    for (var i = 1; i < _statusDetails.Length; i++)
-            //    {
-            //        if ((StatusDetails[i]?.Length ?? 0) > 0)
-            //        {
-            //            ScriptStatusLabel.Text += " | " + _statusDetails[i];
-            //            Venat?.Update();
-            //        }
-            //    }
-            //}
-        }
-        private static string _statusDetails = string.Empty;
-
-
-
-
-        /// <summary>
-        /// THE FUCK? //!
-        /// </summary>
-        private static string SelectionDetails
-        {
-            get => _selectionDetails;
-
-            set {
-                _selectionDetails = value ?? "null";
-
-                ScriptSelectionLabel.Text = _selectionDetails;
-            }
-
-/*            {
-                if (value == null || value.Length < 1)
-                {
-                    _selectionDetails = Array.Empty<string>();
-                    ScriptSelectionLabel.Text = "Selection: [None]";
-                    return;
-                }
-
-
-                if ((SelectionDetails?.Length ?? 0) < 1)
-                {
-                    _selectionDetails = value;
-                }
-
-                else if (value.Length > _selectionDetails.Length)
-                {
-                    var buff = new string[value.Length];
-                    Buffer.BlockCopy(SelectionDetails, 0, buff, 0, SelectionDetails.Length);
-
-                    _selectionDetails = buff;
-                }
-
-
-                // Update changed array members only
-                for (var i = 0; i < value.Length; i++)
-                {
-                    if (i < value.Length && value[i] != null)
-                    {
-                        _selectionDetails[i] = value[i];
-                    }
-                }
-
-                ScriptSelectionLabel.Text = $"Selection: {SelectionDetails[0]} ";
-
-                for (var i = 1; i < SelectionDetails.Length; i++)
-                {
-                    if ((SelectionDetails[i]?.Length ?? 0) > 0)
-                    {
-                        ScriptSelectionLabel.Text += " | " + SelectionDetails[i];
-                        Venat?.Update();
-                    }
-                }
-            }*/
-        }
-        private static string _selectionDetails = string.Empty;
 
 
 
@@ -242,7 +126,7 @@ namespace NaughtyDogDCReader
         public static RichTextBox LogWindow;
 
 
-        public static Label ScriptStatusLabel;
+        public static Label ActiveScriptLabel;
 
         public static Label ScriptSelectionLabel;
 
@@ -453,6 +337,18 @@ namespace NaughtyDogDCReader
         }
 
 
+        /// <summary>
+        /// Testing random input crap
+        /// </summary>
+        private void FormKeyboardInputHandler(string sender, Keys arg, bool ctrl, bool shift)
+        {
+            echo($"Input [{arg}] Received by Control [{sender}]");
+
+            if (arg == Keys.Back)
+            {
+                Panels.GoBack();
+            }
+        }
 
 
 

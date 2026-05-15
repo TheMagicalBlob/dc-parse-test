@@ -25,13 +25,13 @@ namespace NaughtyDogDCReader
 
 
 
-        private readonly binThreadLabelWand statusLabelMammet = new binThreadLabelWand(UpdateStatusLabel);
-
-        private readonly generalBinThreadWand statusLabelResetMammet = new generalBinThreadWand(ResetStatusLabel);
-
         private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand(UpdateSelectionLabel);
 
         private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(ResetSelectionLabel);
+
+        private readonly binThreadLabelWand LogUpdateMammet = new binThreadLabelWand(Log);
+
+        private readonly binThreadLabelWand LogSameLineMammet = new binThreadLabelWand(_Log);
 
 
         private readonly binThreadFormWand setReloadCloseButtonsEnabledStatus = new binThreadFormWand((isEnabled) =>
@@ -84,7 +84,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// I plan to do more here. Not 100 on it yet though.
         /// </summary>
-        public static void DCFileHandlerFunction()
+        public static void CTLoadProvidedDCFile()
         {
             var filePath = ActiveFilePath ?? "C:\\[null path!]";
 
@@ -118,6 +118,10 @@ namespace NaughtyDogDCReader
         }
 
 
+
+
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -139,22 +143,8 @@ namespace NaughtyDogDCReader
         }
 
 
-        /// <summary>
-        /// Update the yellow status/info label from a different thread through the statusLabelMammet
-        /// </summary>
-        /// <param name="details">
-        /// A string[3] containing the details for the status label.
-        /// <br/> 
-        /// </param>
-        public static void CTUpdateStatusLabel(string details)
-        {
-            Venat?.Invoke(Venat.statusLabelMammet, new object[] { details });
-        }
 
-        public static void CTResetStatusLabel()
-        {
-            Venat?.Invoke(Venat.statusLabelResetMammet);
-        }
+
 
 
         /// <summary>
@@ -168,10 +158,33 @@ namespace NaughtyDogDCReader
             Venat?.Invoke(Venat.selectionLabelMammet, new[] { details });
         }
 
-        
+
         public static void CTResetSelectionLabel()
         {
             Venat?.Invoke(Venat.selectionLabelResetMammet);
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Update the yellow status/info label from a different thread through the statusLabelMammet
+        /// </summary>
+        /// <param name="details">
+        /// A string[3] containing the details for the slection label.
+        /// <br/> 
+        public static void CTLog(string details)
+        {
+            Venat?.Invoke(Venat.LogUpdateMammet, new[] { details });
+        }
+
+
+        public static void _CTLog() => CT_Log();
+        public static void CT_Log()
+        {
+            Venat?.Invoke(Venat.LogSameLineMammet);
         }
         #endregion [mammet shorthand functions]
     }

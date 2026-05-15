@@ -312,7 +312,7 @@ namespace NaughtyDogDCReader
 
                     if (data == null || data.Length < 1) // realistically 1 byte would ALSO be an issue for alingment reasons, I'd imagine
                     {
-                        LogWindow?.AppendLine($"RawData for structure \"{structType.Name}\" returned a{(data == null ? " null" : "n empty")} array. Loading from dc file with unset length instead (be mindful).");
+                        Log($"RawData for structure \"{structType.Name}\" returned a{(data == null ? " null" : "n empty")} array. Loading from dc file with unset length instead (be mindful).");
 
                         data = Array.Empty<byte>();
                         Buffer.BlockCopy(DCFile, (int) ((UnmappedStructure) Struct).Address, data, 0, 128);

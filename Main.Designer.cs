@@ -52,7 +52,6 @@ namespace NaughtyDogDCReader
             this.propertyForwardBtn = new System.Windows.Forms.Button();
             this.propertyBackBtn = new System.Windows.Forms.Button();
             this.BackAndLoadButtonsLabel = new NaughtyDogDCReader.Label();
-            this.label6 = new NaughtyDogDCReader.Label();
             this.label4 = new NaughtyDogDCReader.Label();
             this.logWindow = new NaughtyDogDCReader.RichTextBox();
             this.label1 = new NaughtyDogDCReader.Label();
@@ -61,7 +60,7 @@ namespace NaughtyDogDCReader
             this.scriptSelectionLabel = new NaughtyDogDCReader.Label();
             this.SeperatorLine2 = new NaughtyDogDCReader.Label();
             this.VersionLabel = new NaughtyDogDCReader.Label();
-            this.scriptStatusLabel = new NaughtyDogDCReader.Label();
+            this.activeScriptLabel = new NaughtyDogDCReader.Label();
             this.propertiesPanelContainer.SuspendLayout();
             this.PropertyEditorContainer.SuspendLayout();
             this.SuspendLayout();
@@ -299,19 +298,6 @@ namespace NaughtyDogDCReader
             this.BackAndLoadButtonsLabel.Text = "Back    Load";
             this.BackAndLoadButtonsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label6
-            // 
-            this.label6.Font = new System.Drawing.Font("Cambria", 8F);
-            this.label6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
-            this.label6.IsSeparatorLine = true;
-            this.label6.Location = new System.Drawing.Point(1, 96);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(539, 10);
-            this.label6.StretchToFitForm = true;
-            this.label6.TabIndex = 50;
-            this.label6.Text = "---------------------------------------------------------------------------------" +
-    "----------------------------------------------";
-            // 
             // label4
             // 
             this.label4.Font = new System.Drawing.Font("Cambria", 8F);
@@ -330,11 +316,11 @@ namespace NaughtyDogDCReader
             this.logWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(42)))), ((int)(((byte)(42)))));
             this.logWindow.Font = new System.Drawing.Font("Segoe UI Semibold", 7.5F);
             this.logWindow.ForeColor = System.Drawing.SystemColors.Window;
-            this.logWindow.Location = new System.Drawing.Point(5, 108);
+            this.logWindow.Location = new System.Drawing.Point(5, 74);
             this.logWindow.Name = "logWindow";
             this.logWindow.ReadOnly = true;
             this.logWindow.ShortcutsEnabled = false;
-            this.logWindow.Size = new System.Drawing.Size(531, 119);
+            this.logWindow.Size = new System.Drawing.Size(531, 153);
             this.logWindow.TabIndex = 46;
             this.logWindow.TabStop = false;
             this.logWindow.Text = "dead hands feel no  B r e a d";
@@ -370,10 +356,10 @@ namespace NaughtyDogDCReader
             this.label3.Font = new System.Drawing.Font("Cambria", 8F);
             this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(240)))), ((int)(((byte)(250)))));
             this.label3.IsSeparatorLine = true;
-            this.label3.Location = new System.Drawing.Point(541, 63);
+            this.label3.Location = new System.Drawing.Point(541, 37);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(8, 616);
-            this.label3.StretchToFitForm = true;
+            this.label3.Size = new System.Drawing.Size(8, 612);
+            this.label3.StretchToFitForm = false;
             this.label3.TabIndex = 22;
             this.label3.Tag = "";
             this.label3.Text = "---------------------------------------------------------------------------------" +
@@ -385,9 +371,9 @@ namespace NaughtyDogDCReader
             this.scriptSelectionLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.scriptSelectionLabel.ForeColor = System.Drawing.Color.Gold;
             this.scriptSelectionLabel.IsSeparatorLine = false;
-            this.scriptSelectionLabel.Location = new System.Drawing.Point(547, 108);
+            this.scriptSelectionLabel.Location = new System.Drawing.Point(547, 80);
             this.scriptSelectionLabel.Name = "scriptSelectionLabel";
-            this.scriptSelectionLabel.Size = new System.Drawing.Size(334, 101);
+            this.scriptSelectionLabel.Size = new System.Drawing.Size(334, 147);
             this.scriptSelectionLabel.StretchToFitForm = false;
             this.scriptSelectionLabel.TabIndex = 20;
             this.scriptSelectionLabel.Text = "Angine\r\nDe\r\nPoitrine";
@@ -419,18 +405,18 @@ namespace NaughtyDogDCReader
             this.VersionLabel.Text = "Ver.";
             this.VersionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // scriptStatusLabel
+            // ActiveScriptLabel
             // 
-            this.scriptStatusLabel.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.scriptStatusLabel.ForeColor = System.Drawing.Color.Gold;
-            this.scriptStatusLabel.IsSeparatorLine = false;
-            this.scriptStatusLabel.Location = new System.Drawing.Point(4, 77);
-            this.scriptStatusLabel.Name = "scriptStatusLabel";
-            this.scriptStatusLabel.Size = new System.Drawing.Size(531, 21);
-            this.scriptStatusLabel.StretchToFitForm = false;
-            this.scriptStatusLabel.TabIndex = 0;
-            this.scriptStatusLabel.Text = "Status: [Inactive]";
-            this.scriptStatusLabel.Visible = false;
+            this.activeScriptLabel.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.activeScriptLabel.ForeColor = System.Drawing.Color.Gold;
+            this.activeScriptLabel.IsSeparatorLine = false;
+            this.activeScriptLabel.Location = new System.Drawing.Point(442, 7);
+            this.activeScriptLabel.Name = "ActiveScriptLabel";
+            this.activeScriptLabel.Size = new System.Drawing.Size(204, 18);
+            this.activeScriptLabel.StretchToFitForm = false;
+            this.activeScriptLabel.TabIndex = 0;
+            this.activeScriptLabel.Text = "no selection";
+            this.activeScriptLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // Main
             // 
@@ -445,7 +431,6 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.PropertyEditorContainer);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.SidBaseBrowseBtn);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.ReloadScriptBtn);
@@ -464,7 +449,7 @@ namespace NaughtyDogDCReader
             this.Controls.Add(this.VersionLabel);
             this.Controls.Add(this.ExitBtn);
             this.Controls.Add(this.MinimizeBtn);
-            this.Controls.Add(this.scriptStatusLabel);
+            this.Controls.Add(this.activeScriptLabel);
             this.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Main";
@@ -499,13 +484,12 @@ namespace NaughtyDogDCReader
         private Label label4;
         private Button SidBaseBrowseBtn;
         #endregion
-        private Label label6;
         private Button button1;
         private Button button2;
         public Button OptionsMenuDropdownBtn;
         public Button ExitBtn;
         public Button MinimizeBtn;
-        public Label scriptStatusLabel;
+        public Label activeScriptLabel;
         public Label scriptSelectionLabel;
         private Panel propertiesPanelContainer;
         private GroupBox propertyEditorPanel;

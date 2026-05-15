@@ -68,9 +68,9 @@ namespace NaughtyDogDCReader
         /// Print the provided <paramref name="Message"/> to the LogWindow, followed by a newline
         /// </summary>
         /// <param name="Message"> The message to Append to the LogWindow's text property. </param>
-        public void Log(string Message)
+        public static void Log(string Message = "")
         {
-            LogWindow.AppendLine(Message);
+            LogWindow?.AppendLine(Message);
         }
 
 
@@ -82,40 +82,9 @@ namespace NaughtyDogDCReader
         /// Print the provided <paramref name="Message"/> to the LogWindow.
         /// </summary>
         /// <param name="Message"> The message to Append to the LogWindow's text property. </param>
-        public void _Log(string Message)
+        public static void _Log(string Message)
         {
-            LogWindow.AppendText(Message);
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// Update the yellow status/info label with the provided string
-        /// </summary>
-        /// <param name="details"> The string[] to update the label's text with. </param>
-        public static void UpdateStatusLabel(string details)
-        {
-            if ((details?.Length ?? 0) < 1)
-            {
-                echo($"ERROR: Empty or null string array provided for status label details.");
-                return;
-            }
-
-            StatusDetails = details;
-        }
-
-
-
-
-        /// <summary>
-        /// Reset the ScriptStatusLabel to it's default value.
-        /// </summary>
-        public static void ResetStatusLabel()
-        {
-            StatusDetails = null;
+            LogWindow?.AppendText(Message);
         }
 
 
@@ -135,7 +104,7 @@ namespace NaughtyDogDCReader
                 return;
             }
 
-            SelectionDetails = details;
+            ScriptSelectionLabel.Text = details;
         }
 
 
@@ -148,7 +117,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         public static void ResetSelectionLabel()
         {
-            SelectionDetails = null;
+            ScriptSelectionLabel.Text = null;
         }
         #endregion
     }

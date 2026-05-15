@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -48,10 +49,8 @@ namespace NaughtyDogDCReader
                 // Actually go brr if all's well
                 _dcFile = value;
 
-                if (value.Length > 0x2C)
-                {
-                    DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
-                }
+                DCFileMainDataLength = BitConverter.ToInt64(DCFile, 8);
+                DCModuleStartAddress = BitConverter.ToInt64(DCFile, 0x18) * 24;
             }
         }
         private static byte[] _dcFile;
@@ -62,11 +61,16 @@ namespace NaughtyDogDCReader
         public static long DCFileMainDataLength;
 
 
+        /// <summary>
+        /// Start address for the module contents, right after the initial entry map
+        /// </summary>
+        public static long DCModuleStartAddress;
+
 
         /// <summary>
         /// Static reference to the active DC binary's header struct.
         /// </summary>
-        public static DCModule ActiveDCScript;
+        public static DCModule ActiveDCModule;
 
 
         
@@ -104,6 +108,7 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
+        /// //! OVERUSED
         /// A collection of known id's used in hardcoded checks, in order to handle basic operation when missing an sidbase.bin file.
         /// </summary>
         public enum KnownSIDs : ulong
@@ -122,6 +127,13 @@ namespace NaughtyDogDCReader
 
             placeholder = 0xDEADBEEFDEADBEEFul,
         }
+
+
+
+        /// <summary>
+        /// A collection of type id's for unmapped structures that have had their sizes
+        /// </summary>
+        public static System.Collections.Generic.List<object[]> ParsedSizes;
         #endregion
 
 
@@ -144,7 +156,7 @@ namespace NaughtyDogDCReader
         /// //!
         /// </summary>
         /// <param name="DCFilePath"></param>
-        private static void LoadBinFile(string DCFilePath)
+        private void LoadBinFile(string DCFilePath)
         {
             if (File.Exists(DCFilePath))
             {
@@ -152,9 +164,10 @@ namespace NaughtyDogDCReader
 
                 ActiveFilePath = DCFilePath;
                 Venat?.StartBinParseThread();
+
+                ParsedSizes = new System.Collections.Generic.List<object[]>();
             }
-            else
-            {
+            else {
                 MessageBox.Show("Invalid path provided for dc file! Doing nothing instead. :)", "How did you even manage that?");
             }
         }
@@ -172,8 +185,6 @@ namespace NaughtyDogDCReader
             SetReloadCloseButtonsEnabledStatus(false);
 
             CTResetSelectionLabel();
-            CTResetStatusLabel();
-
             
             DCFile = null;
             
@@ -204,7 +215,7 @@ namespace NaughtyDogDCReader
 
 
             // Create and start the thread
-            DCFileHandlerThread = new Thread(DCFileHandlerFunction)
+            DCFileHandlerThread = new Thread(CTLoadProvidedDCFile)
             {
                 IsBackground = true,
                 Name = nameof(DCFileHandlerThread)
@@ -223,33 +234,27 @@ namespace NaughtyDogDCReader
         /// <param name="FilePath"></param>
         public static void LoadProvidedDCFile(string FilePath)
         {
-            //#
-            //## Load provided DC file.
-            //#
+            // Load provided DC file.
             DCFile = File.ReadAllBytes(FilePath);
 
             // Check whether or not the script is a basic empty one  TODO: make sure there's no difference between path versions! //!
             if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
             {
-                CTUpdateStatusLabel("Empty DC File Loaded.");
-                CTResetSelectionLabel();
+                Log("Empty DC file provided. Nothing to load.");
                 return;
             }
 
             // Parse the script's header entries
-            ActiveDCScript = new DCModule(DCFile, ActiveFileName);
+            ActiveDCModule = new DCModule(DCFile, ActiveFileName);
 
 
 
-            //#
-            //## Setup Form
-            //#
-            echo("\nFinished!");
-            CTUpdateStatusLabel("Finished Loading dc File, populating properties panel...");
-            PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCScript);
+            // Setup Form
+            Log("Finished Loading dc File, populating properties panel...");
+            PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCModule);
 
             SetReloadCloseButtonsEnabledStatus(true);
-            CTUpdateStatusLabel("Viewing Script");
+            Log("Viewing Script");
         }
 
 
@@ -316,12 +321,17 @@ namespace NaughtyDogDCReader
         /// <param name="Address"> The start address of the sub-array within <paramref name="array"/>. </param>
         /// <param name="length"> The length of the sub-array. </param>
         /// <returns> What the hell do you think. </returns>
-        public static byte[] GetSubArray(byte[] array, int Address, int length = 8)
+        public static byte[] GetSubArray(byte[] array, long Address, int length = 8)
         {
             if (length == 0)
             {
                 return Array.Empty<byte>();
             }
+            if (Address + length >= array.Length)
+            {
+                throw new IndexOutOfRangeException($"Provided length and address exceed the length of the array (0x{Address:X} + 0x{length:X} >= 0x{array.Length:X})");
+            }
+
 
 
             // Build return string.
@@ -373,7 +383,7 @@ namespace NaughtyDogDCReader
         {
             var str = string.Empty;
 
-            if (startAddress > buffer.Length)
+            if (startAddress >= buffer.Length || buffer[startAddress] == terminator)
             {
                 return string.Empty;
             }
@@ -479,11 +489,6 @@ namespace NaughtyDogDCReader
                 }
             }
 
-            if (StatusDetails?.Length > 1 && StatusDetails == "Invalid Input Value")
-            {
-                CTUpdateStatusLabel("");
-            }
-
 
 
             // Convert the value to the relevant type, then write it to the loaded DC file array
@@ -534,7 +539,7 @@ namespace NaughtyDogDCReader
             // Handle invalid inputs
             if (convertedValue == null)
             {
-                CTUpdateStatusLabel("Invalid Input Value");
+                Log($"!!ERROR: error getting converted value for object of type \"{Type.Name}\"\n!! (provided str: {ValueAsString})");
                 return;
             }
 
@@ -601,6 +606,99 @@ namespace NaughtyDogDCReader
             var @bool = !objectType.IsClass && !objectType.IsSerializable;
             echo ($"Type \"{objectType}\" is {(@bool ? string.Empty : "not ")}a struct.");
             return @bool;
+        }
+
+
+
+
+
+        public static int FindStructSize(long Address, SID Name)
+        {
+            // Attempt to find struct length
+            //! TEMP - Replace/Optimize Me!!!
+            if (ParsedSizes.Count > 0)
+            {
+                foreach (var entry in ParsedSizes)
+                {
+                    // Struct has already had it's size parsed
+                    if (entry[0] == Name)
+                    {
+                        return (int) entry[1];
+                    }
+                }
+            }
+            return -1;
+
+            var i = Address + 8;
+            long firstFind = -1, secondFind = -1;
+            var reverseSearchDirection = false;
+
+            echo($"# Attempting to find size of struct \"{Name.DecodedID}\"" +
+                 $"# starting @0x{Address:X}");
+
+            for (var x = 0;; x++)
+            {
+                // Note: We assume the structure is at least 8 bytes in length, not including the preceeding type id located 8 bytes before the struct data
+                // We also assume the structures are even layed out near eachother. I have no idea whether or not that's consistently the case, or just occasionally
+                if (x >= DCFile.Length)
+                {
+                    throw new Exception($"!! Infinite loop detected when attempting to parse dc file for size of struct \"{Name.DecodedID}\"");
+                }
+
+
+
+
+                if (BitConverter.ToUInt64(GetSubArray(DCFile, i), 0) == (ulong) Name.RawID)
+                {
+                    if (firstFind == -1)
+                    {
+                        echo($" -> Found another instance of struct id \"{Name.EncodedID}\"");
+                        firstFind = i + 8;
+                    }
+                    else {
+                        secondFind = i + 8;
+                        break;
+                    }
+                }
+
+
+                i += reverseSearchDirection ? -8 : 8;
+
+                    
+                if (i + 8 >= DCFile.Length)
+                {
+                    echo($" -> End-of-file reached; reversing search direction. ({i} >= {DCFile.Length})");
+                    reverseSearchDirection = true;
+                    continue;
+                }
+
+                if (i <= DCModuleStartAddress)
+                {
+                    echo($" -> Minimum offset reached. ({i:X} <= {DCModuleStartAddress:X})"); // I just realized that's probably the only cause for that as I type this
+                    break;
+                }
+            }
+
+
+            
+            if (firstFind != -1 && secondFind != -1)
+            {
+                // Ensure we've got a consistent result
+                if (firstFind - Address == (reverseSearchDirection ? Address - secondFind : secondFind - firstFind))
+                {
+                    var newSize = (int) (firstFind - Address);
+                    echo($"# Guessed size of {newSize:X} for {Name.DecodedID}");
+                    ParsedSizes.Add(new object[] { Name, newSize });
+                    return newSize;
+                }
+
+                // bitch if not
+                echo($"# Offsets were different, couldn't guess size. {firstFind - Address:X} != {secondFind - firstFind:X} / {Address - secondFind:X}");
+                return -1;
+            }
+
+            echo();
+            return -1;
         }
         #endregion
         #endregion (function declarations)

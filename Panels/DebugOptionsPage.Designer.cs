@@ -208,7 +208,6 @@ namespace NaughtyDogDCReader
         private Button CloseBtn;
 
         private Button dummy;
-        #endregion
         private Label label1;
         private Button debugTabCheckBtn;
         private CheckBox debugDisableLinesBtn;
@@ -216,5 +215,6 @@ namespace NaughtyDogDCReader
         private CheckBox debugShowInvalidSIDsCheckBox;
         private CheckBox showBasicPropertiesWindow;
         private CheckBox checkBox1;
+        #endregion
     }
 }

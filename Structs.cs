@@ -49,9 +49,9 @@ namespace NaughtyDogDCReader
                     echo($"ERROR; Unexpected SID \"{integrityCheck.RawID:X}\" at 0x20. Expected encoded id of type \"map\"; Aborting.");
                     return;
                 }
-                if ((unkInt0 = BitConverter.ToInt32(DCModule, 0x10)) != 1)
+                if ((DCVersion = BitConverter.ToInt32(DCModule, 0x10)) != 1)
                 {
-                    echo($"ERROR; Unexpected Value \"{unkInt0}\" read at 0x10, aborting.");
+                    echo($"ERROR; Unexpected Value \"{DCVersion}\" read at 0x10, aborting.");
                     return;
                 }
                 if ((HeaderTableStartPointer = BitConverter.ToInt64(DCModule, headerTableStartPointerAddr)) != 0x28)
@@ -78,13 +78,14 @@ namespace NaughtyDogDCReader
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
 #endif
                 echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-                CTUpdateStatusLabel("Reading Script...");
+                _Log("Reading Script...\r");
 
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
                     Entries[tableIndex] = new DCEntry(DCModule, addr);
+                    _Log($"Reading Script... ({tableIndex + 1} / {TableLength})\r");
                 }
-
+                Log();
 #if false
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
 #endif
@@ -97,7 +98,7 @@ namespace NaughtyDogDCReader
             private readonly byte[] expectedMagic = new byte[] { 0x30, 0x30, 0x43, 0x44, 0x01, 0x00, 0x00, 0x00 };
             private readonly int headerTableStartPointerAddr = 0x18; // 0x18
 
-            public readonly int unkInt0;
+            public readonly int DCVersion;
             public readonly long HeaderTableStartPointer;
 
             public long BinFileLength;
@@ -116,11 +117,13 @@ namespace NaughtyDogDCReader
             /// </summary>
             public struct DCEntry
             {
+                //! stop calling it a header
+
                 /// <summary>
-                /// //!
+                /// An individual DcEntry pointed to directly in a DCModule's initial map
                 /// </summary>
-                /// <param name="DCFile"></param>
-                /// <param name="Address"> The address of the b </param>
+                /// <param name="DCFile"> The whole DC File being parsed (none of them are particularly large) </param>
+                /// <param name="Address"> The address of the DCEntry in the header array </param>
                 public DCEntry(byte[] DCFile, int Address)
                 {
                     this.Address = Address;
@@ -135,8 +138,10 @@ namespace NaughtyDogDCReader
                 }
 
 
+
+
                 /// <summary>
-                /// The Address of this Header Item in the DC file.
+                /// The Address of this Header Item in the DC file's inital header entry array.
                 /// </summary>
                 public int Address;
 
@@ -151,7 +156,7 @@ namespace NaughtyDogDCReader
                 public SID Type { get; set; }
 
                 /// <summary>
-                /// The address of the struct pointed to by tbe current dc header entry.
+                /// The address of the struct pointed to by the current dc header entry.
                 /// </summary>
                 public long StructAddress { get; set; }
 
@@ -13339,21 +13344,35 @@ public struct test_search_gestures_array
 
 
 
-/// <summary>
-/// 
-/// </summary>
-public struct UnmappedStructure
+        /// <summary>
+        /// 
+        /// </summary>
+        public struct UnmappedStructure
         {
             public UnmappedStructure(SID Type, long Address, SID Name)
             {
                 this.Name = Name;
                 this.Address = Address;
                 TypeID = Type;
+
+                _Size = FindStructSize(Address, Name);
             }
 
             public SID TypeID;
             public SID Name;
             public long Address;
+
+            public int Size
+            {
+                get => _Size;
+
+                private set {
+                    _Size = value;
+                }
+
+            }
+
+            private int _Size;
         }
         #endregion
     }
