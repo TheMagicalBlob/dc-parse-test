@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Drawing;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
+using System.Windows.Forms;
 
 
 namespace NaughtyDogDCReader
@@ -16,53 +18,53 @@ namespace NaughtyDogDCReader
         
         private static Thread DCFileHandlerThread;
 
+        
         public delegate void binThreadFormWand(bool arg); //! god I need to read about delegates lmao
 
+        
         private delegate void binThreadLabelWand(string details);
+
 
         private delegate void generalBinThreadWand();
 
 
 
-
-        private readonly binThreadLabelWand selectionLabelMammet = new binThreadLabelWand(UpdateSelectionLabel);
-
-        private readonly generalBinThreadWand selectionLabelResetMammet = new generalBinThreadWand(ResetSelectionLabel);
-
-        private readonly binThreadLabelWand LogUpdateMammet = new binThreadLabelWand(Log);
-
-        private readonly binThreadLabelWand LogSameLineMammet = new binThreadLabelWand(_Log);
+        /// <summary>
+        /// Delegate for handling the editing of values upon clicking their corresponding PropertyEditor row
+        /// </summary>
+        /// <param name="MemberValue"></param>
+        /// <param name="MemberName"></param>
+        public delegate void PropertyPanelEventHandler(object MemberValue, string MemberName);
 
 
-        private readonly binThreadFormWand setReloadCloseButtonsEnabledStatus = new binThreadFormWand((isEnabled) =>
-        {
-            if (Venat.CloseBtn == null)
-            {
-                echo($"ERROR: {nameof(Venat.CloseBtn)} was null!");
-                return;
-            }
-
-            // Enable/Disable the button, and update the button with the strikeout style property
-            Venat.CloseBtn.Enabled = isEnabled;
-            Venat.CloseBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
+        /// <summary>
+        /// Delegate for handling the creation hex editor window for advanced editing of structures.
+        /// </summary>
+        /// <param name="Struct"> The struct to load the raw data of in to the hex editor. </param>
+        public delegate void HexEditorSomethingSomething(object Struct, string StructName);
 
 
-            if (Venat.ReloadScriptBtn == null)
-            {
-                echo($"ERROR: {nameof(Venat.ReloadScriptBtn)} was null!");
-                return;
-            }
 
-            Venat.ReloadScriptBtn.Enabled = isEnabled;
-            Venat.ReloadScriptBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
-        });
 
+        public readonly PropertyPanelEventHandler setupPropertyListPopulation;
+
+        public readonly PropertyPanelEventHandler spawnVariableEditorBox;
+
+        public readonly HexEditorSomethingSomething editStructureInHexEditor;
 
         
-        private readonly generalBinThreadWand CloseBinFileMammet = new generalBinThreadWand(() =>
-        {
-            CloseBinFile();
-        });
+        private readonly binThreadLabelWand selectionLabelMammet;
+
+        private readonly generalBinThreadWand selectionLabelResetMammet;
+
+        private readonly binThreadLabelWand LogUpdateMammet;
+            
+        private readonly binThreadLabelWand LogSameLineMammet;
+
+        
+        private readonly binThreadFormWand setReloadCloseButtonStatus;
+        
+        private readonly generalBinThreadWand CloseBinFileMammet;
         #endregion
 
 
@@ -128,7 +130,13 @@ namespace NaughtyDogDCReader
         /// <param name="enabled"></param>
         public static void SetReloadCloseButtonsEnabledStatus(bool enabled)
         {
-            Venat?.Invoke(Venat.setReloadCloseButtonsEnabledStatus, new object[] { enabled });
+            if (Venat == null)
+            {
+                echo($"{nameof(setReloadCloseButtonStatus)} Invocation attempted while {nameof(Venat)} was still null.");
+                return;
+            }
+
+            Venat?.Invoke(Venat.setReloadCloseButtonStatus, new object[] { enabled });
         }
 
 
@@ -139,7 +147,13 @@ namespace NaughtyDogDCReader
         /// <param name="dcEntries"></param>
         public static void PopulatePropertiesPanelWithHeaderItemContents(string dcFileName, DCModule dcEntries)
         {
-            Venat?.Invoke(Panels.setupPropertyListPopulation, new object [] { dcEntries, dcFileName });
+            if (Venat == null)
+            {
+                echo($"{nameof(setupPropertyListPopulation)} Invocation attempted while {nameof(Venat)} was still null.");
+                return;
+            }
+
+            Venat.Invoke(Venat.setupPropertyListPopulation, new object [] { dcEntries, dcFileName });
         }
 
 
@@ -155,13 +169,25 @@ namespace NaughtyDogDCReader
         /// <br/> 
         public static void CTUpdateSelectionLabel(string details)
         {
-            Venat?.Invoke(Venat.selectionLabelMammet, new[] { details });
+            if (Venat == null)
+            {
+                echo($"{nameof(selectionLabelMammet)} Invocation attempted while {nameof(Venat)} was still null.");
+                return;
+            }
+
+            Venat.Invoke(Venat.selectionLabelMammet, new[] { details });
         }
 
 
         public static void CTResetSelectionLabel()
         {
-            Venat?.Invoke(Venat.selectionLabelResetMammet);
+            if (Venat == null)
+            {
+                echo($"{nameof(selectionLabelResetMammet)} Invocation attempted while {nameof(Venat)} was still null.");
+                return;
+            }
+
+            Venat.Invoke(Venat.selectionLabelResetMammet);
         }
 
 
@@ -175,17 +201,31 @@ namespace NaughtyDogDCReader
         /// <param name="details">
         /// A string[3] containing the details for the slection label.
         /// <br/> 
-        public static void CTLog(string details)
+        public static void CTLog(string message = "")
         {
-            Venat?.Invoke(Venat.LogUpdateMammet, new[] { details });
+            if (Venat == null)
+            {
+                echo($"{nameof(LogUpdateMammet)} Invocation attempted while {nameof(Venat)} was still null.");
+                return;
+            }
+
+            Venat?.Invoke(Venat.LogUpdateMammet, new[] { message });
         }
 
 
-        public static void _CTLog() => CT_Log();
-        public static void CT_Log()
+        public static void CT_Log(string message = "")
         {
-            Venat?.Invoke(Venat.LogSameLineMammet);
+            if (Venat == null)
+            {
+                echo($"{nameof(LogSameLineMammet)} Invocation attempted while {nameof(Venat)} was still null.");
+                return;
+            }
+
+            Venat.Invoke(Venat.LogSameLineMammet, message);
         }
+
+        public static void _CTLog(string message = "", int line = -1) => CT_Log(message);
+
         #endregion [mammet shorthand functions]
     }
 }

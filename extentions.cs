@@ -65,7 +65,7 @@ namespace NaughtyDogDCReader
 
             if (Scroll)
             {
-                ScrollToCaret();
+                //ScrollToCaret();
             }
         }
 

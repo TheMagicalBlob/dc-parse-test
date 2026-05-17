@@ -1,7 +1,9 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
@@ -95,31 +97,43 @@ namespace NaughtyDogDCReader
             // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
             var totalHeight = 2;
             var type = Struct.GetType();
+            var properties = type.GetProperties();
+            PropertyPanelEventHandler eventHandler;
+            
+            var readonlyProperties = properties.Where(property => !property.CanWrite && property.CanRead).ToArray();
+            var writableProperties = properties.Where(property => property.CanWrite && property.CanRead).ToArray();
 
 
-            // Grab the actual struct if the provided struct obj is a DC Header Entry (//! CLUNKY!)
-            if (type == typeof(DCModule.DCEntry))
-            {
-                Struct = ((DCModule.DCEntry) Struct).Struct;
-                type = Struct.GetType();
-            }
 
-            // Depopulate the panel first
-            PropertyEditorPanel.Controls.Clear();
-
+            // Depopulate the panel before population/repopulation
+            PropertyEditorPanel?.Controls?.Clear();
 
 
 
             //##-> Create the applicable buttons
-            if (type.GetProperties().Any())
+            if (writableProperties.Length > 0)
             {
                 // Create button for each struct property
-                foreach (var property in type.GetProperties())
+                foreach (var property in writableProperties)
                 {
                     var propertyValue = property.GetValue(Struct);
 
+                    if (ObjectIsStruct(propertyValue))
+                    {
+                        eventHandler = Venat.setupPropertyListPopulation;
+                    }
+                    else {
+                        if (property.GetType().IsArray)
+                        {
+                            eventHandler = null;
+                        }
+                        else {
+                            eventHandler = Venat.spawnVariableEditorBox;
+                        }
+                    }
+
                     // Create the applicable buttons
-                    var newRow = NewPropertyEditorRow(memberValue:propertyValue, memberClickEvent:ObjectIsStruct(propertyValue) ? setupPropertyListPopulation : spawnVariableEditorBox, memberName:property.Name);
+                    var newRow = NewPropertyEditorRow<PropertyPanelEventHandler>(memberValue:propertyValue, memberClickEvent:eventHandler, eventInfo:eventHandler.GetMethodInfo(), memberName:property.Name);
 
                     PropertyEditorPanel.Controls.Add(newRow);
                     newRow.Location = new Point(2, totalHeight);
@@ -139,9 +153,9 @@ namespace NaughtyDogDCReader
                 // Dynamically get from unknown unmapped structure
                 else {
                 }
-
+                
                 // Decoded Type ID Row
-                PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow(memberValue: "Structure contains no properties; use the hex editor or fuck off.", memberClickEvent: null, memberName: null));
+                PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow<HexEditorSomethingSomething>(memberValue: "Structure contains no properties; use the hex editor or fuck off.", memberClickEvent: Venat.editStructureInHexEditor, eventInfo: Venat.editStructureInHexEditor.GetMethodInfo(), memberName: null));
                 //newRow.Location = new Point(2, totalHeight);
             }
 
@@ -186,18 +200,18 @@ namespace NaughtyDogDCReader
 
                 if (itemType.IsArray || ObjectIsStruct(item))
                 {
-                    propertyEvent = setupPropertyListPopulation;
+                    propertyEvent = Venat.setupPropertyListPopulation;
                     propertyName = itemType.IsArray ? itemType.GetElementType().Name : itemType.Name;
                 }
                 else {
-                    propertyEvent = spawnVariableEditorBox;
+                    propertyEvent = Venat.spawnVariableEditorBox;
                     propertyName = itemType.Name;
                 }
 
 
 
                 // Create the applicable buttons
-                var newRow = NewPropertyEditorRow(item, propertyEvent, propertyName);
+                var newRow = NewPropertyEditorRow(item, propertyEvent, propertyEvent.GetMethodInfo(), propertyName);
 
                 PropertyEditorPanel.Controls.Add(newRow);
 
@@ -222,7 +236,7 @@ namespace NaughtyDogDCReader
         /// <param name="name"></param>
         private void PopulateEditorWithSingleNumericalValue(object value, string name = null)
         {
-            var row = NewPropertyEditorRow(value, spawnVariableEditorBox, name ?? value.GetType().Name);
+            var row = NewPropertyEditorRow(value, Venat.spawnVariableEditorBox, Venat.spawnVariableEditorBox.GetMethodInfo(), name ?? value.GetType().Name);
 
             PropertyEditorPanel.Controls.Add(row);
 
@@ -241,9 +255,9 @@ namespace NaughtyDogDCReader
         /// <param name="memberValue"></param>
         /// <param name="memberClickEvent"></param>
         /// <returns> A new row for the property editor, containing the value of said property. </returns>
-        private PropertyButton NewPropertyEditorRow(object memberValue, PropertyPanelEventHandler memberClickEvent, string memberName = null)
+        private PropertyButton NewPropertyEditorRow<T>(object memberValue, T memberClickEvent, MethodInfo eventInfo, string memberName = null)
         {
-            PropertyButton newRow = null;
+            PropertyButton newRow;
 
             var text = FormatPropertyValueAsString(memberValue);
 
@@ -272,7 +286,9 @@ namespace NaughtyDogDCReader
             newRow.MouseDown += MouseDownFunc;
             newRow.MouseUp += MouseUpFunc;
 
-            newRow.DoubleClick += (row, __) => memberClickEvent(row, memberName);
+            var del = Delegate.CreateDelegate(typeof(T), this, eventInfo);
+
+            newRow.DoubleClick += (row, __) => Venat.Invoke(del, row, memberName);
 
             return newRow;
         }
@@ -287,7 +303,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="Struct"> The structure to edit the raw data for. </param>
         /// <exception cref="NotImplementedException"> Unimplemented. </exception>
-        private void EditStructureInHexEditor(object Struct)
+        public void EditStructureInHexEditor(object Struct, string StructName)
         {
             //! Implement hex editor window for structures.
             //! Attempt to dynamically figure out struct size by finding at lease two more instances of the struct's type id (the one preceeding the address pointed to by the initial map struct)
@@ -299,9 +315,8 @@ namespace NaughtyDogDCReader
 
             if (structType == typeof(UnmappedStructure))
             {
-                // Don't mind the integer conversion, the addresses are objectively ulong, but will never be larger than a uint in practice
+                // Don't mind the integer conversion, the addresses are all ulong, but will never be larger than a uint in practice
                 Buffer.BlockCopy(DCFile, (int) ((UnmappedStructure) Struct).Address, data, 0, 128);
-
             }
             else {
                 var dataField = structType.GetField(nameof(weapon_gameplay_def.RawData));
@@ -512,7 +527,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="propertyEditorRow"></param>
         /// <param name="memberName"></param>
-        private void SpawnVariableEditorBox(object propertyEditorRow, string memberName = null)
+        public void SpawnVariableEditorBox(object propertyEditorRow, string memberName = null)
         {
             if (memberName == null)
             {

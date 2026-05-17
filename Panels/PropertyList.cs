@@ -33,7 +33,13 @@ namespace NaughtyDogDCReader
             set {
                 if (value != null)
                 {
-                    LoadPropertyListSelectionIntoPropertyEditor(value.DCProperty);
+                    if (value.DCProperty.GetType() == typeof(DCEntry))
+                    {
+                        LoadPropertyListSelectionIntoPropertyEditor(((DCEntry)value.DCProperty).Struct);
+                    }
+                    else {
+                        LoadPropertyListSelectionIntoPropertyEditor(value.DCProperty);
+                    }
                 }
                 else {
                     echo("Null propertySelection provided; make sure this was just a reset!");
@@ -105,6 +111,7 @@ namespace NaughtyDogDCReader
             {
                 // "Reset" the previous button
                 PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
+                
 
                 // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
                 if (PropertyListScrollBar != null)
@@ -154,10 +161,22 @@ namespace NaughtyDogDCReader
                 }
             }
 
-            var variableType = newButton.DCProperty.GetType();
+
+            var itemType = newButton.DCProperty.GetType();
+            object itemAddress = 0;
+
+            // Get the current item's address / offset
+            if (itemType.IsArray)
+            {
+
+            }
+            else {
+                itemAddress = itemType.GetField("Address")?.GetValue(newButton.DCProperty) ?? 0;
+            }
+
             CTUpdateSelectionLabel(
-                $"Type: {variableType.Name}\n" +
-                $"Address: 0x{variableType.GetField("Address").GetValue(newButton.DCProperty):X}"
+                $"Type: {itemType.Name}\n" +
+                $"Address: 0x{itemAddress:X}"
             );
 
 
@@ -176,12 +195,12 @@ namespace NaughtyDogDCReader
         /// <param name="ModuleOrProperty"></param>
         /// <param name="SelectionName"></param>
         /// <exception cref="Exception"></exception>
-        private void SetupPropertyListPopulation(object ModuleOrProperty, string SelectionName)
+        public void SetupPropertyListPopulation(object ModuleOrProperty, string SelectionName)
         {
             //-# Variable Declarations
+            int entryCount;
             object[][] entries;
             PropertyButton currentButton;
-            int entryCount, cumulativeButtonHeight;
             var moduleOrPropertyType = ModuleOrProperty.GetType();
 
             echo($"\nPopulating PropertyList with contents of an item of type \"{moduleOrPropertyType.Name}\".");

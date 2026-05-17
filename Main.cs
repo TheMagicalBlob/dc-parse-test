@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using static NaughtyDogDCReader.Main;
@@ -15,7 +16,30 @@ namespace NaughtyDogDCReader
         /// Iniialize the GUI with a preselected script to be loaded immediately.
         /// </summary>
         /// <param name="path"> The path to the DC Script to be loaded on-boot. </param>
-        public Main(string path = null) => main(path);
+        public Main(string path = null)
+        {
+            //##-> Set global object refs used in various static functions
+            Venat = this;
+            Azem = new OptionsPage();
+            Panels = new PropertyPanels();
+            Bingus = new DebugOptionsPage();
+
+
+            //##-> Create the various delegates for the Properties Handler, so we can do shit across multiple threads
+            setupPropertyListPopulation = Panels.SetupPropertyListPopulation;
+            spawnVariableEditorBox = Panels.SpawnVariableEditorBox;
+            editStructureInHexEditor = Panels.EditStructureInHexEditor;
+
+            selectionLabelMammet = UpdateSelectionLabel;
+            selectionLabelResetMammet = ResetSelectionLabel;
+            LogUpdateMammet = Log;
+            LogSameLineMammet = _Log;
+
+            setReloadCloseButtonStatus = SetReloadCloseButtonStatus;
+            CloseBinFileMammet = CloseBinFile;
+
+            Init(path);
+        }
 
 
         
@@ -32,7 +56,7 @@ namespace NaughtyDogDCReader
         #region [Function Delcarations]
         #pragma warning disable IDE1006
 
-        private void main(string DCFilePath)
+        private void Init(string DCFilePath)
         {
             InitializeComponent();
             InitializeAdditionalEventHandlers(this);
@@ -42,14 +66,8 @@ namespace NaughtyDogDCReader
 
 
 
-            // Set global object refs used in various static functions (maybe change that...)
+            // Set global object refs used in various static functions
             Refresh();
-            Venat = this;
-            Azem = new OptionsPage();
-            Panels = new PropertyPanels();
-            Bingus = new DebugOptionsPage();
-
-
             PropertySelectionPanel = propertySelectionPanel;
             PropertyEditorPanel = propertyEditorPanel;
             LogWindow = logWindow;
@@ -57,6 +75,9 @@ namespace NaughtyDogDCReader
             ActiveScriptLabel = activeScriptLabel;
             ScriptSelectionLabel = scriptSelectionLabel;
             Update();
+
+
+
 
 
 
@@ -105,7 +126,32 @@ namespace NaughtyDogDCReader
                 Paint += DelayedDCFileLoad;
             }
         }
-        #pragma warning restore IDE1006
+#pragma warning restore IDE1006
+
+
+
+        public void SetReloadCloseButtonStatus(bool isEnabled)
+        {
+            if (Venat.CloseBtn == null)
+            {
+                echo($"ERROR: {nameof(Venat.CloseBtn)} was null!");
+                return;
+            }
+
+            // Enable/Disable the button, and update the button with the strikeout style property
+            Venat.CloseBtn.Enabled = isEnabled;
+            Venat.CloseBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
+
+
+            if (Venat.ReloadScriptBtn == null)
+            {
+                echo($"ERROR: {nameof(Venat.ReloadScriptBtn)} was null!");
+                return;
+            }
+
+            Venat.ReloadScriptBtn.Enabled = isEnabled;
+            Venat.ReloadScriptBtn.Font = new Font(MainFont.FontFamily, MainFont.Size, MainFont.Style | (isEnabled ? FontStyle.Regular : FontStyle.Strikeout));
+        }
         #endregion (function declarations)
 
 
@@ -221,8 +267,6 @@ namespace NaughtyDogDCReader
         }
         #endregion
     }
-
-
 
 
 
@@ -359,6 +403,7 @@ namespace NaughtyDogDCReader
         //## FUNCTION DECLARATIONS
         //#
         #region [Function Declarations]
+
         /// <summary>
         /// Create a new SID instance from the provided <paramref name="EncodedSID"/>.
         /// </summary>
@@ -383,15 +428,6 @@ namespace NaughtyDogDCReader
         public static SID Parse(ulong EncodedSID) => new SID(EncodedSID);
         #endregion
     }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -528,22 +564,27 @@ namespace NaughtyDogDCReader
 
 
         /// <summary>
-        /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="index"/> specified.
+        /// Get a sub-array of the specified <paramref name="length"/> from a larger <paramref name="array"/> of bytes, starting at the <paramref name="Address"/> specified.
         /// </summary>
         /// <param name="array"> The array from which to take the sub-array. </param>
-        /// <param name="index"> The start index of the sub-array within <paramref name="array"/>. </param>
+        /// <param name="Address"> The start address of the sub-array within <paramref name="array"/>. </param>
         /// <param name="length"> The length of the sub-array. </param>
         /// <returns> What the hell do you think. </returns>
-        private static byte[] GetSubArray(byte[] array, int index, int length = 8)
+        private static byte[] GetSubArray(byte[] array, int Address, int length = 8)
         {
             if (length == 0)
             {
                 return Array.Empty<byte>();
             }
+            if (Address + length > array.Length)
+            {
+                //throw new IndexOutOfRangeException($"Provided length and address exceed the length of the array (0x{Address:X} + 0x{length:X} >= 0x{array.Length:X} - ({Address + length:X}))");
+            }
 
 
-            // Build return array.
-            for (var ret = new byte[length]; ; ret[length - 1] = array[index + (length-- - 1)])
+
+            // Build return string.
+            for (var ret = new byte[length]; ; ret[length - 1] = array[Address + (length-- - 1)])
             {
                 if (length <= 0)
                 {

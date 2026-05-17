@@ -203,14 +203,12 @@ namespace NaughtyDogDCReader
         {
             if (DCFileHandlerThread != null && DCFileHandlerThread.ThreadState != System.Threading.ThreadState.Unstarted)
             {
-                try
-                {
-                    echo("Bin thread already active, killing thread.");
+                try {
+                    echo("Bin thread already active, killing thread.\n");
                     DCFileHandlerThread.Abort();
                 }
-                catch (ThreadAbortException) { echo("Bin thread killed."); }
-                catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting bin thread."); }
-                echo();
+                catch (ThreadAbortException) { echo("Bin thread killed.\n"); }
+                catch (Exception dang) { echo($"Unexpected error of type \"{dang.GetType()}\" thrown when aborting bin thread.\n"); }
             }
 
 
@@ -220,6 +218,7 @@ namespace NaughtyDogDCReader
                 IsBackground = true,
                 Name = nameof(DCFileHandlerThread)
             };
+
             DCFileHandlerThread.Start();
         }
 
@@ -240,7 +239,7 @@ namespace NaughtyDogDCReader
             // Check whether or not the script is a basic empty one  TODO: make sure there's no difference between path versions! //!
             if (SHA256.Create().ComputeHash(DCFile).SequenceEqual(EmptyDCFileHash))
             {
-                Log("Empty DC file provided. Nothing to load.");
+                CTLog("Empty DC file provided. Nothing to load.");
                 return;
             }
 
@@ -250,11 +249,11 @@ namespace NaughtyDogDCReader
 
 
             // Setup Form
-            Log("Finished Loading dc File, populating properties panel...");
+            CTLog("Finished Loading dc File, populating properties panel...");
             PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCModule);
 
             SetReloadCloseButtonsEnabledStatus(true);
-            Log("Viewing Script");
+            CTLog("Viewing Script");
         }
 
 
@@ -327,7 +326,7 @@ namespace NaughtyDogDCReader
             {
                 return Array.Empty<byte>();
             }
-            if (Address + length >= array.Length)
+            if (Address + length > array.Length)
             {
                 throw new IndexOutOfRangeException($"Provided length and address exceed the length of the array (0x{Address:X} + 0x{length:X} >= 0x{array.Length:X})");
             }
@@ -383,10 +382,13 @@ namespace NaughtyDogDCReader
         {
             var str = string.Empty;
 
+            // Index overflow | terminator is immediately read
             if (startAddress >= buffer.Length || buffer[startAddress] == terminator)
             {
                 return string.Empty;
             }
+
+
 
             do {
                 str += (char) buffer[startAddress++];
@@ -406,59 +408,80 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="Array"></param>
         /// <param name="Property"></param>
-        /// <param name="Offset"></param>
+        /// <param name="Address"></param>
         /// <returns></returns>
-        public static object ReadPropertyValueByType(byte[] Array, System.Reflection.PropertyInfo Property, int Offset)
+        public static object ReadPropertyValueByType(byte[] Array, System.Reflection.PropertyInfo Property, int Address)
         {
             var type = Property.PropertyType.Name;
+
+            // Basic integrity check
+            if (Address >= Array.Length)
+            {
+#if DEBUG
+                throw new IndexOutOfRangeException($"Provided address was outside the bounds of the array for {type}. ({Address:X} >= {Array.Length:X})");
+#else
+                Log($"Error reading value for {type}.");
+                return null;
+#endif
+            }
+
             
             switch (type)
             {
                 case "SID":
-                    return SID.Parse(GetSubArray(Array, Offset));
+                    return SID.Parse(GetSubArray(Array, Address));
 
                 case "Byte":
-                    return Array[Offset];
+                    return Array[Address];
 
                 case "Byte[]":
+                    var len = 8;
+
+                    // Attempt to parse the array size from the name if it's specified in the property name (//! the hell? I need to check that setup)
                     if (Property.Name.Contains("_s0x"))
                     {
-                        var name = Property.Name.Substring(Property.Name.LastIndexOf("_s0x") + 4);
-                        return GetSubArray(Array, Offset, int.Parse(name));
+                        var size = Property.Name.Substring(Property.Name.LastIndexOf("_s0x") + 4);
+
+                        if (!int.TryParse(size, out len))
+                        {
+                            echo($"Array was provided with an invalid name format ({Property.Name} != _s0x*). Assuming length of 8 for byte array.");
+                        }
                     }
                     else {
-                        echo("Array was provided with an invalid name format ({Property.Name}). Assuming length of 8 for byte array.");
-                        return GetSubArray(Array, Offset);
+                        echo($"Array was provided with an invalid name format ({Property.Name} mising _s0x size specifier). Assuming length of 8 for byte array.");
                     }
+
+                    return GetSubArray(Array, Address, len);
 
 
                 case "Single":
-                    return BitConverter.ToSingle(Array, Offset);
+                    return BitConverter.ToSingle(Array, Address);
                 case "Double":
-                    return BitConverter.ToDouble(Array, Offset);
+                    return BitConverter.ToDouble(Array, Address);
 
                     
                 case "Int16":
-                    return BitConverter.ToInt16(Array, Offset);
+                    return BitConverter.ToInt16(Array, Address);
                 case "UInt16":
-                    return BitConverter.ToUInt16(Array, Offset);
+                    return BitConverter.ToUInt16(Array, Address);
                     
                 case "Int64":
-                    return BitConverter.ToInt64(Array, Offset);
+                    return BitConverter.ToInt64(Array, Address);
                 case "UInt64":
-                    return BitConverter.ToUInt64(Array, Offset);
+                    return BitConverter.ToUInt64(Array, Address);
 
 
                 case "UInt32":
-                    return BitConverter.ToUInt32(Array, Offset);
+                    return BitConverter.ToUInt32(Array, Address);
+                
                 case "Int32":
                 default:
-                    if (!type.Contains("Int"))
+                    if (!type.ToLower().Contains("int"))
                     {
                         echo($"Unknown Type \"{type}\", Treating as signed Int32");
                     }
 
-                    return BitConverter.ToInt32(Array, Offset);
+                    return BitConverter.ToInt32(Array, Address);
             }
         }
 
@@ -627,7 +650,9 @@ namespace NaughtyDogDCReader
                     }
                 }
             }
-            return -1;
+
+
+
 
             var i = Address + 8;
             long firstFind = -1, secondFind = -1;
@@ -642,7 +667,7 @@ namespace NaughtyDogDCReader
                 // We also assume the structures are even layed out near eachother. I have no idea whether or not that's consistently the case, or just occasionally
                 if (x >= DCFile.Length)
                 {
-                    throw new Exception($"!! Infinite loop detected when attempting to parse dc file for size of struct \"{Name.DecodedID}\"");
+                    throw new Exception($" -> !!! Infinite loop detected when attempting to parse dc file for size of struct \"{Name.DecodedID}\".");
                 }
 
 
@@ -662,15 +687,17 @@ namespace NaughtyDogDCReader
                 }
 
 
-                i += reverseSearchDirection ? -8 : 8;
 
+                if (i + 0x10 >= DCFile.Length)
                     
-                if (i + 8 >= DCFile.Length)
                 {
                     echo($" -> End-of-file reached; reversing search direction. ({i} >= {DCFile.Length})");
                     reverseSearchDirection = true;
+                    i = Address - 0x10;
                     continue;
                 }
+
+                i += reverseSearchDirection ? -8 : 8;
 
                 if (i <= DCModuleStartAddress)
                 {
@@ -683,24 +710,24 @@ namespace NaughtyDogDCReader
             
             if (firstFind != -1 && secondFind != -1)
             {
-                // Ensure we've got a consistent result
+                // Ensure we've got a consistent result, and return it if we do
                 if (firstFind - Address == (reverseSearchDirection ? Address - secondFind : secondFind - firstFind))
                 {
                     var newSize = (int) (firstFind - Address);
-                    echo($"# Guessed size of {newSize:X} for {Name.DecodedID}");
+                    echo($"# Guessed size of {newSize:X} for {Name.DecodedID}\n");
+                    
                     ParsedSizes.Add(new object[] { Name, newSize });
                     return newSize;
                 }
 
-                // bitch if not
-                echo($"# Offsets were different, couldn't guess size. {firstFind - Address:X} != {secondFind - firstFind:X} / {Address - secondFind:X}");
+                echo($"# Offsets were different, couldn't guess size. {firstFind - Address:X} != {secondFind - firstFind:X} / {Address - secondFind:X}\n");
                 return -1;
             }
 
-            echo();
+            echo($"# Unable to guess struct size for {Name.DecodedID}\n");
             return -1;
         }
-        #endregion
-        #endregion (function declarations)
+#endregion
+#endregion (function declarations)
     }
 }

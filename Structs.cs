@@ -65,7 +65,7 @@ namespace NaughtyDogDCReader
                 //#
                 //## Read remaining header info
                 //#
-                BinFileLength = BitConverter.ToInt64(DCModule, 0x8);
+                RelocationTablePointer = BitConverter.ToInt64(DCModule, 0x8);
                 TableLength = BitConverter.ToInt32(DCModule, 0x14);
 
                 Entries = new DCEntry[TableLength];
@@ -77,15 +77,13 @@ namespace NaughtyDogDCReader
 #if false
                 var pre = new[] { DateTime.Now.Minute, DateTime.Now.Second };
 #endif
-                echo($"Parsing DC Content Table (Length: {TableLength.ToString().PadLeft(2, '0')})\n ");
-                _Log("Reading Script...\r");
-
+                CTLog($"Script \"{ActiveFileName}\" Selected.");
                 for (int tableIndex = 0, addr = 0x28; tableIndex < TableLength; tableIndex++, addr += 24)
                 {
                     Entries[tableIndex] = new DCEntry(DCModule, addr);
-                    _Log($"Reading Script... ({tableIndex + 1} / {TableLength})\r");
+                    _CTLog($"-> Reading Script... ({tableIndex + 1} / {TableLength})\r");
                 }
-                Log();
+                CTLog();
 #if false
                 echo ($"{DateTime.Now.Minute - pre[0]}:{DateTime.Now.Second - pre[1]}");
 #endif
@@ -101,7 +99,7 @@ namespace NaughtyDogDCReader
             public readonly int DCVersion;
             public readonly long HeaderTableStartPointer;
 
-            public long BinFileLength;
+            public long RelocationTablePointer;
             public int TableLength;
 
 

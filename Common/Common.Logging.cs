@@ -84,6 +84,14 @@ namespace NaughtyDogDCReader
         /// <param name="Message"> The message to Append to the LogWindow's text property. </param>
         public static void _Log(string Message)
         {
+            if (Message.Contains("\r"))
+            {
+                Message = Message.Replace("\r", string.Empty);
+
+                LogWindow?.UpdateLine(Message, (LogWindow.Lines.Length < 1 ? 1 : LogWindow.Lines.Length) - 1);
+                return;
+            }
+            
             LogWindow?.AppendText(Message);
         }
 
