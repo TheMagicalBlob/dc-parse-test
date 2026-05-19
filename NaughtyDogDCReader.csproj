@@ -60,18 +60,21 @@
     <Compile Include="Common\Common.Threading.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Panels\DebugOptionsPage.cs">
+    <Compile Include="Panels\DebugOptionsPanel.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Panels\DebugOptionsPage.Designer.cs">
-      <DependentUpon>DebugOptionsPage.cs</DependentUpon>
+    <Compile Include="Panels\DebugOptionsPanel.Designer.cs">
+      <DependentUpon>DebugOptionsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="extentions.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Panels\PropertyEditor.cs" />
-    <Compile Include="Panels\PropertyList.cs" />
-    <Compile Include="Panels\PropertyPanels.cs" />
+    <Compile Include="Panels\PropertyEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Panels\PropertyList.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Structs.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -95,8 +98,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Panels\DebugOptionsPage.resx">
-      <DependentUpon>DebugOptionsPage.cs</DependentUpon>
+    <EmbeddedResource Include="Panels\DebugOptionsPanel.resx">
+      <DependentUpon>DebugOptionsPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>

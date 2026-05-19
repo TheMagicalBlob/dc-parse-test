@@ -6,7 +6,7 @@ using static NaughtyDogDCReader.Main;
 
 namespace NaughtyDogDCReader
 {
-    partial class DebugOptionsPage
+    partial class DebugOptionsPanel
     {
         /// <summary>
         /// Required designer variable.

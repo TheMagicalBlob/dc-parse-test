@@ -6,12 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using static NaughtyDogDCReader.Main;
 
 
 namespace NaughtyDogDCReader
 {
-    public partial class PropertyPanels
+    public partial class Main
     {
         //================================================\\
         //--|   PropertyEditor Variable Declarations   |--\\
@@ -22,6 +21,11 @@ namespace NaughtyDogDCReader
         /// The (vertical) scroll bar used to navigate the rows populating the PropertyEditor when they bleed passed the bottom of the group box
         /// </summary>
         private VScrollBar PropertyEditorScrollBar;
+
+        /// <summary>
+        /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
+        /// </summary>
+        private readonly int DefaultPropertyEditorRowHeight;
 
         private int PaddingForPropertyEditorScrollBar;
         #endregion
@@ -46,7 +50,7 @@ namespace NaughtyDogDCReader
         /// Populate either the PropertyEditor or PropertiesWindow with information about the highlighted PropertyButton's 
         /// </summary>
         /// <param name="property"></param>
-        private void LoadPropertyListSelectionIntoPropertyEditor(object property)
+        private void LoadStructIntoPropertyEditor(object property)
         {
             if (property == null)
             {
@@ -133,7 +137,7 @@ namespace NaughtyDogDCReader
                     }
 
                     // Create the applicable buttons
-                    var newRow = NewPropertyEditorRow<PropertyPanelEventHandler>(memberValue:propertyValue, memberClickEvent:eventHandler, eventInfo:eventHandler.GetMethodInfo(), memberName:property.Name);
+                    var newRow = CreatePropertyEditorRow<PropertyPanelEventHandler>(MemberProperty:propertyValue, MemberEvent:eventHandler, MemberEventInfo:eventHandler.GetMethodInfo(), MemberName:property.Name);
 
                     PropertyEditorPanel.Controls.Add(newRow);
                     newRow.Location = new Point(2, totalHeight);
@@ -153,10 +157,19 @@ namespace NaughtyDogDCReader
                 // Dynamically get from unknown unmapped structure
                 else {
                 }
-                
-                // Decoded Type ID Row
-                PropertyEditorPanel.Controls.Add(newRow = NewPropertyEditorRow<HexEditorSomethingSomething>(memberValue: "Structure contains no properties; use the hex editor or fuck off.", memberClickEvent: Venat.editStructureInHexEditor, eventInfo: Venat.editStructureInHexEditor.GetMethodInfo(), memberName: null));
-                //newRow.Location = new Point(2, totalHeight);
+
+
+
+                newRow = CreatePropertyEditorRow<HexEditorSomethingSomething>
+                (
+                    MemberProperty: null,
+                    MemberEvent: Venat.editStructureInHexEditor,
+                    MemberEventInfo: Venat.editStructureInHexEditor.GetMethodInfo(),
+                    MemberName: "Structure contains no properties; use the hex editor or fuck off."
+                );
+
+                PropertyEditorPanel.Controls.Add(newRow);
+                newRow.Location = new Point(2, totalHeight);
             }
 
 
@@ -211,7 +224,7 @@ namespace NaughtyDogDCReader
 
 
                 // Create the applicable buttons
-                var newRow = NewPropertyEditorRow(item, propertyEvent, propertyEvent.GetMethodInfo(), propertyName);
+                var newRow = CreatePropertyEditorRow(item, propertyEvent, propertyEvent.GetMethodInfo(), propertyName);
 
                 PropertyEditorPanel.Controls.Add(newRow);
 
@@ -236,7 +249,7 @@ namespace NaughtyDogDCReader
         /// <param name="name"></param>
         private void PopulateEditorWithSingleNumericalValue(object value, string name = null)
         {
-            var row = NewPropertyEditorRow(value, Venat.spawnVariableEditorBox, Venat.spawnVariableEditorBox.GetMethodInfo(), name ?? value.GetType().Name);
+            var row = CreatePropertyEditorRow(value, Venat.spawnVariableEditorBox, Venat.spawnVariableEditorBox.GetMethodInfo(), name ?? value.GetType().Name);
 
             PropertyEditorPanel.Controls.Add(row);
 
@@ -251,19 +264,19 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// //!
         /// </summary>
-        /// <param name="memberName"></param>
-        /// <param name="memberValue"></param>
-        /// <param name="memberClickEvent"></param>
+        /// <param name="MemberName"></param>
+        /// <param name="MemberProperty"></param>
+        /// <param name="MemberEvent"></param>
         /// <returns> A new row for the property editor, containing the value of said property. </returns>
-        private PropertyButton NewPropertyEditorRow<T>(object memberValue, T memberClickEvent, MethodInfo eventInfo, string memberName = null)
+        private PropertyButton CreatePropertyEditorRow<T>(object MemberProperty, T MemberEvent, MethodInfo MemberEventInfo, string MemberName = null)
         {
             PropertyButton newRow;
 
-            var text = FormatPropertyValueAsString(memberValue);
+            var text = FormatPropertyValueAsString(MemberProperty);
 
-            if (memberName != null && !ObjectIsStruct(memberValue))
+            if (MemberName != null && !ObjectIsStruct(MemberProperty))
             {
-                text = $"{memberName}: " + text;
+                text = $"{MemberName}: " + text;
             }
 
             newRow = new PropertyButton()
@@ -275,20 +288,30 @@ namespace NaughtyDogDCReader
                 FlatStyle = FlatStyle.Flat,
 
                 Height = DefaultPropertyEditorRowHeight,
+
                 Width = PropertyEditorPanel.Width - (PropertyEditorScrollBar != null ? 20 : 0) - 2,
 
                 Text = text,
 
-                DCProperty = memberValue
+                DCProperty = MemberProperty
             };
 
             // Assign basic form functionality event handlers
             newRow.MouseDown += MouseDownFunc;
             newRow.MouseUp += MouseUpFunc;
 
-            var del = Delegate.CreateDelegate(typeof(T), this, eventInfo);
 
-            newRow.DoubleClick += (row, __) => Venat.Invoke(del, row, memberName);
+            if (MemberEvent != null)
+            {
+                var del = Delegate.CreateDelegate(typeof(T), this, MemberEventInfo);
+
+                newRow.DoubleClick += (row, __) => Venat.Invoke(del, row, MemberName);
+            }
+#if DEBUG
+            else {
+                Log($"Null event handler provided for property");
+            }
+#endif
 
             return newRow;
         }
@@ -378,13 +401,7 @@ namespace NaughtyDogDCReader
         /// 
         /// Advanced Numerical Values: <br/>
         /// - formats as a float. Meh, it works.
-        /// <br/><br/>
-        /// 
-        /// <br/>
         /// </summary>
-        /// <param name="Value"></param>
-        /// <param name="IndentationOverride"></param>
-        /// <returns></returns>
         private string FormatPropertyValueAsString(object Value)
         {
             if (Value == null)

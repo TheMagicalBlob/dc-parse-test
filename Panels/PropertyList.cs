@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static NaughtyDogDCReader.Main;
 using static NaughtyDogDCReader.Main.DCModule;
 
 namespace NaughtyDogDCReader
 {
-    public partial class PropertyPanels
+    public partial class Main
     {
         //==============================================\\
         //--|   PropertyList Variable Declarations   |--\\
@@ -18,39 +17,16 @@ namespace NaughtyDogDCReader
         #region [PropertyList Variable Declarations]
 
         /// <summary>
+        /// The selected/highlighted button out of the loaded header item buttons
+        /// </summary>
+        private PropertyButton PropertySelection;
+        
+        
+        
+        /// <summary>
         /// Used in handling wrapping around the property list
         /// </summary>
         private PropertyButton[] FirstAndLastPropertyButtons;
-
-
-        /// <summary>
-        /// The selected/highlighted button out of the loaded header item buttons
-        /// </summary>
-        private PropertyButton PropertySelection
-        {
-            get => _propertySelection;
-
-            set {
-                if (value != null)
-                {
-                    if (value.DCProperty.GetType() == typeof(DCEntry))
-                    {
-                        LoadPropertyListSelectionIntoPropertyEditor(((DCEntry)value.DCProperty).Struct);
-                    }
-                    else {
-                        LoadPropertyListSelectionIntoPropertyEditor(value.DCProperty);
-                    }
-                }
-                else {
-                    echo("Null propertySelection provided; make sure this was just a reset!");
-                }
-
-                _propertySelection = value;
-            }
-        }
-        private PropertyButton _propertySelection;
-
-
 
 
 
@@ -58,6 +34,19 @@ namespace NaughtyDogDCReader
         /// The (vertical) scroll bar used to navigate the buttons populating the PropertyList when they bleed passed the bottom of the group box
         /// </summary>
         public VScrollBar PropertyListScrollBar;
+
+
+        
+        /// <summary>
+        /// Made it a variable in case it's needed for scaling. May try and implement that at some point, since I'm designing these on a fairly low-res screen.
+        /// </summary>
+        private readonly int DefaultPropertyListButtonHeight;
+        
+        
+
+        /// <summary>
+        /// //! I forget what this padding accounts for. I THINK the arrows on each end of the bar.
+        /// </summary>
         public int PaddingForPropertyListScrollBar;
         #endregion
 
@@ -75,119 +64,6 @@ namespace NaughtyDogDCReader
         //--|   PropertyList Function Declarations   |--\\
         //==============================================\\
         #region [PropertyList Function Declarations]
-        
-        /// <summary>
-        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
-        /// </summary>
-        private void HighlightPropertyButton(PropertyButton newButton)
-        {
-            if (newButton == PropertySelection)
-            {
-                return;
-            }
-
-
-            // Default to the first Property Button if any are present
-            if (newButton == null)
-            {
-                LogWindow.AppendText("New Button was null, you fuckin' dunce, trying to get a default... ");
-                newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
-
-                if (newButton == default || newButton == null)
-                {
-                    Log($" {nameof(PropertySelectionPanel)} doesn't contain any {nameof(PropertyButton)} controls!!!");
-                    return;
-                }
-
-                Log($" Defaulted to the first {nameof(PropertyButton)} in the {nameof(PropertySelectionPanel)}'s controls.");
-                PropertySelectionPanel.Focus();
-                newButton.Select();
-            }
-
-
-
-            // words
-            if (PropertySelection != null)
-            {
-                // "Reset" the previous button
-                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
-                
-
-                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
-                if (PropertyListScrollBar != null)
-                {
-                    var newScrollBarValue = PropertyListScrollBar.Value;
-
-                    //##-> Handle wrapping from one end of the list to the other
-                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
-                    {
-                        // Wrap to top
-                        newScrollBarValue = PropertyListScrollBar.Minimum;
-                    }
-                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
-                    {
-                        // Wrap to bottom
-                        newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
-                    }
-
-
-                    //##-> Handle moving to slightly-offscreen buttons
-                    else {
-                        // Scroll up a little
-                        if (newButton.Location.Y <= 0)
-                        {
-                            newScrollBarValue = PropertyListScrollBar.Value + newButton.Location.Y;
-                        }
-                        else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
-                        {
-                            // Scroll down a little
-                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's just consistently off by a few pixels, and it's driving me insane
-                        }
-
-
-
-                        // Lazily catch overflow/underflow issues
-                        if (newScrollBarValue < 0)
-                        {
-                            newScrollBarValue = 0;
-                        }
-                        else if (newScrollBarValue > PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
-                        {
-                            newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
-                        }
-                    }
-
-                    ForceScrollPropertyListScrollBar(newScrollBarValue);
-                }
-            }
-
-
-            var itemType = newButton.DCProperty.GetType();
-            object itemAddress = 0;
-
-            // Get the current item's address / offset
-            if (itemType.IsArray)
-            {
-
-            }
-            else {
-                itemAddress = itemType.GetField("Address")?.GetValue(newButton.DCProperty) ?? 0;
-            }
-
-            CTUpdateSelectionLabel(
-                $"Type: {itemType.Name}\n" +
-                $"Address: 0x{itemAddress:X}"
-            );
-
-
-            PropertySelection = newButton;
-            PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
-        }
-
-
-
-
-
 
         /// <summary>
         /// //!
@@ -195,7 +71,7 @@ namespace NaughtyDogDCReader
         /// <param name="ModuleOrProperty"></param>
         /// <param name="SelectionName"></param>
         /// <exception cref="Exception"></exception>
-        public void SetupPropertyListPopulation(object ModuleOrProperty, string SelectionName)
+        public void PopulatePropertyList(object ModuleOrProperty, string SelectionName)
         {
             //-# Variable Declarations
             int entryCount;
@@ -299,13 +175,14 @@ namespace NaughtyDogDCReader
             {
                 var entryPropertyOrObject = entry[0];
 
-                if (ObjectIsStruct(entryPropertyOrObject) || entryPropertyOrObject.GetType().IsArray)
+                if (ObjectIsStruct(entryPropertyOrObject))
                 {
                     History.Add(new object[] { SelectionName, ModuleOrProperty });
 
-                    SetupPropertyListPopulation(entryPropertyOrObject, entry[1].ToString());
+                    PopulatePropertyList(entryPropertyOrObject, entry[1].ToString());
                 }
-                else {
+                else
+                {
                     Log("unhandled doubleclick bs");
                 }
             }
@@ -336,6 +213,7 @@ namespace NaughtyDogDCReader
                 currentButton.FlatAppearance.BorderSize = 0;
                 currentButton.Width = currentButton.Parent.Width - 2;
 
+
                 if (Venat.Controls.Contains(PropertyListScrollBar))
                 {
                     // Account for the scroll bar's width by shrinking the buttons a bit if it's been added to the form
@@ -365,7 +243,7 @@ namespace NaughtyDogDCReader
                     }
                     if (keyEvent.KeyCode == Keys.Back)
                     {
-                        GoBack();
+                        ReturnToParent();
                     }
                 };
 
@@ -383,7 +261,7 @@ namespace NaughtyDogDCReader
 
 
 
-            Panels.ForceHighlightDefaultPropertyButton();
+            ForceHighlightDefaultPropertyButton();
         }
 
 
@@ -422,11 +300,137 @@ namespace NaughtyDogDCReader
             return btn;
         }
 
+        /// <summary>
+        /// Highlight the selected/active property button, after removing said highlight from the previous selection's button
+        /// </summary>
+        private void HighlightPropertyButton(PropertyButton newButton)
+        {
+            if (newButton == PropertySelection)
+            {
+                return;
+            }
+
+
+            // Default to the first Property Button if any are present
+            if (newButton == null)
+            {
+                Log("New Button was null, you fuckin' dunce, trying to get a default... ");
+                newButton = PropertySelectionPanel.Controls.OfType<PropertyButton>().FirstOrDefault();
+
+                if (newButton == default || newButton == null)
+                {
+                    Log($" {nameof(PropertySelectionPanel)} doesn't contain any {nameof(PropertyButton)} controls!!!");
+                    return;
+                }
+
+                Log($" Defaulted to the first {nameof(PropertyButton)} in the {nameof(PropertySelectionPanel)}'s controls.");
+                PropertySelectionPanel.Focus();
+                newButton.Select();
+            }
+
+
+
+            // words
+            if (PropertySelection != null)
+            {
+                // "Reset" the previous button
+                PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style ^ FontStyle.Underline);
+                
+
+                // Move the scroll bar if we're moving to a button that's outside the groupbox's bounds
+                if (PropertyListScrollBar != null)
+                {
+                    var newScrollBarValue = PropertyListScrollBar.Value;
+
+                    //##-> Handle wrapping from one end of the list to the other
+                    if (PropertySelection == FirstAndLastPropertyButtons[1] && newButton == FirstAndLastPropertyButtons[0])
+                    {
+                        // Wrap to top
+                        newScrollBarValue = PropertyListScrollBar.Minimum;
+                    }
+                    else if (newButton == FirstAndLastPropertyButtons[1] && PropertySelection == FirstAndLastPropertyButtons[0])
+                    {
+                        // Wrap to bottom
+                        newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
+                    }
+
+
+                    //##-> Handle moving to slightly-offscreen buttons
+                    else {
+                        // Scroll up a little
+                        if (newButton.Location.Y <= 0)
+                        {
+                            newScrollBarValue = PropertyListScrollBar.Value + newButton.Location.Y;
+                        }
+                        else if (newButton.Location.Y + newButton.Height >= PropertySelectionPanel.Size.Height)
+                        {
+                            // Scroll down a little
+                            newScrollBarValue = PropertyListScrollBar.Value + (newButton.Location.Y - PropertySelectionPanel.Height) + newButton.Height + 2; // Why plus 2? I have no fucking idea, everything's just consistently off by a few pixels, and it's driving me insane
+                        }
+
+
+
+                        // Lazily catch overflow/underflow issues
+                        if (newScrollBarValue < 0)
+                        {
+                            newScrollBarValue = 0;
+                        }
+                        else if (newScrollBarValue > PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1))
+                        {
+                            newScrollBarValue = PropertyListScrollBar.Maximum - (PropertyListScrollBar.LargeChange - 1);
+                        }
+                    }
+
+                    ForceScrollPropertyListScrollBar(newScrollBarValue);
+                }
+            }
+
+
+
+            var itemType = newButton.DCProperty.GetType();
+            object itemAddress = 0;
+            int itemSize;
+
+            // Get the current item's address / offset
+            if (itemType.IsArray)
+            {
+
+            }
+            else {
+                itemAddress = itemType.GetField("Address")?.GetValue(newButton.DCProperty) ?? 0;
+            }
+
+            itemSize = (int) (itemType.GetField("Size")?.GetValue(newButton.DCProperty) ?? -1);
+
+
+            CTUpdateSelectionLabel(
+                $"Type: {itemType.Name}\n" +
+                $"Address: 0x{itemAddress:X}\n" +
+                $"Size: 0x{(itemSize == -1 ? "N/A" : itemSize.ToString("X"))}"
+            );
 
 
 
 
+            PropertySelection = newButton;
 
+            if (newButton != null)
+            {
+                object @struct;
+
+                if (newButton.DCProperty.GetType() == typeof(DCEntry))
+                {
+                    @struct = ((DCEntry) newButton.DCProperty).Struct;
+                }
+                else {
+                    @struct = newButton.DCProperty;
+                }
+
+                LoadStructIntoPropertyEditor(@struct);
+            }
+
+            PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);
+        }
 
 
 
@@ -512,7 +516,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Return to the previously displayed structure in the Property List
         /// </summary>
-        public void GoBack()
+        public void ReturnToParent()
         {
             var lastItem = History.LastOrDefault();
 
@@ -520,13 +524,13 @@ namespace NaughtyDogDCReader
             {
                 if (History.Count == 1)
                 {
-                    SetupPropertyListPopulation((DCModule) lastItem[1], lastItem[0].ToString());
+                    PopulatePropertyList((DCModule) lastItem[1], lastItem[0].ToString());
 
                     History.Remove(lastItem);
                 }
                 else if (History.Count > 1)
                 {
-                    SetupPropertyListPopulation(lastItem[1], lastItem[0].ToString());
+                    PopulatePropertyList(lastItem[1], lastItem[0].ToString());
 
                     History.Remove(lastItem);
                 }
@@ -545,7 +549,7 @@ namespace NaughtyDogDCReader
         {
             if (PropertySelection != null && PropertySelection.DCProperty != null)
             {
-                SetupPropertyListPopulation(PropertySelection.DCProperty, PropertySelection.Name);
+                PopulatePropertyList(PropertySelection.DCProperty, PropertySelection.Name);
             }
         }
         #endregion PropertyList-related function declarations

@@ -105,16 +105,14 @@ namespace NaughtyDogDCReader
             {
                 echo($"\n{dang.GetType()}: Selected file is either in use, or doesn't exist.\nMessage: [{dang.Message}]");
 
-                CTCloseBinFile();
-                UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+                CTLog("Error loading DC file; file may be in use, or simply not exist.");
             }
             // File in use, probably
             catch (Exception nani)
             {
                 echo($"\nERROR: Selected file is either in use, or doesn't exist.\nMessage: [{nani.Message}]");
 
-                CTCloseBinFile();
-                UpdateStatusLabel(new[] { "Error loading DC file; file may be in use, or simply not exist.", emptyStr, emptyStr });
+                CTLog("Error loading DC file; file may be in use, or simply not exist.");
             }
             #endif
         }

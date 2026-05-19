@@ -188,7 +188,7 @@ namespace NaughtyDogDCReader
             
             DCFile = null;
             
-            Panels?.ResetPanels();
+            Venat.ResetPanels();
         }
 
 
@@ -249,7 +249,7 @@ namespace NaughtyDogDCReader
 
 
             // Setup Form
-            CTLog("Finished Loading dc File, populating properties panel...");
+            echo("Finished Loading dc File, populating properties panel...");
             PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCModule);
 
             SetReloadCloseButtonsEnabledStatus(true);
@@ -589,13 +589,6 @@ namespace NaughtyDogDCReader
             }
 
             var objectType = Object.GetType();
-
-
-            // Make sure I haven't accidentally passed property info instead again
-            if (objectType.Name.Contains("PropertyInfo"))
-            {
-                throw new Exception($"{nameof(ObjectIsStruct)} called with object passed incorrectly.");
-            }
 
 
 
