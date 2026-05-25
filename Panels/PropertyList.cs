@@ -68,20 +68,19 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// //!
         /// </summary>
-        /// <param name="ModuleOrProperty"></param>
-        /// <param name="SelectionName"></param>
+        /// <param name="Module"></param>
+        /// <param name="ModuleName"></param>
         /// <exception cref="Exception"></exception>
-        public void PopulatePropertyList(object ModuleOrProperty, string SelectionName)
+        public void PopulatePropertyList(DCModule Module, string ModuleName)
         {
             //-# Variable Declarations
-            int entryCount;
             object[][] entries;
             PropertyButton currentButton;
-            var moduleOrPropertyType = ModuleOrProperty.GetType();
+            var moduleOrPropertyType = Module.GetType();
 
             echo($"\nPopulating PropertyList with contents of an item of type \"{moduleOrPropertyType.Name}\".");
 
-            if (ModuleOrProperty == null)
+            if (Module == null)
             {
                 echo($"ERROR: null object provided for population (type: {moduleOrPropertyType})");
                 ResetPanels(); // Reset panels to default state
@@ -89,9 +88,15 @@ namespace NaughtyDogDCReader
             }
             if (moduleOrPropertyType == typeof(UnmappedStructure))
             {
-                echo($"Aborting Panel population for {ModuleOrProperty}, as it has not been mapped.");
+                echo($"Aborting Panel population for {Module}, as it has not been mapped.");
                 Log("Structure not yet mapped. Please use the hex editor instead (with caution).");
                 return;
+            }
+
+
+            if (moduleOrPropertyType != typeof(DCModule))
+            {
+                throw new Exception($"ERROR: Invalid object passed for PropertyPanel population process. (type provided: {moduleOrPropertyType})");
             }
 
 
@@ -100,48 +105,7 @@ namespace NaughtyDogDCReader
             // 0: Struct/Property/Array Item
             // 1: Text for the button (struct/property name)
             // 2: Name of the button (struct/property type)
-            if (moduleOrPropertyType == typeof(DCModule))
-            {
-                entries = (ModuleOrProperty as DCModule).Entries.Select(entry => new object[]
-                {
-                    entry.Struct,
-                    entry.Name.DecodedID,
-                    entry.Type.DecodedID
-
-                }).ToArray();
-            }
-            else if (moduleOrPropertyType.IsArray)
-            {
-                var ind = 0;
-                entries = (ModuleOrProperty as Array).Cast<object>().Select(arrayItem =>
-                {
-                    var type = arrayItem.GetType();
-                    return new object[]
-                    {
-                        arrayItem,
-                        $"{type.Name} #{ind++}",
-                        type.Name
-                    };
-
-                }).ToArray();
-            }
-            else if (ObjectIsStruct(ModuleOrProperty))
-            {
-                entries = moduleOrPropertyType.GetProperties().Select(property =>
-                {
-                    var type = property.GetType();
-                    return new object[]
-                    {
-                        property.GetValue(ModuleOrProperty),
-                        property.Name,
-                        property.GetType().Name
-                    };
-
-                }).ToArray();
-            }
-            else {
-                throw new Exception($"ERROR: Invalid object passed for PropertyPanel population process. (type provided: {moduleOrPropertyType})");
-            }
+            entries = (Module as DCModule).Entries).ToArray();
 
 
             if (entries.Length < 1)
@@ -151,7 +115,6 @@ namespace NaughtyDogDCReader
                 return;
             }
 
-            entryCount = entries.Length;
 
 
 
@@ -162,7 +125,7 @@ namespace NaughtyDogDCReader
             ResetPanels();
 
             //##-> Create and add the scroll bar if the controls are going to overflow the group box's height
-            CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertyListScrollBar, entryCount);
+            CreateScrollBarForGroupBox(PropertySelectionPanel, ref PropertyListScrollBar, entries.Length);
 
             if (PropertyListScrollBar != null)
             {
@@ -173,18 +136,7 @@ namespace NaughtyDogDCReader
 
             void handleDoubleClickOrEnterInputsOnPropertyButton(object[] entry)
             {
-                var entryPropertyOrObject = entry[0];
-
-                if (ObjectIsStruct(entryPropertyOrObject))
-                {
-                    History.Add(new object[] { SelectionName, ModuleOrProperty });
-
-                    PopulatePropertyList(entryPropertyOrObject, entry[1].ToString());
-                }
-                else
-                {
-                    Log("unhandled doubleclick bs");
-                }
+                Log("Entry Selection Still Unhandled");
             }
 
 
@@ -193,7 +145,7 @@ namespace NaughtyDogDCReader
 
 
             //##-> Create and "style" a button for each property in the provided structure
-            for (var i = 0; i < entryCount; ++i)
+            for (var i = 0; i < entries.Length; ++i)
             {
                 var entry = entries[i];
                 currentButton = CreatePropertyListButton();
@@ -387,24 +339,24 @@ namespace NaughtyDogDCReader
 
 
 
-            var itemType = newButton.DCProperty.GetType();
-            object itemAddress = 0;
             int itemSize;
+            object itemAddress = 0;
+            var itemType = newButton.DCProperty.GetType();
+            var typeName = itemType.Name;
 
             // Get the current item's address / offset
-            if (itemType.IsArray)
+            if (itemType == typeof(UnmappedStructure))
             {
-
-            }
-            else {
-                itemAddress = itemType.GetField("Address")?.GetValue(newButton.DCProperty) ?? 0;
+                typeName = ((UnmappedStructure) newButton.DCProperty).TypeID.DecodedID + " (unmapped)";
             }
 
-            itemSize = (int) (itemType.GetField("Size")?.GetValue(newButton.DCProperty) ?? -1);
+
+            itemAddress = itemType.GetField("Address")?.GetValue(newButton.DCProperty) ?? 0;
+            itemSize    = (int) (itemType.GetField("Size")?.GetValue(newButton.DCProperty) ?? -1);
 
 
             CTUpdateSelectionLabel(
-                $"Type: {itemType.Name}\n" +
+                $"Type: {typeName}\n" +
                 $"Address: 0x{itemAddress:X}\n" +
                 $"Size: 0x{(itemSize == -1 ? "N/A" : itemSize.ToString("X"))}"
             );
@@ -518,6 +470,7 @@ namespace NaughtyDogDCReader
         /// </summary>
         public void ReturnToParent()
         {
+/*
             var lastItem = History.LastOrDefault();
 
             if (lastItem != default)
@@ -535,23 +488,9 @@ namespace NaughtyDogDCReader
                     History.Remove(lastItem);
                 }
             }
+*/
         }
 
-
-
-
-
-
-        /// <summary>
-        /// Load the property (or struct, but I'm not going to clarify that literally every time...) for the highlighted property button, as if enter was pressed on it.
-        /// </summary>
-        public void LoadPropertyForHighlightedPropertyButton()
-        {
-            if (PropertySelection != null && PropertySelection.DCProperty != null)
-            {
-                PopulatePropertyList(PropertySelection.DCProperty, PropertySelection.Name);
-            }
-        }
         #endregion PropertyList-related function declarations
     }
 }

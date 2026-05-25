@@ -19,52 +19,61 @@ namespace NaughtyDogDCReader
         private static Thread DCFileHandlerThread;
 
         
-        public delegate void binThreadFormWand(bool arg); //! god I need to read about delegates lmao
+        private delegate void ReloadCloseButtonStatusMammet(bool status); //! god I need to read about delegates lmao
 
         
-        private delegate void binThreadLabelWand(string details);
+        private delegate void StringMammet(string @string);
+        
+        
+        private delegate void ObjectMammet(object obj);
 
 
-        private delegate void generalBinThreadWand();
-
+        private delegate void GeneralMammet();
 
 
         /// <summary>
         /// Delegate for handling the editing of values upon clicking their corresponding PropertyEditor row
         /// </summary>
-        /// <param name="MemberValue"></param>
-        /// <param name="MemberName"></param>
-        public delegate void PropertyPanelEventHandler(object MemberValue, string MemberName);
+        /// <param name="Module"></param>
+        /// <param name="ModuleName"></param>
+        public delegate void PropertyPanelPopulationMammet(DCModule Module, string ModuleName);
+
+        /// <summary>
+        /// Delegate for handling the editing of values upon clicking their corresponding PropertyEditor row
+        /// </summary>
+        /// <param name="Module"></param>
+        /// <param name="ModuleName"></param>
+        public delegate void PropertyEditorPopulationMammet(DCModule Module, string ModuleName);
 
 
         /// <summary>
-        /// Delegate for handling the creation hex editor window for advanced editing of structures.
+        /// Delegate for handling the hex editor window.
         /// </summary>
         /// <param name="Struct"> The struct to load the raw data of in to the hex editor. </param>
-        public delegate void HexEditorSomethingSomething(object Struct, string StructName);
+        public delegate void HexEditorCreatorMammet(object Struct, string StructName);
 
 
 
 
-        public readonly PropertyPanelEventHandler setupPropertyListPopulation;
+        public readonly PropertyPanelPopulationMammet populatePropertyList;
 
-        public readonly PropertyPanelEventHandler spawnVariableEditorBox;
+        public readonly PropertyEditorPopulationMammet spawnVariableEditorBox;
 
-        public readonly HexEditorSomethingSomething editStructureInHexEditor;
+        public readonly HexEditorCreatorMammet editStructureInHexEditor;
 
+
+        private readonly GeneralMammet selectionLabelResetMammet;
         
-        private readonly binThreadLabelWand selectionLabelMammet;
+        private readonly StringMammet selectionLabelMammet;
 
-        private readonly generalBinThreadWand selectionLabelResetMammet;
-
-        private readonly binThreadLabelWand LogUpdateMammet;
+        private readonly StringMammet LogUpdateMammet;
             
-        private readonly binThreadLabelWand LogSameLineMammet;
+        private readonly StringMammet LogSameLineMammet;
 
         
-        private readonly binThreadFormWand setReloadCloseButtonStatus;
+        private readonly ReloadCloseButtonStatusMammet setReloadCloseButtonStatus;
         
-        private readonly generalBinThreadWand CloseBinFileMammet;
+        private readonly GeneralMammet CloseBinFileMammet;
         #endregion
 
 
@@ -143,15 +152,15 @@ namespace NaughtyDogDCReader
         /// </summary>
         /// <param name="dcFileName"></param>
         /// <param name="dcEntries"></param>
-        public static void PopulatePropertiesPanelWithHeaderItemContents(string dcFileName, DCModule dcEntries)
+        public static void CTPopulatePropertyList(string dcFileName, DCModule dcEntries)
         {
             if (Venat == null)
             {
-                echo($"{nameof(setupPropertyListPopulation)} Invocation attempted while {nameof(Venat)} was still null.");
+                echo($"{nameof(populatePropertyList)} Invocation attempted while {nameof(Venat)} was still null.");
                 return;
             }
 
-            Venat.Invoke(Venat.setupPropertyListPopulation, new object [] { dcEntries, dcFileName });
+            Venat.Invoke(Venat.populatePropertyList, new object [] { dcEntries, dcFileName });
         }
 
 

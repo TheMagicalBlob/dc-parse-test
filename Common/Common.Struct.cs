@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -250,7 +251,7 @@ namespace NaughtyDogDCReader
 
             // Setup Form
             echo("Finished Loading dc File, populating properties panel...");
-            PopulatePropertiesPanelWithHeaderItemContents(ActiveFileName, ActiveDCModule);
+            CTPopulatePropertyList(ActiveDCModule, ActiveFileName);
 
             SetReloadCloseButtonsEnabledStatus(true);
             CTLog("Viewing Script");
@@ -270,7 +271,7 @@ namespace NaughtyDogDCReader
         /// <param name="Address"> The address of the DC struct in the <paramref name="DCFile"/>. </param>
         /// <param name="Name"> The name (if there is any) of the DC structure entry </param>
         /// <returns> The loaded DC Structure, in object form. (or a string with basic details about the structure, if it hasn't at least been slightly-apped) </returns>
-        private static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, SID Name = null)
+        internal static object LoadMappedDCStructs(byte[] DCFile, SID Type, long Address, SID Name = null)
         {
             var name = Name ?? SID.Empty;
 

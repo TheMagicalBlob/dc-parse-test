@@ -14,20 +14,20 @@ namespace NaughtyDogDCReader
         public DebugOptionsPanel()
         {
             InitializeComponent();
-            Venat.InitializeAdditionalEventHandlersForSubform(this, CloseBtn, new SubformExitFunction((_, __) => { SaveOptions(); Visible = false; }), ref HSeparatorLines, ref VSeparatorLines); // Set Event Handlers and Other Form-Related Crap
+
+            var exitFunction = new SubformExitFunction((_, __) =>
+            {
+                SaveOptions();
+                Visible = false;
+            });
+
+            Venat.InitializeAdditionalEventHandlersForSubform(this, this.CloseBtn, exitFunction, ref this.HSeparatorLines, ref this.VSeparatorLines);
         }
 
 
-        //#
-        //## Debug Variable Declarations
-        //#
-        #region [debug variable declarations]
 
-        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        public Point[][] HSeparatorLines;
-        /// <summary> An array of Point() arrays with the start and end points of a line to draw. </summary>
-        public Point[][] VSeparatorLines;
-        #endregion
+
+
 
 
 

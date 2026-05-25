@@ -102,7 +102,7 @@ namespace NaughtyDogDCReader
             var totalHeight = 2;
             var type = Struct.GetType();
             var properties = type.GetProperties();
-            PropertyPanelEventHandler eventHandler;
+            PropertyPanelPopulationMammet eventHandler;
             
             var readonlyProperties = properties.Where(property => !property.CanWrite && property.CanRead).ToArray();
             var writableProperties = properties.Where(property => property.CanWrite && property.CanRead).ToArray();
@@ -124,7 +124,7 @@ namespace NaughtyDogDCReader
 
                     if (ObjectIsStruct(propertyValue))
                     {
-                        eventHandler = Venat.setupPropertyListPopulation;
+                        eventHandler = Venat.populatePropertyList;
                     }
                     else {
                         if (property.GetType().IsArray)
@@ -137,7 +137,7 @@ namespace NaughtyDogDCReader
                     }
 
                     // Create the applicable buttons
-                    var newRow = CreatePropertyEditorRow<PropertyPanelEventHandler>(MemberProperty:propertyValue, MemberEvent:eventHandler, MemberEventInfo:eventHandler.GetMethodInfo(), MemberName:property.Name);
+                    var newRow = CreatePropertyEditorRow<PropertyPanelPopulationMammet>(MemberProperty:propertyValue, MemberEvent:eventHandler, MemberEventInfo:eventHandler.GetMethodInfo(), MemberName:property.Name);
 
                     PropertyEditorPanel.Controls.Add(newRow);
                     newRow.Location = new Point(2, totalHeight);
@@ -160,7 +160,7 @@ namespace NaughtyDogDCReader
 
 
 
-                newRow = CreatePropertyEditorRow<HexEditorSomethingSomething>
+                newRow = CreatePropertyEditorRow<HexEditorCreatorMammet>
                 (
                     MemberProperty: null,
                     MemberEvent: Venat.editStructureInHexEditor,
@@ -208,12 +208,12 @@ namespace NaughtyDogDCReader
             foreach (var item in Array)
             {
                 string propertyName;
-                PropertyPanelEventHandler propertyEvent;
+                PropertyPanelPopulationMammet propertyEvent;
                 var itemType = item.GetType();
 
                 if (itemType.IsArray || ObjectIsStruct(item))
                 {
-                    propertyEvent = Venat.setupPropertyListPopulation;
+                    propertyEvent = Venat.populatePropertyList;
                     propertyName = itemType.IsArray ? itemType.GetElementType().Name : itemType.Name;
                 }
                 else {

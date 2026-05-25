@@ -111,45 +111,14 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// Create and subscribe to various event handlers for additional form functionality.
         /// </summary>
-        public void InitializeAdditionalEventHandlersForSubform(Form parent, Button CloseBtn, SubformExitFunction ExitFunction, ref Point[][] HSeparatorLines, ref Point[][] VSeparatorLines)
+        public void InitializeAdditionalEventHandlersForSubform(Form subform, Button CloseBtn, SubformExitFunction ExitFunction, ref Point[][] HSeparatorLines, ref Point[][] VSeparatorLines)
         {
-            var controls = parent.Controls.Cast<Control>().ToArray();
-
-            InitializeFormDecorations(parent, controls);
-
-            //var hSeparatorLineScanner = new List<Point[]>();
-            //var vSeparatorLineScanner = new List<Point[]>();
+            var controls = subform.Controls.Cast<Control>().ToArray();
 
 
-            //// Apply the seperator drawing function to any seperator lines
-            //foreach (var line in controls.OfType<NaughtyDogDCReader.Label>())
-            //{
-            //    if (line.IsSeparatorLine)
-            //    {
-            //        // Horizontal Lines
-            //        hSeparatorLineScanner.Add(new Point[2] {
-            //            new Point(line.StretchToFitForm ? 1 : line.Location.X, line.Location.Y + 7),
-            //            new Point(line.StretchToFitForm ? line.Parent.Width - 2 : line.Location.X + line.Width, line.Location.Y + 7)
-            //        });
+            InitializeFormDecorations(subform, controls);
 
-            //        parent.Controls.Remove(line);
-            //    }
-            //}
-
-            //if (hSeparatorLineScanner.Count > 0)
-            //{
-            //    HSeparatorLines = hSeparatorLineScanner.ToArray();
-            //}
-            //if (vSeparatorLineScanner.Count > 0)
-            //{
-            //    VSeparatorLines = vSeparatorLineScanner.ToArray();
-            //}
-
-
-            parent.Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
-
-
-
+            subform.Paint += (venat, yoshiP) => DrawFormDecorations((Form) venat, yoshiP);
 
 
             // Set CloseBtn event handler to provided delagate
@@ -157,7 +126,7 @@ namespace NaughtyDogDCReader
 
 
             // Set Event Handlers for Form Dragging
-            parent.MouseDown += new MouseEventHandler((sender, e) =>
+            subform.MouseDown += new MouseEventHandler((sender, e) =>
             {
                 MouseDif = new Point(MousePosition.X - Venat.Location.X, MousePosition.Y - Venat.Location.Y);
                 MouseIsDown = true;
@@ -165,10 +134,10 @@ namespace NaughtyDogDCReader
                 //Venat.DropdownMenu[1].Visible = Venat.DropdownMenu[0].Visible = false;
 
             });
-            parent.MouseUp += new MouseEventHandler((sender, e) =>
+            subform.MouseUp += new MouseEventHandler((sender, e) =>
                 MouseIsDown = false
             );
-            parent.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
+            subform.MouseMove += new MouseEventHandler((sender, e) => MoveForm());
 
 
             foreach (var item in controls)
@@ -224,7 +193,7 @@ namespace NaughtyDogDCReader
                 }
 
 #if DEBUG
-                else if (Bingus != null)
+                if (Bingus != null)
                 {
                     Bingus.Location = new Point(MousePosition.X - MouseDif.X + ((Venat.Size.Width - Bingus.Size.Width) / 2), Venat.Location.Y + 50);
                 }
@@ -232,6 +201,7 @@ namespace NaughtyDogDCReader
 
                 Venat.Update();
                 Azem?.Update();
+                Bingus?.Update();
             }
         }
 

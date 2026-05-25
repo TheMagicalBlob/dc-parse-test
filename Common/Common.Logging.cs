@@ -20,18 +20,13 @@ namespace NaughtyDogDCReader
         /// <br/> Appends an empty new line if no message is provided.
         /// </summary>
 #pragma warning disable IDE1006 // bug off, this one's lowercase
-        public static void echo(object message = null)
+        public static void echo(object Message = null)
         {
 #if DEBUG
-            string str;
+            var message = Message?.ToString() ?? string.Empty;
 
-            Console.WriteLine(str = message?.ToString() ?? emptyStr);
-            Debug.WriteLineIf(!Console.IsOutputRedirected, str);
-
-            if (!Console.IsOutputRedirected)
-            {
-                Debug.WriteLine(str);
-            }
+            Console.WriteLine(message);
+            Debug.WriteLineIf(!Console.IsOutputRedirected, message);
 #endif
         }
 
