@@ -12872,502 +12872,519 @@ public struct music_playlist_info
 
 
 
-/// <summary>
-/// Initialize a new instance of the (unmapped) music-game-parameter-array Structure
-/// </summary>
-public struct music_game_parameter_array
-{
-    public music_game_parameter_array(SID Type, long Address, SID Name)
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) music-game-parameter-array Structure
+    /// </summary>
+    public struct music_game_parameter_array
     {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) aiming-settings Structure
-/// </summary>
-public struct aiming_settings
-{
-    public aiming_settings(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) phys-fx-listen-mode-settings Structure
-/// </summary>
-public struct phys_fx_listen_mode_settings
-{
-    public phys_fx_listen_mode_settings(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) animated-camera-category-list Structure
-/// </summary>
-public struct animated_camera_category_list
-{
-    public animated_camera_category_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) dog-door-list Structure
-/// </summary>
-public struct dog_door_list
-{
-    public dog_door_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) dog-unleash-list Structure
-/// </summary>
-public struct dog_unleash_list
-{
-    public dog_unleash_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) animated-camera-settings Structure
-/// </summary>
-public struct animated_camera_settings
-{
-    public animated_camera_settings(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) particle-pools Structure
-/// </summary>
-public struct particle_pools
-{
-    public particle_pools(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) part-blood-save-location-table Structure
-/// </summary>
-public struct part_blood_save_location_table
-{
-    public part_blood_save_location_table(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) part-sampling-table Structure
-/// </summary>
-public struct part_sampling_table
-{
-    public part_sampling_table(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) interact-command-list Structure
-/// </summary>
-public struct interact_command_list
-{
-    public interact_command_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) whitelisted-particle-array Structure
-/// </summary>
-public struct whitelisted_particle_array
-{
-    public whitelisted_particle_array(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) ocean-objects-deformation Structure
-/// </summary>
-public struct ocean_objects_deformation
-{
-    public ocean_objects_deformation(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) npc-weapon-anim-set-list Structure
-/// </summary>
-public struct npc_weapon_anim_set_list
-{
-    public npc_weapon_anim_set_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) search-look-aim-cost Structure
-/// </summary>
-public struct search_look_aim_cost
-{
-    public search_look_aim_cost(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) npc-search-settings Structure
-/// </summary>
-public struct npc_search_settings
-{
-    public npc_search_settings(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) search-look-aim-mode-info-array Structure
-/// </summary>
-public struct search_look_aim_mode_info_array
-{
-    public search_look_aim_mode_info_array(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) ai-search-post-rough-criterion-def-list Structure
-/// </summary>
-public struct ai_search_post_rough_criterion_def_list
-{
-    public ai_search_post_rough_criterion_def_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) ai-heal-performance-list Structure
-/// </summary>
-public struct ai_heal_performance_list
-{
-    public ai_heal_performance_list(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) flame-joint-info-array Structure
-/// </summary>
-public struct flame_joint_info_array
-{
-    public flame_joint_info_array(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) npc-surface-multiplier-array Structure
-/// </summary>
-public struct npc_surface_multiplier_array
-{
-    public npc_surface_multiplier_array(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) oriented-particles-proto Structure
-/// </summary>
-public struct oriented_particles_proto
-{
-    public oriented_particles_proto(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-/// <summary>
-/// Initialize a new instance of the (unmapped) test-search-gestures-array Structure
-/// </summary>
-public struct test_search_gestures_array
-{
-    public test_search_gestures_array(SID Type, long Address, SID Name)
-    {
-        this.Name = Name;
-        this.Address = Address;
-        TypeID = Type;
-    }
-
-    public SID TypeID;
-
-    public SID Name;
-    public long Address;
-}
-
-
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public struct UnmappedStructure
+        public music_game_parameter_array(SID Type, long Address, SID Name)
         {
-            public UnmappedStructure(SID Type, long Address, SID Name)
-            {
-                this.Name = Name;
-                this.Address = Address;
-                TypeID = Type;
-
-                _Size = FindStructSize(Address, Name);
-            }
-
-            public SID TypeID;
-            public SID Name;
-            public long Address;
-
-            public int Size
-            {
-                get => _Size;
-
-                private set {
-                    _Size = value;
-                }
-
-            }
-
-            private int _Size;
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
         }
-        #endregion
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) aiming-settings Structure
+    /// </summary>
+    public struct aiming_settings
+    {
+        public aiming_settings(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) phys-fx-listen-mode-settings Structure
+    /// </summary>
+    public struct phys_fx_listen_mode_settings
+    {
+        public phys_fx_listen_mode_settings(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) animated-camera-category-list Structure
+    /// </summary>
+    public struct animated_camera_category_list
+    {
+        public animated_camera_category_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) dog-door-list Structure
+    /// </summary>
+    public struct dog_door_list
+    {
+        public dog_door_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) dog-unleash-list Structure
+    /// </summary>
+    public struct dog_unleash_list
+    {
+        public dog_unleash_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) animated-camera-settings Structure
+    /// </summary>
+    public struct animated_camera_settings
+    {
+        public animated_camera_settings(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) particle-pools Structure
+    /// </summary>
+    public struct particle_pools
+    {
+        public particle_pools(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) part-blood-save-location-table Structure
+    /// </summary>
+    public struct part_blood_save_location_table
+    {
+        public part_blood_save_location_table(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) part-sampling-table Structure
+    /// </summary>
+    public struct part_sampling_table
+    {
+        public part_sampling_table(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) interact-command-list Structure
+    /// </summary>
+    public struct interact_command_list
+    {
+        public interact_command_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) whitelisted-particle-array Structure
+    /// </summary>
+    public struct whitelisted_particle_array
+    {
+        public whitelisted_particle_array(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) ocean-objects-deformation Structure
+    /// </summary>
+    public struct ocean_objects_deformation
+    {
+        public ocean_objects_deformation(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) npc-weapon-anim-set-list Structure
+    /// </summary>
+    public struct npc_weapon_anim_set_list
+    {
+        public npc_weapon_anim_set_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) search-look-aim-cost Structure
+    /// </summary>
+    public struct search_look_aim_cost
+    {
+        public search_look_aim_cost(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) npc-search-settings Structure
+    /// </summary>
+    public struct npc_search_settings
+    {
+        public npc_search_settings(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) search-look-aim-mode-info-array Structure
+    /// </summary>
+    public struct search_look_aim_mode_info_array
+    {
+        public search_look_aim_mode_info_array(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) ai-search-post-rough-criterion-def-list Structure
+    /// </summary>
+    public struct ai_search_post_rough_criterion_def_list
+    {
+        public ai_search_post_rough_criterion_def_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) ai-heal-performance-list Structure
+    /// </summary>
+    public struct ai_heal_performance_list
+    {
+        public ai_heal_performance_list(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) flame-joint-info-array Structure
+    /// </summary>
+    public struct flame_joint_info_array
+    {
+        public flame_joint_info_array(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) npc-surface-multiplier-array Structure
+    /// </summary>
+    public struct npc_surface_multiplier_array
+    {
+        public npc_surface_multiplier_array(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) oriented-particles-proto Structure
+    /// </summary>
+    public struct oriented_particles_proto
+    {
+        public oriented_particles_proto(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+    /// <summary>
+    /// Initialize a new instance of the (unmapped) test-search-gestures-array Structure
+    /// </summary>
+    public struct test_search_gestures_array
+    {
+        public test_search_gestures_array(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+        }
+
+        public SID TypeID;
+
+        public SID Name;
+        public long Address;
+    }
+
+
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public struct UnmappedStructure
+    {
+        public UnmappedStructure(SID Type, long Address, SID Name)
+        {
+            this.Name = Name;
+            this.Address = Address;
+            TypeID = Type;
+
+            // Attempt to parse struct size
+            Size = FindStructSize(Address, Name, false);
+
+            var len = Size;
+
+            // Set a default size if one wasn't parsed
+            if (len < 1)
+            {
+                _echo($"Size of struct \"{Name.DecodedID}\" of type {Type.DecodedID} could not be guessed- ");
+
+                //! make sure you wrote this correctly.
+                len = DCFile.Length < Address + 0x40 ? 0x40 : DCFile.Length - (int) Address - 1; // Shouldn't need to worry about long to int conversion here, none of the scripts are that large
+                
+                echo($"Defaulted {nameof(RawData.Length)} to 0x{len:X}.");
+            }
+
+            
+
+            // Build array.
+            for (RawData = new byte[len];; RawData[len - 1] = DCFile[Address + (len-- - 1)])
+            {
+                if (Size <= 0)
+                {
+                    break;
+                }
+            }
+        }
+
+        public SID TypeID;
+        public SID Name;
+        public long Address;
+
+        public byte[] RawData;
+
+        public int Size;
+    }
+    #endregion
 }

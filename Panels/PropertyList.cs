@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static NaughtyDogDCReader.Main.DCModule;
+//using static NaughtyDogDCReader.DCModule;
 
 namespace NaughtyDogDCReader
 {
@@ -74,7 +74,7 @@ namespace NaughtyDogDCReader
         public void PopulatePropertyList(DCModule Module, string ModuleName)
         {
             //-# Variable Declarations
-            object[][] entries;
+            DCModule.DCEntry[] entries;
             PropertyButton currentButton;
             var moduleOrPropertyType = Module.GetType();
 
@@ -105,7 +105,7 @@ namespace NaughtyDogDCReader
             // 0: Struct/Property/Array Item
             // 1: Text for the button (struct/property name)
             // 2: Name of the button (struct/property type)
-            entries = (Module as DCModule).Entries).ToArray();
+            entries = Module.Entries;
 
 
             if (entries.Length < 1)
@@ -133,8 +133,7 @@ namespace NaughtyDogDCReader
             }
 
 
-
-            void handleDoubleClickOrEnterInputsOnPropertyButton(object[] entry)
+            void handleDoubleClickOrEnterInputsOnPropertyButton(DCModule.DCEntry entry)
             {
                 Log("Entry Selection Still Unhandled");
             }
@@ -147,7 +146,7 @@ namespace NaughtyDogDCReader
             //##-> Create and "style" a button for each property in the provided structure
             for (var i = 0; i < entries.Length; ++i)
             {
-                var entry = entries[i];
+                var dcEntry = entries[i];
                 currentButton = CreatePropertyListButton();
 
                 PropertySelectionPanel.Controls.Add(currentButton);
@@ -155,10 +154,10 @@ namespace NaughtyDogDCReader
 
 
                 // Apply item name as button text
-                currentButton.Text = entry[1].ToString();
+                currentButton.Text = dcEntry.Name.DecodedID;
 
                 // Apply item type id as button name
-                currentButton.Name = entry[2].ToString();
+                currentButton.Name = dcEntry.Struct.GetType().Name;
 
 
                 // Style the control
@@ -176,7 +175,7 @@ namespace NaughtyDogDCReader
                 // Save the index of the header item tied to the control via the button's TabIndex property
                 currentButton.TabIndex = i;
 
-                currentButton.DCProperty = entry[0];
+                currentButton.DCEntry = dcEntry;
 
 
 
@@ -191,7 +190,7 @@ namespace NaughtyDogDCReader
                 {
                     if (keyEvent.KeyCode == Keys.Return)
                     {
-                        handleDoubleClickOrEnterInputsOnPropertyButton(entry);
+                        handleDoubleClickOrEnterInputsOnPropertyButton(dcEntry);
                     }
                     if (keyEvent.KeyCode == Keys.Back)
                     {
@@ -199,7 +198,7 @@ namespace NaughtyDogDCReader
                     }
                 };
 
-                currentButton.DoubleClick += (_, __) => handleDoubleClickOrEnterInputsOnPropertyButton(entry);
+                currentButton.DoubleClick += (_, __) => handleDoubleClickOrEnterInputsOnPropertyButton(dcEntry);
 
             }
 
@@ -282,7 +281,7 @@ namespace NaughtyDogDCReader
 
 
 
-            // words
+            //##-> Reset the previoud button font and ensure the selected PropertyButton is on screen
             if (PropertySelection != null)
             {
                 // "Reset" the previous button
@@ -341,24 +340,27 @@ namespace NaughtyDogDCReader
 
             int itemSize;
             object itemAddress = 0;
-            var itemType = newButton.DCProperty.GetType();
-            var typeName = itemType.Name;
+            var itemType = newButton.DCEntry.Struct.GetType();
+            string typeName;
 
             // Get the current item's address / offset
             if (itemType == typeof(UnmappedStructure))
             {
-                typeName = ((UnmappedStructure) newButton.DCProperty).TypeID.DecodedID + " (unmapped)";
+                typeName = ((UnmappedStructure) newButton.DCEntry.Struct).TypeID.DecodedID + " (unmapped)";
+            }
+            else {
+                typeName = itemType.Name;
             }
 
 
-            itemAddress = itemType.GetField("Address")?.GetValue(newButton.DCProperty) ?? 0;
-            itemSize    = (int) (itemType.GetField("Size")?.GetValue(newButton.DCProperty) ?? -1);
+            itemAddress = newButton.DCEntry.StructAddress;
+            itemSize    = (int) (itemType.GetField("Size")?.GetValue(newButton.DCEntry.Struct) ?? -1);
 
 
             CTUpdateSelectionLabel(
                 $"Type: {typeName}\n" +
                 $"Address: 0x{itemAddress:X}\n" +
-                $"Size: 0x{(itemSize == -1 ? "N/A" : itemSize.ToString("X"))}"
+                $"Size: 0x{(itemSize == -1 ? "Unknown" : itemSize.ToString("X"))}"
             );
 
 
@@ -368,17 +370,7 @@ namespace NaughtyDogDCReader
 
             if (newButton != null)
             {
-                object @struct;
-
-                if (newButton.DCProperty.GetType() == typeof(DCEntry))
-                {
-                    @struct = ((DCEntry) newButton.DCProperty).Struct;
-                }
-                else {
-                    @struct = newButton.DCProperty;
-                }
-
-                LoadStructIntoPropertyEditor(@struct);
+                PopulatePropertyEditor(newButton.DCEntry.Struct);
             }
 
             PropertySelection.Font = new Font(PropertySelection.Font.FontFamily, PropertySelection.Font.Size, PropertySelection.Font.Style | FontStyle.Underline);

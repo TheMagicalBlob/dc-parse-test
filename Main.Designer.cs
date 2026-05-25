@@ -267,7 +267,7 @@ namespace NaughtyDogDCReader
             this.propertyForwardBtn.TabIndex = 55;
             this.propertyForwardBtn.Text = ">";
             this.propertyForwardBtn.UseVisualStyleBackColor = false;
-            this.propertyForwardBtn.Click += new System.EventHandler(this.DeleteMe2);
+            this.propertyForwardBtn.Click += new System.EventHandler(this.ReworkMe2);
             // 
             // propertyBackBtn
             // 
@@ -283,7 +283,7 @@ namespace NaughtyDogDCReader
             this.propertyBackBtn.Text = "<";
             this.propertyBackBtn.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.propertyBackBtn.UseVisualStyleBackColor = false;
-            this.propertyBackBtn.Click += new System.EventHandler(this.DeleteMe1);
+            this.propertyBackBtn.Click += new System.EventHandler(this.ReworkMe1);
             // 
             // BackAndLoadButtonsLabel
             // 

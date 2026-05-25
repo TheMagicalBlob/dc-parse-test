@@ -138,7 +138,7 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// The property associated with the current PropertyWindow button;
         /// </summary>
-        public DCModule.DCEntry DCProperty
+        public DCModule.DCEntry DCEntry
         {
             get => _dcProperty;
 

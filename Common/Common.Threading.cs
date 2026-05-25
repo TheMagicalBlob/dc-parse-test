@@ -150,9 +150,9 @@ namespace NaughtyDogDCReader
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dcFileName"></param>
-        /// <param name="dcEntries"></param>
-        public static void CTPopulatePropertyList(string dcFileName, DCModule dcEntries)
+        /// <param name="ModuleName"></param>
+        /// <param name="Module"></param>
+        public static void CTPopulatePropertyList(DCModule Module, string ModuleName)
         {
             if (Venat == null)
             {
@@ -160,7 +160,7 @@ namespace NaughtyDogDCReader
                 return;
             }
 
-            Venat.Invoke(Venat.populatePropertyList, new object [] { dcEntries, dcFileName });
+            Venat.Invoke(Venat.populatePropertyList, Module, ModuleName);
         }
 
 

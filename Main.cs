@@ -453,11 +453,31 @@ namespace NaughtyDogDCReader
 
 
 
-        private void DeleteMe1(object sender, EventArgs e) {  }
+        private void ReworkMe1(object sender, EventArgs e) {  }
 
 
 
-        private void DeleteMe2(object sender, EventArgs e) { }
+        private void ReworkMe2(object sender, EventArgs e) { }
+
+
+
+        private void LogWindowClicked(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                //! Temp Code
+                if (MessageBox.Show("Clear Log Window?", "Temp Clear Menu", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    if (LogWindow.Text.Length < 2)
+                    {
+                        LogWindow.ClearUndo();
+                    }
+                    else {
+                        LogWindow.Clear();
+                    }
+                }
+            }
+        }
         #endregion
 
 

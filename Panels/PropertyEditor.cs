@@ -47,62 +47,28 @@ namespace NaughtyDogDCReader
         #region [PropertyEditor-Related Function Declarations]
 
         /// <summary>
-        /// Populate either the PropertyEditor or PropertiesWindow with information about the highlighted PropertyButton's 
-        /// </summary>
-        /// <param name="property"></param>
-        private void LoadStructIntoPropertyEditor(object property)
-        {
-            if (property == null)
-            {
-                echo("Null property.");
-                return;
-            }
-
-            var type = property.GetType();
-
-
-
-            //##-> Display all the structure's properties in the PropertyEditor window
-            if (ObjectIsStruct(property))
-            {
-                PopulateEditorWithStructProperties(property);
-            }
-
-            //##-> Display all the elements of an array as 
-            else if (type.IsArray)
-            {
-                PopulateEditorWithArrayItems(property as Array);
-            }
-
-            //##-> Object is some Numerical Value, hopefully
-            else {
-                if (!BasicNumericalTypes.Contains(type) && !AdvancedNumericalTypes.Contains(type))
-                {
-                    throw new NotImplementedException($"An unhandled type of \"{type.Name}\" was provided for {nameof(PropertyEditorPanel)} population.");
-                }
-
-
-                PopulateEditorWithSingleNumericalValue(property);
-            }
-        }
-
-
-
-
-
-
-        /// <summary>
         /// Create and add a Property Editor row for each of the provided <paramref name="Struct"/>'s properties.<br/>Defaults to showing basic info if the struct is either unknown or contains no properties
         /// </summary>
         /// <param name="Struct"></param>
         /// <exception cref="Exception"></exception>
-        private void PopulateEditorWithStructProperties(object Struct)
+        private void PopulatePropertyEditor(object Struct)
         {
+            if (Struct == null)
+            {
+                echo("Null struct? How");
+                return;
+            }
+
+            if (!ObjectIsStruct(Struct))
+            {
+                throw new InvalidOperationException("Attempt to populate the property editor with non-structure object");
+            }
+
             // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
             var totalHeight = 2;
             var type = Struct.GetType();
             var properties = type.GetProperties();
-            PropertyPanelPopulationMammet eventHandler;
+            PropertyEditorPopulationMammet eventHandler;
             
             var readonlyProperties = properties.Where(property => !property.CanWrite && property.CanRead).ToArray();
             var writableProperties = properties.Where(property => property.CanWrite && property.CanRead).ToArray();
@@ -122,22 +88,16 @@ namespace NaughtyDogDCReader
                 {
                     var propertyValue = property.GetValue(Struct);
 
-                    if (ObjectIsStruct(propertyValue))
+                    if (property.GetType().IsArray)
                     {
-                        eventHandler = Venat.populatePropertyList;
+                        eventHandler = null;
                     }
                     else {
-                        if (property.GetType().IsArray)
-                        {
-                            eventHandler = null;
-                        }
-                        else {
-                            eventHandler = Venat.spawnVariableEditorBox;
-                        }
+                        eventHandler = spawnVariableEditorBox;
                     }
 
                     // Create the applicable buttons
-                    var newRow = CreatePropertyEditorRow<PropertyPanelPopulationMammet>(MemberProperty:propertyValue, MemberEvent:eventHandler, MemberEventInfo:eventHandler.GetMethodInfo(), MemberName:property.Name);
+                    var newRow = CreatePropertyEditorRow<PropertyEditorPopulationMammet>(MemberProperty:propertyValue, MemberEvent:eventHandler, MemberEventInfo:eventHandler.GetMethodInfo(), MemberName:property.Name);
 
                     PropertyEditorPanel.Controls.Add(newRow);
                     newRow.Location = new Point(2, totalHeight);
@@ -148,7 +108,7 @@ namespace NaughtyDogDCReader
             else {
                 // Create the default buttons for unmapped or empty structures
                 var structType = Struct.GetType();
-                PropertyButton newRow;
+                Button newRow;
 
                 // Get from expected UnmappedStructure struct
                 if (structType == typeof(UnmappedStructure))
@@ -163,8 +123,8 @@ namespace NaughtyDogDCReader
                 newRow = CreatePropertyEditorRow<HexEditorCreatorMammet>
                 (
                     MemberProperty: null,
-                    MemberEvent: Venat.editStructureInHexEditor,
-                    MemberEventInfo: Venat.editStructureInHexEditor.GetMethodInfo(),
+                    MemberEvent: editStructureInHexEditor,
+                    MemberEventInfo: editStructureInHexEditor.GetMethodInfo(),
                     MemberName: "Structure contains no properties; use the hex editor or fuck off."
                 );
 
@@ -181,86 +141,6 @@ namespace NaughtyDogDCReader
 
 
 
-
-
-        /// <summary>
-        /// //!
-        /// </summary>
-        /// <param name="Array"></param>
-        /// <exception cref="Exception"></exception>
-        private void PopulateEditorWithArrayItems(Array Array)
-        {
-            // Start with 2 to both account for the GroupBox control's stupid title section at the top, and give the controls a tiny bit of padding
-            var totalHeight = 2;
-
-            var type = Array.GetType();
-
-            PropertyEditorPanel.Controls.Clear();
-
-            if (!type.IsArray)
-            {
-                throw new Exception($"ERROR: Object of type \"{type.Name}\" is not an array.");
-            }
-
-
-
-
-            foreach (var item in Array)
-            {
-                string propertyName;
-                PropertyPanelPopulationMammet propertyEvent;
-                var itemType = item.GetType();
-
-                if (itemType.IsArray || ObjectIsStruct(item))
-                {
-                    propertyEvent = Venat.populatePropertyList;
-                    propertyName = itemType.IsArray ? itemType.GetElementType().Name : itemType.Name;
-                }
-                else {
-                    propertyEvent = Venat.spawnVariableEditorBox;
-                    propertyName = itemType.Name;
-                }
-
-
-
-                // Create the applicable buttons
-                var newRow = CreatePropertyEditorRow(item, propertyEvent, propertyEvent.GetMethodInfo(), propertyName);
-
-                PropertyEditorPanel.Controls.Add(newRow);
-
-                newRow.Location = new Point(2, totalHeight);
-
-                totalHeight += newRow.Height;
-            }
-
-
-            CreateScrollBarForGroupBox(PropertyEditorPanel, ref PropertyEditorScrollBar, PropertyEditorPanel.Controls.Count);
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// //!
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="name"></param>
-        private void PopulateEditorWithSingleNumericalValue(object value, string name = null)
-        {
-            var row = CreatePropertyEditorRow(value, Venat.spawnVariableEditorBox, Venat.spawnVariableEditorBox.GetMethodInfo(), name ?? value.GetType().Name);
-
-            PropertyEditorPanel.Controls.Add(row);
-
-            row.Location = new Point(2, 2);
-        }
-
-
-
-
-
-
         /// <summary>
         /// //!
         /// </summary>
@@ -268,9 +148,9 @@ namespace NaughtyDogDCReader
         /// <param name="MemberProperty"></param>
         /// <param name="MemberEvent"></param>
         /// <returns> A new row for the property editor, containing the value of said property. </returns>
-        private PropertyButton CreatePropertyEditorRow<T>(object MemberProperty, T MemberEvent, MethodInfo MemberEventInfo, string MemberName = null)
+        private Button CreatePropertyEditorRow<T>(object MemberProperty, T MemberEvent, MethodInfo MemberEventInfo, string MemberName = null)
         {
-            PropertyButton newRow;
+            Button newRow;
 
             var text = FormatPropertyValueAsString(MemberProperty);
 
@@ -279,7 +159,7 @@ namespace NaughtyDogDCReader
                 text = $"{MemberName}: " + text;
             }
 
-            newRow = new PropertyButton()
+            newRow = new Button()
             {
                 Font = TextFont,
                 BackColor = AppColourLight,
@@ -293,7 +173,7 @@ namespace NaughtyDogDCReader
 
                 Text = text,
 
-                DCProperty = MemberProperty
+                Tag = MemberProperty
             };
 
             // Assign basic form functionality event handlers
@@ -548,7 +428,7 @@ namespace NaughtyDogDCReader
         {
             if (memberName == null)
             {
-                memberName = ((PropertyButton) propertyEditorRow).DCProperty.GetType().Name;
+                memberName = ((PropertyButton) propertyEditorRow).DCEntry.Type.DecodedID;
             }
 
 
@@ -561,7 +441,7 @@ namespace NaughtyDogDCReader
                 Size = parent.Size,
                 TextAlign = HorizontalAlignment.Center,
                 Name = "TemporaryVariableEditorBox for " + memberName,
-                Text = FormatPropertyValueAsString(parent.DCProperty)
+                Text = FormatPropertyValueAsString(parent.DCEntry.Struct)
             };
 
             parent.Controls.Add(editor);

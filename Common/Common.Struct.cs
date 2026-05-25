@@ -284,7 +284,7 @@ namespace NaughtyDogDCReader
 
                 case KnownSIDs.weapon_gameplay_def: return new weapon_gameplay_def(DCFile, Address, name);
 
-                //case KnownSIDs.melee_weapon_gameplay_def: return new MeleeWeaponGameplayDef(DCFile, Address, name);
+                //case KnownSIDs.melee_weapon_gameplay_def: return new melee_weapon_gameplay_def(DCFile, Address, name);
 
                 case KnownSIDs.symbol_array: return new symbol_array(DCFile, Address, name);
 
@@ -333,8 +333,7 @@ namespace NaughtyDogDCReader
             }
 
 
-
-            // Build return string.
+            // Build array.
             for (var ret = new byte[length];; ret[length - 1] = array[Address + (length-- - 1)])
             {
                 if (length <= 0)
@@ -629,7 +628,7 @@ namespace NaughtyDogDCReader
 
 
 
-        public static int FindStructSize(long Address, SID Name)
+        public static int FindStructSize(long Address, SID Name, bool IsDCEntry)
         {
             // Attempt to find struct length
             //! TEMP - Replace/Optimize Me!!!
@@ -640,6 +639,7 @@ namespace NaughtyDogDCReader
                     // Struct has already had it's size parsed
                     if (entry[0] == Name)
                     {
+                        echo($"Found size for struct \"{Name.DecodedID}\" in ParsedSizes.");
                         return (int) entry[1];
                     }
                 }
@@ -647,79 +647,85 @@ namespace NaughtyDogDCReader
 
 
 
-
-            var i = Address + 8;
-            long firstFind = -1, secondFind = -1;
-            var reverseSearchDirection = false;
-
-            echo($"# Attempting to find size of struct \"{Name.DecodedID}\"" +
-                 $"# starting @0x{Address:X}");
-
-            for (var x = 0;; x++)
+            if (IsDCEntry)
             {
-                // Note: We assume the structure is at least 8 bytes in length, not including the preceeding type id located 8 bytes before the struct data
-                // We also assume the structures are even layed out near eachother. I have no idea whether or not that's consistently the case, or just occasionally
-                if (x >= DCFile.Length)
+                return -1;
+            }
+            else {
+                var i = Address + 8;
+                long firstFind = -1, secondFind = -1;
+                var reverseSearchDirection = false;
+
+                echo($"# Attempting to find size of struct \"{Name.DecodedID}\"" +
+                     $"# starting @0x{Address:X}");
+
+                for (var x = 0; ; x++)
                 {
-                    throw new Exception($" -> !!! Infinite loop detected when attempting to parse dc file for size of struct \"{Name.DecodedID}\".");
-                }
-
-
-
-
-                if (BitConverter.ToUInt64(GetSubArray(DCFile, i), 0) == (ulong) Name.RawID)
-                {
-                    if (firstFind == -1)
+                    // Note: We assume the structure is at least 8 bytes in length, not including the preceeding type id located 8 bytes before the struct data
+                    // We also assume the structures are even layed out near eachother. I have no idea whether or not that's consistently the case, or just occasionally
+                    if (x >= DCFile.Length)
                     {
-                        echo($" -> Found another instance of struct id \"{Name.EncodedID}\"");
-                        firstFind = i + 8;
+                        throw new Exception($" -> !!! Infinite loop detected when attempting to parse dc file for size of struct \"{Name.DecodedID}\".");
                     }
-                    else {
-                        secondFind = i + 8;
+
+
+
+
+                    if (BitConverter.ToUInt64(GetSubArray(DCFile, i), 0) == (ulong) Name.RawID)
+                    {
+                        if (firstFind == -1)
+                        {
+                            echo($" -> Found another instance of struct id \"{Name.EncodedID}\"");
+                            firstFind = i + 8;
+                        }
+                        else
+                        {
+                            secondFind = i + 8;
+                            break;
+                        }
+                    }
+
+
+
+                    if (i + 0x10 >= DCFile.Length)
+
+                    {
+                        echo($" -> End-of-file reached; reversing search direction. ({i} >= {DCFile.Length})");
+                        reverseSearchDirection = true;
+                        i = Address - 0x10;
+                        continue;
+                    }
+
+                    i += reverseSearchDirection ? -8 : 8;
+
+                    if (i <= DCModuleStartAddress)
+                    {
+                        echo($" -> Minimum offset reached. ({i:X} <= {DCModuleStartAddress:X})"); // I just realized that's probably the only cause for that as I type this
                         break;
                     }
                 }
 
 
 
-                if (i + 0x10 >= DCFile.Length)
-                    
+                if (firstFind != -1 && secondFind != -1)
                 {
-                    echo($" -> End-of-file reached; reversing search direction. ({i} >= {DCFile.Length})");
-                    reverseSearchDirection = true;
-                    i = Address - 0x10;
-                    continue;
+                    // Ensure we've got a consistent result, and return it if we do
+                    if (firstFind - Address == (reverseSearchDirection ? Address - secondFind : secondFind - firstFind))
+                    {
+                        var newSize = (int) (firstFind - Address);
+                        echo($"# Guessed size of {newSize:X} for {Name.DecodedID}\n");
+
+                        ParsedSizes.Add(new object[] { Name, newSize });
+                        return newSize;
+                    }
+
+                    echo($"# Offsets were different, couldn't guess size. {firstFind - Address:X} != {secondFind - firstFind:X} / {Address - secondFind:X}\n");
+                    return -1;
                 }
 
-                i += reverseSearchDirection ? -8 : 8;
-
-                if (i <= DCModuleStartAddress)
-                {
-                    echo($" -> Minimum offset reached. ({i:X} <= {DCModuleStartAddress:X})"); // I just realized that's probably the only cause for that as I type this
-                    break;
-                }
-            }
-
-
-            
-            if (firstFind != -1 && secondFind != -1)
-            {
-                // Ensure we've got a consistent result, and return it if we do
-                if (firstFind - Address == (reverseSearchDirection ? Address - secondFind : secondFind - firstFind))
-                {
-                    var newSize = (int) (firstFind - Address);
-                    echo($"# Guessed size of {newSize:X} for {Name.DecodedID}\n");
-                    
-                    ParsedSizes.Add(new object[] { Name, newSize });
-                    return newSize;
-                }
-
-                echo($"# Offsets were different, couldn't guess size. {firstFind - Address:X} != {secondFind - firstFind:X} / {Address - secondFind:X}\n");
+                echo($"# Unable to guess struct size for {Name.DecodedID}\n");
                 return -1;
             }
-
-            echo($"# Unable to guess struct size for {Name.DecodedID}\n");
-            return -1;
         }
 #endregion
 #endregion (function declarations)
